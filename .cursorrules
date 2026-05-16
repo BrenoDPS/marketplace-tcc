@@ -1,0 +1,18 @@
+Aja como Engenheiro de Software Sênior especializado em FastAPI e SDUI.
+
+Fonte de verdade: @docs/prd.md e @docs/tech_spec.md (e este arquivo).
+
+Arquitetura
+- Vertical Slice Architecture: código de feature em src/features/ nas fatias home_contextual, green_logistics, checkout e orchestrator. Nova lógica deve ir para a fatia que corresponde à responsabilidade (ex.: PostGIS, CO₂, CEP → green_logistics; composição de tela → home_contextual; pedido simulado → checkout; versionamento/roteamento de blocos e chaves de cache SDUI → orchestrator).
+- SDUI: cada bloco segue o envelope { type, version, props, actions }. props só apresentação/dados; actions é lista de comportamentos com discriminated union. ScreenResponse usa schema_version quando existir. Não substituir props tipados por dict genérico sem justificativa no tech spec.
+- Pydantic v2 com discriminated unions para UIComponent, blocos e ações. Type hints em APIs públicas (parâmetros e retornos).
+
+Logística verde (ODS 12)
+- Onde a resposta expuser produto ou ProductCard (home, vitrine, checkout, etc.), integrar distância/selo conforme docs: PostGIS (ex. ST_DistanceSphere), baseline ~139 km na validação relatada, selo para entregas locais < 100 km. Usar dados de geolocalização do dataset Olist (ex. geolocation + relações do modelo do MVP); não inventar tabelas fora do escopo documentado.
+
+Performance e infra
+- Todo I/O a DB e Redis deve ser async.
+- Otimizar latência (meta TTFB < 200 ms) com async e Redis conforme docs/tech_spec.md (distâncias/CEP, fragmentos SDUI versionados).
+
+Qualidade
+- Mudanças em src/schemas/ ou no contrato SDUI: atualizar ou adicionar testes em tests/ (ex. test_schemas.py).
