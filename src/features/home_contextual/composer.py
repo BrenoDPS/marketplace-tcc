@@ -1,9 +1,19 @@
-"""Composicao da Home contextual (Fase 1 - mock).
+"""Composicao da Home contextual (Sprint 2 - dados reais Olist + selo verde).
 
-Os `SustainabilityProps` aqui sao mockados — a logica real (PostGIS, distancia
-CEP, calculo de CO2) entra na fatia `green_logistics` na Fase 2.
+Heros sao estaticos por contexto. Os ProductCards vem do Postgres (amostra
+ETL) e o `badge` e injetado pela fatia `green_logistics` (Haversine sobre
+centroides de CEP). Sem mocks de product_id.
 """
 
+from __future__ import annotations
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.features.green_logistics.service import build_badge_for_pair
+from src.features.home_contextual.repository import (
+    category_for_context,
+    fetch_products_for_home,
+)
 from src.schemas.sdui import (
     HeroBannerBlock,
     HeroBannerProps,
@@ -14,102 +24,84 @@ from src.schemas.sdui import (
     ProductCardBlock,
     ProductCardProps,
     ScreenResponse,
-    SustainabilityProps,
     UIComponent,
 )
 
-# TODO[green_logistics]: substituir por calculo real de distancia/CO2 na Fase 2.
-_MOCK_GREEN_BADGE = SustainabilityProps(
-    label="Entrega Local",
-    impact_level="green",
-    icon="leaf",
-)
-
-_ELECTRONICS_COMPONENTS: list[UIComponent] = [
-    HeroBannerBlock(
+_HEROS: dict[str, HeroBannerBlock] = {
+    "electronics_expert": HeroBannerBlock(
         props=HeroBannerProps(
             title="Tech Deals",
             subtitle="Eletronicos com entrega rapida",
             image_url="https://placeholders.dev/800x400?text=Tech+Deals",
         ),
-        actions=[
-            NavigateAction(payload=NavigatePayload(path="/categories/electronics")),
-        ],
+        actions=[NavigateAction(payload=NavigatePayload(path="/categories/electronics"))],
     ),
-    ProductCardBlock(
-        props=ProductCardProps(
-            product_id="prod_001",
-            price=199.90,
-            title="Fone Bluetooth",
-            image_url="https://placeholders.dev/300x300?text=Fone",
-            badge=_MOCK_GREEN_BADGE,
-        ),
-        actions=[
-            OpenModalAction(payload=OpenModalPayload(modal_id="product_detail")),
-        ],
-    ),
-    ProductCardBlock(
-        props=ProductCardProps(
-            product_id="prod_002",
-            price=89.50,
-            title="Cabo USB-C",
-            image_url="https://placeholders.dev/300x300?text=Cabo",
-            badge=_MOCK_GREEN_BADGE,
-        ),
-    ),
-]
-
-_BEAUTY_COMPONENTS: list[UIComponent] = [
-    HeroBannerBlock(
+    "beauty_lover": HeroBannerBlock(
         props=HeroBannerProps(
             title="Semana da Beleza",
             subtitle="Ate 40% OFF em skincare",
             image_url="https://placeholders.dev/800x400?text=Beauty+Sale",
         ),
-        actions=[
-            NavigateAction(payload=NavigatePayload(path="/categories/beauty")),
-        ],
+        actions=[NavigateAction(payload=NavigatePayload(path="/categories/beauty"))],
     ),
-    ProductCardBlock(
-        props=ProductCardProps(
-            product_id="prod_100",
-            price=49.90,
-            title="Hidratante Facial",
-            image_url="https://placeholders.dev/300x300?text=Skincare",
-            badge=_MOCK_GREEN_BADGE,
-        ),
-    ),
-]
-
-_DEFAULT_COMPONENTS: list[UIComponent] = [
-    HeroBannerBlock(
-        props=HeroBannerProps(
-            title="Olist Marketplace",
-            subtitle="Compre de pequenos vendedores brasileiros",
-            image_url="https://placeholders.dev/800x400?text=Olist",
-        ),
-        actions=[
-            NavigateAction(payload=NavigatePayload(path="/explore")),
-        ],
-    ),
-    ProductCardBlock(
-        props=ProductCardProps(
-            product_id="prod_050",
-            price=29.99,
-            title="Produto em Destaque",
-            badge=_MOCK_GREEN_BADGE,
-        ),
-    ),
-]
-
-_CONTEXT_MAP: dict[str, list[UIComponent]] = {
-    "electronics_expert": _ELECTRONICS_COMPONENTS,
-    "beauty_lover": _BEAUTY_COMPONENTS,
 }
 
+_DEFAULT_HERO = HeroBannerBlock(
+    props=HeroBannerProps(
+        title="Olist Marketplace",
+        subtitle="Compre de pequenos vendedores brasileiros",
+        image_url="https://placeholders.dev/800x400?text=Olist",
+    ),
+    actions=[NavigateAction(payload=NavigatePayload(path="/explore"))],
+)
 
-async def compose_home(context: str) -> ScreenResponse:
-    components = _CONTEXT_MAP.get(context, _DEFAULT_COMPONENTS)
+
+def _hero_for(context: str) -> HeroBannerBlock:
+    return _HEROS.get(context, _DEFAULT_HERO)
+
+
+def _title_for(product_id: str, category: str | None) -> str:
+    if category:
+        return category.replace("_", " ").title()
+    return product_id
+
+
+async def compose_home(
+    session: AsyncSession,
+    context: str,
+    customer_zip_prefix: str,
+) -> ScreenResponse:
+    products = await fetch_products_for_home(
+        session, category=category_for_context(context), limit=6
+    )
+
+    components: list[UIComponent] = [_hero_for(context)]
+    for product in products:
+        _, badge = await build_badge_for_pair(
+            session,
+            customer_zip_prefix=customer_zip_prefix,
+            seller_zip_prefix=product.seller_zip_prefix,
+        )
+        components.append(
+            ProductCardBlock(
+                props=ProductCardProps(
+                    product_id=product.product_id,
+                    price=product.price,
+                    title=_title_for(product.product_id, product.category),
+                    image_url=None,
+                    badge=badge,
+                ),
+                actions=[
+                    OpenModalAction(
+                        payload=OpenModalPayload(
+                            modal_id="product_detail",
+                            title=None,
+                        )
+                    ),
+                ],
+            )
+        )
+
     return ScreenResponse(
         screen_id="home",
         context=context,
