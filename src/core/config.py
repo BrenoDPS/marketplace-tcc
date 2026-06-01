@@ -10,7 +10,7 @@ class Settings(BaseSettings):
 
     APP_ENV: str = "development"
     DEBUG: bool = True
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/olist"
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5433/olist"
     REDIS_URL: str = "redis://localhost:6379/0"
 
 
