@@ -115,11 +115,11 @@ class ScreenResponse(BaseModel):
 
 3. Logística Verde e Validação
 
-- **PostGIS:** distância geodésica em km com `ST_DistanceSphere` (pontos derivados do Olist / CEP conforme o MVP).
+- **Distância (MVP):** **Haversine** em Python sobre **centroides por prefixo de CEP** (mediana de `lat`/`lng` por `geolocation_zip_code_prefix` derivada no ETL Olist).
 - **SFD:** “menor distância factível” = geodésica do modelo (sem roteamento rodoviário completo no MVP).
-- **Emissão:** \(E = d \cdot w \cdot EF\) com \(d\) km, \(w\) em toneladas, \(EF = 0{,}062\) kg CO₂/(t·km).
-- **Baseline acadêmico:** reportar economia vs cenário usando **média ~139 km** do dataset (detalhar fórmula na monografia).
+- **Emissão:** \(E = d \cdot w \cdot EF\) com \(d\) km, \(w\) em toneladas, \(EF = 0,102\) kg CO₂/(t·km) (GHG Protocol).
 - **Selo na UI:** distância **\< 100 km** ⇒ elegível a selo (PRD); lógica na fatia **`green_logistics`**, dados no SDUI (`SustainabilityProps` / `ProductCard`).
+- **Evolução futura (opcional):** migração para PostGIS (`ST_DistanceSphere`) quando custos de query justificarem indexação espacial.
 
 4. Performance, Cache e Hidratação
 
@@ -130,5 +130,5 @@ class ScreenResponse(BaseModel):
 5. Stack de Referência
 
 - **Python 3.12+, FastAPI (async), Pydantic v2**, servidor ASGI (ex. Uvicorn).
-- **PostgreSQL + PostGIS**, **Redis**.
+- **PostgreSQL** (PostGIS = evolução futura opcional), **Redis** (cache em fase futura).
 - **Front (referência):** renderiza por `type`, lê `props`, executa `actions`, hidrata em fases se o backend entregar em etapas.

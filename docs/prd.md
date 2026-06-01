@@ -11,8 +11,6 @@ SDUI: Orquestrar componentes de UI pelo backend para evitar deploys no front-end
 
 Logística Verde: Identificar e priorizar entregas locais para redução da pegada de carbono.
 
-Validação: Comparar a distância da entrega atual com a média histórica do dataset Olist (~139km) para estimar a mitigação de CO2.
-
 3. Personas e Cenários
 Consumidor Consciente: Busca reduzir sua pegada de carbono. A UI deve destacar produtos de vendedores geograficamente próximos.
 

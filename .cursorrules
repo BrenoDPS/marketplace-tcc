@@ -8,7 +8,7 @@ Arquitetura
 - Pydantic v2 com discriminated unions para UIComponent, blocos e ações. Type hints em APIs públicas (parâmetros e retornos).
 
 Logística verde (ODS 12)
-- Onde a resposta expuser produto ou ProductCard (home, vitrine, checkout, etc.), integrar distância/selo conforme docs: PostGIS (ex. ST_DistanceSphere), baseline ~139 km na validação relatada, selo para entregas locais < 100 km. Usar dados de geolocalização do dataset Olist (ex. geolocation + relações do modelo do MVP); não inventar tabelas fora do escopo documentado.
+- Onde a resposta expuser produto ou ProductCard (home, vitrine, checkout, etc.), integrar distância/selo conforme docs: Haversine em Python sobre centroides por prefixo de CEP (mediana de lat/lng por geolocation_zip_code_prefix), selo para entregas locais < 100 km, EF = 0,102 kg CO2/(t.km) centralizado em src/features/green_logistics/co2.py. Usar dados de geolocalização do dataset Olist (ex. geolocation + relações do modelo do MVP); não inventar tabelas fora do escopo documentado. PostGIS fica como evolução futura opcional.
 
 Performance e infra
 - Todo I/O a DB e Redis deve ser async.

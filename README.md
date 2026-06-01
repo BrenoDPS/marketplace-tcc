@@ -10,13 +10,42 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-## Executar
+> `pandas` e `psycopg` sao usados **somente** pelo script ETL offline; o runtime da API permanece async (SQLAlchemy + asyncpg).
+
+## Fluxo completo (Sprint 2)
+
+Sequencia recomendada para subir do zero:
 
 ```bash
+# 1. Subir o Postgres (porta 5433 externa para nao colidir com Postgres nativo do Windows)
+docker compose up -d
+
+# 2. Carregar amostra (~1000 order_items, seed=42). Os CSVs do Olist
+#    devem estar em data/raw/ (nao versionados).
+python -m scripts.etl_load_sample
+
+# 3. Subir a API
 uvicorn src.main:app --reload
 ```
 
-Acesse a documentação interativa em **http://localhost:8000/docs**.
+Acesse a documentacao interativa em **http://localhost:8000/docs**.
+
+## Demo
+
+Apos o ETL, o script imprime no console um par `(customer_zip_prefix, seller_zip_prefix)` com distancia < 100 km, util para testar o selo de Logistica Verde.
+
+Par de demo conhecido (amostra padrao, `seed=42`): `customer_zip_prefix=05311` (Sao Paulo, SP), seller correspondente em `08275` — distancia Haversine ~27 km, **badge presente**.
+
+```bash
+# Badge presente em pelo menos um ProductCard (vendedor proximo)
+curl "http://localhost:8000/api/v1/home?customer_zip_prefix=05311&context=electronics_expert"
+
+# Badge null em todos os cards (cliente em Fortaleza/CE, sellers da amostra em SP/SE)
+curl "http://localhost:8000/api/v1/home?customer_zip_prefix=60165&context=default"
+
+# 422 quando o prefixo nao existe na amostra
+curl -i "http://localhost:8000/api/v1/home?customer_zip_prefix=00000"
+```
 
 ## Testes
 
@@ -24,35 +53,38 @@ Acesse a documentação interativa em **http://localhost:8000/docs**.
 pytest
 ```
 
+Os testes nao dependem de Postgres rodando (uso de `app.dependency_overrides` + monkeypatch nos repositorios). Para validacao end-to-end use o fluxo de cima.
+
 ## Arquitetura (Vertical Slice)
 
 ```
 src/
   schemas/sdui.py            # Contrato SDUI (envelope + UIAction + ScreenResponse)
+  core/
+    config.py                # Pydantic settings
+    database.py              # AsyncEngine + AsyncSession
+    models.py                # Modelos SQLAlchemy 2.0 (Olist + cep_centroids)
+    redis.py                 # Stub do client async (sem uso runtime nesta sprint)
   features/
-    home_contextual/         # Composicao de tela por contexto (ATIVA na Fase 1)
-    green_logistics/         # Stub - PostGIS, distancia, CO2 (Fase 2)
-    checkout/                # Stub - pedido simulado (Fase 2)
-    orchestrator/            # Stub - versionamento e cache SDUI (Fase 2)
+    home_contextual/         # Composicao de tela: hero por contexto + produtos reais
+    green_logistics/         # Haversine + centroides CEP + CO2 (FE 0,102) + selo < 100 km
+    checkout/                # Stub (sprint futura)
+    orchestrator/            # Stub (sprint futura)
+scripts/
+  etl_load_sample.py         # ETL offline: 1000 order_items + cep_centroids
+docker-compose.yml           # Postgres 16 (sem PostGIS nesta sprint)
 ```
 
-## Roadmap / Fase 2
+## Logistica Verde (Sprint 2)
 
-A Fase 1 entrega o contrato SDUI base (`{ type, version, props, actions }` + `schema_version`)
-e a tela `home_contextual` com mocks. Itens explicitamente fora de escopo nesta fase:
+- **Distancia:** Haversine puro em Python sobre centroides por prefixo de CEP (mediana de lat/lng por `geolocation_zip_code_prefix`).
+- **Selo:** `SustainabilityProps` injetado no `ProductCard` apenas quando `distance_km < 100`. Caso contrario `badge: null`.
+- **CO2:** `EMISSION_FACTOR = 0,102` kg CO2/(t.km) (GHG Protocol). Implementado em `green_logistics/co2.py` mesmo que o selo nesta sprint use somente distancia.
 
-- **green_logistics**: integracao real PostGIS (`ST_DistanceSphere`), calculo
-  de CO2 com EF=0.062 kg CO2/(t.km), selo automatico para entregas < 100 km e
-  baseline ~139 km do dataset Olist (`docs/tech_spec.md` secao 3).
-- **checkout**: persistencia de pedidos/sessoes e validacao de frete (`docs/prd.md` secao 4).
-- **orchestrator**: versionamento de blocos por `version`, roteamento dinamico e
-  chaves de cache SDUI no Redis alinhadas a `schema_version` da tela e `version`
-  por bloco (`docs/tech_spec.md` secoes 1 e 4).
-- **Ingestao Olist**: carga das tabelas `orders`, `products`, `customers`, `geolocation`.
-- **Wiring real das `actions`**: hoje as `actions` sao geradas mock no composer; Fase 2
-  conecta com endpoints reais (ex.: `api_call` para `/api/v1/checkout`).
-- **Cache Redis**: o cliente existe mas ainda nao e usado para fragmentos SDUI.
+## Roadmap (proximas sprints)
 
-Os `SustainabilityProps` no `home_contextual/composer.py` sao mockados com
-`_MOCK_GREEN_BADGE` e marcados com `TODO[green_logistics]` para serem
-substituidos pela logica real da fatia `green_logistics` na Fase 2.
+- **green_logistics:** evolucao opcional para PostGIS (`ST_DistanceSphere`) com indexacao espacial.
+- **checkout:** persistencia de pedidos/sessoes e validacao de frete (`docs/prd.md` secao 4).
+- **orchestrator:** versionamento de blocos por `version`, roteamento dinamico e chaves de cache SDUI no Redis alinhadas a `schema_version` da tela e `version` por bloco.
+- **Wiring real das actions:** hoje as `actions` apontam para rotas/modais mock; futuro conecta com endpoints reais (ex.: `api_call` para `/api/v1/checkout`).
+- **Cache Redis em runtime:** cliente existe em `core/redis.py` mas ainda nao e usado para fragmentos SDUI.
