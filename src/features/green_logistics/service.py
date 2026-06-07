@@ -27,8 +27,9 @@ async def build_badge_for_pair(
     session: AsyncSession,
     customer_zip_prefix: str,
     seller_zip_prefix: str,
+    weight_g: float | None = None,
 ) -> tuple[float | None, SustainabilityProps | None]:
     distance = await compute_distance_km(session, customer_zip_prefix, seller_zip_prefix)
     if distance is None:
         return None, None
-    return distance, build_sustainability_props(distance)
+    return distance, build_sustainability_props(distance, weight_g)
