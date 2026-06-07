@@ -5,6 +5,8 @@
 
 **Referências:** `docs/prd.md`, `docs/tech_spec.md`, `README.md` (seção Demo)
 
+> **Sprint 3 (backend):** checkout simulado, CO₂ no selo e `context=conscious_buyer` — ver `docs/sprint3-handoff.md`. Guia front Sprint 3 será publicado após a implementação do backend.
+
 ---
 
 ## 1. O que mudou da Sprint 1 para a Sprint 2 (leia isto primeiro)

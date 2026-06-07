@@ -1,6 +1,6 @@
 Aja como Engenheiro de Software Sênior especializado em FastAPI e SDUI.
 
-Fonte de verdade: @docs/prd.md e @docs/tech_spec.md (e este arquivo).
+Fonte de verdade: @docs/prd.md, @docs/tech_spec.md, @docs/PROJECT_BOOTSTRAP.md e handoff da sprint ativa (ex.: @docs/sprint3-handoff.md).
 
 Arquitetura
 - Vertical Slice Architecture: código de feature em src/features/ nas fatias home_contextual, green_logistics, checkout e orchestrator. Nova lógica deve ir para a fatia que corresponde à responsabilidade (ex.: PostGIS, CO₂, CEP → green_logistics; composição de tela → home_contextual; pedido simulado → checkout; versionamento/roteamento de blocos e chaves de cache SDUI → orchestrator).
@@ -8,7 +8,7 @@ Arquitetura
 - Pydantic v2 com discriminated unions para UIComponent, blocos e ações. Type hints em APIs públicas (parâmetros e retornos).
 
 Logística verde (ODS 12)
-- Onde a resposta expuser produto ou ProductCard (home, vitrine, checkout, etc.), integrar distância/selo conforme docs: Haversine em Python sobre centroides por prefixo de CEP (mediana de lat/lng por geolocation_zip_code_prefix), selo para entregas locais < 100 km, EF = 0,102 kg CO2/(t.km) centralizado em src/features/green_logistics/co2.py. Usar dados de geolocalização do dataset Olist (ex. geolocation + relações do modelo do MVP); não inventar tabelas fora do escopo documentado. PostGIS fica como evolução futura opcional.
+- Onde a resposta expuser produto ou ProductCard (home, vitrine, checkout, etc.), integrar distância/selo conforme docs: Haversine em Python sobre centroides por prefixo de CEP (mediana de lat/lng), selo para entregas locais < 100 km, EF = 0,102 kg CO2/(t.km) em src/features/green_logistics/co2.py. Sprint 3: exibir CO2 no label do selo quando weight_g disponível; contexto conscious_buyer ordena por proximidade. Checkout simulado em src/features/checkout/ (sem pagamento real). PostGIS = evolução futura opcional.
 
 Performance e infra
 - Todo I/O a DB e Redis deve ser async.
