@@ -58,12 +58,26 @@ async def _fake_badge_close(
     _session: object,
     customer_zip_prefix: str,
     seller_zip_prefix: str,
+    weight_g: float | None = None,
 ) -> tuple[float | None, SustainabilityProps | None]:
     """Sellers em zip que comeca com '0100' -> proximo (50km); outros -> longe (500km)."""
     if seller_zip_prefix.startswith("0100"):
         d = 50.0
         return d, SustainabilityProps(label=f"Entrega local (~{d:.0f} km)", impact_level="green")
     return 500.0, None
+
+
+# Distancias por seller para testar a ordenacao do conscious_buyer:
+# prod_real_2 (60000) deve ficar ANTES de prod_real_1 (01001).
+_DISTANCE_BY_SELLER = {"01001": 80.0, "60000": 20.0}
+
+
+async def _fake_compute_distance(
+    _session: object,
+    customer_zip_prefix: str,
+    seller_zip_prefix: str,
+) -> float | None:
+    return _DISTANCE_BY_SELLER.get(seller_zip_prefix)
 
 
 @pytest.fixture(autouse=True)
@@ -80,6 +94,10 @@ def patch_home_dependencies(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         "src.features.home_contextual.composer.build_badge_for_pair",
         _fake_badge_close,
+    )
+    monkeypatch.setattr(
+        "src.features.home_contextual.composer.compute_distance_km",
+        _fake_compute_distance,
     )
     yield
     app.dependency_overrides.clear()
@@ -165,3 +183,36 @@ async def test_default_context_has_default_hero() -> None:
     assert isinstance(body, dict)
     hero = next(c for c in body["components"] if c["type"] == "hero_banner")
     assert hero["props"]["title"] == "Olist Marketplace"
+
+
+async def test_conscious_buyer_orders_cards_by_proximity() -> None:
+    status, body = await _get(
+        "/api/v1/home?customer_zip_prefix=01000&context=conscious_buyer"
+    )
+    assert status == 200
+    assert isinstance(body, dict)
+    assert body["context"] == "conscious_buyer"
+
+    product_ids = [
+        c["props"]["product_id"]
+        for c in body["components"]
+        if c["type"] == "product_card"
+    ]
+    # prod_real_2 (20 km) deve vir antes de prod_real_1 (80 km).
+    assert product_ids == ["prod_real_2", "prod_real_1"]
+
+
+async def test_product_card_has_checkout_api_call() -> None:
+    _, body = await _get(
+        "/api/v1/home?customer_zip_prefix=01000&context=default"
+    )
+    assert isinstance(body, dict)
+    cards = [c for c in body["components"] if c["type"] == "product_card"]
+    assert cards
+    actions = cards[0]["actions"]
+    api_calls = [a for a in actions if a["type"] == "api_call"]
+    assert any(
+        a["payload"]["path"] == "/api/v1/checkout/simulate"
+        and a["payload"]["method"] == "POST"
+        for a in api_calls
+    )
