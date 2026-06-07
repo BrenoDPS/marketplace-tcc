@@ -3,8 +3,10 @@ from pydantic import TypeAdapter, ValidationError
 
 from src.schemas.sdui import (
     ApiCallAction,
+    CheckoutSummaryBlock,
     HeroBannerBlock,
     HeroBannerProps,
+    ImpactBannerBlock,
     NavigateAction,
     NavigatePayload,
     OpenModalAction,
@@ -55,6 +57,55 @@ class TestUIComponentDiscriminator:
         data = {"type": "unknown_widget", "version": 1, "props": {}, "actions": []}
         with pytest.raises(ValidationError):
             ui_adapter.validate_python(data)
+
+    def test_checkout_summary_from_dict(self) -> None:
+        data = {
+            "type": "checkout_summary",
+            "version": 1,
+            "props": {
+                "product_id": "p1",
+                "title": "Informatica Acessorios",
+                "quantity": 2,
+                "unit_price": 10.0,
+                "subtotal": 20.0,
+                "freight": 5.0,
+                "total": 25.0,
+            },
+            "actions": [],
+        }
+        component = ui_adapter.validate_python(data)
+        assert isinstance(component, CheckoutSummaryBlock)
+        assert component.props.quantity == 2
+        assert component.props.total == 25.0
+
+    def test_impact_banner_from_dict(self) -> None:
+        data = {
+            "type": "impact_banner",
+            "version": 1,
+            "props": {
+                "distance_km": 27.0,
+                "co2_kg": 0.01,
+                "badge": {"label": "Entrega local (~27 km)", "impact_level": "green"},
+                "message": "Entrega local com menor impacto.",
+            },
+            "actions": [],
+        }
+        component = ui_adapter.validate_python(data)
+        assert isinstance(component, ImpactBannerBlock)
+        assert component.props.badge is not None
+        assert component.props.co2_kg == 0.01
+
+    def test_impact_banner_allows_null_distance_and_badge(self) -> None:
+        data = {
+            "type": "impact_banner",
+            "version": 1,
+            "props": {"message": "Sem estimativa de distancia."},
+            "actions": [],
+        }
+        component = ui_adapter.validate_python(data)
+        assert isinstance(component, ImpactBannerBlock)
+        assert component.props.distance_km is None
+        assert component.props.badge is None
 
 
 class TestUIActionDiscriminator:

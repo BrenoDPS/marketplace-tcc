@@ -77,6 +77,23 @@ class HeroBannerProps(BaseModel):
     image_url: str
 
 
+class CheckoutSummaryProps(BaseModel):
+    product_id: str
+    title: str | None = None
+    quantity: int
+    unit_price: float
+    subtotal: float
+    freight: float
+    total: float
+
+
+class ImpactBannerProps(BaseModel):
+    distance_km: float | None = None
+    co2_kg: float | None = None
+    badge: SustainabilityProps | None = None
+    message: str
+
+
 # ---------------------------------------------------------------------------
 # Blocos de UI (envelope: type + version + props + actions)
 # ---------------------------------------------------------------------------
@@ -95,8 +112,27 @@ class HeroBannerBlock(BaseModel):
     actions: list[UIAction] = Field(default_factory=list)
 
 
+class CheckoutSummaryBlock(BaseModel):
+    type: Literal["checkout_summary"] = "checkout_summary"
+    version: int = 1
+    props: CheckoutSummaryProps
+    actions: list[UIAction] = Field(default_factory=list)
+
+
+class ImpactBannerBlock(BaseModel):
+    type: Literal["impact_banner"] = "impact_banner"
+    version: int = 1
+    props: ImpactBannerProps
+    actions: list[UIAction] = Field(default_factory=list)
+
+
 UIComponent = Annotated[
-    Union[ProductCardBlock, HeroBannerBlock],
+    Union[
+        ProductCardBlock,
+        HeroBannerBlock,
+        CheckoutSummaryBlock,
+        ImpactBannerBlock,
+    ],
     Field(discriminator="type"),
 ]
 
