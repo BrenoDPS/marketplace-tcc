@@ -61,7 +61,7 @@ copy .env.example .env
 # 1. Postgres (porta 5433 no host — evita conflito com Postgres local na 5432)
 docker compose up -d
 
-# 2. Carregar ~1000 pedidos (seed fixa 42)
+# 2. Carregar ~10000 pedidos (seed fixa 42)
 python -m scripts.etl_load_sample
 
 # 3. API

@@ -30,7 +30,7 @@ Sequencia recomendada para subir do zero:
 # 1. Subir o Postgres (porta 5433 externa para nao colidir com Postgres nativo do Windows)
 docker compose up -d
 
-# 2. Carregar amostra (~1000 order_items, seed=42). Os CSVs do Olist
+# 2. Carregar amostra (~10000 order_items, seed=42). Os CSVs do Olist
 #    devem estar em data/raw/ (nao versionados).
 python -m scripts.etl_load_sample
 
@@ -123,7 +123,7 @@ src/
     checkout/                # Sprint 3: checkout simulado (POST /checkout/simulate)
     orchestrator/            # Stub (sprint futura)
 scripts/
-  etl_load_sample.py         # ETL offline: 1000 order_items + cep_centroids
+  etl_load_sample.py         # ETL offline: 10000 order_items + cep_centroids
 docker-compose.yml           # Postgres 16 (sem PostGIS nesta sprint)
 ```
 
