@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/**
+ * Identidade: base editorial sobria (quase-preto quente + off-white) com o
+ * verde reservado como COR DE SINAL. O selo de logistica verde e o unico
+ * elemento saturado da tela, entao ele chama atencao por escassez.
+ * Trocar a paleta = trocar estas variaveis.
+ */
+:root {
+  --paper: #fbfaf8;
+  --surface: #ffffff;
+  --ink: #14110f;
+  --muted: #6b635c;
+  --line: #e7e2d9;
+  --signal: #12704a;
+  --signal-soft: #e9f3ed;
+  --signal-ink: #0b4a31;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #100e0d;
+    --surface: #171413;
+    --ink: #f5f2ed;
+    --muted: #9a9189;
+    --line: #292523;
+    --signal: #52d08a;
+    --signal-soft: #122c1f;
+    --signal-ink: #9be8be;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-signal: var(--signal);
+  --color-signal-soft: var(--signal-soft);
+  --color-signal-ink: var(--signal-ink);
+
+  /* Fontes self-hosted (ver app/layout.tsx): fonts.googleapis.com esta
+     bloqueado nesta rede, entao nao usamos `next/font/google`. */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, Cambria, serif;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+}
