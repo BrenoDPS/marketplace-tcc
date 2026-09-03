@@ -115,6 +115,9 @@ type SduiValue = {
   swapInCart: (replacesProductId: string, entry: Omit<CartEntry, "quantity">) => CartEntry[];
   openCart: (open: boolean) => void;
   closeCheckout: () => void;
+  /** Modo de inspecao: contorna cada bloco e expoe o JSON que veio do servidor. */
+  inspecting: boolean;
+  toggleInspecting: () => void;
 };
 
 const SduiCtx = createContext<SduiValue | null>(null);
@@ -156,6 +159,9 @@ export function SduiProvider({
     initialCheckoutAction,
   );
   const [hydrated, setHydrated] = useState(false);
+  // Nao persiste de proposito: e um modo de demonstracao, e comecar a sessao
+  // com a tela contornada seria confuso.
+  const [inspecting, setInspecting] = useState(false);
 
   // O carrinho comeca vazio para o HTML do servidor e o primeiro render do
   // cliente baterem; ler o storage aqui no corpo causaria mismatch de
@@ -245,6 +251,7 @@ export function SduiProvider({
       cart,
       cartOpen,
       checkoutAction,
+      inspecting,
       pending,
       error,
       run,
@@ -296,6 +303,7 @@ export function SduiProvider({
         setCartOpen(open);
       },
       closeCheckout: () => setCheckout(null),
+      toggleInspecting: () => setInspecting((on) => !on),
     }),
     [
       customerZipPrefix,
@@ -304,6 +312,7 @@ export function SduiProvider({
       cart,
       cartOpen,
       checkoutAction,
+      inspecting,
       pending,
       error,
       run,

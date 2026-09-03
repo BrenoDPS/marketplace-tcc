@@ -195,6 +195,21 @@ Abra `http://localhost:3000` — a tela inicial pede o CEP; ou va direto:
 | `web/components/sdui-context.tsx` | Executor de `actions` (`navigate` / `open_modal` / `api_call`) |
 | `web/components/blocks.tsx` | Um componente por bloco SDUI |
 
+### Modo de inspeção SDUI
+
+O botao **SDUI** no header liga o modo de inspecao: cada bloco de `components[]`
+ganha um contorno e uma etiqueta com `type`, `version` e quantidade de `actions`,
+clicavel para ver o **JSON exato que o servidor mandou**. No topo aparecem os
+metadados da `ScreenResponse` (`screen_id`, `context`, `schema_version`) e a
+sequencia de blocos.
+
+Funciona tambem dentro do modal de checkout, que e outra `ScreenResponse` — util
+para mostrar que sao duas telas compostas pelo servidor, nao uma SPA montando
+tudo no cliente.
+
+Um bloco de tipo desconhecido, que fora da inspecao some em silencio, aparece em
+vermelho: e a degradacao graciosa ficando visivel.
+
 Pontos que economizam tempo de quem for mexer:
 
 - **Bloco novo no backend = uma linha no `REGISTRY`.** Tipo desconhecido renderiza `null` de proposito: a tela degrada em vez de quebrar.
@@ -305,8 +320,9 @@ Escopo em [docs/sprint5-handoff.md](docs/sprint5-handoff.md):
 - Botao "Trocar" substitui o item no carrinho preservando a quantidade e re-simula pelo servidor
 - `src/features/checkout/alternatives.py` — ranking por **economia de CO2**, nao por distancia pura
 - Carrinho persistido em `localStorage`, sobrevivendo a um F5
+- **Modo de inspecao SDUI** — botao no header expoe o envelope e o JSON de cada bloco
 
-**Pendente:** E2E com Playwright, bloco `product_detail` server-driven, modo de inspecao SDUI.
+**Pendente:** E2E com Playwright, bloco `product_detail` server-driven.
 
 ## Roadmap (proximas sprints)
 

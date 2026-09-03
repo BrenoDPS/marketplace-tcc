@@ -30,16 +30,88 @@ const REGISTRY = {
   impact_banner: ImpactBanner,
 } as const;
 
+/**
+ * Etiqueta do modo de inspecao: o envelope do bloco e o JSON que veio do
+ * servidor. Fica no fluxo (nao e popover) de proposito — dentro do `<dialog>`
+ * do checkout um painel absoluto seria recortado pelo scroll do modal.
+ */
+function InspectorTag({ block, known }: { block: UIComponent; known: boolean }) {
+  return (
+    <details className="mb-2">
+      <summary
+        className={`inline-flex cursor-pointer list-none items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[10px] leading-none ${
+          known
+            ? "bg-signal-soft text-signal-ink ring-1 ring-signal/30"
+            : "bg-red-50 text-red-700 ring-1 ring-red-200"
+        }`}
+      >
+        {block.type} · v{block.version}
+        {block.actions.length > 0 && <span className="opacity-60">{block.actions.length} action(s)</span>}
+        {!known && <span>· sem renderer</span>}
+      </summary>
+      <pre className="mt-2 max-h-64 overflow-auto rounded-lg bg-ink/95 p-3 font-mono text-[11px] leading-relaxed text-paper">
+        {JSON.stringify(block, null, 2)}
+      </pre>
+    </details>
+  );
+}
+
 function Block({ block }: { block: UIComponent }) {
+  const { inspecting } = useSdui();
   const Component = REGISTRY[block.type as keyof typeof REGISTRY] as
     | ((props: { block: UIComponent }) => React.ReactNode)
     | undefined;
-  if (!Component) return null;
-  return <Component block={block} />;
+
+  if (!inspecting) return Component ? <Component block={block} /> : null;
+
+  // Fora da inspecao o bloco desconhecido renderiza `null` — a tela degrada em
+  // silencio. Com a inspecao ligada ele APARECE, porque "o servidor mandou algo
+  // que este cliente nao conhece" e exatamente o que o modo existe para mostrar.
+  return (
+    <div className="rounded-xl outline outline-1 outline-dashed outline-signal/40 outline-offset-2">
+      <InspectorTag block={block} known={Component !== undefined} />
+      {Component ? (
+        <Component block={block} />
+      ) : (
+        <p className="rounded-lg border border-dashed border-red-200 bg-red-50/50 p-4 text-sm text-red-700">
+          Bloco <code>{block.type}</code> não tem componente no <code>REGISTRY</code>.
+          Sem o modo de inspeção ele seria omitido silenciosamente.
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Cabecalho do modo de inspecao: a tela inteira e uma resposta do servidor. */
+function ScreenMeta({ screen }: { screen: ScreenResponse }) {
+  const meta = [
+    ["screen_id", screen.screen_id],
+    ["context", screen.context],
+    ["schema_version", String(screen.schema_version)],
+    ["components", String(screen.components.length)],
+  ];
+
+  return (
+    <section className="rounded-xl border border-signal/30 bg-signal-soft/50 p-4">
+      <p className="font-mono text-[11px] text-signal-ink">ScreenResponse</p>
+      <dl className="mt-2 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] text-muted">
+        {meta.map(([k, v]) => (
+          <div key={k} className="flex gap-1.5">
+            <dt>{k}:</dt>
+            <dd className="text-ink">{v}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="mt-2 font-mono text-[11px] leading-relaxed text-muted">
+        {screen.components.map((c) => c.type).join(" → ")}
+      </p>
+    </section>
+  );
 }
 
 /** Agrupa `product_card` consecutivos numa grade; demais blocos ficam em fluxo. */
 export function ScreenRenderer({ screen }: { screen: ScreenResponse }) {
+  const { inspecting } = useSdui();
   const groups: UIComponent[][] = [];
   for (const block of screen.components) {
     const last = groups.at(-1);
@@ -52,6 +124,7 @@ export function ScreenRenderer({ screen }: { screen: ScreenResponse }) {
 
   return (
     <div className="space-y-8">
+      {inspecting && <ScreenMeta screen={screen} />}
       {groups.map((group, i) =>
         group[0].type === "product_card" ? (
           <div key={i} className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">

@@ -118,6 +118,13 @@ mais. Ver `src/features/checkout/alternatives.py`.
 (`REGISTRY` em `web/components/sdui.tsx`) — a tela degrada em vez de quebrar. Há teste
 cobrindo isso.
 
+**Modo de inspeção (Sprint 6):** o botão `SDUI` no header contorna cada bloco e expõe
+`type`, `version`, número de `actions` e o JSON integral que o servidor enviou, além dos
+metadados da `ScreenResponse`. Implementado no wrapper `<Block>`, então nenhum componente
+de bloco precisou mudar e blocos futuros ganham inspeção de graça. Com o modo ligado, um
+bloco sem renderer **aparece** em vez de sumir — a degradação graciosa fica visível, que é
+o argumento do SDUI na prática.
+
 3. Logística Verde e Validação
 
 - **Distância (MVP):** **Haversine** em Python sobre **centroides por prefixo de CEP** (mediana de `lat`/`lng` por `geolocation_zip_code_prefix` derivada no ETL Olist).

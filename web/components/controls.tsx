@@ -98,7 +98,7 @@ export function Controls({
   category?: string;
 }) {
   const router = useRouter();
-  const { cart, openCart } = useSdui();
+  const { cart, openCart, inspecting, toggleInspecting } = useSdui();
   const filter = { search, category };
   const cartCount = cart.reduce((sum, entry) => sum + entry.quantity, 0);
 
@@ -171,6 +171,22 @@ export function Controls({
             ))}
           </select>
         </label>
+
+        {/* Mostra o JSON por tras de cada bloco: e a prova ao vivo de que a
+            tela vem montada do servidor, e nao um mockup. */}
+        <button
+          type="button"
+          aria-pressed={inspecting}
+          onClick={toggleInspecting}
+          title="Contorna cada bloco e mostra o JSON que veio do servidor"
+          className={`rounded-full px-3 py-1.5 font-mono text-xs transition ${
+            inspecting
+              ? "bg-signal text-white"
+              : "text-muted hover:bg-line/60 hover:text-ink"
+          }`}
+        >
+          SDUI
+        </button>
 
         <button
           type="button"

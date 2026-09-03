@@ -65,6 +65,14 @@ const screenOf = (components: UIComponent[]): ScreenResponse => ({
   components,
 });
 
+/** Bloco que o servidor manda e este cliente nao conhece. */
+const unknownBlock = {
+  type: "widget_do_futuro",
+  version: 1,
+  props: {},
+  actions: [],
+} as unknown as UIComponent;
+
 const hero = (title: string): UIComponent => ({
   type: "hero_banner",
   version: 1,
@@ -98,22 +106,91 @@ describe("ScreenRenderer", () => {
   });
 
   test("tipo desconhecido renderiza nada em vez de quebrar a tela", () => {
-    const unknown = {
-      type: "widget_do_futuro",
-      version: 1,
-      props: {},
-      actions: [],
-    } as unknown as UIComponent;
-
     expect(() =>
       render(
         <SduiProvider customerZipPrefix="05311">
-          <ScreenRenderer screen={screenOf([unknown, hero("sobrevivi")])} />
+          <ScreenRenderer screen={screenOf([unknownBlock, hero("sobrevivi")])} />
         </SduiProvider>,
       ),
     ).not.toThrow();
     // O bloco conhecido continua na tela: a degradacao e parcial, nao total.
     expect(screen.getByText("sobrevivi")).toBeTruthy();
+    expect(screen.queryByText(/widget_do_futuro/)).toBeNull();
+  });
+});
+
+// --- modo de inspecao -------------------------------------------------------
+
+/** Liga a inspecao pelo proprio contexto e renderiza a tela. */
+function Inspected({ screen: s }: { screen: ScreenResponse }) {
+  const { inspecting, toggleInspecting } = useSdui();
+  return (
+    <>
+      <button onClick={toggleInspecting}>toggle</button>
+      <span data-testid="on">{String(inspecting)}</span>
+      <ScreenRenderer screen={s} />
+    </>
+  );
+}
+
+function renderInspected(s: ScreenResponse) {
+  return render(
+    <SduiProvider customerZipPrefix="05311">
+      <Inspected screen={s} />
+    </SduiProvider>,
+  );
+}
+
+describe("modo de inspecao", () => {
+  test("comeca desligado e nao polui a tela", () => {
+    renderInspected(screenOf([hero("A"), card("p1")]));
+    expect(screen.getByTestId("on").textContent).toBe("false");
+    expect(screen.queryByText(/hero_banner/)).toBeNull();
+  });
+
+  test("ligado, expoe o envelope de cada bloco", () => {
+    const { container } = renderInspected(screenOf([hero("A"), card("p1")]));
+    fireEvent.click(screen.getByText("toggle"));
+    // Uma etiqueta por bloco, com `type` e `version` do envelope.
+    const tags = [...container.querySelectorAll("summary")].map((s) => s.textContent);
+    expect(tags).toHaveLength(2);
+    expect(tags[0]).toContain("hero_banner");
+    expect(tags[0]).toContain("v1");
+    expect(tags[1]).toContain("product_card");
+    // O product_card tem duas actions (open_modal + api_call).
+    expect(tags[1]).toContain("2 action(s)");
+  });
+
+  test("ligado, mostra os metadados da ScreenResponse", () => {
+    renderInspected(screenOf([hero("A"), card("p1")]));
+    fireEvent.click(screen.getByText("toggle"));
+    expect(screen.getByText("ScreenResponse")).toBeTruthy();
+    expect(screen.getByText("home")).toBeTruthy(); // screen_id
+    expect(screen.getByText("hero_banner → product_card")).toBeTruthy();
+  });
+
+  test("o JSON exposto e o bloco inteiro que veio do servidor", () => {
+    const { container } = renderInspected(screenOf([card("p1", 42)]));
+    fireEvent.click(screen.getByText("toggle"));
+    const json = JSON.parse(container.querySelector("pre")!.textContent!);
+    expect(json).toEqual(card("p1", 42));
+  });
+
+  test("bloco sem renderer fica VISIVEL na inspecao", () => {
+    // Fora da inspecao ele some em silencio; o modo existe justamente para
+    // mostrar que o servidor mandou algo que este cliente nao conhece.
+    renderInspected(screenOf([unknownBlock]));
+    fireEvent.click(screen.getByText("toggle"));
+    expect(screen.getByText(/sem renderer/)).toBeTruthy();
+    expect(screen.getByText(/não tem componente no/)).toBeTruthy();
+  });
+
+  test("desligar devolve a tela ao normal", () => {
+    renderInspected(screenOf([hero("A")]));
+    fireEvent.click(screen.getByText("toggle"));
+    fireEvent.click(screen.getByText("toggle"));
+    expect(screen.queryByText("ScreenResponse")).toBeNull();
+    expect(screen.getByText("A")).toBeTruthy();
   });
 });
 
