@@ -3,6 +3,7 @@
 import { brl, co2Label, decimal } from "@/lib/sdui";
 import type {
   CheckoutSummaryBlock,
+  DeliveryOptionsBlock,
   HeroBannerBlock,
   ImpactBannerBlock,
   ProductCardBlock,
@@ -122,6 +123,88 @@ export function CheckoutSummary({ block }: { block: CheckoutSummaryBlock }) {
           <dd className="font-display text-xl tabular-nums text-ink">{brl(total)}</dd>
         </div>
       </dl>
+    </section>
+  );
+}
+
+export function DeliveryOptions({ block }: { block: DeliveryOptionsBlock }) {
+  const { options, note, product_id, quantity } = block.props;
+  const { run, pending } = useSdui();
+  const action = block.actions.find((a) => a.type === "api_call");
+
+  /**
+   * A leitura util da emissao aqui e relativa: "0,42 g" nao diz nada sozinho,
+   * mas meia barra ao lado da vizinha diz. Escala pela maior das opcoes.
+   */
+  const maxCo2 = Math.max(...options.map((o) => o.co2_kg ?? 0));
+
+  return (
+    <section className="rounded-xl border border-line bg-surface p-6">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="font-display text-2xl text-ink">Como entregar</h2>
+        <p className="text-sm text-muted">Mais rápido custa mais e emite mais.</p>
+      </div>
+
+      <div role="radiogroup" aria-label="Modalidade de entrega" className="mt-5 grid gap-3 sm:grid-cols-3">
+        {options.map((option) => (
+          <button
+            key={option.id}
+            type="button"
+            role="radio"
+            aria-checked={option.selected}
+            disabled={!action || pending}
+            onClick={() =>
+              action &&
+              run(action, {
+                productId: product_id,
+                quantity,
+                deliveryOption: option.id,
+              })
+            }
+            className={`flex flex-col gap-3 rounded-lg border p-4 text-left transition disabled:cursor-default ${
+              option.selected
+                ? "border-signal bg-signal-soft ring-1 ring-signal/30"
+                : "border-line hover:border-ink/25 disabled:hover:border-line"
+            } ${pending ? "opacity-60" : ""}`}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <span className="text-sm font-medium text-ink">{option.label}</span>
+              {option.recommended && (
+                <span className="shrink-0 rounded-full bg-signal-soft px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-signal-ink ring-1 ring-signal/20">
+                  Menor emissão
+                </span>
+              )}
+            </div>
+
+            <p className="font-display text-xl tabular-nums text-ink">{brl(option.price)}</p>
+
+            <p className="text-xs text-muted">
+              {option.eta_days} {option.eta_days === 1 ? "dia útil" : "dias úteis"}
+            </p>
+
+            {option.co2_kg !== null && (
+              <div>
+                <div className="h-1 w-full overflow-hidden rounded-full bg-line">
+                  <div
+                    className="h-full rounded-full bg-signal"
+                    style={{ width: `${maxCo2 > 0 ? (option.co2_kg / maxCo2) * 100 : 0}%` }}
+                  />
+                </div>
+                <p className="mt-1.5 text-xs tabular-nums text-muted">
+                  {co2Label(option.co2_kg)} CO₂
+                </p>
+              </div>
+            )}
+
+            {option.description && (
+              <p className="text-[11px] leading-relaxed text-muted">{option.description}</p>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Sem esta nota os fatores viram "dado do Olist" na leitura de quem ve. */}
+      {note && <p className="mt-5 text-[11px] leading-relaxed text-muted">{note}</p>}
     </section>
   );
 }

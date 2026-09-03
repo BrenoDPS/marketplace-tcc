@@ -22,10 +22,11 @@ Eixos do TCC: **personalização contextual** + **logística verde** (distância
 |--------|---------|
 | **1** | Contrato SDUI, `GET /api/v1/home` mock, testes de schema |
 | **2** | Docker + ETL Olist, produtos reais na Home, `customer_zip_prefix` obrigatório, selo por distância |
+| **3** | Checkout simulado (`POST /checkout/simulate`), CO₂ no selo, `conscious_buyer` por proximidade, CORS dev |
 
 ## Sprint ativa
 
-Ver **`docs/sprint3-handoff.md`**: checkout simulado, CO₂ no selo, `conscious_buyer`, CORS dev.
+Ver **`docs/sprint4-handoff.md`**: bloco `delivery_options` (comparativo de modalidades de entrega), correção do CO₂ exibido como `0,00 kg`, frontend Next.js em `web/` renderizando o bloco.
 
 ## Subir o ambiente
 
@@ -42,17 +43,19 @@ Demo Home (após ETL): `customer_zip_prefix=05311` — ver `README.md`.
 ```
 src/features/
   home_contextual/   # Composição da Home
-  green_logistics/   # Distância, CO₂, selo
+  green_logistics/   # Distância, CO₂, selo, modalidades de entrega
   checkout/          # Sprint 3: checkout simulado
   orchestrator/      # Stub futuro
 src/schemas/sdui.py  # Contrato JSON global
+web/                 # Frontend Next.js (App Router) que consome o SDUI
 ```
 
 ## Documentos
 
 | Arquivo | Uso |
 |---------|-----|
-| `docs/sprint3-handoff.md` | Spec da sprint atual |
+| `docs/sprint4-handoff.md` | Spec da sprint atual |
+| `docs/sprint3-handoff.md` | Spec Sprint 3 (histórico) |
 | `docs/sprint2-handoff.md` | Spec Sprint 2 (histórico) |
 | `docs/tech_spec.md` | Contrato SDUI + logística |
 | `docs/prd.md` | Produto |
@@ -62,5 +65,6 @@ src/schemas/sdui.py  # Contrato JSON global
 ## O que não fazer sem pedido explícito
 
 - Pagamento real, Redis/Locust, PostGIS, dataset Olist completo
-- Reimplementar Sprint 1–2 do zero
+- Reimplementar Sprint 1–4 do zero
+- Apresentar os fatores de `delivery_options.py` como dado medido do Olist — são cenário declarado (ler o docstring do módulo)
 - Seguir transcripts antigos em vez dos handoffs em `docs/`

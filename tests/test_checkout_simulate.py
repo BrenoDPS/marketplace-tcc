@@ -51,6 +51,7 @@ async def _fake_badge_for_pair(
     customer_zip_prefix: str,
     seller_zip_prefix: str,
     weight_g: float | None = None,
+    co2_factor: float = 1.0,
 ) -> tuple[float | None, SustainabilityProps | None]:
     d = 27.0
     return d, SustainabilityProps(
@@ -153,3 +154,112 @@ async def test_quantity_zero_returns_422() -> None:
         {"customer_zip_prefix": "05311", "product_id": "prod_real_1", "quantity": 0}
     )
     assert status == 422
+
+
+# ---------------------------------------------------------------------------
+# Sprint 4: delivery_options
+# ---------------------------------------------------------------------------
+
+def _options(body: dict) -> dict:
+    block = next(c for c in body["components"] if c["type"] == "delivery_options")
+    return {o["id"]: o for o in block["props"]["options"]}
+
+
+async def test_screen_includes_delivery_options() -> None:
+    _, body = await _post({"customer_zip_prefix": "05311", "product_id": "prod_real_1"})
+    block = next(c for c in body["components"] if c["type"] == "delivery_options")
+    assert block["props"]["selected_id"] == "standard"
+    assert block["props"]["note"]
+    # O bloco carrega o contexto de volta: o cliente re-simula sem guardar estado.
+    assert block["props"]["product_id"] == "prod_real_1"
+    assert block["props"]["quantity"] == 1
+    assert [a["type"] for a in block["actions"]] == ["api_call"]
+
+
+async def test_default_option_freight_matches_sample_value() -> None:
+    """Sem escolha explicita, o frete tem de ser o da amostra, intocado."""
+    _, body = await _post({"customer_zip_prefix": "05311", "product_id": "prod_real_1"})
+    summary = next(c for c in body["components"] if c["type"] == "checkout_summary")
+    assert summary["props"]["freight"] == pytest.approx(15.50)
+
+
+async def test_choosing_green_lowers_freight_and_co2() -> None:
+    _, standard = await _post(
+        {"customer_zip_prefix": "05311", "product_id": "prod_real_1"}
+    )
+    _, green = await _post(
+        {
+            "customer_zip_prefix": "05311",
+            "product_id": "prod_real_1",
+            "delivery_option": "green",
+        }
+    )
+
+    def freight(body: dict) -> float:
+        block = next(c for c in body["components"] if c["type"] == "checkout_summary")
+        return block["props"]["freight"]
+
+    def co2(body: dict) -> float:
+        block = next(c for c in body["components"] if c["type"] == "impact_banner")
+        return block["props"]["co2_kg"]
+
+    assert freight(green) < freight(standard)
+    assert co2(green) < co2(standard)
+
+
+async def test_selection_is_reflected_in_the_block() -> None:
+    _, body = await _post(
+        {
+            "customer_zip_prefix": "05311",
+            "product_id": "prod_real_1",
+            "delivery_option": "express",
+        }
+    )
+    options = _options(body)
+    assert options["express"]["selected"] is True
+    assert options["standard"]["selected"] is False
+
+
+async def test_summary_total_uses_the_chosen_freight() -> None:
+    _, body = await _post(
+        {
+            "customer_zip_prefix": "05311",
+            "product_id": "prod_real_1",
+            "quantity": 2,
+            "delivery_option": "express",
+        }
+    )
+    props = next(
+        c for c in body["components"] if c["type"] == "checkout_summary"
+    )["props"]
+    assert props["total"] == pytest.approx(props["subtotal"] + props["freight"])
+    assert props["freight"] > 15.50
+
+
+async def test_co2_scales_with_quantity() -> None:
+    """2 unidades embarcam o dobro da massa, logo emitem o dobro."""
+
+    async def co2_for(quantity: int) -> float:
+        _, body = await _post(
+            {
+                "customer_zip_prefix": "05311",
+                "product_id": "prod_real_1",
+                "quantity": quantity,
+            }
+        )
+        block = next(c for c in body["components"] if c["type"] == "impact_banner")
+        return block["props"]["co2_kg"]
+
+    assert await co2_for(2) == pytest.approx(await co2_for(1) * 2)
+
+
+async def test_unknown_delivery_option_returns_422() -> None:
+    status, body = await _post(
+        {
+            "customer_zip_prefix": "05311",
+            "product_id": "prod_real_1",
+            "delivery_option": "teleporte",
+        }
+    )
+    assert status == 422
+    assert "delivery_option" in body["detail"]

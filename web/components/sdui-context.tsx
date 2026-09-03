@@ -10,7 +10,18 @@ import type { ProductCardBlock, ScreenResponse, UIAction } from "@/lib/sdui";
  * de quebrar a tela (degradacao graciosa do SDUI).
  */
 
-type RunContext = { product?: ProductCardBlock; quantity?: number };
+/**
+ * `productId` existe para o `delivery_options`: ao re-simular a partir da tela
+ * de checkout nao ha `ProductCardBlock` em maos, e o proprio bloco carrega o
+ * contexto que o servidor mandou (product_id/quantity) — o cliente nao guarda
+ * estado de checkout.
+ */
+type RunContext = {
+  product?: ProductCardBlock;
+  productId?: string;
+  quantity?: number;
+  deliveryOption?: string;
+};
 
 type SduiValue = {
   customerZipPrefix: string;
@@ -35,8 +46,9 @@ export function useSdui(): SduiValue {
 function checkoutBody(cep: string, ctx: RunContext) {
   return {
     customer_zip_prefix: cep,
-    product_id: ctx.product?.props.product_id,
+    product_id: ctx.productId ?? ctx.product?.props.product_id,
     quantity: ctx.quantity ?? 1,
+    delivery_option: ctx.deliveryOption ?? null,
   };
 }
 

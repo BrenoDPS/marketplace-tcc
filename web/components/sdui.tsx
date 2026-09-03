@@ -3,7 +3,14 @@
 import { useEffect, useRef, useState } from "react";
 import { brl } from "@/lib/sdui";
 import type { ScreenResponse, UIComponent } from "@/lib/sdui";
-import { Badge, CheckoutSummary, HeroBanner, ImpactBanner, ProductCard } from "./blocks";
+import {
+  Badge,
+  CheckoutSummary,
+  DeliveryOptions,
+  HeroBanner,
+  ImpactBanner,
+  ProductCard,
+} from "./blocks";
 import { SduiProvider, useSdui } from "./sdui-context";
 
 /**
@@ -15,6 +22,7 @@ const REGISTRY = {
   hero_banner: HeroBanner,
   product_card: ProductCard,
   checkout_summary: CheckoutSummary,
+  delivery_options: DeliveryOptions,
   impact_banner: ImpactBanner,
 } as const;
 
@@ -59,10 +67,13 @@ export function ScreenRenderer({ screen }: { screen: ScreenResponse }) {
 function Modal({
   open,
   onClose,
+  wide = false,
   children,
 }: {
   open: boolean;
   onClose: () => void;
+  /** O checkout carrega o comparativo de entrega em 3 colunas; 32rem espreme. */
+  wide?: boolean;
   children: React.ReactNode;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -79,7 +90,9 @@ function Modal({
       ref={ref}
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
-      className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-2xl border border-line bg-paper p-0 text-ink backdrop:bg-ink/50"
+      className={`m-auto rounded-2xl border border-line bg-paper p-0 text-ink backdrop:bg-ink/50 ${
+        wide ? "w-[min(46rem,calc(100vw-2rem))]" : "w-[min(32rem,calc(100vw-2rem))]"
+      }`}
     >
       {open && <div className="p-6">{children}</div>}
     </dialog>
@@ -184,7 +197,7 @@ function Host({ children }: { children: React.ReactNode }) {
       <Modal open={selected !== null && checkout === null} onClose={() => select(null)}>
         <ProductDetail />
       </Modal>
-      <Modal open={checkout !== null} onClose={closeCheckout}>
+      <Modal open={checkout !== null} onClose={closeCheckout} wide>
         <CheckoutScreen />
       </Modal>
     </>

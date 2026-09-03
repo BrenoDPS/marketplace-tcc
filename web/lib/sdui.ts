@@ -85,10 +85,34 @@ export type ImpactBannerBlock = Envelope<
   }
 >;
 
+export type DeliveryOption = {
+  id: string;
+  label: string;
+  description: string | null;
+  eta_days: number;
+  price: number;
+  co2_kg: number | null;
+  recommended: boolean;
+  selected: boolean;
+};
+
+export type DeliveryOptionsBlock = Envelope<
+  "delivery_options",
+  {
+    product_id: string;
+    quantity: number;
+    distance_km: number | null;
+    selected_id: string;
+    options: DeliveryOption[];
+    note: string | null;
+  }
+>;
+
 export type UIComponent =
   | HeroBannerBlock
   | ProductCardBlock
   | CheckoutSummaryBlock
+  | DeliveryOptionsBlock
   | ImpactBannerBlock;
 
 export type ScreenResponse = {

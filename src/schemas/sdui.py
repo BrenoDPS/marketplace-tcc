@@ -87,6 +87,29 @@ class CheckoutSummaryProps(BaseModel):
     total: float
 
 
+class DeliveryOptionProps(BaseModel):
+    id: str
+    label: str
+    description: str | None = None
+    eta_days: int
+    price: float
+    co2_kg: float | None = None
+    recommended: bool = False
+    selected: bool = False
+
+
+class DeliveryOptionsProps(BaseModel):
+    """Comparativo de modalidades. `product_id`/`quantity` viajam de volta na
+    `action` para o cliente re-simular sem guardar estado proprio."""
+
+    product_id: str
+    quantity: int
+    distance_km: float | None = None
+    selected_id: str
+    options: list[DeliveryOptionProps]
+    note: str | None = None
+
+
 class ImpactBannerProps(BaseModel):
     distance_km: float | None = None
     co2_kg: float | None = None
@@ -119,6 +142,13 @@ class CheckoutSummaryBlock(BaseModel):
     actions: list[UIAction] = Field(default_factory=list)
 
 
+class DeliveryOptionsBlock(BaseModel):
+    type: Literal["delivery_options"] = "delivery_options"
+    version: int = 1
+    props: DeliveryOptionsProps
+    actions: list[UIAction] = Field(default_factory=list)
+
+
 class ImpactBannerBlock(BaseModel):
     type: Literal["impact_banner"] = "impact_banner"
     version: int = 1
@@ -131,6 +161,7 @@ UIComponent = Annotated[
         ProductCardBlock,
         HeroBannerBlock,
         CheckoutSummaryBlock,
+        DeliveryOptionsBlock,
         ImpactBannerBlock,
     ],
     Field(discriminator="type"),
