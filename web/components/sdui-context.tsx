@@ -94,7 +94,9 @@ function writeStoredCart(cart: CartEntry[]): void {
 
 type SduiValue = {
   customerZipPrefix: string;
-  selected: ProductCardBlock | null;
+  /** Tela de detalhe vinda do servidor (`GET /products/{id}`). */
+  detail: ScreenResponse | null;
+  detailOpen: boolean;
   checkout: ScreenResponse | null;
   cart: CartEntry[];
   cartOpen: boolean;
@@ -107,8 +109,12 @@ type SduiValue = {
   pending: boolean;
   error: string | null;
   run: (action: UIAction, ctx?: RunContext) => void;
-  select: (block: ProductCardBlock | null) => void;
-  addToCart: (block: ProductCardBlock, quantity: number) => void;
+  closeDetail: () => void;
+  addToCart: (
+    entry: Omit<CartEntry, "quantity">,
+    quantity: number,
+    checkout?: UIAction | null,
+  ) => void;
   setQuantity: (productId: string, quantity: number) => void;
   removeFromCart: (productId: string) => void;
   /** Troca um item pelo substituto sugerido e devolve o carrinho ja novo. */
@@ -151,7 +157,8 @@ export function SduiProvider({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const [selected, setSelected] = useState<ProductCardBlock | null>(null);
+  const [detail, setDetail] = useState<ScreenResponse | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [checkout, setCheckout] = useState<ScreenResponse | null>(null);
   const [cart, setCart] = useState<CartEntry[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
@@ -167,6 +174,11 @@ export function SduiProvider({
   // cliente baterem; ler o storage aqui no corpo causaria mismatch de
   // hidratacao. Por isso a leitura acontece depois de montar.
   useEffect(() => {
+    // Ler o storage no corpo do componente causaria mismatch de hidratacao (o
+    // HTML do servidor sai sempre com o carrinho vazio). Uma leitura unica no
+    // mount e o padrao recomendado pelo proprio Next para `localStorage`; a
+    // regra mira efeitos que sincronizam estado derivado, nao este caso.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCart(readStoredCart());
     setHydrated(true);
   }, []);
@@ -196,18 +208,44 @@ export function SduiProvider({
           return;
         }
 
-        case "open_modal": {
-          if (action.payload.modal_id === "product_detail" && ctx.product) {
-            setError(null);
-            setSelected(ctx.product);
-          }
+        // `open_modal` nao tem mais consumidor: desde a Sprint 6 o detalhe do
+        // produto vem do servidor por `api_call` GET. O tipo segue no contrato
+        // (documentado no tech_spec); uma acao sem tratamento e simplesmente
+        // ignorada, que e a degradacao graciosa de sempre.
+        case "open_modal":
           return;
-        }
 
         case "api_call": {
           const { method, path, body_key } = action.payload;
-          // Hoje so existe um body_key ("checkout"). Outro valor = servidor
-          // pede algo que este cliente ainda nao sabe montar.
+
+          // GET devolve OUTRA tela. E assim que o detalhe do produto chega:
+          // o mesmo renderer desenha, sem o cliente remontar nada.
+          if (method === "GET") {
+            setError(null);
+            setDetail(null);
+            setDetailOpen(true);
+            setPending(true);
+            fetch(path, { headers: { Accept: "application/json" } })
+              .then(async (res) => {
+                const body = await res.json().catch(() => null);
+                if (!res.ok) {
+                  const d = (body as { detail?: unknown } | null)?.detail;
+                  throw new Error(
+                    typeof d === "string" ? d : `Erro HTTP ${res.status}`,
+                  );
+                }
+                setDetail(body as ScreenResponse);
+              })
+              .catch((err: Error) => {
+                setError(err.message);
+                setDetailOpen(false);
+              })
+              .finally(() => setPending(false));
+            return;
+          }
+
+          // POST de checkout. Outro `body_key` = servidor pede algo que este
+          // cliente ainda nao sabe montar.
           if (body_key !== "checkout") return;
           const items = ctx.cart ?? cart;
           // Carrinho vazio: o backend recusaria com 422 e o usuario veria um
@@ -231,7 +269,7 @@ export function SduiProvider({
               }
               // A resposta e outra ScreenResponse: o MESMO renderer desenha.
               setCheckout(body as ScreenResponse);
-              setSelected(null);
+              setDetailOpen(false);
               setCartOpen(false);
             })
             .catch((err: Error) => setError(err.message))
@@ -246,7 +284,8 @@ export function SduiProvider({
   const value = useMemo<SduiValue>(
     () => ({
       customerZipPrefix,
-      selected,
+      detail,
+      detailOpen,
       checkout,
       cart,
       cartOpen,
@@ -255,31 +294,19 @@ export function SduiProvider({
       pending,
       error,
       run,
-      select: (block) => {
-        setError(null);
-        setSelected(block);
-      },
-      addToCart: (block, quantity) => {
-        const checkout = block.actions.find((a) => a.type === "api_call");
+      closeDetail: () => setDetailOpen(false),
+      addToCart: (entry, quantity, checkout) => {
         if (checkout) setCheckoutAction(checkout);
         setCart((current) => {
           // Mesmo produto adicionado de novo soma na linha existente, em vez
           // de criar uma segunda linha do mesmo item.
-          const found = current.find((e) => e.productId === block.props.product_id);
+          const found = current.find((e) => e.productId === entry.productId);
           if (found) {
             return current.map((e) =>
               e === found ? { ...e, quantity: e.quantity + quantity } : e,
             );
           }
-          return [
-            ...current,
-            {
-              productId: block.props.product_id,
-              title: block.props.title,
-              price: block.props.price,
-              quantity,
-            },
-          ];
+          return [...current, { ...entry, quantity }];
         });
       },
       setQuantity: (productId, quantity) =>
@@ -307,7 +334,8 @@ export function SduiProvider({
     }),
     [
       customerZipPrefix,
-      selected,
+      detail,
+      detailOpen,
       checkout,
       cart,
       cartOpen,

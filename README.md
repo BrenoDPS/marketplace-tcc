@@ -65,6 +65,31 @@ curl -i "http://localhost:8000/api/v1/home?customer_zip_prefix=00000"
 curl "http://localhost:8000/api/v1/home?customer_zip_prefix=05311&context=conscious_buyer"
 ```
 
+### Detalhe do produto (Sprint 6)
+
+`GET /api/v1/products/{product_id}?customer_zip_prefix=...` retorna uma tela SDUI
+(`product_detail` + `impact_banner`). Ate a Sprint 5 o detalhe era a **unica**
+tela montada pelo cliente, reaproveitando os props do `product_card` — uma
+excecao a tese do trabalho, agora fechada.
+
+```bash
+# Detalhe (o path ja vem pronto na action GET de cada product_card da Home)
+curl "http://localhost:8000/api/v1/products/<PRODUCT_ID>?customer_zip_prefix=05311"
+
+# 404 produto inexistente | 422 CEP fora da amostra
+curl -i "http://localhost:8000/api/v1/products/inexistente?customer_zip_prefix=05311"
+```
+
+> **Nota e vendedor sao dados REAIS, nao mock.** `rating`/`review_count` vem de
+> `olist_order_reviews` (agregados no ETL); `seller_city`/`seller_state` de
+> `olist_sellers`. Na amostra de 10k, **6.528 dos 6.575 produtos** tem avaliacao.
+> Produto sem pedido avaliado vem com `rating: null` e a tela **omite** o campo.
+>
+> **Descricao e tags de sustentabilidade ficaram de fora**: o Olist tem apenas o
+> *comprimento* da descricao (`product_description_lenght`), nao o texto, e nao
+> tem nenhuma tag. Inventar isso numa tela cujo assunto e credibilidade
+> ambiental seria o pior lugar possivel para dado fabricado.
+
 ### Busca e categorias (Sprint 5)
 
 `GET /api/v1/home` aceita `q` (busca) e `category` (filtro exato). Toda resposta
@@ -250,6 +275,7 @@ src/
     home_contextual/         # Composicao de tela: hero por contexto + produtos reais
     green_logistics/         # Haversine + centroides CEP + CO2 (FE 0,102) + selo < 100 km
       delivery_options.py    # Sprint 4: modalidades comparaveis (cenario declarado)
+    product_detail/          # Sprint 6: GET /products/{id} (tela SDUI de detalhe)
     checkout/                # Sprint 3: checkout simulado (POST /checkout/simulate)
     orchestrator/            # Stub (sprint futura)
 scripts/
@@ -321,8 +347,11 @@ Escopo em [docs/sprint5-handoff.md](docs/sprint5-handoff.md):
 - `src/features/checkout/alternatives.py` — ranking por **economia de CO2**, nao por distancia pura
 - Carrinho persistido em `localStorage`, sobrevivendo a um F5
 - **Modo de inspecao SDUI** — botao no header expoe o envelope e o JSON de cada bloco
+- Bloco **`product_detail`** server-driven (`GET /products/{id}`), com nota e vendedor reais do dataset
+- ETL passa a agregar `review_score` por produto (6.528/6.575 com avaliacao)
+- `npm run lint` entrou no CI (estava vermelho e ninguem via)
 
-**Pendente:** E2E com Playwright, bloco `product_detail` server-driven.
+**Pendente:** E2E com Playwright.
 
 ## Roadmap (proximas sprints)
 

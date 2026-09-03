@@ -88,6 +88,7 @@ Todos seguem o envelope e estão na união discriminada `UIComponent` (`version:
 |--------|------|------------------|-------|
 | `hero_banner` | Home | `title`, `subtitle`, `image_url`, `cta_label` | S1 (`cta_label` na S5) |
 | `product_card` | Home | `product_id`, `price`, `title`, `image_url`, `badge` | S1 |
+| `product_detail` | Detalhe | `product_id`, `title`, `price`, `category`, `weight_g`, `seller_id`, `seller_city`, `seller_state`, `rating`, `review_count`, `badge` | S6 |
 | `category_grid` | Home | `title`, `categories[]` — cada item com `slug`, `label`, `product_count`, `selected` e **`actions` próprias** | S5 |
 | `checkout_summary` | Checkout | `items[]` (`product_id`, `title`, `quantity`, `unit_price`, `line_total`), `subtotal`, `freight`, `total` | S3 (virou carrinho na S5) |
 | `delivery_options` | Checkout | `distance_km`, `selected_id`, `options[]` (`id`, `label`, `eta_days`, `price`, `co2_kg`, `recommended`, `selected`), `note` | S4 |
@@ -118,6 +119,16 @@ mais. Ver `src/features/checkout/alternatives.py`.
 (`REGISTRY` em `web/components/sdui.tsx`) — a tela degrada em vez de quebrar. Há teste
 cobrindo isso.
 
+**`open_modal` não tem emissor (desde a Sprint 6).** O detalhe do produto passou a vir de
+`GET /products/{id}` via `api_call`, então nenhum bloco emite `open_modal` hoje. O tipo
+segue no contrato e o cliente ignora ações que não trata — mesma degradação graciosa dos
+blocos desconhecidos.
+
+**`api_call` com `GET` devolve outra tela.** É como o detalhe chega: o mesmo `ScreenRenderer`
+desenha, sem o cliente remontar nada. `POST` com `body_key: "checkout"` continua sendo a
+simulação de compra. O cliente distingue **pelo método**, não pela ordem das ações — o
+`product_card` carrega as duas.
+
 **Modo de inspeção (Sprint 6):** o botão `SDUI` no header contorna cada bloco e expõe
 `type`, `version`, número de `actions` e o JSON integral que o servidor enviou, além dos
 metadados da `ScreenResponse`. Implementado no wrapper `<Block>`, então nenhum componente
@@ -132,6 +143,7 @@ o argumento do SDUI na prática.
 - **Emissão:** \(E = d \cdot w \cdot EF\) com \(d\) km, \(w\) em toneladas, \(EF = 0,102\) kg CO₂/(t·km) (GHG Protocol).
 - **Selo na UI:** distância **\< 100 km** ⇒ elegível a selo (PRD); lógica na fatia **`green_logistics`**, dados no SDUI (`SustainabilityProps` / `ProductCard`). **Sprint 3:** label do selo inclui **CO₂ estimado** quando `product_weight_g` disponível (`E = d · w · FE`).
 - **Home consciente:** query `context=conscious_buyer` ordena produtos por **proximidade** ao `customer_zip_prefix` (sem filtro rígido de categoria).
+- **Detalhe do produto (Sprint 6):** `GET /api/v1/products/{id}?customer_zip_prefix=...` devolve `product_detail` + `impact_banner`. `rating`/`review_count` são **reais**, agregados de `olist_order_reviews` no ETL (a nota no Olist é do **pedido**, não do item — atribuí-la ao produto é aproximação, mas o número não é inventado); `seller_city`/`seller_state` vêm de `olist_sellers`. **Descrição e tags de sustentabilidade ficaram de fora**: o dataset tem só o comprimento da descrição e nenhuma tag.
 - **Busca e categorias (Sprint 5):** `GET /home` aceita `q` e `category`. A busca é sobre **`product_category_name`** — o Olist não tem nome de produto, e o `title` do card já é a categoria formatada. Acentos são dobrados no termo do usuário; `%` e `_` escapados antes do `ILIKE`.
 - **Checkout simulado (Sprint 3, carrinho na Sprint 5):** `POST /api/v1/checkout/simulate` — body `{ customer_zip_prefix, items[], delivery_option? }` com 1 a 20 itens `{ product_id, quantity }`; resposta `ScreenResponse` com `checkout_summary` + `delivery_options` + `shipment_breakdown` + `impact_banner`.
 - **Modalidades de entrega (Sprint 4):** `express` / `standard` / `green` em `green_logistics/delivery_options.py`. `standard` é o frete real da amostra **sem fator**; os fatores das outras duas são **cenário declarado**, não dado do Olist — o dataset não tem modalidade nem transportadora. A ressalva viaja no campo `note` do bloco.

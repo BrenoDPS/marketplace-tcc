@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { brl } from "@/lib/sdui";
 import type { ScreenResponse, UIComponent } from "@/lib/sdui";
 import {
-  Badge,
   CategoryGrid,
   CheckoutSummary,
   DeliveryOptions,
   HeroBanner,
   ImpactBanner,
   ProductCard,
+  ProductDetail,
   ShipmentBreakdown,
 } from "./blocks";
 import { useSdui } from "./sdui-context";
@@ -24,6 +24,7 @@ const REGISTRY = {
   hero_banner: HeroBanner,
   category_grid: CategoryGrid,
   product_card: ProductCard,
+  product_detail: ProductDetail,
   checkout_summary: CheckoutSummary,
   delivery_options: DeliveryOptions,
   shipment_breakdown: ShipmentBreakdown,
@@ -176,22 +177,24 @@ function Modal({
   );
 }
 
-function ProductDetail() {
-  const { selected, error, select, addToCart, openCart } = useSdui();
-  const [quantity, setQuantity] = useState(1);
-
-  useEffect(() => setQuantity(1), [selected?.props.product_id]);
-
-  if (!selected) return null;
-  const { title, product_id, price, badge } = selected.props;
+/**
+ * Detalhe do produto. Ate a Sprint 5 esta tela era montada aqui a partir dos
+ * props do `product_card` — a unica que o cliente compunha sozinho. Agora ela
+ * chega inteira de `GET /products/{id}` e o MESMO renderer desenha; o que
+ * sobrou aqui e a moldura do modal.
+ */
+function DetailScreen() {
+  const { detail, pending, error, closeDetail } = useSdui();
 
   return (
     <>
       <div className="flex items-start justify-between gap-4">
-        <h2 className="font-display text-2xl text-ink">{title ?? product_id}</h2>
+        <p className="text-[11px] uppercase tracking-wide text-muted">
+          {detail?.screen_id ?? "carregando"}
+        </p>
         <button
           type="button"
-          onClick={() => select(null)}
+          onClick={closeDetail}
           aria-label="Fechar"
           className="text-muted transition hover:text-ink"
         >
@@ -199,52 +202,19 @@ function ProductDetail() {
         </button>
       </div>
 
-      <p className="mt-1 font-mono text-[11px] text-muted">{product_id}</p>
-      <div className="mt-4">{badge ? <Badge badge={badge} /> : null}</div>
-      <p className="mt-4 font-display text-3xl text-ink">{brl(price)}</p>
-
-      <div className="mt-6 flex items-center gap-3">
-        <label htmlFor="qty" className="text-sm text-muted">
-          Quantidade
-        </label>
-        <input
-          id="qty"
-          type="number"
-          min={1}
-          value={quantity}
-          onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
-          className="w-20 rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink"
-        />
-      </div>
-
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
-      <div className="mt-6 flex flex-col gap-2 sm:flex-row">
-        <button
-          type="button"
-          onClick={() => {
-            addToCart(selected, quantity);
-            select(null);
-          }}
-          className="flex-1 rounded-full border border-line px-5 py-3 text-sm font-medium text-ink transition hover:border-ink/30"
-        >
-          Adicionar ao carrinho
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            addToCart(selected, quantity);
-            select(null);
-            openCart(true);
-          }}
-          className="flex-1 rounded-full bg-signal px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
-        >
-          Ir para o carrinho
-        </button>
+      <div className="mt-4">
+        {detail ? (
+          <ScreenRenderer screen={detail} />
+        ) : (
+          !error && (
+            <p className="py-8 text-center text-sm text-muted">
+              {pending ? "Carregando detalhe…" : ""}
+            </p>
+          )
+        )}
       </div>
-      <p className="mt-3 text-center text-[11px] text-muted">
-        Simulação acadêmica — nenhum pagamento é processado.
-      </p>
     </>
   );
 }
@@ -386,13 +356,14 @@ function CheckoutScreen() {
   );
 }
 
-function Host({ children }: { children: React.ReactNode }) {
-  const { selected, checkout, cartOpen, select, openCart, closeCheckout } = useSdui();
+export function Host({ children }: { children: React.ReactNode }) {
+  const { detailOpen, checkout, cartOpen, closeDetail, openCart, closeCheckout } =
+    useSdui();
   return (
     <>
       {children}
-      <Modal open={selected !== null && checkout === null} onClose={() => select(null)}>
-        <ProductDetail />
+      <Modal open={detailOpen && checkout === null} onClose={closeDetail} wide>
+        <DetailScreen />
       </Modal>
       <Modal
         open={cartOpen && checkout === null}

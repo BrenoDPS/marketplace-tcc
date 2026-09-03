@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 /**
  * O servidor pode mandar `navigate` para caminhos que este cliente ainda nao
  * implementa (ex.: /explore, /categories/electronics vindos do hero). Em vez de
@@ -18,12 +20,12 @@ export default async function NotBuiltYet({ params }: PageProps<"/[...slug]">) {
         Esta tela ainda não existe no cliente. A ação <code>navigate</code> foi executada
         corretamente — falta o destino.
       </p>
-      <a
+      <Link
         href="/"
         className="mt-8 w-fit rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-paper"
       >
         Voltar à vitrine
-      </a>
+      </Link>
     </main>
   );
 }

@@ -38,6 +38,11 @@ class Product(Base):
     product_id: Mapped[str] = mapped_column(String(64), primary_key=True)
     product_category_name: Mapped[str | None] = mapped_column(String(120), index=True)
     product_weight_g: Mapped[float | None] = mapped_column(Float)
+    # Media/contagem de `review_score` dos pedidos que contem o produto. A nota
+    # no Olist e do PEDIDO, nao do item — a atribuicao e uma aproximacao, mas os
+    # numeros sao reais. Sem pedido avaliado, `rating` fica nulo.
+    rating: Mapped[float | None] = mapped_column(Float)
+    review_count: Mapped[int] = mapped_column(Integer, default=0)
 
 
 class Order(Base):

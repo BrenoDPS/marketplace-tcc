@@ -9,6 +9,7 @@ from src.core.database import close_db
 from src.core.redis import close_redis
 from src.features.checkout.router import router as checkout_router
 from src.features.home_contextual.router import router as home_router
+from src.features.product_detail.router import router as product_detail_router
 
 # Origens locais (Vite/React) liberadas apenas em desenvolvimento.
 DEV_CORS_ORIGINS = [
@@ -44,4 +45,5 @@ if settings.APP_ENV == "development":
     )
 
 app.include_router(home_router, prefix="/api/v1")
+app.include_router(product_detail_router, prefix="/api/v1")
 app.include_router(checkout_router, prefix="/api/v1")

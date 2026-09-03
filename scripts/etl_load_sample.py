@@ -48,6 +48,7 @@ CSV_FILES = {
     "sellers": "olist_sellers_dataset.csv",
     "products": "olist_products_dataset.csv",
     "geolocation": "olist_geolocation_dataset.csv",
+    "reviews": "olist_order_reviews_dataset.csv",
 }
 
 
@@ -135,6 +136,31 @@ def filter_valid(
     }
 
 
+def attach_product_ratings(
+    products: pd.DataFrame, items: pd.DataFrame, reviews: pd.DataFrame
+) -> pd.DataFrame:
+    """Media e contagem de `review_score` por produto.
+
+    A nota e do PEDIDO no Olist, nao do produto — nao existe avaliacao por item.
+    Atribuir a nota do pedido a cada produto dele e uma aproximacao, mas os
+    numeros sao reais: nada aqui e gerado. Produto sem pedido avaliado fica com
+    `rating` nulo, e a tela omite em vez de inventar.
+    """
+    scored = items[["order_id", "product_id"]].merge(
+        reviews[["order_id", "review_score"]], on="order_id", how="inner"
+    )
+    agg = (
+        scored.groupby("product_id")["review_score"]
+        .agg(rating="mean", review_count="count")
+        .reset_index()
+    )
+    agg["rating"] = agg["rating"].round(2)
+
+    out = products.merge(agg, on="product_id", how="left")
+    out["review_count"] = out["review_count"].fillna(0).astype(int)
+    return out
+
+
 def build_cep_centroids(geolocation: pd.DataFrame, prefixes: set[str]) -> pd.DataFrame:
     geo = geolocation[geolocation["geolocation_zip_code_prefix"].isin(prefixes)]
     centroids = (
@@ -182,7 +208,13 @@ def load_tables(
         (
             "olist_products",
             subset["products"],
-            ["product_id", "product_category_name", "product_weight_g"],
+            [
+                "product_id",
+                "product_category_name",
+                "product_weight_g",
+                "rating",
+                "review_count",
+            ],
         ),
         (
             "olist_orders",
@@ -270,10 +302,15 @@ def main() -> int:
     items_sample = sample_order_items(frames["order_items"], n=args.sample_size, seed=args.seed)
 
     subset = filter_valid(frames, items_sample)
+    subset["products"] = attach_product_ratings(
+        subset["products"], subset["order_items"], frames["reviews"]
+    )
+    rated = int((subset["products"]["review_count"] > 0).sum())
     print(
         "[etl] subset filtrado:",
         {k: len(v) for k, v in subset.items() if k != "geolocation"},
     )
+    print(f"[etl] produtos com avaliacao real: {rated}/{len(subset['products'])}")
 
     items_with_customer = subset["order_items"].merge(
         subset["orders"][["order_id", "customer_id"]], on="order_id", how="left"

@@ -71,4 +71,5 @@ web/                 # Frontend Next.js (App Router) que consome o SDUI
 - Apresentar os fatores de `delivery_options.py` como dado medido do Olist — são cenário declarado (ler o docstring do módulo)
 - Prometer busca por **nome de produto**: o Olist não tem esse campo. A busca é sobre `product_category_name` (ler o docstring de `home_contextual/repository.py`)
 - Afirmar que **consolidar remessas reduz CO₂**: o modelo é linear na massa, então agrupar economiza frete e não emissão (ver "O achado que mudou a premissa" no handoff da Sprint 5)
+- Inventar **descrição de produto ou tags de sustentabilidade**: o Olist tem só o *comprimento* da descrição e nenhuma tag. Nota e vendedor, esses sim, são reais (`olist_order_reviews` / `olist_sellers`)
 - Seguir transcripts antigos em vez dos handoffs em `docs/`

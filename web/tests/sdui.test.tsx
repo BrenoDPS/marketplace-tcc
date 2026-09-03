@@ -6,7 +6,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { ScreenRenderer } from "@/components/sdui";
+import { Host, ScreenRenderer } from "@/components/sdui";
 import {
   CART_STORAGE_KEY,
   SduiProvider,
@@ -16,6 +16,17 @@ import {
 } from "@/components/sdui-context";
 import { co2Label, decimal, findCheckoutAction } from "@/lib/sdui";
 import type { ProductCardBlock, ScreenResponse, UIComponent } from "@/lib/sdui";
+
+// jsdom nao implementa a API de `<dialog>`; o `Modal` usa `showModal`/`close`
+// nativos de proposito (Esc, foco preso e backdrop de graca).
+beforeEach(() => {
+  HTMLDialogElement.prototype.showModal = function () {
+    this.open = true;
+  };
+  HTMLDialogElement.prototype.close = function () {
+    this.open = false;
+  };
+});
 
 const push = vi.fn();
 const replace = vi.fn();
@@ -46,7 +57,16 @@ const card = (productId: string, price = 10): ProductCardBlock => ({
     badge: null,
   },
   actions: [
-    { type: "open_modal", payload: { modal_id: "product_detail", title: null } },
+    // GET abre o detalhe (outra tela); POST e o checkout. O cliente distingue
+    // pelo metodo, nao pela ordem.
+    {
+      type: "api_call",
+      payload: {
+        method: "GET",
+        path: `/api/v1/products/${productId}?customer_zip_prefix=05311`,
+        body_key: null,
+      },
+    },
     {
       type: "api_call",
       payload: {
@@ -208,7 +228,22 @@ function Probe() {
       >
         nav-replace
       </button>
-      <button onClick={() => addToCart(card("p1", 25), 2)}>add</button>
+      <button
+        onClick={() => {
+          const block = card("p1", 25);
+          addToCart(
+            { productId: "p1", title: block.props.title, price: 25 },
+            2,
+            // Filtra por `body_key`, como `findCheckoutAction` — o card tambem
+            // carrega uma `api_call` GET (o detalhe).
+            block.actions.find(
+              (a) => a.type === "api_call" && a.payload.body_key === "checkout",
+            ) ?? null,
+          );
+        }}
+      >
+        add
+      </button>
       <button onClick={() => checkoutAction && run(checkoutAction)}>checkout</button>
       <button
         onClick={() => {
@@ -249,6 +284,38 @@ describe("executor de actions", () => {
     fireEvent.click(screen.getByText("nav-replace"));
     expect(replace).toHaveBeenCalledWith("/y");
     expect(push).not.toHaveBeenCalled();
+  });
+
+  test("api_call GET traz OUTRA tela e abre o detalhe", async () => {
+    // O detalhe do produto deixou de ser montado pelo cliente: ele chega como
+    // ScreenResponse e o mesmo renderer desenha.
+    const detailScreen: ScreenResponse = {
+      schema_version: 1,
+      screen_id: "product_detail",
+      context: "product",
+      components: [hero("Detalhe veio do servidor")],
+    };
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => detailScreen });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <SduiProvider customerZipPrefix="05311">
+        <Host>
+          <ScreenRenderer screen={screenOf([card("p1")])} />
+        </Host>
+      </SduiProvider>,
+    );
+
+    fireEvent.click(screen.getByText("Produto p1"));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    const [path, init] = fetchMock.mock.calls[0];
+    expect(path).toBe("/api/v1/products/p1?customer_zip_prefix=05311");
+    // GET nao leva corpo.
+    expect(init?.body).toBeUndefined();
+    await waitFor(() =>
+      expect(screen.getByText("Detalhe veio do servidor")).toBeTruthy(),
+    );
   });
 
   test("api_call com carrinho vazio nao chega a chamar a rede", () => {

@@ -32,8 +32,6 @@ from src.schemas.sdui import (
     HeroBannerProps,
     NavigateAction,
     NavigatePayload,
-    OpenModalAction,
-    OpenModalPayload,
     ProductCardBlock,
     ProductCardProps,
     ScreenResponse,
@@ -197,6 +195,24 @@ def _checkout_action() -> ApiCallAction:
     )
 
 
+def _detail_action(product_id: str, customer_zip_prefix: str) -> ApiCallAction:
+    """Abre o detalhe buscando OUTRA tela no servidor.
+
+    Antes era um `open_modal` e o cliente remontava o detalhe com os props do
+    proprio card — a unica tela que o cliente montava sozinho. O caminho ja vem
+    com o CEP porque a distancia e o selo dependem dele; o cliente nao monta
+    query string.
+    """
+    params = urlencode({"customer_zip_prefix": customer_zip_prefix})
+    return ApiCallAction(
+        payload=ApiCallPayload(
+            method="GET",
+            path=f"/api/v1/products/{product_id}?{params}",
+            body_key=None,
+        )
+    )
+
+
 async def compose_home(
     session: AsyncSession,
     context: str,
@@ -264,12 +280,7 @@ async def compose_home(
                     badge=badge,
                 ),
                 actions=[
-                    OpenModalAction(
-                        payload=OpenModalPayload(
-                            modal_id="product_detail",
-                            title=None,
-                        )
-                    ),
+                    _detail_action(product.product_id, customer_zip_prefix),
                     _checkout_action(),
                 ],
             )

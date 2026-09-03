@@ -1,6 +1,7 @@
 "use client";
 
 import Form from "next/form";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CONTEXTS, DEMO_ZIPS } from "@/lib/sdui";
@@ -105,9 +106,9 @@ export function Controls({
   return (
     <header className="sticky top-0 z-10 border-b border-line bg-paper/85 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-6 py-3">
-        <a href="/" className="font-display text-lg tracking-tight text-ink">
+        <Link href="/" className="font-display text-lg tracking-tight text-ink">
           Olist<span className="text-signal">.</span>
-        </a>
+        </Link>
 
         <nav className="flex flex-wrap gap-1" aria-label="Contexto da vitrine">
           {CONTEXTS.map((item) => (

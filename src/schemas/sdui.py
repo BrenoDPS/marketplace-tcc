@@ -80,6 +80,36 @@ class HeroBannerProps(BaseModel):
     cta_label: str | None = None
 
 
+class ProductDetailProps(BaseModel):
+    """Detalhe do produto.
+
+    O prototipo do TCC1 mostrava descricao, tags de sustentabilidade e nota.
+    Aqui so entram campos que EXISTEM na amostra:
+
+    - `rating`/`review_count`: reais, de `olist_order_reviews`. A nota no Olist
+      e do pedido, nao do item; atribui-la ao produto e aproximacao, mas o
+      numero nao e inventado. Sem pedido avaliado, vem nulo.
+    - `seller_city`/`seller_state`: reais, de `olist_sellers`.
+    - FORA: descricao e tags do tipo "algodao organico". O Olist tem apenas o
+      COMPRIMENTO da descricao (`product_description_lenght`), nao o texto, e
+      nao tem nenhuma tag de sustentabilidade. Preencher isso seria inventar
+      dado numa tela cujo assunto e justamente credibilidade ambiental.
+    """
+
+    product_id: str
+    title: str | None = None
+    price: float
+    image_url: str | None = None
+    category: str | None = None
+    weight_g: float | None = None
+    seller_id: str
+    seller_city: str | None = None
+    seller_state: str | None = None
+    rating: float | None = None
+    review_count: int = 0
+    badge: SustainabilityProps | None = None
+
+
 class CartLineProps(BaseModel):
     product_id: str
     title: str | None = None
@@ -222,6 +252,13 @@ class CheckoutSummaryBlock(BaseModel):
     actions: list[UIAction] = Field(default_factory=list)
 
 
+class ProductDetailBlock(BaseModel):
+    type: Literal["product_detail"] = "product_detail"
+    version: int = 1
+    props: ProductDetailProps
+    actions: list[UIAction] = Field(default_factory=list)
+
+
 class CategoryGridBlock(BaseModel):
     type: Literal["category_grid"] = "category_grid"
     version: int = 1
@@ -255,6 +292,7 @@ UIComponent = Annotated[
         ProductCardBlock,
         HeroBannerBlock,
         CategoryGridBlock,
+        ProductDetailBlock,
         CheckoutSummaryBlock,
         DeliveryOptionsBlock,
         ImpactBannerBlock,

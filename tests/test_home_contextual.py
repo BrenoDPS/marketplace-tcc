@@ -398,6 +398,23 @@ async def test_explicit_category_overrides_context_category() -> None:
     assert _cards(body) == ["prod_real_1", "prod_real_2"]
 
 
+async def test_product_card_opens_the_detail_from_the_server() -> None:
+    """O detalhe deixou de ser montado pelo cliente: o card aponta para
+    `GET /products/{id}`, com o CEP ja embutido pelo servidor."""
+    _, body = await _get("/api/v1/home?customer_zip_prefix=01000&context=default")
+    assert isinstance(body, dict)
+    card = next(c for c in body["components"] if c["type"] == "product_card")
+    detail = next(
+        a
+        for a in card["actions"]
+        if a["type"] == "api_call" and a["payload"]["method"] == "GET"
+    )
+    path = detail["payload"]["path"]
+    assert path.startswith(f"/api/v1/products/{card['props']['product_id']}")
+    assert "customer_zip_prefix=01000" in path
+    assert detail["payload"]["body_key"] is None
+
+
 async def test_product_card_has_checkout_api_call() -> None:
     _, body = await _get(
         "/api/v1/home?customer_zip_prefix=01000&context=default"

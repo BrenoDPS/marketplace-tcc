@@ -81,6 +81,25 @@ export type ProductCardBlock = Envelope<
   }
 >;
 
+export type ProductDetailBlock = Envelope<
+  "product_detail",
+  {
+    product_id: string;
+    title: string | null;
+    price: number;
+    image_url: string | null;
+    category: string | null;
+    weight_g: number | null;
+    seller_id: string;
+    seller_city: string | null;
+    seller_state: string | null;
+    /** Nulo quando nenhum pedido do produto foi avaliado — nao ha mock. */
+    rating: number | null;
+    review_count: number;
+    badge: SustainabilityProps | null;
+  }
+>;
+
 export type CartLine = {
   product_id: string;
   title: string | null;
@@ -162,6 +181,7 @@ export type UIComponent =
   | HeroBannerBlock
   | CategoryGridBlock
   | ProductCardBlock
+  | ProductDetailBlock
   | CheckoutSummaryBlock
   | DeliveryOptionsBlock
   | ShipmentBreakdownBlock

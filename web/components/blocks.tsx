@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { brl, co2Label, decimal } from "@/lib/sdui";
 import type {
   Alternative,
@@ -9,6 +10,7 @@ import type {
   HeroBannerBlock,
   ImpactBannerBlock,
   ProductCardBlock,
+  ProductDetailBlock,
   ShipmentBreakdownBlock,
   SustainabilityProps,
 } from "@/lib/sdui";
@@ -118,13 +120,17 @@ function coverStyle(productId: string) {
 export function ProductCard({ block }: { block: ProductCardBlock }) {
   const { product_id, price, title, image_url, badge } = block.props;
   const { run } = useSdui();
-  const detail = block.actions.find((a) => a.type === "open_modal");
+  // O card carrega duas `api_call`: o GET abre o detalhe, o POST e o checkout.
+  // Distinguir pelo metodo evita depender da ordem em que vieram.
+  const detail = block.actions.find(
+    (a) => a.type === "api_call" && a.payload.method === "GET",
+  );
 
   return (
     <button
       type="button"
       disabled={!detail}
-      onClick={() => detail && run(detail, { product: block })}
+      onClick={() => detail && run(detail)}
       className="group flex flex-col overflow-hidden rounded-xl border border-line bg-surface text-left transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-ink/5 disabled:cursor-default"
     >
       <div
@@ -141,6 +147,109 @@ export function ProductCard({ block }: { block: ProductCardBlock }) {
         <p className="mt-auto font-display text-xl text-ink">{brl(price)}</p>
       </div>
     </button>
+  );
+}
+
+/**
+ * Detalhe do produto — agora um bloco vindo do servidor.
+ *
+ * Sem descricao e sem tags de sustentabilidade: o Olist nao tem esses campos
+ * (so o COMPRIMENTO da descricao), e inventa-los numa tela cujo assunto e
+ * credibilidade ambiental seria o pior lugar possivel para dado fabricado.
+ */
+export function ProductDetail({ block }: { block: ProductDetailBlock }) {
+  const {
+    product_id,
+    title,
+    price,
+    category,
+    weight_g,
+    seller_city,
+    seller_state,
+    rating,
+    review_count,
+    badge,
+  } = block.props;
+  const { addToCart, openCart, closeDetail } = useSdui();
+  const [quantity, setQuantity] = useState(1);
+  const checkout = block.actions.find((a) => a.type === "api_call") ?? null;
+
+  const local = [seller_city, seller_state].filter(Boolean).join(" · ");
+  const facts = [
+    rating !== null
+      ? [
+          "Avaliação",
+          `${decimal(rating, 1)} / 5`,
+          `${review_count} ${review_count === 1 ? "pedido" : "pedidos"}`,
+        ]
+      : null,
+    local ? ["Vendedor", local, ""] : null,
+    weight_g ? ["Peso", `${decimal(weight_g, 0)} g`, ""] : null,
+    category ? ["Categoria", category.replace(/_/g, " "), ""] : null,
+  ].filter((f): f is string[] => f !== null);
+
+  const add = (thenOpenCart: boolean) => {
+    addToCart({ productId: product_id, title, price }, quantity, checkout);
+    closeDetail();
+    if (thenOpenCart) openCart(true);
+  };
+
+  return (
+    <section className="rounded-xl border border-line bg-surface p-6">
+      <h2 className="font-display text-2xl text-ink">{title ?? product_id}</h2>
+      <p className="mt-1 font-mono text-[11px] text-muted">{product_id}</p>
+
+      <div className="mt-4">{badge ? <Badge badge={badge} /> : null}</div>
+      <p className="mt-4 font-display text-3xl text-ink">{brl(price)}</p>
+
+      {facts.length > 0 && (
+        <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+          {facts.map(([label, value, hint]) => (
+            <div key={label}>
+              <dt className="text-[11px] uppercase tracking-wide text-muted">{label}</dt>
+              <dd className="mt-0.5 text-ink">
+                {value}
+                {hint && <span className="ml-1.5 text-xs text-muted">({hint})</span>}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      <div className="mt-6 flex items-center gap-3">
+        <label htmlFor="qty" className="text-sm text-muted">
+          Quantidade
+        </label>
+        <input
+          id="qty"
+          type="number"
+          min={1}
+          value={quantity}
+          onChange={(e) => setQuantity(Math.max(1, Number(e.target.value) || 1))}
+          className="w-20 rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink"
+        />
+      </div>
+
+      <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+        <button
+          type="button"
+          onClick={() => add(false)}
+          className="flex-1 rounded-full border border-line px-5 py-3 text-sm font-medium text-ink transition hover:border-ink/30"
+        >
+          Adicionar ao carrinho
+        </button>
+        <button
+          type="button"
+          onClick={() => add(true)}
+          className="flex-1 rounded-full bg-signal px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
+        >
+          Ir para o carrinho
+        </button>
+      </div>
+      <p className="mt-3 text-center text-[11px] text-muted">
+        Simulação acadêmica — nenhum pagamento é processado.
+      </p>
+    </section>
   );
 }
 

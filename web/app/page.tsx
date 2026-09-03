@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Controls, EntryScreen } from "@/components/controls";
 import { SduiRoot } from "@/components/sdui";
 import { SduiProvider } from "@/components/sdui-context";
@@ -46,13 +47,13 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
             {result.status === 422 && (
               <p className="mt-2 text-sm text-muted">
                 Este CEP não existe na amostra de demonstração. Tente{" "}
-                <a className="underline" href="/?customer_zip_prefix=05311&context=default">
+                <Link className="underline" href="/?customer_zip_prefix=05311&context=default">
                   05311
-                </a>{" "}
+                </Link>{" "}
                 ou{" "}
-                <a className="underline" href="/?customer_zip_prefix=60165&context=default">
+                <Link className="underline" href="/?customer_zip_prefix=60165&context=default">
                   60165
-                </a>
+                </Link>
                 .
               </p>
             )}
