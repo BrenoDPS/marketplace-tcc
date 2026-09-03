@@ -112,7 +112,7 @@ describe("ScreenRenderer", () => {
 // --- executor de actions ----------------------------------------------------
 
 function Probe() {
-  const { run, cart, addToCart, checkoutAction, error } = useSdui();
+  const { run, cart, addToCart, swapInCart, checkoutAction, error } = useSdui();
   return (
     <div>
       <button onClick={() => run({ type: "navigate", payload: { path: "/x", replace: false } })}>
@@ -125,7 +125,20 @@ function Probe() {
       </button>
       <button onClick={() => addToCart(card("p1", 25), 2)}>add</button>
       <button onClick={() => checkoutAction && run(checkoutAction)}>checkout</button>
+      <button
+        onClick={() => {
+          const updated = swapInCart("p1", {
+            productId: "p2",
+            title: "Alternativa",
+            price: 19,
+          });
+          if (checkoutAction) run(checkoutAction, { cart: updated });
+        }}
+      >
+        swap
+      </button>
       <span data-testid="count">{cart.length}</span>
+      <span data-testid="ids">{cart.map((e) => `${e.productId}x${e.quantity}`).join(",")}</span>
       <span data-testid="error">{error ?? ""}</span>
     </div>
   );
@@ -215,6 +228,30 @@ describe("carrinho", () => {
     fireEvent.click(screen.getByText("add"));
     fireEvent.click(screen.getByText("add"));
     expect(screen.getByTestId("count").textContent).toBe("1");
+  });
+
+  test("trocar mantem a quantidade do item substituido", () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => screenOf([]) }));
+    renderProbe();
+    fireEvent.click(screen.getByText("add")); // p1, quantidade 2
+    fireEvent.click(screen.getByText("swap"));
+    expect(screen.getByTestId("ids").textContent).toBe("p2x2");
+  });
+
+  test("re-simulacao apos a troca envia o carrinho NOVO", async () => {
+    // Regressao do closure: `setCart` nao atualiza o valor capturado por `run`,
+    // entao sem o override o servidor receberia o carrinho antigo (p1) e
+    // devolveria uma tela que contradiz o que esta na frente do usuario.
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => screenOf([]) });
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderProbe();
+    fireEvent.click(screen.getByText("add"));
+    fireEvent.click(screen.getByText("swap"));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    const body = JSON.parse(fetchMock.mock.calls.at(-1)![1].body);
+    expect(body.items).toEqual([{ product_id: "p2", quantity: 2 }]);
   });
 
   test("checkoutBody monta o corpo do carrinho", () => {

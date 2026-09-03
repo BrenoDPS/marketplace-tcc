@@ -91,7 +91,7 @@ Todos seguem o envelope e estão na união discriminada `UIComponent` (`version:
 | `category_grid` | Home | `title`, `categories[]` — cada item com `slug`, `label`, `product_count`, `selected` e **`actions` próprias** | S5 |
 | `checkout_summary` | Checkout | `items[]` (`product_id`, `title`, `quantity`, `unit_price`, `line_total`), `subtotal`, `freight`, `total` | S3 (virou carrinho na S5) |
 | `delivery_options` | Checkout | `distance_km`, `selected_id`, `options[]` (`id`, `label`, `eta_days`, `price`, `co2_kg`, `recommended`, `selected`), `note` | S4 |
-| `shipment_breakdown` | Checkout | `title`, `shipments[]` (`seller_id`, `product_ids`, `total_quantity`, `weight_g`, `distance_km`, `freight`, `co2_kg`, `co2_share`, `badge`), `note` | S5 |
+| `shipment_breakdown` | Checkout | `title`, `shipments[]` (`seller_id`, `product_ids`, `total_quantity`, `weight_g`, `distance_km`, `freight`, `co2_kg`, `co2_share`, `badge`, `alternatives[]`), `note` | S5 (`alternatives` na S6) |
 | `impact_banner` | Checkout | `distance_km`, `co2_kg`, `badge`, `message` | S3 |
 
 `SustainabilityProps` (`label`, `impact_level`, `icon`) é o selo verde, reaproveitado por
@@ -103,6 +103,16 @@ Todos seguem o envelope e estão na união discriminada `UIComponent` (`version:
   caminho diferente e o envelope só comporta uma ação para o conjunto.
 - `delivery_options` tem **uma** `api_call` para o bloco todo: o cliente já sabe qual opção
   foi clicada e devolve o `id` no corpo, então três ações seriam redundantes.
+- `shipment_breakdown` põe `actions` em cada `alternatives[]` (mesma razão do
+  `category_grid`: cada sugestão é uma troca diferente).
+
+**Sugestão de troca (Sprint 6):** `shipments[]` vem ordenada por emissão decrescente, e a
+**primeira** — a que domina a pegada — traz `alternatives[]`: produtos da **mesma categoria**
+em vendedores mais próximos, com `co2_saved_kg` e `saved_share`. Não é "o mesmo produto em
+outro vendedor" — o Olist não tem catálogo compartilhado entre sellers, então o substituto é
+outro produto da mesma categoria, e por isso a tela mostra preço e distância dele. O ranking
+usa **distância e massa juntas**: um vendedor mais perto com produto mais pesado pode emitir
+mais. Ver `src/features/checkout/alternatives.py`.
 
 **Degradação graciosa:** bloco de `type` desconhecido renderiza `null` no cliente
 (`REGISTRY` em `web/components/sdui.tsx`) — a tela degrada em vez de quebrar. Há teste

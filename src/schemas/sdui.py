@@ -95,8 +95,33 @@ class CheckoutSummaryProps(BaseModel):
     total: float
 
 
+class AlternativeProps(BaseModel):
+    """Produto da MESMA CATEGORIA num vendedor mais proximo.
+
+    Nao e "o mesmo produto em outro vendedor": o Olist nao tem catalogo
+    compartilhado entre sellers, entao o mais proximo que da para afirmar e
+    "outro produto da mesma categoria". `replaces_product_id` amarra a
+    sugestao ao item do carrinho, para a troca ter semantica definida.
+    """
+
+    product_id: str
+    title: str | None = None
+    price: float
+    seller_id: str
+    distance_km: float
+    co2_kg: float
+    replaces_product_id: str
+    co2_saved_kg: float
+    saved_share: float
+    actions: list[UIAction] = Field(default_factory=list)
+
+
 class ShipmentProps(BaseModel):
-    """Uma remessa = um vendedor. Itens do mesmo vendedor saem juntos."""
+    """Uma remessa = um vendedor. Itens do mesmo vendedor saem juntos.
+
+    `alternatives` so vem preenchida na remessa de maior emissao: sugerir
+    troca nas outras seria ruido, porque mexer nelas quase nao move a pegada.
+    """
 
     seller_id: str
     product_ids: list[str]
@@ -109,9 +134,13 @@ class ShipmentProps(BaseModel):
     # vendedor domina a pegada — a leitura util do carrinho multi-item.
     co2_share: float | None = None
     badge: SustainabilityProps | None = None
+    alternatives: list[AlternativeProps] = Field(default_factory=list)
 
 
 class ShipmentBreakdownProps(BaseModel):
+    """`shipments` vem ordenada por emissao DECRESCENTE — a remessa que mais
+    pesa na pegada aparece primeiro, que e onde o usuario pode agir."""
+
     title: str | None = None
     shipments: list[ShipmentProps]
     note: str | None = None

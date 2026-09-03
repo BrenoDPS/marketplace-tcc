@@ -148,6 +148,14 @@ curl -i -X POST "http://localhost:8000/api/v1/checkout/simulate" \
 > carrinho revela e o `co2_share`: qual vendedor domina a pegada. Num carrinho
 > de 3 itens, a remessa a 79 km respondeu por 75% do CO2 total.
 
+> **Sugestao de troca (Sprint 6).** As remessas vem ordenadas por emissao
+> decrescente e a primeira traz `alternatives`: produtos da **mesma categoria**
+> em vendedores mais proximos, com o CO2 economizado. Nao e o mesmo produto em
+> outro vendedor — o Olist nao tem catalogo compartilhado entre sellers —, por
+> isso a tela mostra preco e distancia do substituto e a decisao e do usuario.
+> O ranking pesa **distancia e massa juntas**: um vendedor mais perto com
+> produto mais pesado pode emitir mais.
+
 > **Decisao (handoff ambiguo "404 ou 422"):** produto inexistente retorna
 > **404** (recurso nao encontrado); `customer_zip_prefix` invalido retorna
 > **422** (entrada que nao casa com `cep_centroids`), consistente com `GET /home`.
@@ -288,6 +296,15 @@ Escopo em [docs/sprint5-handoff.md](docs/sprint5-handoff.md):
 - Vitest em `web/` (14 casos) sobre o executor de `actions` e o `ScreenRenderer`
 - `.github/workflows/ci.yml` com dois jobs (backend e frontend)
 - `@types/node` alinhado ao Node 22 do projeto (estava em `^20`)
+
+## Sprint 6 (em andamento)
+
+- Remessas ordenadas por **emissao decrescente** — a que domina a pegada aparece primeiro
+- `alternatives` no `shipment_breakdown`: produtos da mesma categoria em vendedores mais proximos, com CO2 economizado
+- Botao "Trocar" substitui o item no carrinho preservando a quantidade e re-simula pelo servidor
+- `src/features/checkout/alternatives.py` — ranking por **economia de CO2**, nao por distancia pura
+
+**Pendente:** persistir o carrinho (`localStorage`), E2E com Playwright, bloco `product_detail` server-driven, modo de inspecao SDUI.
 
 ## Roadmap (proximas sprints)
 

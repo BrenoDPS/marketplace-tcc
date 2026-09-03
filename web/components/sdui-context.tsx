@@ -15,7 +15,16 @@ import type { ProductCardBlock, ScreenResponse, UIAction } from "@/lib/sdui";
  * envia o carrinho inteiro. `deliveryOption` e o unico extra que a acao do
  * bloco `delivery_options` precisa passar.
  */
-type RunContext = { product?: ProductCardBlock; deliveryOption?: string };
+/**
+ * `cart` sobrescreve o estado ao montar o corpo. Existe para a troca por
+ * vendedor mais proximo: `setCart` nao atualiza o valor que `run` capturou no
+ * closure, entao quem troca passa a lista nova explicitamente.
+ */
+type RunContext = {
+  product?: ProductCardBlock;
+  deliveryOption?: string;
+  cart?: CartEntry[];
+};
 
 export type CartEntry = {
   productId: string;
@@ -43,6 +52,8 @@ type SduiValue = {
   addToCart: (block: ProductCardBlock, quantity: number) => void;
   setQuantity: (productId: string, quantity: number) => void;
   removeFromCart: (productId: string) => void;
+  /** Troca um item pelo substituto sugerido e devolve o carrinho ja novo. */
+  swapInCart: (replacesProductId: string, entry: Omit<CartEntry, "quantity">) => CartEntry[];
   openCart: (open: boolean) => void;
   closeCheckout: () => void;
 };
@@ -106,16 +117,17 @@ export function SduiProvider({
           // Hoje so existe um body_key ("checkout"). Outro valor = servidor
           // pede algo que este cliente ainda nao sabe montar.
           if (body_key !== "checkout") return;
+          const items = ctx.cart ?? cart;
           // Carrinho vazio: o backend recusaria com 422 e o usuario veria um
           // erro tecnico no lugar de "seu carrinho esta vazio".
-          if (cart.length === 0) return;
+          if (items.length === 0) return;
 
           setPending(true);
           setError(null);
           fetch(path, {
             method,
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(checkoutBody(customerZipPrefix, cart, ctx)),
+            body: JSON.stringify(checkoutBody(customerZipPrefix, items, ctx)),
           })
             .then(async (res) => {
               const body = await res.json().catch(() => null);
@@ -185,6 +197,14 @@ export function SduiProvider({
         ),
       removeFromCart: (productId) =>
         setCart((current) => current.filter((e) => e.productId !== productId)),
+      swapInCart: (replacesProductId, entry) => {
+        // A quantidade acompanha a troca: quem tinha 2 unidades continua com 2.
+        const updated = cart.map((e) =>
+          e.productId === replacesProductId ? { ...entry, quantity: e.quantity } : e,
+        );
+        setCart(updated);
+        return updated;
+      },
       openCart: (open) => {
         setError(null);
         setCartOpen(open);

@@ -94,6 +94,20 @@ export type CheckoutSummaryBlock = Envelope<
   { items: CartLine[]; subtotal: number; freight: number; total: number }
 >;
 
+export type Alternative = {
+  product_id: string;
+  title: string | null;
+  price: number;
+  seller_id: string;
+  distance_km: number;
+  co2_kg: number;
+  /** Item do carrinho que esta sugestao substituiria. */
+  replaces_product_id: string;
+  co2_saved_kg: number;
+  saved_share: number;
+  actions: UIAction[];
+};
+
 export type Shipment = {
   seller_id: string;
   product_ids: string[];
@@ -104,6 +118,8 @@ export type Shipment = {
   co2_kg: number | null;
   co2_share: number | null;
   badge: SustainabilityProps | null;
+  /** Só vem preenchida na remessa de maior emissão. */
+  alternatives: Alternative[];
 };
 
 export type ShipmentBreakdownBlock = Envelope<

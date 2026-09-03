@@ -13,7 +13,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 from src.core.database import get_db
-from src.features.checkout.repository import CheckoutProductRow
+from src.features.checkout.repository import AlternativeRow, CheckoutProductRow
 from src.main import app
 from src.schemas.sdui import SustainabilityProps
 
@@ -60,6 +60,47 @@ CATALOG = {
 # Distancias por prefixo do seller: uma perto (com selo) e uma longe (sem).
 DISTANCE_BY_SELLER_ZIP = {"08275": 27.0, "60000": 2000.0}
 
+# --- sugestoes de troca (Sprint 6) ------------------------------------------
+# O cliente fica em (0, 0). No equador, 1 grau de longitude ~ 111,19 km, entao
+# a longitude do candidato define a distancia de forma previsivel.
+CUSTOMER_CENTROID = (0.0, 0.0)
+
+ALTERNATIVES = [
+    # Mesma categoria de PRODUCT_FAR_SELLER (2000 km), a ~500 km: reduz muito.
+    AlternativeRow(
+        product_id="prod_bebes_perto",
+        category="bebes",
+        unit_price=79.90,
+        weight_g=1000.0,
+        seller_id="seller_bebes_perto",
+        lat=0.0,
+        lng=4.5,
+    ),
+    # Mesma categoria, ainda mais perto, MAS quatro vezes mais pesado: emite
+    # mais que o de 500 km. Existe para provar que o ranking olha distancia E
+    # massa, nao so distancia.
+    AlternativeRow(
+        product_id="prod_bebes_pesado",
+        category="bebes",
+        unit_price=59.90,
+        weight_g=4000.0,
+        seller_id="seller_bebes_pesado",
+        lat=0.0,
+        lng=3.0,
+    ),
+    # Mesma categoria de PRODUCT_FIXTURE, porem a ~111 km — mais longe que os
+    # 27 km atuais, entao nao pode ser sugerido.
+    AlternativeRow(
+        product_id="prod_info_longe",
+        category="informatica_acessorios",
+        unit_price=149.90,
+        weight_g=2500.0,
+        seller_id="seller_info_longe",
+        lat=0.0,
+        lng=1.0,
+    ),
+]
+
 
 async def _override_get_db() -> AsyncIterator[None]:
     yield None
@@ -93,6 +134,26 @@ async def _fake_badge_for_pair(
     )
 
 
+async def _fake_get_centroid(
+    _session: object, zip_prefix: str
+) -> tuple[float, float] | None:
+    return CUSTOMER_CENTROID
+
+
+async def _fake_fetch_alternatives(
+    _session: object,
+    categories: list[str],
+    exclude_seller_ids: list[str],
+    limit: int = 300,
+) -> list[AlternativeRow]:
+    """Espelha o filtro real: mesma categoria e vendedor fora do carrinho."""
+    return [
+        a
+        for a in ALTERNATIVES
+        if a.category in set(categories) and a.seller_id not in set(exclude_seller_ids)
+    ]
+
+
 @pytest.fixture(autouse=True)
 def patch_checkout_dependencies(monkeypatch: pytest.MonkeyPatch) -> None:
     app.dependency_overrides[get_db] = _override_get_db
@@ -107,6 +168,14 @@ def patch_checkout_dependencies(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         "src.features.checkout.composer.build_badge_for_pair",
         _fake_badge_for_pair,
+    )
+    monkeypatch.setattr(
+        "src.features.checkout.composer.get_centroid",
+        _fake_get_centroid,
+    )
+    monkeypatch.setattr(
+        "src.features.checkout.composer.fetch_alternative_candidates",
+        _fake_fetch_alternatives,
     )
     yield
     app.dependency_overrides.clear()
@@ -365,3 +434,68 @@ async def test_delivery_eta_follows_the_farthest_shipment() -> None:
     _, near = await _cart(("prod_real_1", 1))
     _, both = await _cart(("prod_real_1", 1), ("prod_far", 1))
     assert _options(both)["standard"]["eta_days"] > _options(near)["standard"]["eta_days"]
+
+
+# ---------------------------------------------------------------------------
+# Sprint 6: ordenacao por pegada e sugestao de vendedor mais proximo
+# ---------------------------------------------------------------------------
+
+async def test_shipments_come_sorted_by_footprint() -> None:
+    """A remessa que mais pesa vem primeiro — e onde o usuario pode agir."""
+    # prod_real_1 entra ANTES no carrinho, mas emite menos que o distante.
+    _, body = await _cart(("prod_real_1", 1), ("prod_far", 1))
+    shipments = _shipments(body)
+    assert [s["seller_id"] for s in shipments] == ["seller_far", "seller_close"]
+    assert shipments[0]["co2_kg"] > shipments[1]["co2_kg"]
+
+
+async def test_alternatives_only_on_the_worst_shipment() -> None:
+    """Sugerir troca nas remessas menores seria ruido: mexer nelas quase nao
+    move a pegada."""
+    _, body = await _cart(("prod_real_1", 1), ("prod_far", 1))
+    worst, rest = _shipments(body)[0], _shipments(body)[1:]
+    assert worst["alternatives"]
+    assert all(s["alternatives"] == [] for s in rest)
+
+
+async def test_alternative_reduces_co2_and_reports_the_saving() -> None:
+    _, body = await _cart(("prod_far", 1))
+    shipment = _shipments(body)[0]
+    alt = shipment["alternatives"][0]
+
+    assert alt["distance_km"] < shipment["distance_km"]
+    assert alt["co2_kg"] < shipment["co2_kg"]
+    assert alt["co2_saved_kg"] == pytest.approx(shipment["co2_kg"] - alt["co2_kg"])
+    assert 0 < alt["saved_share"] < 1
+    assert alt["replaces_product_id"] == "prod_far"
+
+
+async def test_ranking_weighs_mass_not_only_distance() -> None:
+    """`prod_bebes_pesado` esta mais perto (334 km vs 500 km) mas pesa 4x, entao
+    emite mais. Vence quem economiza mais CO2, nao quem esta mais perto."""
+    _, body = await _cart(("prod_far", 1))
+    alt = _shipments(body)[0]["alternatives"][0]
+    assert alt["product_id"] == "prod_bebes_perto"
+
+
+async def test_no_alternative_when_nothing_is_closer() -> None:
+    """O unico candidato de informatica esta a ~111 km, mais longe que os 27 km
+    atuais. Sugerir uma troca que piora seria pior do que nao sugerir nada."""
+    _, body = await _cart(("prod_real_1", 1))
+    assert _shipments(body)[0]["alternatives"] == []
+
+
+async def test_alternative_never_comes_from_a_seller_already_in_the_cart() -> None:
+    _, body = await _cart(("prod_far", 1), ("prod_real_1", 1))
+    sellers_in_cart = {s["seller_id"] for s in _shipments(body)}
+    for alt in _shipments(body)[0]["alternatives"]:
+        assert alt["seller_id"] not in sellers_in_cart
+
+
+async def test_alternative_carries_price_so_the_trade_off_is_visible() -> None:
+    """A troca nao e equivalente — e outro produto da mesma categoria. Sem
+    preco e distancia na tela, o usuario decidiria no escuro."""
+    _, body = await _cart(("prod_far", 1))
+    alt = _shipments(body)[0]["alternatives"][0]
+    assert alt["price"] == pytest.approx(79.90)
+    assert alt["title"] == "Bebes"

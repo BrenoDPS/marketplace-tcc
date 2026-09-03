@@ -12,7 +12,12 @@ from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.features.checkout.repository import CheckoutProductRow
+from src.features.checkout.alternatives import build_alternatives
+from src.features.checkout.repository import (
+    CheckoutProductRow,
+    fetch_alternative_candidates,
+)
+from src.features.green_logistics.repository import get_centroid
 from src.features.green_logistics.delivery_options import (
     NOTE,
     build_delivery_options,
@@ -83,6 +88,16 @@ def _impact_message(shipments: list[ShipmentProps], mode_label: str) -> str:
     return f"Entrega a ~{distance_km:.0f} km do vendedor na modalidade {mode_label}."
 
 
+def _checkout_action() -> ApiCallAction:
+    return ApiCallAction(
+        payload=ApiCallPayload(
+            method="POST",
+            path="/api/v1/checkout/simulate",
+            body_key="checkout",
+        )
+    )
+
+
 def _group_by_seller(
     lines: list[tuple[CheckoutProductRow, int]],
 ) -> dict[str, list[tuple[CheckoutProductRow, int]]]:
@@ -93,6 +108,58 @@ def _group_by_seller(
     return groups
 
 
+async def _attach_alternatives(
+    session: AsyncSession,
+    shipments: list[ShipmentProps],
+    groups: dict[str, list[tuple[CheckoutProductRow, int]]],
+    customer_zip_prefix: str,
+    cart_product_ids: set[str],
+    co2_factor: float,
+) -> list[ShipmentProps]:
+    """Anexa sugestoes de troca a remessa de MAIOR emissao (a primeira).
+
+    So a pior: sugerir troca nas outras seria ruido — mexer nelas quase nao
+    move a pegada, e a tela ja tem resumo, modalidades e remessas.
+    """
+    if not shipments:
+        return shipments
+
+    worst = shipments[0]
+    if worst.co2_kg is None or worst.distance_km is None:
+        return shipments
+
+    customer = await get_centroid(session, customer_zip_prefix)
+    if customer is None:
+        return shipments
+
+    group = groups[worst.seller_id]
+    categories = [p.category for p, _ in group if p.category]
+    candidates = await fetch_alternative_candidates(
+        session,
+        categories=categories,
+        exclude_seller_ids=list(groups),
+    )
+    alternatives = build_alternatives(
+        group,
+        current_distance_km=worst.distance_km,
+        candidates=candidates,
+        customer_lat=customer[0],
+        customer_lng=customer[1],
+        co2_factor=co2_factor,
+        cart_product_ids=cart_product_ids,
+    )
+    if not alternatives:
+        return shipments
+
+    # Cada sugestao carrega a acao de re-simular: o cliente troca o item no
+    # carrinho e a MESMA tela e recomposta pelo servidor, igual ao que o
+    # `delivery_options` faz ao mudar de modalidade.
+    alternatives = [
+        a.model_copy(update={"actions": [_checkout_action()]}) for a in alternatives
+    ]
+    return [worst.model_copy(update={"alternatives": alternatives}), *shipments[1:]]
+
+
 async def compose_checkout(
     session: AsyncSession,
     lines: list[tuple[CheckoutProductRow, int]],
@@ -101,9 +168,11 @@ async def compose_checkout(
 ) -> ScreenResponse:
     mode = resolve_mode(delivery_option)
 
+    groups = _group_by_seller(lines)
+
     shipments: list[ShipmentProps] = []
     base_freight_total = 0.0
-    for seller_id, group in _group_by_seller(lines).items():
+    for seller_id, group in groups.items():
         # A emissao acompanha a massa embarcada: 2 unidades pesam 2x, e a
         # remessa carrega a soma dos itens daquele vendedor.
         weight_g = sum((p.weight_g or 0.0) * q for p, q in group) or None
@@ -141,6 +210,19 @@ async def compose_checkout(
             else s
             for s in shipments
         ]
+
+    # A remessa que mais pesa vem primeiro: e onde o usuario pode agir. Sem
+    # centroide (co2 None) vai para o fim, como no ranking da Home.
+    shipments.sort(key=lambda s: (s.co2_kg is None, -(s.co2_kg or 0.0)))
+
+    shipments = await _attach_alternatives(
+        session,
+        shipments=shipments,
+        groups=groups,
+        customer_zip_prefix=customer_zip_prefix,
+        cart_product_ids={p.product_id for p, _ in lines},
+        co2_factor=mode.co2_factor,
+    )
 
     # Arredonda em centavos: float acumula residuo (199.8 + 33.9 sai
     # 233.70000000000002) e esses valores vao crus no JSON da API.
@@ -197,15 +279,7 @@ async def compose_checkout(
             ),
             # Uma acao para o bloco todo: o cliente devolve o id da opcao
             # clicada e a MESMA tela e recomposta pelo servidor.
-            actions=[
-                ApiCallAction(
-                    payload=ApiCallPayload(
-                        method="POST",
-                        path="/api/v1/checkout/simulate",
-                        body_key="checkout",
-                    )
-                ),
-            ],
+            actions=[_checkout_action()],
         ),
         ShipmentBreakdownBlock(
             props=ShipmentBreakdownProps(

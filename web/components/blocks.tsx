@@ -2,6 +2,7 @@
 
 import { brl, co2Label, decimal } from "@/lib/sdui";
 import type {
+  Alternative,
   CategoryGridBlock,
   CheckoutSummaryBlock,
   DeliveryOptionsBlock,
@@ -178,6 +179,65 @@ export function CheckoutSummary({ block }: { block: CheckoutSummaryBlock }) {
   );
 }
 
+/** Sugestao de troca: outro produto da mesma categoria, vendedor mais perto. */
+function Alternatives({ items }: { items: Alternative[] }) {
+  const { run, pending, swapInCart } = useSdui();
+  if (items.length === 0) return null;
+
+  return (
+    <div className="mt-4 border-t border-line pt-4">
+      <p className="text-[11px] uppercase tracking-wide text-muted">
+        Mais perto de você
+      </p>
+      <ul className="mt-2 space-y-2">
+        {items.map((alt) => {
+          const action = alt.actions[0];
+          return (
+            <li
+              key={alt.product_id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-signal-soft/60 px-3 py-2"
+            >
+              <div className="min-w-0">
+                <p className="text-sm text-ink">
+                  {alt.title ?? alt.product_id}
+                  <span className="ml-2 tabular-nums text-muted">
+                    {brl(alt.price)}
+                  </span>
+                </p>
+                <p className="mt-0.5 text-xs tabular-nums text-signal-ink">
+                  {decimal(alt.distance_km, 0)} km ·{" "}
+                  {/* Arredonda para BAIXO: 99,8% virava "−100%", que se le como
+                      emissao zero. A alternativa ainda emite. */}
+                  −{Math.floor(alt.saved_share * 100)}% CO₂
+                  <span className="text-muted"> ({co2Label(alt.co2_saved_kg)} a menos)</span>
+                </p>
+              </div>
+              <button
+                type="button"
+                disabled={!action || pending}
+                onClick={() => {
+                  if (!action) return;
+                  // O carrinho novo vai explicito: `setCart` nao atualiza o
+                  // valor que `run` capturou no closure.
+                  const updated = swapInCart(alt.replaces_product_id, {
+                    productId: alt.product_id,
+                    title: alt.title,
+                    price: alt.price,
+                  });
+                  run(action, { cart: updated });
+                }}
+                className="shrink-0 rounded-full border border-signal/40 px-3 py-1 text-xs font-medium text-signal-ink transition hover:bg-signal-soft disabled:opacity-50"
+              >
+                Trocar
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 export function ShipmentBreakdown({ block }: { block: ShipmentBreakdownBlock }) {
   const { title, shipments, note } = block.props;
   if (shipments.length === 0) return null;
@@ -189,15 +249,20 @@ export function ShipmentBreakdown({ block }: { block: ShipmentBreakdownBlock }) 
         <p className="text-sm text-muted">
           {shipments.length === 1
             ? "1 remessa"
-            : `${shipments.length} remessas — uma por vendedor`}
+            : `${shipments.length} remessas — da maior pegada para a menor`}
         </p>
       </div>
 
       <ul className="mt-5 space-y-3">
-        {shipments.map((shipment) => (
+        {shipments.map((shipment, i) => (
           <li
             key={shipment.seller_id}
-            className="rounded-lg border border-line p-4"
+            // O servidor manda ordenado por emissao: a primeira e a que pesa.
+            className={`rounded-lg border p-4 ${
+              i === 0 && shipments.length > 1
+                ? "border-ink/25 bg-paper"
+                : "border-line"
+            }`}
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -238,6 +303,8 @@ export function ShipmentBreakdown({ block }: { block: ShipmentBreakdownBlock }) 
                 />
               </div>
             )}
+
+            <Alternatives items={shipment.alternatives} />
           </li>
         ))}
       </ul>
