@@ -23,10 +23,11 @@ Eixos do TCC: **personalização contextual** + **logística verde** (distância
 | **1** | Contrato SDUI, `GET /api/v1/home` mock, testes de schema |
 | **2** | Docker + ETL Olist, produtos reais na Home, `customer_zip_prefix` obrigatório, selo por distância |
 | **3** | Checkout simulado (`POST /checkout/simulate`), CO₂ no selo, `conscious_buyer` por proximidade, CORS dev |
+| **4** | Bloco `delivery_options` (comparativo de modalidades), correção do CO₂ exibido como `0,00 kg` |
 
 ## Sprint ativa
 
-Ver **`docs/sprint4-handoff.md`**: bloco `delivery_options` (comparativo de modalidades de entrega), correção do CO₂ exibido como `0,00 kg`, frontend Next.js em `web/` renderizando o bloco.
+Ver **`docs/sprint5-handoff.md`**: busca (`q`) e filtro por categoria em `GET /home`, bloco `category_grid`. **Parcial** — carrinho multi-item e testes de frontend/CI ainda não foram feitos.
 
 ## Subir o ambiente
 
@@ -54,7 +55,8 @@ web/                 # Frontend Next.js (App Router) que consome o SDUI
 
 | Arquivo | Uso |
 |---------|-----|
-| `docs/sprint4-handoff.md` | Spec da sprint atual |
+| `docs/sprint5-handoff.md` | Spec da sprint atual |
+| `docs/sprint4-handoff.md` | Spec Sprint 4 (histórico) |
 | `docs/sprint3-handoff.md` | Spec Sprint 3 (histórico) |
 | `docs/sprint2-handoff.md` | Spec Sprint 2 (histórico) |
 | `docs/tech_spec.md` | Contrato SDUI + logística |
@@ -65,6 +67,7 @@ web/                 # Frontend Next.js (App Router) que consome o SDUI
 ## O que não fazer sem pedido explícito
 
 - Pagamento real, Redis/Locust, PostGIS, dataset Olist completo
-- Reimplementar Sprint 1–4 do zero
+- Reimplementar Sprint 1–5 do zero
 - Apresentar os fatores de `delivery_options.py` como dado medido do Olist — são cenário declarado (ler o docstring do módulo)
+- Prometer busca por **nome de produto**: o Olist não tem esse campo. A busca é sobre `product_category_name` (ler o docstring de `home_contextual/repository.py`)
 - Seguir transcripts antigos em vez dos handoffs em `docs/`

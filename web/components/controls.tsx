@@ -1,11 +1,23 @@
 "use client";
 
+import Form from "next/form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CONTEXTS, DEMO_ZIPS } from "@/lib/sdui";
 
-function hrefFor(customerZipPrefix: string, context: string) {
+/**
+ * Trocar CEP ou contexto preserva o filtro ativo: contexto e filtro compoem
+ * (`conscious_buyer` + busca = "informatica mais perto de mim"), e perder a
+ * busca a cada clique escondia justamente essa combinacao.
+ */
+function hrefFor(
+  customerZipPrefix: string,
+  context: string,
+  filter: { search?: string; category?: string } = {},
+) {
   const params = new URLSearchParams({ customer_zip_prefix: customerZipPrefix, context });
+  if (filter.search) params.set("q", filter.search);
+  if (filter.category) params.set("category", filter.category);
   return `/?${params}`;
 }
 
@@ -76,11 +88,16 @@ export function EntryScreen() {
 export function Controls({
   customerZipPrefix,
   context,
+  search,
+  category,
 }: {
   customerZipPrefix: string;
   context: string;
+  search?: string;
+  category?: string;
 }) {
   const router = useRouter();
+  const filter = { search, category };
 
   return (
     <header className="sticky top-0 z-10 border-b border-line bg-paper/85 backdrop-blur">
@@ -95,7 +112,7 @@ export function Controls({
               key={item.value}
               type="button"
               aria-current={item.value === context}
-              onClick={() => router.push(hrefFor(customerZipPrefix, item.value))}
+              onClick={() => router.push(hrefFor(customerZipPrefix, item.value, filter))}
               className={`rounded-full px-3 py-1.5 text-sm transition ${
                 item.value === context
                   ? "bg-ink text-paper"
@@ -107,11 +124,38 @@ export function Controls({
           ))}
         </nav>
 
-        <label className="ml-auto flex items-center gap-2 text-sm">
+        {/* `next/form` com action string = GET nativo: os campos viram query
+            string, a navegacao e client-side e continua funcionando sem JS.
+            Os hidden preservam CEP e contexto; omitir `category` limpa o
+            filtro de categoria a cada nova busca. */}
+        <Form action="/" className="order-last flex w-full gap-2 sm:order-none sm:ml-auto sm:w-auto">
+          <input type="hidden" name="customer_zip_prefix" value={customerZipPrefix} />
+          <input type="hidden" name="context" value={context} />
+          <input
+            // `key` amarrado ao termo forca o remount: sem isso o input fica
+            // com o valor antigo depois de uma navegacao client-side (ex.: "Ver
+            // tudo" limpa a vitrine mas a caixa continuava escrita "bebes").
+            key={search ?? ""}
+            name="q"
+            type="search"
+            defaultValue={search ?? ""}
+            placeholder="Buscar categoria…"
+            aria-label="Buscar por categoria"
+            className="w-full rounded-full border border-line bg-surface px-4 py-1.5 text-sm text-ink placeholder:text-muted/60 sm:w-52"
+          />
+          <button
+            type="submit"
+            className="shrink-0 rounded-full border border-line px-3.5 py-1.5 text-sm text-muted transition hover:border-ink/30 hover:text-ink"
+          >
+            Buscar
+          </button>
+        </Form>
+
+        <label className="flex items-center gap-2 text-sm">
           <span className="text-muted">CEP</span>
           <select
             value={customerZipPrefix}
-            onChange={(e) => router.push(hrefFor(e.target.value, context))}
+            onChange={(e) => router.push(hrefFor(e.target.value, context, filter))}
             className="rounded-full border border-line bg-surface px-3 py-1.5 text-ink"
           >
             {DEMO_ZIPS.some((z) => z.value === customerZipPrefix) ? null : (

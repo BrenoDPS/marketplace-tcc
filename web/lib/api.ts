@@ -35,11 +35,15 @@ async function readScreen(res: Response): Promise<ScreenResult> {
 export async function fetchHome(
   customerZipPrefix: string,
   context: string,
+  search?: string,
+  category?: string,
 ): Promise<ScreenResult> {
   const query = new URLSearchParams({
     customer_zip_prefix: customerZipPrefix,
     context,
   });
+  if (search) query.set("q", search);
+  if (category) query.set("category", category);
   try {
     // Dados dependem do CEP e mudam com o ETL: sem cache entre requisicoes.
     const res = await fetch(`${API_BASE}/api/v1/home?${query}`, { cache: "no-store" });

@@ -75,6 +75,9 @@ class HeroBannerProps(BaseModel):
     title: str
     subtitle: str | None = None
     image_url: str
+    # Rotulo do botao da primeira `action`. Sem isso o texto fica cravado no
+    # cliente e um hero de "limpar filtro" acaba com o botao escrito "Explorar".
+    cta_label: str | None = None
 
 
 class CheckoutSummaryProps(BaseModel):
@@ -85,6 +88,25 @@ class CheckoutSummaryProps(BaseModel):
     subtotal: float
     freight: float
     total: float
+
+
+class CategoryItemProps(BaseModel):
+    """Item da grade de categorias.
+
+    Carrega a propria `actions` porque cada categoria navega para um caminho
+    diferente — o envelope do bloco so comporta uma acao para o conjunto.
+    """
+
+    slug: str
+    label: str
+    product_count: int
+    selected: bool = False
+    actions: list[UIAction] = Field(default_factory=list)
+
+
+class CategoryGridProps(BaseModel):
+    title: str | None = None
+    categories: list[CategoryItemProps]
 
 
 class DeliveryOptionProps(BaseModel):
@@ -142,6 +164,13 @@ class CheckoutSummaryBlock(BaseModel):
     actions: list[UIAction] = Field(default_factory=list)
 
 
+class CategoryGridBlock(BaseModel):
+    type: Literal["category_grid"] = "category_grid"
+    version: int = 1
+    props: CategoryGridProps
+    actions: list[UIAction] = Field(default_factory=list)
+
+
 class DeliveryOptionsBlock(BaseModel):
     type: Literal["delivery_options"] = "delivery_options"
     version: int = 1
@@ -160,6 +189,7 @@ UIComponent = Annotated[
     Union[
         ProductCardBlock,
         HeroBannerBlock,
+        CategoryGridBlock,
         CheckoutSummaryBlock,
         DeliveryOptionsBlock,
         ImpactBannerBlock,

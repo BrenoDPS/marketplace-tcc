@@ -2,6 +2,7 @@
 
 import { brl, co2Label, decimal } from "@/lib/sdui";
 import type {
+  CategoryGridBlock,
   CheckoutSummaryBlock,
   DeliveryOptionsBlock,
   HeroBannerBlock,
@@ -26,8 +27,48 @@ export function Badge({ badge }: { badge: SustainabilityProps | null }) {
   );
 }
 
+export function CategoryGrid({ block }: { block: CategoryGridBlock }) {
+  const { title, categories } = block.props;
+  const { run } = useSdui();
+  if (categories.length === 0) return null;
+
+  return (
+    <section>
+      {title && (
+        <h2 className="text-[11px] uppercase tracking-[0.2em] text-muted">{title}</h2>
+      )}
+      {/* Rolagem horizontal no mobile: 12 chips nao cabem em 375px sem virar
+          quatro linhas de altura. */}
+      <div className="-mx-6 mt-3 overflow-x-auto px-6">
+        <ul className="flex w-max gap-2 pb-1">
+          {categories.map((item) => (
+            <li key={item.slug}>
+              <button
+                type="button"
+                aria-current={item.selected}
+                disabled={item.actions.length === 0}
+                onClick={() => item.actions[0] && run(item.actions[0])}
+                className={`flex items-baseline gap-1.5 whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm transition ${
+                  item.selected
+                    ? "border-signal bg-signal-soft text-signal-ink"
+                    : "border-line bg-surface text-muted hover:border-ink/25 hover:text-ink"
+                }`}
+              >
+                {item.label}
+                <span className="text-[11px] tabular-nums opacity-60">
+                  {item.product_count}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 export function HeroBanner({ block }: { block: HeroBannerBlock }) {
-  const { title, subtitle, image_url } = block.props;
+  const { title, subtitle, image_url, cta_label } = block.props;
   const { run } = useSdui();
   const action = block.actions[0];
 
@@ -53,7 +94,7 @@ export function HeroBanner({ block }: { block: HeroBannerBlock }) {
             onClick={() => run(action)}
             className="mt-8 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-paper transition hover:opacity-90"
           >
-            Explorar
+            {cta_label ?? "Explorar"}
           </button>
         )}
       </div>

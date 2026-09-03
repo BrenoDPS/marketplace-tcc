@@ -1,10 +1,18 @@
-"""Repository da home: consulta produtos reais da amostra Olist."""
+"""Repository da home: consulta produtos reais da amostra Olist.
+
+Sobre a busca (Sprint 5): **o Olist nao tem nome de produto.** O dataset traz
+`product_category_name` e nada mais textual — o `title` que aparece no card ja e
+a categoria formatada. Entao "busca textual" aqui so pode ser busca sobre
+categoria, e e isso que esta implementado. Nao ha como buscar "fone bluetooth"
+porque essa string nao existe em lugar nenhum da amostra.
+"""
 
 from __future__ import annotations
 
+import unicodedata
 from dataclasses import dataclass
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.models import OrderItem, Product, Seller
@@ -22,6 +30,28 @@ class ProductRow:
     category: str | None
 
 
+@dataclass(frozen=True, slots=True)
+class CategoryRow:
+    slug: str
+    product_count: int
+
+
+# `%` e `_` sao curingas de LIKE: sem escapar, quem digita "50%" varre a tabela
+# inteira. Entrada de usuario, entao escapa antes de virar padrao.
+_LIKE_SPECIALS = str.maketrans({"\\": r"\\", "%": r"\%", "_": r"\_"})
+
+
+def normalize_search(term: str) -> str:
+    """Dobra acentos, minusculiza e normaliza espacos. String vazia = sem busca.
+
+    As categorias do Olist ja sao ASCII com `_` no lugar de espaco
+    (`moveis_decoracao`, `relogios_presentes`), entao so o **termo do usuario**
+    precisa ser dobrado — "móveis" e "moveis" chegam iguais na consulta.
+    """
+    folded = unicodedata.normalize("NFKD", term).encode("ascii", "ignore").decode()
+    return " ".join(folded.replace("_", " ").lower().split())
+
+
 # Heuristica context -> categoria Olist. Pode ser refinada na Sprint 3.
 _CONTEXT_TO_CATEGORY: dict[str, str] = {
     "electronics_expert": "informatica_acessorios",
@@ -37,11 +67,15 @@ async def fetch_products_for_home(
     session: AsyncSession,
     category: str | None = None,
     limit: int = 6,
+    search: str | None = None,
 ) -> list[ProductRow]:
     """Retorna ate `limit` produtos distintos da amostra.
 
-    JOIN order_items -> products -> sellers. Filtra por categoria quando informada;
-    se nao houver produtos da categoria, faz fallback para sem filtro.
+    JOIN order_items -> products -> sellers, filtrando por categoria e/ou termo
+    de busca quando informados. **Sem fallback:** filtro que nao casa devolve
+    lista vazia. Quem decide se cabe cair para a vitrine sem filtro e o composer,
+    que sabe se a categoria veio do usuario ou do contexto — mostrar produtos
+    aleatorios para quem buscou algo especifico seria mentir sobre o resultado.
     """
     stmt = (
         select(
@@ -57,13 +91,20 @@ async def fetch_products_for_home(
     )
     if category is not None:
         stmt = stmt.where(Product.product_category_name == category)
+    if search:
+        # ponytail: ILIKE com `%` a esquerda ignora o indice de categoria; com
+        # 6,5k produtos na amostra e irrelevante. Se o dataset crescer para o
+        # Olist completo, trocar por trigram (pg_trgm) ou tsvector.
+        pattern = f"%{search.translate(_LIKE_SPECIALS)}%"
+        stmt = stmt.where(
+            func.replace(Product.product_category_name, "_", " ").ilike(
+                pattern, escape="\\"
+            )
+        )
     stmt = stmt.limit(limit * 4)  # margem para de-dup por product_id
 
     result = await session.execute(stmt)
     rows = result.all()
-
-    if not rows and category is not None:
-        return await fetch_products_for_home(session, category=None, limit=limit)
 
     seen: set[str] = set()
     out: list[ProductRow] = []
@@ -84,3 +125,25 @@ async def fetch_products_for_home(
         if len(out) >= limit:
             break
     return out
+
+
+async def list_categories(
+    session: AsyncSession, limit: int | None = None
+) -> list[CategoryRow]:
+    """Categorias da amostra com contagem de produtos, da maior para a menor.
+
+    Conta em `olist_products` direto: o ETL so carrega produtos que aparecem em
+    `order_items`, entao toda categoria listada tem produto navegavel.
+    """
+    total = func.count(Product.product_id)
+    stmt = (
+        select(Product.product_category_name, total)
+        .where(Product.product_category_name.is_not(None))
+        .group_by(Product.product_category_name)
+        .order_by(total.desc(), Product.product_category_name)
+    )
+    if limit is not None:
+        stmt = stmt.limit(limit)
+
+    result = await session.execute(stmt)
+    return [CategoryRow(slug=slug, product_count=count) for slug, count in result.all()]

@@ -48,7 +48,26 @@ type Envelope<T extends string, P> = {
 
 export type HeroBannerBlock = Envelope<
   "hero_banner",
-  { title: string; subtitle: string | null; image_url: string }
+  {
+    title: string;
+    subtitle: string | null;
+    image_url: string;
+    /** Rotulo do botao da primeira action. O servidor decide o texto. */
+    cta_label: string | null;
+  }
+>;
+
+export type CategoryItem = {
+  slug: string;
+  label: string;
+  product_count: number;
+  selected: boolean;
+  actions: UIAction[];
+};
+
+export type CategoryGridBlock = Envelope<
+  "category_grid",
+  { title: string | null; categories: CategoryItem[] }
 >;
 
 export type ProductCardBlock = Envelope<
@@ -110,6 +129,7 @@ export type DeliveryOptionsBlock = Envelope<
 
 export type UIComponent =
   | HeroBannerBlock
+  | CategoryGridBlock
   | ProductCardBlock
   | CheckoutSummaryBlock
   | DeliveryOptionsBlock

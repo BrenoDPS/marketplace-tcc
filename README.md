@@ -17,7 +17,8 @@ pip install -r requirements.txt
 | Arquivo | Conteudo |
 |---------|----------|
 | [docs/PROJECT_BOOTSTRAP.md](docs/PROJECT_BOOTSTRAP.md) | Visao geral para agentes/conversas novas |
-| [docs/sprint4-handoff.md](docs/sprint4-handoff.md) | **Sprint 4 (atual):** comparativo de modalidades de entrega, correcao do CO2 |
+| [docs/sprint5-handoff.md](docs/sprint5-handoff.md) | **Sprint 5 (atual, em andamento):** busca e categorias |
+| [docs/sprint4-handoff.md](docs/sprint4-handoff.md) | Sprint 4 (historico) |
 | [docs/sprint3-handoff.md](docs/sprint3-handoff.md) | Sprint 3 (historico) |
 | [docs/sprint2-handoff.md](docs/sprint2-handoff.md) | Sprint 2 (historico) |
 | [docs/frontend-sprint2.md](docs/frontend-sprint2.md) | Guia para dev frontend |
@@ -63,6 +64,36 @@ curl -i "http://localhost:8000/api/v1/home?customer_zip_prefix=00000"
 # Home consumidor consciente: produtos ordenados por proximidade (mais perto primeiro)
 curl "http://localhost:8000/api/v1/home?customer_zip_prefix=05311&context=conscious_buyer"
 ```
+
+### Busca e categorias (Sprint 5)
+
+`GET /api/v1/home` aceita `q` (busca) e `category` (filtro exato). Toda resposta
+traz o bloco `category_grid` com as 12 maiores categorias da amostra e a
+contagem de produtos de cada uma.
+
+> **A busca e sobre o nome da categoria, nao sobre o produto.** O Olist nao tem
+> nome de produto: `product_category_name` e o unico campo textual, e o `title`
+> que aparece no card ja e essa categoria formatada. Nao existe "fone bluetooth"
+> em lugar nenhum da amostra para casar.
+
+```bash
+# Busca ignora acento e caixa: encontra informatica_acessorios
+curl "http://localhost:8000/api/v1/home?customer_zip_prefix=05311&q=INFORM%C3%81TICA"
+
+# Filtro exato por categoria (slug do dataset)
+curl "http://localhost:8000/api/v1/home?customer_zip_prefix=05311&category=bebes"
+
+# Filtro + contexto compoem: produtos de bebe ordenados por proximidade
+curl "http://localhost:8000/api/v1/home?customer_zip_prefix=05311&category=bebes&context=conscious_buyer"
+
+# 422 quando a categoria nao existe na amostra
+curl -i "http://localhost:8000/api/v1/home?customer_zip_prefix=05311&category=nao_existe"
+```
+
+> Filtro que nao casa devolve vitrine **vazia**, com o hero dizendo "Nenhum
+> produto encontrado". So a categoria inferida do `context` (heuristica nossa)
+> cai para a vitrine geral quando nao rende produtos — quem buscou algo
+> especifico precisa saber que nao achou, nao receber produtos aleatorios.
 
 ### Checkout simulado (Sprint 3+)
 
@@ -148,6 +179,7 @@ Abra `http://localhost:3000` — a tela inicial pede o CEP; ou va direto:
 Pontos que economizam tempo de quem for mexer:
 
 - **Bloco novo no backend = uma linha no `REGISTRY`.** Tipo desconhecido renderiza `null` de proposito: a tela degrada em vez de quebrar.
+- **A busca usa `next/form`** (`action="/"`, GET): os campos viram query string, a navegacao e client-side e o formulario continua funcionando sem JS. Nao trocar por `onSubmit` + `router.push` sem motivo.
 - **Sem CORS em dev:** `web/next.config.ts` faz rewrite de `/api/v1/*` para a API, entao o fetch do browser sai da mesma origem.
 - **Fontes sao self-hosted via `@fontsource`**, nao `next/font/google` — `fonts.googleapis.com` e instavel/bloqueado em algumas redes e o build quebra sem mensagem obvia. Nao trocar sem saber disso.
 - **Nao ha framework de teste em `web/`** ainda (divida conhecida).
@@ -212,6 +244,18 @@ Escopo em [docs/sprint4-handoff.md](docs/sprint4-handoff.md):
 - **Correcao:** `format_co2` — todo selo exibia `~0,00 kg CO₂` depois que a amostra subiu para 10k
 - **Correcao:** CO2 passa a acompanhar `quantity` (2 unidades embarcam o dobro da massa)
 - **Correcao:** valores monetarios arredondados em centavos (`total` saia como `233.70000000000002`)
+
+## Sprint 5 (em andamento)
+
+Escopo em [docs/sprint5-handoff.md](docs/sprint5-handoff.md). **Entregue:**
+
+- `GET /home` aceita `q` (busca por nome de categoria, acentos ignorados) e `category` (filtro exato, **422** se desconhecida)
+- Bloco SDUI **`category_grid`** — 12 maiores categorias com contagem; cada item carrega a propria `navigate`
+- `hero_banner` ganha `cta_label`; com filtro ativo o hero devolve a acao "Ver tudo"
+- Filtro compoe com `conscious_buyer`: "produtos de bebe mais proximos de mim"
+- Frontend: chips de categoria e busca via `next/form`
+
+**Pendente:** carrinho multi-item (agregar frete e CO2 por vendedor), testes de frontend e CI.
 
 ## Roadmap (proximas sprints)
 

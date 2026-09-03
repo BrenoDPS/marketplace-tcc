@@ -7,6 +7,8 @@ centroides de CEP). Sem mocks de product_id.
 
 from __future__ import annotations
 
+from urllib.parse import urlencode
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.features.green_logistics.service import (
@@ -14,13 +16,18 @@ from src.features.green_logistics.service import (
     compute_distance_km,
 )
 from src.features.home_contextual.repository import (
+    CategoryRow,
     ProductRow,
     category_for_context,
     fetch_products_for_home,
+    list_categories,
 )
 from src.schemas.sdui import (
     ApiCallAction,
     ApiCallPayload,
+    CategoryGridBlock,
+    CategoryGridProps,
+    CategoryItemProps,
     HeroBannerBlock,
     HeroBannerProps,
     NavigateAction,
@@ -36,6 +43,9 @@ from src.schemas.sdui import (
 CONSCIOUS_BUYER_CONTEXT = "conscious_buyer"
 _DEFAULT_LIMIT = 6
 _CONSCIOUS_POOL_LIMIT = 24
+# 70 categorias na amostra; a grade mostra as maiores e o resto fica a um clique
+# de distancia pela busca. Uma parede de 70 chips nao ajuda ninguem a navegar.
+_CATEGORY_GRID_LIMIT = 12
 
 _HEROS: dict[str, HeroBannerBlock] = {
     "electronics_expert": HeroBannerBlock(
@@ -74,14 +84,87 @@ _DEFAULT_HERO = HeroBannerBlock(
 )
 
 
-def _hero_for(context: str) -> HeroBannerBlock:
-    return _HEROS.get(context, _DEFAULT_HERO)
+def _humanize(slug: str) -> str:
+    return slug.replace("_", " ").title()
+
+
+def _count_label(total: int) -> str:
+    if total == 0:
+        return "Nenhum produto encontrado nesta amostra"
+    return f"{total} produto{'s' if total > 1 else ''} nesta vitrine"
+
+
+def _hero_for(
+    context: str,
+    search: str | None,
+    category: str | None,
+    found: int,
+    customer_zip_prefix: str,
+) -> HeroBannerBlock:
+    """Busca e categoria substituem o hero do contexto: a tela precisa dizer o
+    que esta filtrando, inclusive quando nao achou nada."""
+    if not (search or category):
+        return _HEROS.get(context, _DEFAULT_HERO)
+
+    clear = NavigateAction(
+        payload=NavigatePayload(
+            path=f"/?{urlencode({'customer_zip_prefix': customer_zip_prefix, 'context': context})}"
+        )
+    )
+    title = f"Busca: {search}" if search else _humanize(category or "")
+    return HeroBannerBlock(
+        props=HeroBannerProps(
+            title=title,
+            subtitle=_count_label(found),
+            image_url="https://placeholders.dev/800x400?text=Filtro",
+            cta_label="Ver tudo",
+        ),
+        actions=[clear],
+    )
 
 
 def _title_for(product_id: str, category: str | None) -> str:
     if category:
-        return category.replace("_", " ").title()
+        return _humanize(category)
     return product_id
+
+
+def _category_grid(
+    categories: list[CategoryRow],
+    customer_zip_prefix: str,
+    context: str,
+    selected: str | None,
+) -> CategoryGridBlock:
+    """O servidor monta o caminho de cada categoria ja com CEP e contexto: o
+    cliente navega para onde mandaram, sem inventar query string."""
+
+    def path_for(slug: str) -> str:
+        params = urlencode(
+            {
+                "customer_zip_prefix": customer_zip_prefix,
+                "context": context,
+                "category": slug,
+            }
+        )
+        return f"/?{params}"
+
+    return CategoryGridBlock(
+        props=CategoryGridProps(
+            title="Categorias",
+            categories=[
+                CategoryItemProps(
+                    slug=row.slug,
+                    label=_humanize(row.slug),
+                    product_count=row.product_count,
+                    selected=row.slug == selected,
+                    actions=[
+                        NavigateAction(payload=NavigatePayload(path=path_for(row.slug)))
+                    ],
+                )
+                for row in categories
+            ],
+        ),
+    )
 
 
 async def _rank_by_proximity(
@@ -118,20 +201,52 @@ async def compose_home(
     session: AsyncSession,
     context: str,
     customer_zip_prefix: str,
+    search: str | None = None,
+    category: str | None = None,
 ) -> ScreenResponse:
+    """Filtro explicito (`search`/`category`) vence a categoria do contexto.
+
+    `conscious_buyer` continua ordenando por proximidade — agora **dentro** do
+    filtro, o que da "produtos de beleza mais proximos de mim".
+    """
+    explicit_filter = bool(search or category)
+    effective_category = category if category else category_for_context(context)
+
     if context == CONSCIOUS_BUYER_CONTEXT:
         pool = await fetch_products_for_home(
-            session, category=None, limit=_CONSCIOUS_POOL_LIMIT
+            session,
+            category=category,
+            search=search,
+            limit=_CONSCIOUS_POOL_LIMIT,
         )
         products = await _rank_by_proximity(
             session, pool, customer_zip_prefix, limit=_DEFAULT_LIMIT
         )
     else:
         products = await fetch_products_for_home(
-            session, category=category_for_context(context), limit=_DEFAULT_LIMIT
+            session,
+            category=effective_category,
+            search=search,
+            limit=_DEFAULT_LIMIT,
         )
+        # Categoria vinda do contexto e uma heuristica nossa: se nao rende
+        # produtos, cair para a vitrine geral (comportamento da Sprint 2). Filtro
+        # que o usuario pediu nao cai — resultado vazio e a resposta honesta.
+        if not products and effective_category and not explicit_filter:
+            products = await fetch_products_for_home(session, limit=_DEFAULT_LIMIT)
 
-    components: list[UIComponent] = [_hero_for(context)]
+    categories = await list_categories(session, limit=_CATEGORY_GRID_LIMIT)
+
+    components: list[UIComponent] = [
+        _hero_for(
+            context,
+            search,
+            category,
+            found=len(products),
+            customer_zip_prefix=customer_zip_prefix,
+        ),
+        _category_grid(categories, customer_zip_prefix, context, selected=category),
+    ]
     for product in products:
         _, badge = await build_badge_for_pair(
             session,

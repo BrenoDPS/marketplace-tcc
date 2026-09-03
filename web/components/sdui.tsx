@@ -5,6 +5,7 @@ import { brl } from "@/lib/sdui";
 import type { ScreenResponse, UIComponent } from "@/lib/sdui";
 import {
   Badge,
+  CategoryGrid,
   CheckoutSummary,
   DeliveryOptions,
   HeroBanner,
@@ -20,6 +21,7 @@ import { SduiProvider, useSdui } from "./sdui-context";
  */
 const REGISTRY = {
   hero_banner: HeroBanner,
+  category_grid: CategoryGrid,
   product_card: ProductCard,
   checkout_summary: CheckoutSummary,
   delivery_options: DeliveryOptions,

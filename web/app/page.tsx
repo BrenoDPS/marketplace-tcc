@@ -14,14 +14,21 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
   const params = await searchParams;
   const customerZipPrefix = first(params.customer_zip_prefix) ?? first(params.cep);
   const context = first(params.context) ?? "default";
+  const search = first(params.q);
+  const category = first(params.category);
 
   if (!customerZipPrefix) return <EntryScreen />;
 
-  const result = await fetchHome(customerZipPrefix, context);
+  const result = await fetchHome(customerZipPrefix, context, search, category);
 
   return (
     <>
-      <Controls customerZipPrefix={customerZipPrefix} context={context} />
+      <Controls
+        customerZipPrefix={customerZipPrefix}
+        context={context}
+        search={search}
+        category={category}
+      />
       <main className="mx-auto w-full max-w-6xl px-6 py-10">
         {result.ok ? (
           <SduiRoot customerZipPrefix={customerZipPrefix} screen={result.screen} />
