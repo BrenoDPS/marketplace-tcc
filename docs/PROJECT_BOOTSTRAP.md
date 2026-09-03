@@ -27,7 +27,7 @@ Eixos do TCC: **personalização contextual** + **logística verde** (distância
 
 ## Sprint ativa
 
-Ver **`docs/sprint5-handoff.md`**: busca (`q`) e filtro por categoria em `GET /home`, bloco `category_grid`. **Parcial** — carrinho multi-item e testes de frontend/CI ainda não foram feitos.
+Ver **`docs/sprint5-handoff.md`**: busca (`q`) e filtro por categoria em `GET /home` com bloco `category_grid`; carrinho multi-item em `POST /checkout/simulate` com bloco `shipment_breakdown` (uma remessa por vendedor); Vitest em `web/` e CI no GitHub Actions.
 
 ## Subir o ambiente
 
@@ -70,4 +70,5 @@ web/                 # Frontend Next.js (App Router) que consome o SDUI
 - Reimplementar Sprint 1–5 do zero
 - Apresentar os fatores de `delivery_options.py` como dado medido do Olist — são cenário declarado (ler o docstring do módulo)
 - Prometer busca por **nome de produto**: o Olist não tem esse campo. A busca é sobre `product_category_name` (ler o docstring de `home_contextual/repository.py`)
+- Afirmar que **consolidar remessas reduz CO₂**: o modelo é linear na massa, então agrupar economiza frete e não emissão (ver "O achado que mudou a premissa" no handoff da Sprint 5)
 - Seguir transcripts antigos em vez dos handoffs em `docs/`

@@ -8,6 +8,7 @@ import type {
   HeroBannerBlock,
   ImpactBannerBlock,
   ProductCardBlock,
+  ShipmentBreakdownBlock,
   SustainabilityProps,
 } from "@/lib/sdui";
 import { useSdui } from "./sdui-context";
@@ -143,22 +144,31 @@ export function ProductCard({ block }: { block: ProductCardBlock }) {
 }
 
 export function CheckoutSummary({ block }: { block: CheckoutSummaryBlock }) {
-  const { title, product_id, quantity, unit_price, subtotal, freight, total } = block.props;
-  const rows = [
-    [`Subtotal (${quantity}× ${brl(unit_price)})`, brl(subtotal)],
-    ["Frete", brl(freight)],
-  ];
+  const { items, subtotal, freight, total } = block.props;
 
   return (
     <section className="rounded-xl border border-line bg-surface p-6">
-      <h2 className="font-display text-2xl text-ink">{title ?? product_id}</h2>
+      <h2 className="font-display text-2xl text-ink">
+        {items.length === 1 ? (items[0].title ?? items[0].product_id) : "Seu pedido"}
+      </h2>
       <dl className="mt-6 space-y-3 text-sm">
-        {rows.map(([label, value]) => (
-          <div key={label} className="flex justify-between gap-4">
-            <dt className="text-muted">{label}</dt>
-            <dd className="tabular-nums text-ink">{value}</dd>
+        {items.map((item) => (
+          <div key={item.product_id} className="flex justify-between gap-4">
+            <dt className="text-muted">
+              {item.quantity}× {item.title ?? item.product_id}
+              <span className="ml-1.5 text-muted/70">{brl(item.unit_price)}</span>
+            </dt>
+            <dd className="tabular-nums text-ink">{brl(item.line_total)}</dd>
           </div>
         ))}
+        <div className="flex justify-between gap-4 border-t border-line pt-3">
+          <dt className="text-muted">Subtotal</dt>
+          <dd className="tabular-nums text-ink">{brl(subtotal)}</dd>
+        </div>
+        <div className="flex justify-between gap-4">
+          <dt className="text-muted">Frete</dt>
+          <dd className="tabular-nums text-ink">{brl(freight)}</dd>
+        </div>
         <div className="flex justify-between gap-4 border-t border-line pt-3">
           <dt className="font-medium text-ink">Total</dt>
           <dd className="font-display text-xl tabular-nums text-ink">{brl(total)}</dd>
@@ -168,8 +178,77 @@ export function CheckoutSummary({ block }: { block: CheckoutSummaryBlock }) {
   );
 }
 
+export function ShipmentBreakdown({ block }: { block: ShipmentBreakdownBlock }) {
+  const { title, shipments, note } = block.props;
+  if (shipments.length === 0) return null;
+
+  return (
+    <section className="rounded-xl border border-line bg-surface p-6">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="font-display text-2xl text-ink">{title ?? "Remessas"}</h2>
+        <p className="text-sm text-muted">
+          {shipments.length === 1
+            ? "1 remessa"
+            : `${shipments.length} remessas — uma por vendedor`}
+        </p>
+      </div>
+
+      <ul className="mt-5 space-y-3">
+        {shipments.map((shipment) => (
+          <li
+            key={shipment.seller_id}
+            className="rounded-lg border border-line p-4"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-ink">
+                  {shipment.total_quantity}{" "}
+                  {shipment.total_quantity === 1 ? "item" : "itens"} ·{" "}
+                  {shipment.distance_km !== null
+                    ? `${decimal(shipment.distance_km, 0)} km`
+                    : "distância indisponível"}
+                </p>
+                <p className="mt-0.5 font-mono text-[11px] text-muted">
+                  {shipment.seller_id.slice(0, 12)}…
+                </p>
+              </div>
+              <Badge badge={shipment.badge} />
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
+              <span className="tabular-nums text-ink">{brl(shipment.freight)}</span>
+              {shipment.co2_kg !== null && (
+                <span className="tabular-nums text-muted">
+                  {co2Label(shipment.co2_kg)} CO₂
+                </span>
+              )}
+              {shipment.co2_share !== null && (
+                <span className="tabular-nums text-muted">
+                  {decimal(shipment.co2_share * 100, 0)}% da pegada
+                </span>
+              )}
+            </div>
+
+            {/* A barra e o que faz a remessa dominante saltar aos olhos. */}
+            {shipment.co2_share !== null && (
+              <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-line">
+                <div
+                  className="h-full rounded-full bg-signal"
+                  style={{ width: `${shipment.co2_share * 100}%` }}
+                />
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      {note && <p className="mt-5 text-[11px] leading-relaxed text-muted">{note}</p>}
+    </section>
+  );
+}
+
 export function DeliveryOptions({ block }: { block: DeliveryOptionsBlock }) {
-  const { options, note, product_id, quantity } = block.props;
+  const { options, note } = block.props;
   const { run, pending } = useSdui();
   const action = block.actions.find((a) => a.type === "api_call");
 
@@ -194,14 +273,7 @@ export function DeliveryOptions({ block }: { block: DeliveryOptionsBlock }) {
             role="radio"
             aria-checked={option.selected}
             disabled={!action || pending}
-            onClick={() =>
-              action &&
-              run(action, {
-                productId: product_id,
-                quantity,
-                deliveryOption: option.id,
-              })
-            }
+            onClick={() => action && run(action, { deliveryOption: option.id })}
             className={`flex flex-col gap-3 rounded-lg border p-4 text-left transition disabled:cursor-default ${
               option.selected
                 ? "border-signal bg-signal-soft ring-1 ring-signal/30"

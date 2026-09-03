@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
 from src.features.checkout.composer import compose_checkout
-from src.features.checkout.repository import fetch_product_for_checkout
+from src.features.checkout.repository import fetch_products_for_checkout
 from src.features.checkout.schemas import CheckoutSimulateRequest
 from src.features.green_logistics.delivery_options import MODES_BY_ID
 from src.features.green_logistics.repository import list_known_prefixes
@@ -37,17 +37,25 @@ async def simulate_checkout(
             detail=f"customer_zip_prefix desconhecido: {payload.customer_zip_prefix!r}",
         )
 
-    product = await fetch_product_for_checkout(session, payload.product_id)
-    if product is None:
+    products = await fetch_products_for_checkout(
+        session, [item.product_id for item in payload.items]
+    )
+    missing = [i.product_id for i in payload.items if i.product_id not in products]
+    if missing:
         raise HTTPException(
             status_code=404,
-            detail=f"product_id nao encontrado na amostra: {payload.product_id!r}",
+            detail=f"product_id nao encontrado na amostra: {missing!r}",
         )
+
+    # Mesmo produto repetido no carrinho vira uma linha so: duas linhas iguais
+    # dariam dois fretes na agregacao por vendedor e um resumo confuso.
+    quantities: dict[str, int] = {}
+    for item in payload.items:
+        quantities[item.product_id] = quantities.get(item.product_id, 0) + item.quantity
 
     return await compose_checkout(
         session,
-        product=product,
+        lines=[(products[pid], qty) for pid, qty in quantities.items()],
         customer_zip_prefix=payload.customer_zip_prefix,
-        quantity=payload.quantity,
         delivery_option=payload.delivery_option,
     )

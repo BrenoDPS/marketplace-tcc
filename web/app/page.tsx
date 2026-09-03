@@ -1,5 +1,6 @@
 import { Controls, EntryScreen } from "@/components/controls";
 import { SduiRoot } from "@/components/sdui";
+import { SduiProvider } from "@/components/sdui-context";
 import { fetchHome } from "@/lib/api";
 
 const first = (value: string | string[] | undefined) =>
@@ -22,7 +23,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
   const result = await fetchHome(customerZipPrefix, context, search, category);
 
   return (
-    <>
+    <SduiProvider customerZipPrefix={customerZipPrefix}>
       <Controls
         customerZipPrefix={customerZipPrefix}
         context={context}
@@ -31,7 +32,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
       />
       <main className="mx-auto w-full max-w-6xl px-6 py-10">
         {result.ok ? (
-          <SduiRoot customerZipPrefix={customerZipPrefix} screen={result.screen} />
+          <SduiRoot screen={result.screen} />
         ) : (
           <div className="rounded-xl border border-line bg-surface p-8">
             <h2 className="font-display text-2xl text-ink">Não foi possível montar a vitrine</h2>
@@ -52,6 +53,6 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
           </div>
         )}
       </main>
-    </>
+    </SduiProvider>
   );
 }

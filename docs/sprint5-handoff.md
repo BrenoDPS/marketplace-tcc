@@ -1,11 +1,10 @@
-# Handoff — Sprint 5: Busca e categorias (em andamento)
+# Handoff — Sprint 5: Busca, categorias, carrinho multi-item, testes e CI
 
 > **Para agentes sem contexto:** leia primeiro `@docs/PROJECT_BOOTSTRAP.md`, depois este arquivo.
 > Sprints 1–4 **já estão implementadas** — não reimplementar do zero.
 
-> **Sprint parcialmente entregue.** A trilha A (busca e categorias) está no código e
-> verificada. As trilhas B e C abaixo ainda **não** foram implementadas — os critérios
-> de aceite delas estão desmarcados de propósito.
+> **Sprint concluída.** As três trilhas estão no código e verificadas. Documento
+> escrito em duas etapas: a trilha A primeiro, B e C depois.
 
 ## Fonte de verdade (ordem de leitura)
 
@@ -24,9 +23,9 @@
 
 | Trilha | Entrega | Status |
 |--------|---------|--------|
-| **A — Busca e categorias** | `q` e `category` em `GET /home`; bloco `category_grid`; UI de busca e chips | **Entregue** |
-| **B — Carrinho multi-item** | `checkout/simulate` com vários itens, frete e CO₂ agregados por vendedor | Pendente |
-| **C — Testes de frontend + CI** | Vitest sobre o executor de `actions` e o `ScreenRenderer`; workflow de CI | Pendente |
+| **A — Busca e categorias** | `q` e `category` em `GET /home`; bloco `category_grid`; UI de busca e chips | Entregue |
+| **B — Carrinho multi-item** | `checkout/simulate` com vários itens, frete e CO₂ agregados por vendedor | Entregue |
+| **C — Testes de frontend + CI** | Vitest sobre o executor de `actions` e o `ScreenRenderer`; workflow de CI | Entregue |
 
 ---
 
@@ -132,6 +131,70 @@ Detalhes que não são óbvios no diff:
 
 ---
 
+## Trilha B — Carrinho multi-item
+
+### O achado que mudou a premissa
+
+Esta sprint foi planejada com a hipótese de que **consolidar itens do mesmo vendedor
+reduziria o CO₂** — o argumento da modalidade verde. Ao implementar, a hipótese não se
+sustentou:
+
+```
+E = d × w × FE   →   Σᵢ (d × wᵢ × FE)  =  d × (Σᵢ wᵢ) × FE
+```
+
+O modelo é **linear na massa**, então agrupar N itens do mesmo vendedor numa remessa dá
+exatamente a mesma emissão de N remessas separadas. Consolidação economiza **frete**, não
+emissão.
+
+Fazer a economia de CO₂ aparecer exigiria um termo fixo por remessa (custo de coleta e
+última milha, que não escala com a carga). Isso foi **deliberadamente não implementado**:
+um valor honesto de última milha (~0,1 kg CO₂ por encomenda) é ~250× maior que a emissão
+de transporte de um item típico desta amostra (4 km, 500 g → 0,0002 kg), e dominaria
+completamente os números, apagando o eixo de distância construído nas Sprints 2–4. Um
+valor pequeno o bastante para não dominar teria de ser inventado.
+
+**O que o carrinho entrega no lugar** é mais defensável e não precisa de coeficiente novo:
+o `co2_share` por remessa mostra **qual vendedor domina a pegada**. Num carrinho de 3
+itens verificado no navegador, a remessa a 79 km respondeu por **75%** do CO₂ total
+enquanto as duas locais (4 km e 7 km) somaram 25%. A ação que reduz a pegada é trocar
+*aquele* vendedor, não agrupar itens — e agora dá para ver isso.
+
+Essa ressalva está em três lugares: `CONSOLIDATION_NOTE` no composer, o campo `note` que
+viaja no JSON, e o texto exibido na tela.
+
+### Decisões da trilha B
+
+| Tópico | Decisão |
+|--------|---------|
+| Forma do corpo | **Só `items`**, mesmo com um item. Aceitar duas formas (produto solto ou lista) dobraria o contrato para sempre; o único cliente é o front deste repo |
+| Frete por remessa | O **maior** `freight_value` do grupo. Somar suporia que cada item viaja sozinho, anulando a consolidação; a amostra não tem noção de remessa |
+| Agrupamento | Por `seller_id`, na ordem em que os itens entraram no carrinho |
+| Produto repetido | Colapsa numa linha no router — duas linhas iguais dariam dois fretes |
+| Banner com N remessas | `distance_km` vira `null`: não existe UMA distância. Quem detalha é o `shipment_breakdown` |
+| Prazo do carrinho | Sai da remessa **mais distante** — o pedido só está completo quando a última chega |
+| Consulta | Uma só (`product_id IN (...)`) para o carrinho inteiro |
+| Estado do carrinho | **Do cliente.** Por isso `delivery_options` deixou de ecoar `product_id`/`quantity` (a razão da Sprint 4 era o cliente não guardar estado — um carrinho é estado por natureza) |
+| Limite | 20 itens por carrinho |
+
+### Trilha C — Testes e CI
+
+`web/tests/sdui.test.tsx` (14 casos) cobre só o que tem lógica: dispatch de cada tipo de
+`action`, agrupamento de cards em grade, bloco desconhecido renderizando nada sem derrubar
+a tela, corpo do checkout, colapso de item repetido e formatação de CO₂. Componentes de
+apresentação não ganharam teste de propósito.
+
+Duas coisas descobertas montando isso:
+
+- **`@types/node` estava em `^20` com Node 22 rodando** — os tipos já divergiam do runtime.
+  Alinhar resolveu de quebra o conflito de peer dependency do Vitest 5, sem `--force`.
+- **`vite-tsconfig-paths` é desnecessário**: o Vite avisa no console que resolve `tsconfig`
+  paths nativamente (`resolve.tsconfigPaths: true`). Removido — 3 pacotes a menos.
+
+O job de backend do CI **não** sobe Postgres: a suíte usa `dependency_overrides` e
+monkeypatch. Se um teste passar a exigir banco, ele quebra lá — e essa quebra é a
+informação útil.
+
 ## Bug encontrado na verificação
 
 Depois de clicar "Ver tudo", a vitrine limpava mas o campo de busca continuava escrito
@@ -153,10 +216,25 @@ componente. A caixa contradizia a tela. Corrigido com `key` amarrado ao termo.
 - [x] Cada categoria carrega a própria `navigate`, com CEP e contexto no path
 - [x] Hero filtrado oferece "Ver tudo" via `cta_label` + `navigate`
 - [x] Filtro compõe com o ranking de `conscious_buyer`
-- [x] `pytest` verde — **84 testes** (69 anteriores + 15 novos)
-- [x] `tsc --noEmit` limpo
+- [x] `pytest` verde — **98 testes**; `npm test` verde — **14 testes**
+- [x] `tsc --noEmit` e `npm run build` limpos
 
-**Trilhas B e C:** não iniciadas.
+**Trilha B:**
+
+- [x] `items` (1 a 20) no lugar de um `product_id` solto; carrinho vazio → **422**
+- [x] Itens do mesmo vendedor viram **uma** remessa, com um frete só (o maior do grupo)
+- [x] Vendedores diferentes viram remessas separadas e os fretes somam
+- [x] `co2_share` por remessa, somando 1,0
+- [x] Selo verde por remessa, não do carrinho inteiro
+- [x] Produto repetido colapsa numa linha (senão pagaria dois fretes)
+- [x] `delivery_options` precifica o carrinho inteiro e o prazo segue a remessa mais distante
+- [x] Uma consulta ao banco para todos os produtos do carrinho
+
+**Trilha C:**
+
+- [x] Vitest em `web/` — 14 casos sobre executor de `actions`, `ScreenRenderer` e carrinho
+- [x] Bloco desconhecido não derruba a tela (teste de degradação)
+- [x] `.github/workflows/ci.yml` com jobs de backend e frontend
 
 Verificação end-to-end no navegador (CEP 05311, `conscious_buyer`): chip "Beleza Saude"
 filtra e fica marcado; busca `RELÓGIOS` vira `Busca: relogios`; "Ver tudo" limpa filtro,
@@ -188,20 +266,24 @@ Casos que valem conhecer antes de mexer:
 ## Fora de escopo (não implementado)
 
 - Busca por nome de produto — **não é possível com o Olist**, ver decisões acima
+- Emissão fixa por remessa (última milha) — ver "O achado que mudou a premissa"
+- Persistência do carrinho (recarregar a página esvazia; não há `localStorage` nem sessão)
 - Paginação / "carregar mais": a Home segue em 6 cards
 - Ordenação escolhida pelo usuário (preço, relevância)
 - Filtro por faixa de preço ou por estado do vendedor
 - Página dedicada de categoria (o filtro reusa `/` com query string)
+- Teste E2E (Playwright) — a verificação de fluxo completo segue manual
 - Redis, Locust, PostGIS, `orchestrator`
 
 ---
 
-## Próximos passos (trilhas B e C)
+## Sugestões para a Sprint 6
 
-1. **Carrinho multi-item.** `checkout/simulate` com uma lista de itens, agregando frete e
-   CO₂ **por vendedor**. É o que falta para o `delivery_options` mostrar sua tese:
-   consolidar itens do mesmo seller é exatamente o argumento da modalidade verde, e hoje
-   isso não pode ser demonstrado porque só existe um item por simulação.
-2. **Testes de frontend + CI.** Vitest sobre `sdui-context.tsx` (dispatch de `actions`) e
-   `sdui.tsx` (agrupamento de cards, bloco desconhecido); workflow rodando `pytest` +
-   `npm run build`.
+1. **Ordenar o carrinho por pegada.** O `co2_share` já existe; falta a UI destacar a
+   remessa dominante e sugerir alternativas do mesmo produto em vendedores mais próximos.
+   É o passo que transforma o diagnóstico em ação, e o `conscious_buyer` já sabe ranquear
+   por proximidade.
+2. **Persistir o carrinho** em `localStorage` — hoje um F5 zera tudo, o que atrapalha
+   demonstrar o fluxo numa apresentação.
+3. **E2E com Playwright** cobrindo a jornada inteira (CEP → busca → carrinho → checkout →
+   troca de modalidade), já que é exatamente o roteiro da defesa.

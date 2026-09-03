@@ -17,7 +17,7 @@ pip install -r requirements.txt
 | Arquivo | Conteudo |
 |---------|----------|
 | [docs/PROJECT_BOOTSTRAP.md](docs/PROJECT_BOOTSTRAP.md) | Visao geral para agentes/conversas novas |
-| [docs/sprint5-handoff.md](docs/sprint5-handoff.md) | **Sprint 5 (atual, em andamento):** busca e categorias |
+| [docs/sprint5-handoff.md](docs/sprint5-handoff.md) | **Sprint 5 (atual):** busca e categorias, carrinho multi-item, testes de frontend e CI |
 | [docs/sprint4-handoff.md](docs/sprint4-handoff.md) | Sprint 4 (historico) |
 | [docs/sprint3-handoff.md](docs/sprint3-handoff.md) | Sprint 3 (historico) |
 | [docs/sprint2-handoff.md](docs/sprint2-handoff.md) | Sprint 2 (historico) |
@@ -97,45 +97,56 @@ curl -i "http://localhost:8000/api/v1/home?customer_zip_prefix=05311&category=na
 
 ### Checkout simulado (Sprint 3+)
 
-`POST /api/v1/checkout/simulate` retorna uma tela SDUI com os blocos
-`checkout_summary` (subtotal, frete, total), `delivery_options` (comparativo de
-modalidades) e `impact_banner` (distancia, CO2 e selo verde). Sem pagamento,
-estoque ou persistencia de pedido. O `product_id` deve ser um id real retornado
-pela Home.
+`POST /api/v1/checkout/simulate` recebe um **carrinho** e retorna uma tela SDUI
+com `checkout_summary` (linhas, subtotal, frete, total), `delivery_options`
+(comparativo de modalidades), `shipment_breakdown` (uma remessa por vendedor) e
+`impact_banner` (agregado). Sem pagamento, estoque ou persistencia de pedido.
+Os `product_id` devem ser ids reais retornados pela Home.
 
 | Campo | Regras |
 |-------|--------|
 | `customer_zip_prefix` | Obrigatorio; deve existir em `cep_centroids` → **422** se invalido |
-| `product_id` | Obrigatorio; deve existir na amostra → **404** se invalido |
-| `quantity` | Opcional, default `1`, inteiro >= 1 |
+| `items` | Obrigatorio; lista de 1 a 20 `{product_id, quantity}`. Produto ausente da amostra → **404** |
+| `items[].quantity` | Opcional, default `1`, inteiro >= 1 |
 | `delivery_option` | Opcional; `express`, `standard` (default) ou `green` → **422** se invalido |
 
 ```bash
-# Checkout simulado (substitua <PRODUCT_ID> por um id retornado na Home)
+# Um item (substitua <PRODUCT_ID> por um id retornado na Home)
 curl -X POST "http://localhost:8000/api/v1/checkout/simulate" \
   -H "Content-Type: application/json" \
-  -d '{"customer_zip_prefix":"05311","product_id":"<PRODUCT_ID>","quantity":1}'
+  -d '{"customer_zip_prefix":"05311","items":[{"product_id":"<PRODUCT_ID>","quantity":1}]}'
 
-# Mesma compra na modalidade verde: frete e CO2 menores, prazo maior
+# Carrinho com varios itens: uma remessa por vendedor
 curl -X POST "http://localhost:8000/api/v1/checkout/simulate" \
   -H "Content-Type: application/json" \
-  -d '{"customer_zip_prefix":"05311","product_id":"<PRODUCT_ID>","delivery_option":"green"}'
+  -d '{"customer_zip_prefix":"05311","items":[{"product_id":"<ID_A>","quantity":2},{"product_id":"<ID_B>"}]}'
+
+# Mesmo carrinho na modalidade verde: frete e CO2 menores, prazo maior
+curl -X POST "http://localhost:8000/api/v1/checkout/simulate" \
+  -H "Content-Type: application/json" \
+  -d '{"customer_zip_prefix":"05311","items":[{"product_id":"<PRODUCT_ID>"}],"delivery_option":"green"}'
 
 # 422 quando o customer_zip_prefix nao existe em cep_centroids
 curl -i -X POST "http://localhost:8000/api/v1/checkout/simulate" \
   -H "Content-Type: application/json" \
-  -d '{"customer_zip_prefix":"00000","product_id":"<PRODUCT_ID>"}'
+  -d '{"customer_zip_prefix":"00000","items":[{"product_id":"<PRODUCT_ID>"}]}'
 
-# 404 quando o product_id nao existe na amostra
+# 404 quando algum product_id nao existe na amostra (o detail lista quais)
 curl -i -X POST "http://localhost:8000/api/v1/checkout/simulate" \
   -H "Content-Type: application/json" \
-  -d '{"customer_zip_prefix":"05311","product_id":"inexistente"}'
+  -d '{"customer_zip_prefix":"05311","items":[{"product_id":"inexistente"}]}'
 
 # 422 quando a modalidade nao existe (o detail lista as validas)
 curl -i -X POST "http://localhost:8000/api/v1/checkout/simulate" \
   -H "Content-Type: application/json" \
-  -d '{"customer_zip_prefix":"05311","product_id":"<PRODUCT_ID>","delivery_option":"teleporte"}'
+  -d '{"customer_zip_prefix":"05311","items":[{"product_id":"<PRODUCT_ID>"}],"delivery_option":"teleporte"}'
 ```
+
+> **Uma remessa por vendedor.** Itens do mesmo vendedor pagam **um** frete, o
+> maior da remessa. **A emissao nao cai por agrupar** — ela e proporcional a
+> massa e a distancia, entao consolidar economiza frete, nao CO2. O que o
+> carrinho revela e o `co2_share`: qual vendedor domina a pegada. Num carrinho
+> de 3 itens, a remessa a 79 km respondeu por 75% do CO2 total.
 
 > **Decisao (handoff ambiguo "404 ou 422"):** produto inexistente retorna
 > **404** (recurso nao encontrado); `customer_zip_prefix` invalido retorna
@@ -182,15 +193,24 @@ Pontos que economizam tempo de quem for mexer:
 - **A busca usa `next/form`** (`action="/"`, GET): os campos viram query string, a navegacao e client-side e o formulario continua funcionando sem JS. Nao trocar por `onSubmit` + `router.push` sem motivo.
 - **Sem CORS em dev:** `web/next.config.ts` faz rewrite de `/api/v1/*` para a API, entao o fetch do browser sai da mesma origem.
 - **Fontes sao self-hosted via `@fontsource`**, nao `next/font/google` — `fonts.googleapis.com` e instavel/bloqueado em algumas redes e o build quebra sem mensagem obvia. Nao trocar sem saber disso.
-- **Nao ha framework de teste em `web/`** ainda (divida conhecida).
+- **O carrinho e estado do cliente** (`sdui-context.tsx`), nao do servidor: o `api_call` de checkout envia a lista de itens. A acao vem do `product_card` e fica guardada ao adicionar o primeiro item — quem manda no COMO continua sendo o servidor.
 
 ## Testes
 
 ```bash
+# Backend
 pytest
+
+# Frontend
+cd web && npm test        # Vitest (use `npm run test:watch` para watch)
+cd web && npm run typecheck
 ```
 
-Os testes nao dependem de Postgres rodando (uso de `app.dependency_overrides` + monkeypatch nos repositorios). Para validacao end-to-end use o fluxo de cima.
+Os testes de backend nao dependem de Postgres rodando (uso de `app.dependency_overrides` + monkeypatch nos repositorios). Os de frontend cobrem as duas pecas com logica nao trivial — o executor de `actions` e o `ScreenRenderer` —; o resto e apresentacao e nao ganha teste de proposito. Para validacao end-to-end use o fluxo de cima.
+
+### CI
+
+`.github/workflows/ci.yml` roda em push/PR para `main` e `development`: `pytest` (backend) e `npm run typecheck` + `npm test` + `npm run build` (frontend).
 
 ## Arquitetura (Vertical Slice)
 
@@ -245,17 +265,29 @@ Escopo em [docs/sprint4-handoff.md](docs/sprint4-handoff.md):
 - **Correcao:** CO2 passa a acompanhar `quantity` (2 unidades embarcam o dobro da massa)
 - **Correcao:** valores monetarios arredondados em centavos (`total` saia como `233.70000000000002`)
 
-## Sprint 5 (em andamento)
+## Sprint 5 (concluida)
 
-Escopo em [docs/sprint5-handoff.md](docs/sprint5-handoff.md). **Entregue:**
+Escopo em [docs/sprint5-handoff.md](docs/sprint5-handoff.md):
+
+**Busca e categorias**
 
 - `GET /home` aceita `q` (busca por nome de categoria, acentos ignorados) e `category` (filtro exato, **422** se desconhecida)
 - Bloco SDUI **`category_grid`** — 12 maiores categorias com contagem; cada item carrega a propria `navigate`
 - `hero_banner` ganha `cta_label`; com filtro ativo o hero devolve a acao "Ver tudo"
 - Filtro compoe com `conscious_buyer`: "produtos de bebe mais proximos de mim"
-- Frontend: chips de categoria e busca via `next/form`
 
-**Pendente:** carrinho multi-item (agregar frete e CO2 por vendedor), testes de frontend e CI.
+**Carrinho multi-item**
+
+- `POST /checkout/simulate` recebe `items` (1 a 20) no lugar de um `product_id` solto
+- Bloco SDUI **`shipment_breakdown`** — uma remessa por vendedor, com distancia, frete, CO2 e `co2_share`
+- `checkout_summary` passa a listar as linhas do carrinho
+- Frontend: carrinho no header, tela de revisao com quantidade e remocao
+
+**Testes e CI**
+
+- Vitest em `web/` (14 casos) sobre o executor de `actions` e o `ScreenRenderer`
+- `.github/workflows/ci.yml` com dois jobs (backend e frontend)
+- `@types/node` alinhado ao Node 22 do projeto (estava em `^20`)
 
 ## Roadmap (proximas sprints)
 

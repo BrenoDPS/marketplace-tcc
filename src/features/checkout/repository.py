@@ -25,10 +25,18 @@ class CheckoutProductRow:
     category: str | None
 
 
-async def fetch_product_for_checkout(
-    session: AsyncSession, product_id: str
-) -> CheckoutProductRow | None:
-    """Retorna a primeira linha de order_items para o `product_id`, ou None."""
+async def fetch_products_for_checkout(
+    session: AsyncSession, product_ids: list[str]
+) -> dict[str, CheckoutProductRow]:
+    """Mapa `product_id` -> primeira linha de order_items daquele produto.
+
+    Uma consulta para o carrinho inteiro: com 20 itens, buscar um a um seriam
+    20 round-trips para montar uma tela so. Produto ausente simplesmente nao
+    aparece no mapa — quem chama decide se isso e 404.
+    """
+    if not product_ids:
+        return {}
+
     stmt = (
         select(
             OrderItem.product_id,
@@ -41,22 +49,24 @@ async def fetch_product_for_checkout(
         )
         .join(Product, Product.product_id == OrderItem.product_id)
         .join(Seller, Seller.seller_id == OrderItem.seller_id)
-        .where(OrderItem.product_id == product_id)
-        .order_by(OrderItem.order_id, OrderItem.order_item_id)
-        .limit(1)
+        .where(OrderItem.product_id.in_(set(product_ids)))
+        .order_by(OrderItem.product_id, OrderItem.order_id, OrderItem.order_item_id)
     )
     result = await session.execute(stmt)
-    row = result.first()
-    if row is None:
-        return None
 
-    product_id, seller_id, zip_prefix, price, freight_value, weight_g, category = row
-    return CheckoutProductRow(
-        product_id=product_id,
-        seller_id=seller_id,
-        seller_zip_prefix=zip_prefix,
-        unit_price=float(price),
-        freight_value=float(freight_value) if freight_value is not None else 0.0,
-        weight_g=float(weight_g) if weight_g is not None else None,
-        category=category,
-    )
+    out: dict[str, CheckoutProductRow] = {}
+    for product_id, seller_id, zip_prefix, price, freight, weight_g, category in result:
+        # Ordenado por (product_id, order_id, order_item_id): a primeira linha
+        # de cada produto e a mesma "primeira order_item" da Sprint 3.
+        if product_id in out:
+            continue
+        out[product_id] = CheckoutProductRow(
+            product_id=product_id,
+            seller_id=seller_id,
+            seller_zip_prefix=zip_prefix,
+            unit_price=float(price),
+            freight_value=float(freight) if freight is not None else 0.0,
+            weight_g=float(weight_g) if weight_g is not None else None,
+            category=category,
+        )
+    return out

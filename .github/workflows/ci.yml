@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      # Sem servico de Postgres de proposito: a suite usa
+      # `app.dependency_overrides` e monkeypatch nos repositorios, entao nao
+      # abre conexao. Se um teste passar a exigir banco, ele quebra aqui — e
+      # essa quebra e a informacao util.
+      - run: pytest -q
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - run: npm ci
+
+      - run: npm run typecheck
+      - run: npm test
+
+      # O build so precisa da API em runtime, nao em tempo de build: a Home e
+      # renderizada por requisicao (`cache: "no-store"`).
+      - run: npm run build

@@ -4,6 +4,7 @@ import Form from "next/form";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CONTEXTS, DEMO_ZIPS } from "@/lib/sdui";
+import { useSdui } from "./sdui-context";
 
 /**
  * Trocar CEP ou contexto preserva o filtro ativo: contexto e filtro compoem
@@ -97,7 +98,9 @@ export function Controls({
   category?: string;
 }) {
   const router = useRouter();
+  const { cart, openCart } = useSdui();
   const filter = { search, category };
+  const cartCount = cart.reduce((sum, entry) => sum + entry.quantity, 0);
 
   return (
     <header className="sticky top-0 z-10 border-b border-line bg-paper/85 backdrop-blur">
@@ -168,6 +171,19 @@ export function Controls({
             ))}
           </select>
         </label>
+
+        <button
+          type="button"
+          onClick={() => openCart(true)}
+          className="flex items-center gap-2 rounded-full border border-line px-3.5 py-1.5 text-sm text-ink transition hover:border-ink/30"
+        >
+          Carrinho
+          {cartCount > 0 && (
+            <span className="rounded-full bg-signal px-1.5 py-0.5 text-[11px] font-medium tabular-nums leading-none text-white">
+              {cartCount}
+            </span>
+          )}
+        </button>
       </div>
     </header>
   );

@@ -80,14 +80,41 @@ class HeroBannerProps(BaseModel):
     cta_label: str | None = None
 
 
-class CheckoutSummaryProps(BaseModel):
+class CartLineProps(BaseModel):
     product_id: str
     title: str | None = None
     quantity: int
     unit_price: float
+    line_total: float
+
+
+class CheckoutSummaryProps(BaseModel):
+    items: list[CartLineProps]
     subtotal: float
     freight: float
     total: float
+
+
+class ShipmentProps(BaseModel):
+    """Uma remessa = um vendedor. Itens do mesmo vendedor saem juntos."""
+
+    seller_id: str
+    product_ids: list[str]
+    total_quantity: int
+    weight_g: float | None = None
+    distance_km: float | None = None
+    freight: float
+    co2_kg: float | None = None
+    # Fatia do CO2 total do carrinho (0..1). E o numero que revela qual
+    # vendedor domina a pegada — a leitura util do carrinho multi-item.
+    co2_share: float | None = None
+    badge: SustainabilityProps | None = None
+
+
+class ShipmentBreakdownProps(BaseModel):
+    title: str | None = None
+    shipments: list[ShipmentProps]
+    note: str | None = None
 
 
 class CategoryItemProps(BaseModel):
@@ -121,11 +148,13 @@ class DeliveryOptionProps(BaseModel):
 
 
 class DeliveryOptionsProps(BaseModel):
-    """Comparativo de modalidades. `product_id`/`quantity` viajam de volta na
-    `action` para o cliente re-simular sem guardar estado proprio."""
+    """Comparativo de modalidades.
 
-    product_id: str
-    quantity: int
+    Na Sprint 4 este bloco devolvia `product_id`/`quantity` porque o cliente
+    nao guardava estado de checkout. Com o carrinho da Sprint 5 ele guarda — um
+    carrinho e estado do cliente por natureza — entao o eco saiu daqui.
+    """
+
     distance_km: float | None = None
     selected_id: str
     options: list[DeliveryOptionProps]
@@ -178,6 +207,13 @@ class DeliveryOptionsBlock(BaseModel):
     actions: list[UIAction] = Field(default_factory=list)
 
 
+class ShipmentBreakdownBlock(BaseModel):
+    type: Literal["shipment_breakdown"] = "shipment_breakdown"
+    version: int = 1
+    props: ShipmentBreakdownProps
+    actions: list[UIAction] = Field(default_factory=list)
+
+
 class ImpactBannerBlock(BaseModel):
     type: Literal["impact_banner"] = "impact_banner"
     version: int = 1
@@ -193,6 +229,7 @@ UIComponent = Annotated[
         CheckoutSummaryBlock,
         DeliveryOptionsBlock,
         ImpactBannerBlock,
+        ShipmentBreakdownBlock,
     ],
     Field(discriminator="type"),
 ]

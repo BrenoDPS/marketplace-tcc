@@ -63,10 +63,15 @@ class TestUIComponentDiscriminator:
             "type": "checkout_summary",
             "version": 1,
             "props": {
-                "product_id": "p1",
-                "title": "Informatica Acessorios",
-                "quantity": 2,
-                "unit_price": 10.0,
+                "items": [
+                    {
+                        "product_id": "p1",
+                        "title": "Informatica Acessorios",
+                        "quantity": 2,
+                        "unit_price": 10.0,
+                        "line_total": 20.0,
+                    }
+                ],
                 "subtotal": 20.0,
                 "freight": 5.0,
                 "total": 25.0,
@@ -75,7 +80,7 @@ class TestUIComponentDiscriminator:
         }
         component = ui_adapter.validate_python(data)
         assert isinstance(component, CheckoutSummaryBlock)
-        assert component.props.quantity == 2
+        assert component.props.items[0].quantity == 2
         assert component.props.total == 25.0
 
     def test_impact_banner_from_dict(self) -> None:

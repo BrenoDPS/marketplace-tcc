@@ -81,17 +81,34 @@ export type ProductCardBlock = Envelope<
   }
 >;
 
+export type CartLine = {
+  product_id: string;
+  title: string | null;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+};
+
 export type CheckoutSummaryBlock = Envelope<
   "checkout_summary",
-  {
-    product_id: string;
-    title: string | null;
-    quantity: number;
-    unit_price: number;
-    subtotal: number;
-    freight: number;
-    total: number;
-  }
+  { items: CartLine[]; subtotal: number; freight: number; total: number }
+>;
+
+export type Shipment = {
+  seller_id: string;
+  product_ids: string[];
+  total_quantity: number;
+  weight_g: number | null;
+  distance_km: number | null;
+  freight: number;
+  co2_kg: number | null;
+  co2_share: number | null;
+  badge: SustainabilityProps | null;
+};
+
+export type ShipmentBreakdownBlock = Envelope<
+  "shipment_breakdown",
+  { title: string | null; shipments: Shipment[]; note: string | null }
 >;
 
 export type ImpactBannerBlock = Envelope<
@@ -118,8 +135,6 @@ export type DeliveryOption = {
 export type DeliveryOptionsBlock = Envelope<
   "delivery_options",
   {
-    product_id: string;
-    quantity: number;
     distance_km: number | null;
     selected_id: string;
     options: DeliveryOption[];
@@ -133,6 +148,7 @@ export type UIComponent =
   | ProductCardBlock
   | CheckoutSummaryBlock
   | DeliveryOptionsBlock
+  | ShipmentBreakdownBlock
   | ImpactBannerBlock;
 
 export type ScreenResponse = {

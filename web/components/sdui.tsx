@@ -11,8 +11,9 @@ import {
   HeroBanner,
   ImpactBanner,
   ProductCard,
+  ShipmentBreakdown,
 } from "./blocks";
-import { SduiProvider, useSdui } from "./sdui-context";
+import { useSdui } from "./sdui-context";
 
 /**
  * Mapa `component.type` -> componente React. Um bloco que o servidor mande e
@@ -25,6 +26,7 @@ const REGISTRY = {
   product_card: ProductCard,
   checkout_summary: CheckoutSummary,
   delivery_options: DeliveryOptions,
+  shipment_breakdown: ShipmentBreakdown,
   impact_banner: ImpactBanner,
 } as const;
 
@@ -102,14 +104,13 @@ function Modal({
 }
 
 function ProductDetail() {
-  const { selected, pending, error, run, select } = useSdui();
+  const { selected, error, select, addToCart, openCart } = useSdui();
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => setQuantity(1), [selected?.props.product_id]);
 
   if (!selected) return null;
   const { title, product_id, price, badge } = selected.props;
-  const buy = selected.actions.find((a) => a.type === "api_call");
 
   return (
     <>
@@ -145,17 +146,138 @@ function ProductDetail() {
 
       {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
-      <button
-        type="button"
-        disabled={!buy || pending}
-        onClick={() => buy && run(buy, { product: selected, quantity })}
-        className="mt-6 w-full rounded-full bg-signal px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
-      >
-        {pending ? "Simulando…" : "Simular compra"}
-      </button>
+      <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+        <button
+          type="button"
+          onClick={() => {
+            addToCart(selected, quantity);
+            select(null);
+          }}
+          className="flex-1 rounded-full border border-line px-5 py-3 text-sm font-medium text-ink transition hover:border-ink/30"
+        >
+          Adicionar ao carrinho
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            addToCart(selected, quantity);
+            select(null);
+            openCart(true);
+          }}
+          className="flex-1 rounded-full bg-signal px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
+        >
+          Ir para o carrinho
+        </button>
+      </div>
       <p className="mt-3 text-center text-[11px] text-muted">
         Simulação acadêmica — nenhum pagamento é processado.
       </p>
+    </>
+  );
+}
+
+function CartScreen() {
+  const {
+    cart,
+    checkoutAction,
+    pending,
+    error,
+    run,
+    setQuantity,
+    removeFromCart,
+    openCart,
+  } = useSdui();
+  const subtotal = cart.reduce((sum, e) => sum + e.price * e.quantity, 0);
+
+  return (
+    <>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[11px] uppercase tracking-wide text-muted">Carrinho</p>
+          <h2 className="font-display text-2xl text-ink">
+            {cart.length === 0
+              ? "Vazio por enquanto"
+              : `${cart.length} ${cart.length === 1 ? "produto" : "produtos"}`}
+          </h2>
+        </div>
+        <button
+          type="button"
+          onClick={() => openCart(false)}
+          aria-label="Fechar"
+          className="text-muted transition hover:text-ink"
+        >
+          ✕
+        </button>
+      </div>
+
+      {cart.length === 0 ? (
+        <p className="mt-6 text-sm text-muted">
+          Escolha produtos na vitrine para simular uma compra. Itens do mesmo vendedor
+          viajam numa remessa só.
+        </p>
+      ) : (
+        <>
+          <ul className="mt-6 space-y-3">
+            {cart.map((entry) => (
+              <li
+                key={entry.productId}
+                className="flex flex-wrap items-center gap-3 rounded-lg border border-line p-3"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-ink">
+                    {entry.title ?? entry.productId}
+                  </p>
+                  <p className="mt-0.5 text-xs tabular-nums text-muted">
+                    {brl(entry.price)} cada
+                  </p>
+                </div>
+                <input
+                  type="number"
+                  min={1}
+                  value={entry.quantity}
+                  aria-label={`Quantidade de ${entry.title ?? entry.productId}`}
+                  onChange={(e) =>
+                    setQuantity(entry.productId, Number(e.target.value) || 1)
+                  }
+                  className="w-16 rounded-lg border border-line bg-surface px-2 py-1 text-sm text-ink"
+                />
+                <span className="w-24 text-right text-sm tabular-nums text-ink">
+                  {brl(entry.price * entry.quantity)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => removeFromCart(entry.productId)}
+                  aria-label={`Remover ${entry.title ?? entry.productId}`}
+                  className="text-muted transition hover:text-ink"
+                >
+                  ✕
+                </button>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-5 flex justify-between border-t border-line pt-4 text-sm">
+            <span className="text-muted">Subtotal (sem frete)</span>
+            <span className="font-display text-xl tabular-nums text-ink">
+              {brl(subtotal)}
+            </span>
+          </div>
+
+          {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+
+          <button
+            type="button"
+            disabled={!checkoutAction || pending}
+            onClick={() => checkoutAction && run(checkoutAction)}
+            className="mt-5 w-full rounded-full bg-signal px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+          >
+            {pending ? "Simulando…" : "Simular compra"}
+          </button>
+          <p className="mt-3 text-center text-[11px] text-muted">
+            Simulação acadêmica — nenhum pagamento é processado.
+          </p>
+        </>
+      )}
     </>
   );
 }
@@ -192,12 +314,19 @@ function CheckoutScreen() {
 }
 
 function Host({ children }: { children: React.ReactNode }) {
-  const { selected, checkout, select, closeCheckout } = useSdui();
+  const { selected, checkout, cartOpen, select, openCart, closeCheckout } = useSdui();
   return (
     <>
       {children}
       <Modal open={selected !== null && checkout === null} onClose={() => select(null)}>
         <ProductDetail />
+      </Modal>
+      <Modal
+        open={cartOpen && checkout === null}
+        onClose={() => openCart(false)}
+        wide
+      >
+        <CartScreen />
       </Modal>
       <Modal open={checkout !== null} onClose={closeCheckout} wide>
         <CheckoutScreen />
@@ -206,19 +335,15 @@ function Host({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Ponto de entrada: envolve a tela com o executor de acoes e os modais. */
-export function SduiRoot({
-  customerZipPrefix,
-  screen,
-}: {
-  customerZipPrefix: string;
-  screen: ScreenResponse;
-}) {
+/**
+ * Ponto de entrada da tela. O `SduiProvider` fica um nivel acima, em
+ * `app/page.tsx`, porque o header tambem precisa dele: o botao do carrinho
+ * mostra a contagem e abre o modal.
+ */
+export function SduiRoot({ screen }: { screen: ScreenResponse }) {
   return (
-    <SduiProvider customerZipPrefix={customerZipPrefix}>
-      <Host>
-        <ScreenRenderer screen={screen} />
-      </Host>
-    </SduiProvider>
+    <Host>
+      <ScreenRenderer screen={screen} />
+    </Host>
   );
 }

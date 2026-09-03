@@ -11,26 +11,39 @@ import type { ProductCardBlock, ScreenResponse, UIAction } from "@/lib/sdui";
  */
 
 /**
- * `productId` existe para o `delivery_options`: ao re-simular a partir da tela
- * de checkout nao ha `ProductCardBlock` em maos, e o proprio bloco carrega o
- * contexto que o servidor mandou (product_id/quantity) — o cliente nao guarda
- * estado de checkout.
+ * O carrinho e estado do cliente por natureza, entao `api_call` de checkout
+ * envia o carrinho inteiro. `deliveryOption` e o unico extra que a acao do
+ * bloco `delivery_options` precisa passar.
  */
-type RunContext = {
-  product?: ProductCardBlock;
-  productId?: string;
-  quantity?: number;
-  deliveryOption?: string;
+type RunContext = { product?: ProductCardBlock; deliveryOption?: string };
+
+export type CartEntry = {
+  productId: string;
+  title: string | null;
+  price: number;
+  quantity: number;
 };
 
 type SduiValue = {
   customerZipPrefix: string;
   selected: ProductCardBlock | null;
   checkout: ScreenResponse | null;
+  cart: CartEntry[];
+  cartOpen: boolean;
+  /**
+   * A `api_call` de checkout vem do `product_card`. Guardamos a do item
+   * adicionado para o carrinho poder fechar o pedido: quem manda no COMO
+   * continua sendo o servidor, o cliente so lembra o que ele disse.
+   */
+  checkoutAction: UIAction | null;
   pending: boolean;
   error: string | null;
   run: (action: UIAction, ctx?: RunContext) => void;
   select: (block: ProductCardBlock | null) => void;
+  addToCart: (block: ProductCardBlock, quantity: number) => void;
+  setQuantity: (productId: string, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  openCart: (open: boolean) => void;
   closeCheckout: () => void;
 };
 
@@ -43,11 +56,13 @@ export function useSdui(): SduiValue {
 }
 
 /** Corpo esperado por POST /api/v1/checkout/simulate (body_key: "checkout"). */
-function checkoutBody(cep: string, ctx: RunContext) {
+export function checkoutBody(cep: string, cart: CartEntry[], ctx: RunContext = {}) {
   return {
     customer_zip_prefix: cep,
-    product_id: ctx.productId ?? ctx.product?.props.product_id,
-    quantity: ctx.quantity ?? 1,
+    items: cart.map((entry) => ({
+      product_id: entry.productId,
+      quantity: entry.quantity,
+    })),
     delivery_option: ctx.deliveryOption ?? null,
   };
 }
@@ -62,6 +77,9 @@ export function SduiProvider({
   const router = useRouter();
   const [selected, setSelected] = useState<ProductCardBlock | null>(null);
   const [checkout, setCheckout] = useState<ScreenResponse | null>(null);
+  const [cart, setCart] = useState<CartEntry[]>([]);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [checkoutAction, setCheckoutAction] = useState<UIAction | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,13 +106,16 @@ export function SduiProvider({
           // Hoje so existe um body_key ("checkout"). Outro valor = servidor
           // pede algo que este cliente ainda nao sabe montar.
           if (body_key !== "checkout") return;
+          // Carrinho vazio: o backend recusaria com 422 e o usuario veria um
+          // erro tecnico no lugar de "seu carrinho esta vazio".
+          if (cart.length === 0) return;
 
           setPending(true);
           setError(null);
           fetch(path, {
             method,
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(checkoutBody(customerZipPrefix, ctx)),
+            body: JSON.stringify(checkoutBody(customerZipPrefix, cart, ctx)),
           })
             .then(async (res) => {
               const body = await res.json().catch(() => null);
@@ -107,6 +128,7 @@ export function SduiProvider({
               // A resposta e outra ScreenResponse: o MESMO renderer desenha.
               setCheckout(body as ScreenResponse);
               setSelected(null);
+              setCartOpen(false);
             })
             .catch((err: Error) => setError(err.message))
             .finally(() => setPending(false));
@@ -114,7 +136,7 @@ export function SduiProvider({
         }
       }
     },
-    [customerZipPrefix, router],
+    [cart, customerZipPrefix, router],
   );
 
   const value = useMemo<SduiValue>(
@@ -122,6 +144,9 @@ export function SduiProvider({
       customerZipPrefix,
       selected,
       checkout,
+      cart,
+      cartOpen,
+      checkoutAction,
       pending,
       error,
       run,
@@ -129,9 +154,54 @@ export function SduiProvider({
         setError(null);
         setSelected(block);
       },
+      addToCart: (block, quantity) => {
+        const checkout = block.actions.find((a) => a.type === "api_call");
+        if (checkout) setCheckoutAction(checkout);
+        setCart((current) => {
+          // Mesmo produto adicionado de novo soma na linha existente, em vez
+          // de criar uma segunda linha do mesmo item.
+          const found = current.find((e) => e.productId === block.props.product_id);
+          if (found) {
+            return current.map((e) =>
+              e === found ? { ...e, quantity: e.quantity + quantity } : e,
+            );
+          }
+          return [
+            ...current,
+            {
+              productId: block.props.product_id,
+              title: block.props.title,
+              price: block.props.price,
+              quantity,
+            },
+          ];
+        });
+      },
+      setQuantity: (productId, quantity) =>
+        setCart((current) =>
+          current.map((e) =>
+            e.productId === productId ? { ...e, quantity: Math.max(1, quantity) } : e,
+          ),
+        ),
+      removeFromCart: (productId) =>
+        setCart((current) => current.filter((e) => e.productId !== productId)),
+      openCart: (open) => {
+        setError(null);
+        setCartOpen(open);
+      },
       closeCheckout: () => setCheckout(null),
     }),
-    [customerZipPrefix, selected, checkout, pending, error, run],
+    [
+      customerZipPrefix,
+      selected,
+      checkout,
+      cart,
+      cartOpen,
+      checkoutAction,
+      pending,
+      error,
+      run,
+    ],
   );
 
   return <SduiCtx.Provider value={value}>{children}</SduiCtx.Provider>;
