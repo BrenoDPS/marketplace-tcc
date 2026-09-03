@@ -1,8 +1,8 @@
-"""ETL Sprint 2: carrega amostra Olist (~1000 order_items, seed=42) no Postgres.
+"""ETL Sprint 2: carrega amostra Olist (~10000 order_items, seed=42) no Postgres.
 
 Fluxo:
 1. Le CSVs em data/raw/.
-2. Amostra 1000 linhas de olist_order_items_dataset.csv com seed=42.
+2. Amostra 10000 linhas de olist_order_items_dataset.csv com seed=42.
 3. Filtra rows com product_weight_g valido e CEPs presentes nos lookups.
 4. Deriva subset de orders/customers/sellers/products e geolocation por prefixo.
 5. Calcula centroides via mediana de lat/lng por prefixo.
@@ -11,7 +11,7 @@ Fluxo:
    para ser documentado como demo no README.
 
 Execucao:
-    python -m scripts.etl_load_sample [--data-dir data/raw] [--sample-size 1000] [--seed 42]
+    python -m scripts.etl_load_sample [--data-dir data/raw] [--sample-size 10000] [--seed 42]
 
 Variavel de ambiente: DATABASE_URL (asyncpg ou psycopg). O script forca driver
 sincrono `postgresql+psycopg` para usar com SQLAlchemy + pandas.to_sql.
@@ -31,7 +31,7 @@ from sqlalchemy.engine import Engine
 from src.core.config import settings
 from src.core.models import Base
 
-DEFAULT_SAMPLE_SIZE = 1000
+DEFAULT_SAMPLE_SIZE = 10000
 DEFAULT_SEED = 42
 DEFAULT_DATA_DIR = "data/raw"
 DISTANCE_THRESHOLD_KM = 100.0
