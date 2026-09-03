@@ -201,7 +201,8 @@ Pontos que economizam tempo de quem for mexer:
 - **A busca usa `next/form`** (`action="/"`, GET): os campos viram query string, a navegacao e client-side e o formulario continua funcionando sem JS. Nao trocar por `onSubmit` + `router.push` sem motivo.
 - **Sem CORS em dev:** `web/next.config.ts` faz rewrite de `/api/v1/*` para a API, entao o fetch do browser sai da mesma origem.
 - **Fontes sao self-hosted via `@fontsource`**, nao `next/font/google` — `fonts.googleapis.com` e instavel/bloqueado em algumas redes e o build quebra sem mensagem obvia. Nao trocar sem saber disso.
-- **O carrinho e estado do cliente** (`sdui-context.tsx`), nao do servidor: o `api_call` de checkout envia a lista de itens. A acao vem do `product_card` e fica guardada ao adicionar o primeiro item — quem manda no COMO continua sendo o servidor.
+- **O carrinho e estado do cliente** (`sdui-context.tsx`), nao do servidor: o `api_call` de checkout envia a lista de itens. Persiste em `localStorage`, com o conteudo **validado item a item** na leitura — storage sobrevive a deploys e pode ter o formato de uma versao antiga.
+- **A `checkoutAction` NAO e persistida**, de proposito: ela vem do servidor a cada carga e pode mudar entre versoes do contrato. Apos um F5 ela e relida da tela por `findCheckoutAction`, senao o carrinho restaurado ficaria sem como fechar a compra.
 
 ## Testes
 
@@ -303,8 +304,9 @@ Escopo em [docs/sprint5-handoff.md](docs/sprint5-handoff.md):
 - `alternatives` no `shipment_breakdown`: produtos da mesma categoria em vendedores mais proximos, com CO2 economizado
 - Botao "Trocar" substitui o item no carrinho preservando a quantidade e re-simula pelo servidor
 - `src/features/checkout/alternatives.py` — ranking por **economia de CO2**, nao por distancia pura
+- Carrinho persistido em `localStorage`, sobrevivendo a um F5
 
-**Pendente:** persistir o carrinho (`localStorage`), E2E com Playwright, bloco `product_detail` server-driven, modo de inspecao SDUI.
+**Pendente:** E2E com Playwright, bloco `product_detail` server-driven, modo de inspecao SDUI.
 
 ## Roadmap (proximas sprints)
 

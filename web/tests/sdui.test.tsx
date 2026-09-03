@@ -7,8 +7,14 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { ScreenRenderer } from "@/components/sdui";
-import { SduiProvider, checkoutBody, useSdui } from "@/components/sdui-context";
-import { co2Label, decimal } from "@/lib/sdui";
+import {
+  CART_STORAGE_KEY,
+  SduiProvider,
+  checkoutBody,
+  readStoredCart,
+  useSdui,
+} from "@/components/sdui-context";
+import { co2Label, decimal, findCheckoutAction } from "@/lib/sdui";
 import type { ProductCardBlock, ScreenResponse, UIComponent } from "@/lib/sdui";
 
 const push = vi.fn();
@@ -21,8 +27,10 @@ vi.mock("next/navigation", () => ({
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
   push.mockReset();
   replace.mockReset();
+  localStorage.clear();
 });
 
 // --- fixtures ---------------------------------------------------------------
@@ -271,6 +279,118 @@ describe("carrinho", () => {
       ],
       delivery_option: "green",
     });
+  });
+});
+
+// --- persistencia do carrinho -----------------------------------------------
+
+describe("persistencia do carrinho", () => {
+  const stored = (items: unknown) =>
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+
+  test("grava no storage quando o carrinho muda", async () => {
+    renderProbe();
+    fireEvent.click(screen.getByText("add"));
+    await waitFor(() =>
+      expect(JSON.parse(localStorage.getItem(CART_STORAGE_KEY)!)).toEqual([
+        { productId: "p1", title: "Produto p1", price: 25, quantity: 2 },
+      ]),
+    );
+  });
+
+  test("restaura o carrinho ao montar", async () => {
+    stored([{ productId: "p9", title: "Salvo", price: 10, quantity: 3 }]);
+    renderProbe();
+    await waitFor(() => expect(screen.getByTestId("ids").textContent).toBe("p9x3"));
+  });
+
+  test("montar nunca grava um carrinho vazio por cima do restaurado", async () => {
+    // Regressao da ordem dos efeitos: com `hydrated` como ref, a escrita
+    // rodaria no commit da montagem, ainda com `cart` vazio no closure, e
+    // gravaria "[]". O render seguinte corrigiria o valor — por isso checar so
+    // o estado final NAO pegaria o bug. O que pega e observar as escritas: quem
+    // fechar a aba naquele instante perde o carrinho.
+    stored([{ productId: "p9", title: "Salvo", price: 10, quantity: 3 }]);
+    const setItem = vi.spyOn(Storage.prototype, "setItem");
+
+    renderProbe();
+    await waitFor(() => expect(screen.getByTestId("ids").textContent).toBe("p9x3"));
+
+    const wroteEmpty = setItem.mock.calls.some(
+      ([key, value]) => key === CART_STORAGE_KEY && value === "[]",
+    );
+    expect(wroteEmpty).toBe(false);
+  });
+
+  test("descarta itens com formato invalido em vez de confiar no JSON", () => {
+    stored([
+      { productId: "ok", title: null, price: 10, quantity: 1 },
+      { productId: "", title: null, price: 10, quantity: 1 }, // id vazio
+      { title: "sem id", price: 10, quantity: 1 }, // formato antigo
+      { productId: "z", title: null, price: 10, quantity: 0 }, // backend exige >= 1
+      { productId: "w", title: null, price: "10", quantity: 1 }, // preco string
+      "lixo",
+    ]);
+    expect(readStoredCart().map((e) => e.productId)).toEqual(["ok"]);
+  });
+
+  test("JSON corrompido nao derruba a aplicacao", () => {
+    localStorage.setItem(CART_STORAGE_KEY, "{isso nao e json");
+    expect(readStoredCart()).toEqual([]);
+  });
+
+  test("storage indisponivel (aba anonima) nao derruba a aplicacao", () => {
+    vi.stubGlobal("localStorage", {
+      getItem: () => {
+        throw new Error("acesso negado");
+      },
+      setItem: () => {
+        throw new Error("acesso negado");
+      },
+    });
+    expect(readStoredCart()).toEqual([]);
+    expect(() => renderProbe()).not.toThrow();
+  });
+
+  test("carrinho restaurado consegue fechar a compra sem reabrir um produto", async () => {
+    // A `checkoutAction` nao e persistida de proposito; ela vem da tela.
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => screenOf([]) });
+    vi.stubGlobal("fetch", fetchMock);
+    stored([{ productId: "p9", title: "Salvo", price: 10, quantity: 1 }]);
+
+    render(
+      <SduiProvider
+        customerZipPrefix="05311"
+        checkoutAction={findCheckoutAction(screenOf([card("p1")]))}
+      >
+        <Probe />
+      </SduiProvider>,
+    );
+
+    await waitFor(() => expect(screen.getByTestId("ids").textContent).toBe("p9x1"));
+    fireEvent.click(screen.getByText("checkout"));
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).items).toEqual([
+      { product_id: "p9", quantity: 1 },
+    ]);
+  });
+});
+
+describe("findCheckoutAction", () => {
+  test("acha a api_call de checkout em qualquer bloco", () => {
+    expect(findCheckoutAction(screenOf([hero("A"), card("p1")]))).toEqual({
+      type: "api_call",
+      payload: {
+        method: "POST",
+        path: "/api/v1/checkout/simulate",
+        body_key: "checkout",
+      },
+    });
+  });
+
+  test("devolve null quando a tela nao tem essa acao", () => {
+    expect(findCheckoutAction(screenOf([hero("A")]))).toBeNull();
   });
 });
 

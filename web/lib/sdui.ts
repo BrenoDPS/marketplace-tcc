@@ -189,6 +189,24 @@ export const DEMO_ZIPS = [
   { value: "60165", label: "Fortaleza · CE", hint: "vendedores distantes" },
 ] as const;
 
+/**
+ * Acha a `api_call` de checkout em qualquer bloco da tela.
+ *
+ * Existe para o carrinho restaurado do `localStorage` poder fechar a compra
+ * logo apos um F5: a acao nao e persistida de proposito (o servidor pode mudar
+ * o contrato entre versoes), entao ela e relida da tela a cada carga.
+ */
+export function findCheckoutAction(screen: ScreenResponse): UIAction | null {
+  for (const block of screen.components) {
+    for (const action of block.actions) {
+      if (action.type === "api_call" && action.payload.body_key === "checkout") {
+        return action;
+      }
+    }
+  }
+  return null;
+}
+
 export const brl = (value: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(value);
 

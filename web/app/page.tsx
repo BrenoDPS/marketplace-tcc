@@ -2,6 +2,7 @@ import { Controls, EntryScreen } from "@/components/controls";
 import { SduiRoot } from "@/components/sdui";
 import { SduiProvider } from "@/components/sdui-context";
 import { fetchHome } from "@/lib/api";
+import { findCheckoutAction } from "@/lib/sdui";
 
 const first = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value;
@@ -23,7 +24,12 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
   const result = await fetchHome(customerZipPrefix, context, search, category);
 
   return (
-    <SduiProvider customerZipPrefix={customerZipPrefix}>
+    <SduiProvider
+      customerZipPrefix={customerZipPrefix}
+      // Sem isto, um carrinho restaurado do storage apos F5 ficaria sem como
+      // fechar a compra ate o usuario reabrir algum produto.
+      checkoutAction={result.ok ? findCheckoutAction(result.screen) : null}
+    >
       <Controls
         customerZipPrefix={customerZipPrefix}
         context={context}

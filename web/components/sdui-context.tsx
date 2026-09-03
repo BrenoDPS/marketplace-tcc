@@ -1,7 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import type { ProductCardBlock, ScreenResponse, UIAction } from "@/lib/sdui";
 
 /**
@@ -32,6 +39,58 @@ export type CartEntry = {
   price: number;
   quantity: number;
 };
+
+// --- persistencia do carrinho ----------------------------------------------
+
+export const CART_STORAGE_KEY = "olist-sdui:cart";
+
+/** O backend aceita no maximo 20 itens; storage adulterado nao passa disso. */
+const MAX_STORED_ITEMS = 20;
+
+function isCartEntry(value: unknown): value is CartEntry {
+  if (typeof value !== "object" || value === null) return false;
+  const e = value as Record<string, unknown>;
+  return (
+    typeof e.productId === "string" &&
+    e.productId.length > 0 &&
+    typeof e.price === "number" &&
+    Number.isFinite(e.price) &&
+    typeof e.quantity === "number" &&
+    Number.isInteger(e.quantity) &&
+    e.quantity >= 1 &&
+    (e.title === null || typeof e.title === "string")
+  );
+}
+
+/**
+ * O `localStorage` sobrevive a deploys, entao o que esta la pode ter o formato
+ * de uma versao antiga do carrinho — e um `productId` ausente viraria um POST
+ * com `product_id: undefined` e um 422 sem explicacao. Por isso valida item a
+ * item e descarta o que nao casa, em vez de confiar no JSON.
+ *
+ * O try/catch nao e decorativo: em aba anonima ou com dados de site bloqueados,
+ * o proprio acesso a `localStorage` lanca excecao.
+ */
+export function readStoredCart(): CartEntry[] {
+  try {
+    const raw = localStorage.getItem(CART_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(isCartEntry).slice(0, MAX_STORED_ITEMS);
+  } catch {
+    return [];
+  }
+}
+
+function writeStoredCart(cart: CartEntry[]): void {
+  try {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+  } catch {
+    // Sem storage o carrinho segue funcionando em memoria: perder a
+    // persistencia nao pode derrubar a compra.
+  }
+}
 
 type SduiValue = {
   customerZipPrefix: string;
@@ -80,9 +139,12 @@ export function checkoutBody(cep: string, cart: CartEntry[], ctx: RunContext = {
 
 export function SduiProvider({
   customerZipPrefix,
+  checkoutAction: initialCheckoutAction = null,
   children,
 }: {
   customerZipPrefix: string;
+  /** Extraida da tela pelo servidor — ver `findCheckoutAction`. */
+  checkoutAction?: UIAction | null;
   children: React.ReactNode;
 }) {
   const router = useRouter();
@@ -90,7 +152,31 @@ export function SduiProvider({
   const [checkout, setCheckout] = useState<ScreenResponse | null>(null);
   const [cart, setCart] = useState<CartEntry[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [checkoutAction, setCheckoutAction] = useState<UIAction | null>(null);
+  const [checkoutAction, setCheckoutAction] = useState<UIAction | null>(
+    initialCheckoutAction,
+  );
+  const [hydrated, setHydrated] = useState(false);
+
+  // O carrinho comeca vazio para o HTML do servidor e o primeiro render do
+  // cliente baterem; ler o storage aqui no corpo causaria mismatch de
+  // hidratacao. Por isso a leitura acontece depois de montar.
+  useEffect(() => {
+    setCart(readStoredCart());
+    setHydrated(true);
+  }, []);
+
+  // `hydrated` e ESTADO, nao ref: com ref este efeito rodaria ja no commit da
+  // montagem, ainda com `cart` vazio no closure, e gravaria [] por cima do que
+  // acabou de ser lido. O render seguinte corrigiria — mas quem fechar a aba
+  // nesse intervalo perde o carrinho. Como estado, a escrita so acontece
+  // depois da restauracao e esse [] nunca chega ao storage.
+  useEffect(() => {
+    if (!hydrated) return;
+    writeStoredCart(cart);
+  }, [cart, hydrated]);
+
+  // `checkoutAction` NAO e persistida: ela vem do servidor a cada carga e pode
+  // mudar entre versoes do contrato. Guardar apontaria para um caminho velho.
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
