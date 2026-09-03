@@ -2,7 +2,7 @@ Technical Specification: SDUI Engine & Backend
 1. Arquitetura (Vertical Slice)
     - /src/features/home_contextual: Composição de layouts por categoria.
     - /src/features/green_logistics: Motor de geoprocessamento e cálculo de CO2.
-    - /src/features/checkout: Checkout simulado (Sprint 3: `POST /api/v1/checkout/simulate`; sem pagamento real).
+    - /src/features/checkout: Checkout simulado com carrinho multi-item (`POST /api/v1/checkout/simulate`; sem pagamento real).
     - /src/features/orchestrator: Gerenciamento de versões de componentes e roteamento dinâmico.
     
 2. Contrato SDUI (Schemas Pydantic)
@@ -11,7 +11,11 @@ Cada bloco enviado ao cliente segue o envelope **`{ type, version, props, action
 
 Validação com **Pydantic v2** e **discriminated unions** em `UIComponent` e em cada item de `actions`, para o OpenAPI refletir variantes com clareza.
 
-**Sprint 3** adiciona blocos `checkout_summary` e `impact_banner` (tela de checkout simulado). Até a implementação, o código em `src/schemas/sdui.py` pode conter apenas `hero_banner` e `product_card`.
+> **Fonte de verdade: `src/schemas/sdui.py`.** Este documento descreve o contrato; não o duplica.
+> Até a Sprint 5 o arquivo trazia uma cópia integral dos schemas, que ficou defasada em duas
+> sprints (faltavam três blocos e o `checkout_summary` estava com os props antigos). Manter o
+> mirror à mão não se pagou — as `actions` abaixo continuam em código porque são estáveis
+> desde a Sprint 1; os blocos viraram tabela.
 
 ```python
 from __future__ import annotations
@@ -61,86 +65,11 @@ UIAction = Annotated[
 ]
 
 
-# --- Props (somente apresentação / dados para renderizar) ---
-
-
-class SustainabilityProps(BaseModel):
-    label: str
-    impact_level: Literal["green", "neutral"] = "green"
-    icon: str | None = None
-
-
-class ProductCardProps(BaseModel):
-    product_id: str
-    price: float
-    title: str | None = None
-    image_url: str | None = None
-    badge: SustainabilityProps | None = None
-
-
-class HeroBannerProps(BaseModel):
-    title: str
-    subtitle: str | None = None
-    image_url: str
-
-
-# --- Blocos de UI (envelope por tipo de componente) ---
-
-
-class ProductCardBlock(BaseModel):
-    type: Literal["product_card"] = "product_card"
-    version: int = 1
-    props: ProductCardProps
-    actions: list[UIAction] = Field(default_factory=list)
-
-
-class HeroBannerBlock(BaseModel):
-    type: Literal["hero_banner"] = "hero_banner"
-    version: int = 1
-    props: HeroBannerProps
-    actions: list[UIAction] = Field(default_factory=list)
-
-
-class CheckoutSummaryProps(BaseModel):
-    product_id: str
-    title: str | None = None
-    quantity: int
-    unit_price: float
-    subtotal: float
-    freight: float
-    total: float
-
-
-class ImpactBannerProps(BaseModel):
-    distance_km: float | None = None
-    co2_kg: float | None = None
-    badge: SustainabilityProps | None = None
-    message: str
-
-
-class CheckoutSummaryBlock(BaseModel):
-    type: Literal["checkout_summary"] = "checkout_summary"
-    version: int = 1
-    props: CheckoutSummaryProps
-    actions: list[UIAction] = Field(default_factory=list)
-
-
-class ImpactBannerBlock(BaseModel):
-    type: Literal["impact_banner"] = "impact_banner"
-    version: int = 1
-    props: ImpactBannerProps
-    actions: list[UIAction] = Field(default_factory=list)
-
-
-UIComponent = Annotated[
-    Union[
-        ProductCardBlock,
-        HeroBannerBlock,
-        CheckoutSummaryBlock,
-        ImpactBannerBlock,
-    ],
-    Field(discriminator="type"),
-]
+# --- Blocos de UI ---
+# Uniao discriminada por `type`, um modelo por bloco, todos no envelope
+# `{ type, version, props, actions }`. Ver a tabela abaixo e, para os campos
+# exatos, `src/schemas/sdui.py`.
+UIComponent = Annotated[Union[...], Field(discriminator="type")]
 
 
 class ScreenResponse(BaseModel):
@@ -151,6 +80,34 @@ class ScreenResponse(BaseModel):
 
 ```
 
+### Blocos implementados
+
+Todos seguem o envelope e estão na união discriminada `UIComponent` (`version: 1`).
+
+| `type` | Tela | Props principais | Desde |
+|--------|------|------------------|-------|
+| `hero_banner` | Home | `title`, `subtitle`, `image_url`, `cta_label` | S1 (`cta_label` na S5) |
+| `product_card` | Home | `product_id`, `price`, `title`, `image_url`, `badge` | S1 |
+| `category_grid` | Home | `title`, `categories[]` — cada item com `slug`, `label`, `product_count`, `selected` e **`actions` próprias** | S5 |
+| `checkout_summary` | Checkout | `items[]` (`product_id`, `title`, `quantity`, `unit_price`, `line_total`), `subtotal`, `freight`, `total` | S3 (virou carrinho na S5) |
+| `delivery_options` | Checkout | `distance_km`, `selected_id`, `options[]` (`id`, `label`, `eta_days`, `price`, `co2_kg`, `recommended`, `selected`), `note` | S4 |
+| `shipment_breakdown` | Checkout | `title`, `shipments[]` (`seller_id`, `product_ids`, `total_quantity`, `weight_g`, `distance_km`, `freight`, `co2_kg`, `co2_share`, `badge`), `note` | S5 |
+| `impact_banner` | Checkout | `distance_km`, `co2_kg`, `badge`, `message` | S3 |
+
+`SustainabilityProps` (`label`, `impact_level`, `icon`) é o selo verde, reaproveitado por
+`product_card`, `shipment_breakdown` e `impact_banner`.
+
+**Duas exceções ao envelope, ambas deliberadas:**
+
+- `category_grid` põe `actions` **no item**, não no bloco: cada categoria navega para um
+  caminho diferente e o envelope só comporta uma ação para o conjunto.
+- `delivery_options` tem **uma** `api_call` para o bloco todo: o cliente já sabe qual opção
+  foi clicada e devolve o `id` no corpo, então três ações seriam redundantes.
+
+**Degradação graciosa:** bloco de `type` desconhecido renderiza `null` no cliente
+(`REGISTRY` em `web/components/sdui.tsx`) — a tela degrada em vez de quebrar. Há teste
+cobrindo isso.
+
 3. Logística Verde e Validação
 
 - **Distância (MVP):** **Haversine** em Python sobre **centroides por prefixo de CEP** (mediana de `lat`/`lng` por `geolocation_zip_code_prefix` derivada no ETL Olist).
@@ -158,7 +115,11 @@ class ScreenResponse(BaseModel):
 - **Emissão:** \(E = d \cdot w \cdot EF\) com \(d\) km, \(w\) em toneladas, \(EF = 0,102\) kg CO₂/(t·km) (GHG Protocol).
 - **Selo na UI:** distância **\< 100 km** ⇒ elegível a selo (PRD); lógica na fatia **`green_logistics`**, dados no SDUI (`SustainabilityProps` / `ProductCard`). **Sprint 3:** label do selo inclui **CO₂ estimado** quando `product_weight_g` disponível (`E = d · w · FE`).
 - **Home consciente:** query `context=conscious_buyer` ordena produtos por **proximidade** ao `customer_zip_prefix` (sem filtro rígido de categoria).
-- **Checkout simulado (Sprint 3):** `POST /api/v1/checkout/simulate` — body `{ customer_zip_prefix, product_id, quantity }`; resposta `ScreenResponse` com blocos `checkout_summary` + `impact_banner` (frete da amostra Olist, distância, CO₂, selo).
+- **Busca e categorias (Sprint 5):** `GET /home` aceita `q` e `category`. A busca é sobre **`product_category_name`** — o Olist não tem nome de produto, e o `title` do card já é a categoria formatada. Acentos são dobrados no termo do usuário; `%` e `_` escapados antes do `ILIKE`.
+- **Checkout simulado (Sprint 3, carrinho na Sprint 5):** `POST /api/v1/checkout/simulate` — body `{ customer_zip_prefix, items[], delivery_option? }` com 1 a 20 itens `{ product_id, quantity }`; resposta `ScreenResponse` com `checkout_summary` + `delivery_options` + `shipment_breakdown` + `impact_banner`.
+- **Modalidades de entrega (Sprint 4):** `express` / `standard` / `green` em `green_logistics/delivery_options.py`. `standard` é o frete real da amostra **sem fator**; os fatores das outras duas são **cenário declarado**, não dado do Olist — o dataset não tem modalidade nem transportadora. A ressalva viaja no campo `note` do bloco.
+- **Agregação por vendedor (Sprint 5):** uma remessa por `seller_id`, pagando **um** frete (o maior item do grupo). **Consolidar não reduz CO₂:** o modelo é linear na massa, então `Σᵢ (d · wᵢ · FE) = d · (Σᵢ wᵢ) · FE`. Agrupar economiza frete, não emissão. O que o carrinho entrega é o **`co2_share`** por remessa — qual vendedor domina a pegada. Ver `docs/sprint5-handoff.md` para por que um termo fixo por remessa foi descartado.
+- **Exibição do CO₂:** `format_co2` (backend) e `co2Label` (frontend) aplicam a mesma regra — gramas abaixo de 10 g, kg acima, vírgula pt-BR. Com a amostra de 10k as distâncias caíram e um `.2f` em kg imprimia `0,00 kg` em todo selo.
 - **Evolução futura (opcional):** migração para PostGIS (`ST_DistanceSphere`) quando custos de query justificarem indexação espacial.
 
 4. Performance, Cache e Hidratação
@@ -171,5 +132,6 @@ class ScreenResponse(BaseModel):
 
 - **Python 3.12+, FastAPI (async), Pydantic v2**, servidor ASGI (ex. Uvicorn).
 - **PostgreSQL** (PostGIS = evolução futura opcional), **Redis** (cache em fase futura).
-- **Front (referência):** renderiza por `type`, lê `props`, executa `actions`, hidrata em fases se o backend entregar em etapas.
-- **CORS (dev):** habilitado quando `APP_ENV=development` para front local (Vite/React); ver Sprint 3.
+- **Front:** **Next.js 16 (App Router) em `web/`** — renderiza por `type` via `REGISTRY`, lê `props`, executa `actions`. As telas vêm de Server Components; só o executor de `actions` e o carrinho rodam no cliente.
+- **CORS (dev):** habilitado quando `APP_ENV=development` para front local; em desenvolvimento o `web/next.config.ts` faz rewrite de `/api/v1/*` e o CORS nem entra no caminho.
+- **Testes:** `pytest` (backend, sem Postgres — `dependency_overrides` + monkeypatch) e **Vitest** em `web/`. CI em `.github/workflows/ci.yml`.
