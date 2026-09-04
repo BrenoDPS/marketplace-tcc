@@ -37,6 +37,8 @@ python -m scripts.etl_load_sample   # CSVs em data/raw/
 uvicorn src.main:app --reload
 ```
 
+Com a pilha no ar, `cd web && npm run e2e` percorre a jornada inteira da defesa (Playwright). É o check de pré-apresentação — não roda no CI porque `data/raw/` é gitignored.
+
 Demo Home (após ETL): `customer_zip_prefix=05311` — ver `README.md`.
 
 ## Estrutura (VSA)

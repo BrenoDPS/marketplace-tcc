@@ -255,11 +255,48 @@ cd web && npm test        # Vitest (use `npm run test:watch` para watch)
 cd web && npm run typecheck
 ```
 
-Os testes de backend nao dependem de Postgres rodando (uso de `app.dependency_overrides` + monkeypatch nos repositorios). Os de frontend cobrem as duas pecas com logica nao trivial — o executor de `actions` e o `ScreenRenderer` —; o resto e apresentacao e nao ganha teste de proposito. Para validacao end-to-end use o fluxo de cima.
+Os testes de backend nao dependem de Postgres rodando (uso de `app.dependency_overrides` + monkeypatch nos repositorios). Os de frontend cobrem as duas pecas com logica nao trivial — o executor de `actions` e o `ScreenRenderer` —; o resto e apresentacao e nao ganha teste de proposito.
+
+### E2E — o check de pre-defesa
+
+```bash
+cd web && npm run e2e
+```
+
+Um unico teste Playwright percorre a jornada da apresentacao: CEP -> busca ->
+categoria -> detalhe do produto -> carrinho -> simular compra -> trocar
+modalidade e conferir que **frete, CO2 e selo se movem juntos, e na direcao
+certa** (verde e mais barato e menos emissivo que padrao; expressa, o oposto).
+
+Diferente do resto da suite, ele roda contra a **pilha real** — Postgres, ETL
+carregado e `uvicorn` no ar. Um mock responderia outra pergunta; esta responde
+"a demo ainda funciona?". Se o backend estiver fora, o teste falha na hora com
+o passo a passo para subi-lo, em vez de esperar timeout.
+
+O Playwright sobe o front na **porta 3100** de proposito: a 3000 costuma estar
+ocupada por outro app na maquina, o Next cai para a 3001 em silencio e o teste
+passaria a medir a aplicacao errada.
+
+Duas armadilhas ja pagas, documentadas para nao voltarem:
+
+- **`localhost`, nunca `127.0.0.1`.** O dev server do Next 16 devolve **403 no
+  chunk do cliente** para origens que nao reconhece. A pagina e servida e
+  parece certa, mas **nao hidrata**: nenhum clique funciona e o erro aparece
+  como "botao desabilitado", nao como falha de rede.
+- **A tela de entrada e um Client Component:** um `fill` que chega antes da
+  hidratacao escreve no DOM e nao no estado do React. O teste repete o
+  preenchimento ate o React registrar (`expect(...).toPass()`), em vez de
+  dormir um tempo fixo.
 
 ### CI
 
-`.github/workflows/ci.yml` roda em push/PR para `main` e `development`: `pytest` (backend) e `npm run typecheck` + `npm test` + `npm run build` (frontend).
+`.github/workflows/ci.yml` roda em push/PR para `main` e `development`: `pytest`
+(backend) e `npm run lint` + `npm run typecheck` + `npm test` + `npm run build`
+(frontend).
+
+**O E2E nao esta no CI** e nao e um esquecimento: `data/raw/` e gitignored, entao
+o runner do GitHub nao tem os CSVs do Olist para popular o banco. Entra quando
+existir um fixture de banco semeado.
 
 ## Arquitetura (Vertical Slice)
 
@@ -350,8 +387,7 @@ Escopo em [docs/sprint5-handoff.md](docs/sprint5-handoff.md):
 - Bloco **`product_detail`** server-driven (`GET /products/{id}`), com nota e vendedor reais do dataset
 - ETL passa a agregar `review_score` por produto (6.528/6.575 com avaliacao)
 - `npm run lint` entrou no CI (estava vermelho e ninguem via)
-
-**Pendente:** E2E com Playwright.
+- **E2E com Playwright** cobrindo a jornada da defesa de ponta a ponta, contra a pilha real (`npm run e2e`)
 
 ## Roadmap (proximas sprints)
 
