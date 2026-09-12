@@ -335,7 +335,6 @@ src/
     config.py                # Pydantic settings
     database.py              # AsyncEngine + AsyncSession
     models.py                # Modelos SQLAlchemy 2.0 (Olist + cep_centroids)
-    redis.py                 # Stub do client async (sem uso runtime nesta sprint)
   features/
     home_contextual/         # Composicao de tela: hero por contexto + produtos reais
     green_logistics/         # Haversine + centroides CEP + CO2 (FE 0,102) + selo < 100 km
@@ -420,6 +419,21 @@ Escopo em [docs/sprint5-handoff.md](docs/sprint5-handoff.md):
 ## Roadmap (proximas sprints)
 
 - **green_logistics:** evolucao opcional para PostGIS (`ST_DistanceSphere`) com indexacao espacial.
-- **orchestrator:** versionamento de blocos por `version`, roteamento dinamico e cache Redis de fragmentos SDUI.
-- **Cache Redis em runtime:** cliente em `core/redis.py`; uso em runtime pendente.
-- **Locust / TTFB:** testes de carga e meta &lt; 200 ms (TCC2).
+  Hoje o calculo nao toca o banco (centroides em memoria, Haversine em Python), entao
+  PostGIS moveria a conta de volta para dentro do Postgres. Se pagaria se o app passasse a
+  fazer consulta espacial de verdade — "vendedores num raio de X km" com indice — que hoje
+  ele nao faz.
+- **orchestrator:** versionamento de blocos e roteamento dinamico. **Nao implementado**: o
+  campo `version` ja existe no envelope, mas todos valem 1 — nao ha uma segunda versao para
+  rotear entre.
+
+### Descartado com medicao
+
+- **Cache Redis em runtime.** Avaliado na Sprint 6 e **descartado**. A medicao mostrou que a
+  lentidao era um N+1 (63 queries para montar 6 cards, metade repetindo o mesmo CEP) e, depois
+  disso, o worker unico — nao ausencia de cache distribuido. `cep_centroids` sao 6403 linhas
+  estaticas que cabem em ~1,1 MB de memoria; Redis guardaria isso do outro lado de um socket.
+  O client stub, a dependencia e a `REDIS_URL` foram removidos para o codigo nao contradizer a
+  decisao. Ver [docs/performance.md](docs/performance.md) §5 e §7, com as condicoes que
+  reabririam a discussao.
+- **Locust / TTFB:** feito — suite em `load/locustfile.py`, numeros em `docs/performance.md`.

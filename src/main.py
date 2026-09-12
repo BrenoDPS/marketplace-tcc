@@ -6,7 +6,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.core.config import settings
 from src.core.database import close_db
-from src.core.redis import close_redis
 from src.features.checkout.router import router as checkout_router
 from src.features.home_contextual.router import router as home_router
 from src.features.product_detail.router import router as product_detail_router
@@ -22,10 +21,7 @@ DEV_CORS_ORIGINS = [
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     yield
-    try:
-        await close_redis()
-    finally:
-        await close_db()
+    await close_db()
 
 
 app = FastAPI(

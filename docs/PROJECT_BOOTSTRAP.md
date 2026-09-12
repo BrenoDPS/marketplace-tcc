@@ -69,7 +69,9 @@ web/                 # Frontend Next.js (App Router) que consome o SDUI
 
 ## O que não fazer sem pedido explícito
 
-- Pagamento real, Redis/Locust, PostGIS, dataset Olist completo
+- Pagamento real, PostGIS, dataset Olist completo
+- Redis: **avaliado e descartado com medição** na Sprint 6 (`docs/performance.md`)
+- Locust: **feito** — `load/locustfile.py`
 - Reimplementar Sprint 1–5 do zero
 - Apresentar os fatores de `delivery_options.py` como dado medido do Olist — são cenário declarado (ler o docstring do módulo)
 - Prometer busca por **nome de produto**: o Olist não tem esse campo. A busca é sobre `product_category_name` (ler o docstring de `home_contextual/repository.py`)

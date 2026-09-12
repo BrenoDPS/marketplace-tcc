@@ -30,4 +30,10 @@ Sistema de Ações Dinâmicas: Botões e cliques cujas ações (navegação, cha
 5. Métricas de Sucesso
 Latência: < 200ms (com auxílio de cache Redis) em cenários de alta concorrência.
 
+> **Nota da Sprint 6 (medição):** a premissa entre parênteses não se confirmou. A meta é
+> atingida **sem Redis** — o gargalo era um N+1 de consultas, não falta de cache. Acima de
+> ~25 usuários simultâneos o limite passa a ser o número de processos da API, não o banco.
+> O requisito de latência permanece; o meio previsto para alcançá-lo foi revisto. Ver
+> `docs/performance.md`.
+
 Arquitetura: Vertical Slice Architecture (VSA) para isolamento de funcionalidades.

@@ -1,8 +1,7 @@
 """Contrato SDUI (Server-Driven UI) — Fase 1.
 
 Implementa o envelope `{ type, version, props, actions }` definido em
-docs/tech_spec.md §2. Mantém uma unica `ScreenResponse`; cache Redis real,
-PostGIS, ingestao Olist e wiring real das `actions` ficam para Fase 2.
+docs/tech_spec.md §2. Mantém uma unica `ScreenResponse`.
 """
 
 from __future__ import annotations
