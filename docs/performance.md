@@ -34,7 +34,8 @@ GitHub não tem os CSVs do Olist para popular o banco.
 Locust disputa CPU com o uvicorn, então os números de 50 usuários são um piso
 pessimista, não um teto. Amostra do ETL: seed 42, ~10k `order_items`.
 
-Dados brutos em `load/results/u{1,10,25,50}_stats.csv`.
+Dados brutos em `load/results/antes/` (antes da deduplicação) e
+`load/results/depois/` — ver §6.
 
 ---
 
@@ -160,6 +161,74 @@ Ordem sugerida, do mais barato para o mais caro:
 **sem concorrência**. Confirmar que eles levam o p95 sob carga para baixo de
 200 ms exige implementá-los e rodar o Locust de novo — a suíte já está pronta
 para isso.
+
+---
+
+---
+
+## 6. Correção aplicada: a deduplicação (item 1)
+
+Feita em `get_centroid` ([`repository.py`](../src/features/green_logistics/repository.py)) — um
+memo em `session.info`, que nasce e morre com a requisição porque `get_db` abre
+uma sessão por request. **Nenhuma assinatura mudou**, então Home, detalhe e
+checkout ganharam junto: `get_centroid` era o ponto por onde todos passavam.
+
+É seguro porque `cep_centroids` é dado de referência estático — escrito uma vez
+pelo ETL, nunca em runtime. Dentro de uma requisição a resposta não pode mudar.
+
+**Queries por requisição:**
+
+| contexto | antes | depois |
+|---|---|---|
+| `default` | 15 (6 repetindo o CEP do comprador) | **10** (1) |
+| `electronics_expert` | 15 (6) | **10** (1) |
+| `conscious_buyer` | 63 (30) | **27** (1) |
+
+**Latência com 1 usuário** (30 amostras, p50):
+
+| endpoint | antes | depois | |
+|---|---|---|---|
+| `default` | 44 ms | 39 ms | −11% |
+| `electronics_expert` | 84 ms | 37 ms | −56% |
+| **`conscious_buyer`** | **150 ms** | **63 ms** | **−58%** |
+| busca | 54 ms | 33 ms | −39% |
+
+Bate com a previsão de −52% da §4, e o `conscious_buyer` saiu de 250 ms de p50
+para dentro da meta sem concorrência.
+
+### O que a correção NÃO resolveu
+
+Sob carga o ganho é bem menor do que a medição isolada sugeria. p50 agregado:
+
+| | u=1 | u=10 | u=25 | u=50 |
+|---|---|---|---|---|
+| `conscious_buyer` | 250 → 210 | 300 → **130** | 640 → **260** | 2200 → **1300** |
+| **agregado** | 87 → 130 | 130 → 89 | 270 → 230 | **890 → 760** |
+| throughput | 0,7 → 0,7 | 7,0 → 7,3 | 15,8 → 15,3 | 22,4 → **24,6** |
+
+O endpoint que era o alvo melhorou de forma consistente (cai à metade de u=10
+para cima). **Mas o agregado quase não se moveu e o throughput ficou praticamente
+igual** — 22,4 → 24,6 req/s. A meta de 200 ms sob concorrência continua não sendo
+cumprida.
+
+> Os números de u=1 do Locust (87 → 130) são ruído: são ~30 requisições em 45 s,
+> divididas entre 7 endpoints. A tabela de 30 amostras por endpoint acima é a
+> medição confiável para um usuário.
+
+**Por que o agregado não seguiu:** o N+1 não era o gargalo dominante sob carga.
+Medindo as peças isoladas depois da correção:
+
+| peça | p50 |
+|---|---|
+| `list_known_prefixes` (`SELECT` dos 6403 prefixos) | **15,0 ms** |
+| `compose_home(default)` inteiro | 16,3 ms |
+| `compose_home(conscious_buyer)` inteiro | 39,6 ms |
+
+`list_known_prefixes` virou **48% de uma requisição `default`** — um custo fixo
+pago em toda request só para validar se um prefixo existe, com 1 worker de uvicorn
+serializando tudo. É o item 2 da §5, e agora ele é o maior item isolado.
+
+Dados brutos do antes e do depois em `load/results/antes/` e `load/results/depois/`.
 
 ---
 

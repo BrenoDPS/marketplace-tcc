@@ -155,6 +155,7 @@ o argumento do SDUI na prática.
 
 - **Meta:** TTFB **\< 200 ms**; backend **async**; cache onde couber.
 - **Medido (Sprint 6):** a meta **não é cumprida** — p50 agregado de **890 ms** a 50 usuários, e o `conscious_buyer` já passa de 200 ms **com um único usuário**. A causa é um **N+1**: 63 queries por requisição, metade repetindo o centroide do comprador. Antes de introduzir Redis, deduplicar: medido em **−52%** com memo por requisição e **−82%** mantendo `cep_centroids` (~1,1 MB) em memória. Suíte, números e metodologia em `docs/performance.md`.
+- **Deduplicação aplicada (Sprint 6):** `get_centroid` memoiza por requisição em `session.info` (que vive o tempo de uma request, pois `get_db` abre uma sessão por request). `conscious_buyer` foi de **63 para 27 queries** e de **150 ms para 63 ms** com um usuário. **Sob concorrência o agregado quase não se moveu** — o gargalo dominante passou a ser `list_known_prefixes`, que faz `SELECT` dos 6403 prefixos em toda requisição e hoje é ~48% de uma Home `default`.
 - **SDUI:** 1ª resposta com blocos “above the fold”; restante em **resposta(s) seguinte(s)** ou paginação (documentar o endpoint/decisão no repo).
 - **Redis:** cache de **distâncias/CEP** e **fragmentos JSON SDUI** alinhados a `version` do bloco e `schema_version` da tela.
 

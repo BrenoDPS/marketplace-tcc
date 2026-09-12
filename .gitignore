@@ -14,6 +14,6 @@ data/processed/
 ex*.py
 
 # Locust: so o resumo (_stats.csv) e evidencia; o resto se regenera.
-load/results/*_stats_history.csv
-load/results/*_exceptions.csv
-load/results/*_failures.csv
+load/results/**/*_stats_history.csv
+load/results/**/*_exceptions.csv
+load/results/**/*_failures.csv

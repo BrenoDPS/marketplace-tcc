@@ -266,11 +266,16 @@ uvicorn src.main:app --port 8000    # SEM --reload: o file-watcher entra na medi
 locust -f load/locustfile.py --headless -u 50 -r 10 -t 45s --host http://127.0.0.1:8000
 ```
 
-Percorre a jornada da defesa sob concorrencia, contra a pilha real. **A meta de
-TTFB < 200 ms nao e cumprida hoje** — e a causa nao e falta de cache, e um N+1:
-o `conscious_buyer` faz **63 idas ao banco para montar 6 cards**, metade delas
-pedindo o mesmo CEP do comprador. Numeros, diagnostico e a ordem de correcao
-sugerida em [docs/performance.md](docs/performance.md).
+Percorre a jornada da defesa sob concorrencia, contra a pilha real. O diagnostico
+foi um N+1: o `conscious_buyer` fazia **63 idas ao banco para montar 6 cards**,
+metade pedindo o mesmo CEP do comprador. A **deduplicacao ja foi aplicada** (memo
+por requisicao em `get_centroid`): 63 -> 27 queries, e 150 ms -> 63 ms com um
+usuario.
+
+**A meta de TTFB < 200 ms ainda nao e cumprida sob concorrencia.** O gargalo
+dominante agora e outro: `list_known_prefixes` faz `SELECT` dos 6403 prefixos em
+toda requisicao e sozinho custa ~48% de uma Home `default`. Numeros do antes e do
+depois em [docs/performance.md](docs/performance.md).
 
 Fora do CI pelo mesmo motivo do E2E: `data/raw/` e gitignored.
 
