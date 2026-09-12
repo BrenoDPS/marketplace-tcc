@@ -21,7 +21,7 @@ pip install -r requirements.txt
 | [docs/sprint4-handoff.md](docs/sprint4-handoff.md) | Sprint 4 (historico) |
 | [docs/sprint3-handoff.md](docs/sprint3-handoff.md) | Sprint 3 (historico) |
 | [docs/sprint2-handoff.md](docs/sprint2-handoff.md) | Sprint 2 (historico) |
-| [docs/frontend-sprint2.md](docs/frontend-sprint2.md) | Guia para dev frontend |
+| [docs/frontend-sprint2.md](docs/frontend-sprint2.md) | Guia de consumo da API (historico da Sprint 2, com notas do que mudou ate hoje) |
 | [docs/tech_spec.md](docs/tech_spec.md) | Contrato SDUI e logistica verde |
 
 ## Fluxo completo (Sprint 2+)

@@ -5,7 +5,27 @@
 
 **Referências:** `docs/prd.md`, `docs/tech_spec.md`, `README.md` (seção Demo)
 
-> **Sprint 3 (backend):** checkout simulado, CO₂ no selo e `context=conscious_buyer` — ver `docs/sprint3-handoff.md`. Guia front Sprint 3 será publicado após a implementação do backend.
+> ### ⚠️ Leia antes: este documento é um registro da Sprint 2
+>
+> Ele foi escrito **antes de existir frontend**, para um(a) dev que ainda ia
+> construir o cliente (por isso fala em Vite/React). O cliente **foi construído
+> depois**, em `web/` — **Next.js 16 + App Router**, e as Sprints 3–6 mudaram
+> parte do que está descrito aqui.
+>
+> **O que continua valendo:** a regra do selo (< 100 km), o papel do
+> `customer_zip_prefix`, o envelope SDUI e a ideia de que o front não calcula
+> nada — só renderiza `components[]`.
+>
+> **Onde está a verdade de hoje:**
+>
+> | Assunto | Fonte |
+> |---------|-------|
+> | Contrato SDUI completo (8 tipos de bloco) | `docs/tech_spec.md` §2 + Swagger `/docs` |
+> | Endpoints, exemplos de `curl`, CEPs de demo | `README.md` |
+> | O cliente de verdade | `web/` (`web/lib/sdui.ts` = tipos, `web/components/` = blocos) |
+> | A jornada inteira, executável | `web/e2e/journey.spec.ts` (`npm run e2e`) |
+>
+> As seções abaixo trazem notas **“Hoje:”** onde a Sprint 2 ficou para trás.
 
 ---
 
@@ -73,6 +93,17 @@ uvicorn src.main:app --reload
 
 > **Importante:** sem Docker + ETL, a Home **não** devolve produtos reais (pode dar erro de conexão ou lista vazia).
 
+> **Hoje:** falta o passo 4 — subir o cliente. Com a API no ar:
+>
+> ```powershell
+> cd web
+> npm install
+> npm run dev        # http://localhost:3000
+> ```
+>
+> E `npm run e2e` (com a pilha inteira no ar) percorre a jornada da defesa de
+> ponta a ponta. Detalhes em `README.md` → **Frontend (`web/`)**.
+
 ---
 
 ## 4. Endpoint da Home (o que o front chama)
@@ -89,6 +120,8 @@ GET /api/v1/home
 |-----------|--------------|---------|-----------|
 | **`customer_zip_prefix`** | **Sim** | — | Prefixo do CEP do **comprador** (1–5 dígitos, formato Olist). Ex.: `05311` |
 | **`context`** | Não | `default` | Personaliza o **banner** e tenta filtrar produtos por categoria |
+| `q` | Não | — | **(Sprint 5)** Busca sobre o nome da categoria, sem acento e sem caixa: `moveis` encontra `moveis_decoracao` |
+| `category` | Não | — | **(Sprint 5)** Filtro **exato** pelo slug do dataset. Slug inexistente na amostra → **422** |
 
 ### Valores úteis de `context`
 
@@ -97,8 +130,13 @@ GET /api/v1/home
 | `default` | Marketplace genérico | Qualquer categoria da amostra |
 | `electronics_expert` | “Tech Deals” | Categoria `informatica_acessorios` |
 | `beauty_lover` | “Semana da Beleza” | Categoria `beleza_saude` |
+| `conscious_buyer` | **(Sprint 3)** Compra consciente | Qualquer categoria, **ordenada por proximidade** (mais perto primeiro) |
 
 Se não houver produto da categoria na amostra, o backend **volta** a listar produtos sem filtro (fallback automático).
+
+> **Hoje:** o fallback vale só para a categoria que o **contexto** escolheu (é
+> uma heurística nossa). Filtro que o **usuário** pediu (`q`/`category`) não cai
+> para a vitrine geral — resultado vazio é a resposta honesta.
 
 ### Exemplos prontos (copiar no navegador ou no `fetch`)
 
@@ -152,6 +190,12 @@ http://127.0.0.1:8000/api/v1/home?context=default
 1. **Um** `hero_banner` (topo da página)  
 2. **Até ~6** `product_card` (produtos reais)
 
+> **Hoje:** a Home devolve `hero_banner` → **`category_grid`** → `product_card[]`.
+> O `category_grid` entrou na Sprint 5 e cada categoria carrega a **própria**
+> `actions` (o envelope do bloco só comporta uma ação para o conjunto todo).
+> O contrato passou de 2 para **8 tipos de bloco** — os outros aparecem no
+> detalhe e no checkout. A lista completa está em `docs/tech_spec.md` §2.
+
 ### Bloco `hero_banner`
 
 ```json
@@ -184,19 +228,39 @@ http://127.0.0.1:8000/api/v1/home?context=default
     "title": "Informatica Acessorios",
     "image_url": null,
     "badge": {
-      "label": "Entrega local (~27 km)",
+      "label": "Entrega local (~21 km · ~4,14 g CO₂)",
       "impact_level": "green",
       "icon": "leaf"
     }
   },
   "actions": [
     {
-      "type": "open_modal",
-      "payload": { "modal_id": "product_detail", "title": null }
+      "type": "api_call",
+      "payload": {
+        "method": "GET",
+        "path": "/api/v1/products/abc123...?customer_zip_prefix=05311",
+        "body_key": null
+      }
+    },
+    {
+      "type": "api_call",
+      "payload": {
+        "method": "POST",
+        "path": "/api/v1/checkout/simulate",
+        "body_key": "checkout"
+      }
     }
   ]
 }
 ```
+
+> **Hoje (Sprint 6):** na Sprint 2 o card trazia um `open_modal` e o **cliente**
+> remontava o detalhe com os props do próprio card — era a única tela que o
+> cliente montava sozinho. Agora o detalhe é **outra tela do servidor**
+> (`GET /products/{id}`), e o caminho já vem com o CEP porque distância e selo
+> dependem dele: **o cliente não monta query string**. A segunda ação é o
+> checkout — `body_key: "checkout"` diz qual chave do estado do cliente (o
+> carrinho) vai no corpo do POST.
 
 ### Bloco `product_card` — **sem selo**
 
@@ -212,7 +276,7 @@ Quando o vendedor está a **100 km ou mais** (ou distância não calculável), o
 
 | Campo | Uso no front |
 |-------|----------------|
-| `label` | Texto do selo (ex.: `"Entrega local (~27 km)"`) — **use este texto** |
+| `label` | Texto do selo — **use este texto, não remonte**. Desde a Sprint 3 ele inclui o CO₂ quando o produto tem peso: `"Entrega local (~21 km · ~4,14 g CO₂)"` (a unidade alterna entre g e kg conforme a ordem de grandeza) |
 | `impact_level` | `"green"` = estilo sustentável; `"neutral"` reservado para futuro |
 | `icon` | Nome lógico (`"leaf"`) — mapeie para ícone do seu design system |
 
@@ -229,12 +293,33 @@ Cada bloco tem uma **lista** `actions`. Tipos:
 | `type` | O que fazer no front |
 |--------|----------------------|
 | `navigate` | Ir para `payload.path` no router (`replace` = substituir histórico?) |
-| `open_modal` | Abrir modal `payload.modal_id` (MVP: modal de detalhe do produto) |
-| `api_call` | Reservado para futuro (checkout); pode `console.log` no MVP |
+| `open_modal` | Abrir modal `payload.modal_id` |
+| `api_call` | Chamar `payload.method payload.path` e **renderizar a `ScreenResponse` que voltar** |
+
+> **Hoje:** `api_call` deixou de ser reservado — virou a ação principal. Ela não
+> é "um efeito colateral": a resposta **é a próxima tela**. `body_key` nomeia a
+> chave do estado do cliente que vai no corpo (hoje só `"checkout"`, o carrinho).
+> O `open_modal` continua no contrato, mas a Home não o usa mais.
 
 ---
 
 ## 7. O que implementar no front nesta Sprint 2
+
+> **Hoje: tudo abaixo está implementado em `web/`.** A lista virou um mapa de
+> onde cada item foi parar:
+>
+> | Item | Onde |
+> |------|------|
+> | Enviar `customer_zip_prefix` | `web/app/page.tsx` (o CEP vive na URL) |
+> | Renderizar dados reais | `web/components/blocks.tsx` |
+> | Selo só se `badge !== null` | `web/components/blocks.tsx` |
+> | Tratar 422 | `web/lib/api.ts` lê o `detail` (string **ou** array do Pydantic), `web/app/page.tsx` exibe |
+> | Seletor de `context` e de CEP | `web/lib/sdui.ts` (`CONTEXTS`, `DEMO_ZIPS`) |
+>
+> O que a Sprint 2 listava como **fora de escopo** entrou depois: carrinho
+> (Sprint 5, em `localStorage`) e checkout simulado (Sprint 3). O que continua
+> fora: calcular distância ou CO₂ no browser — isso é do servidor, e é o ponto
+> do SDUI.
 
 ### Obrigatório
 
@@ -283,6 +368,26 @@ Front renderiza components[] na ordem
 ---
 
 ## 9. CORS e proxy (mesmo aviso da Sprint 1)
+
+> **Hoje esta seção está invertida.** O backend **configura** CORS: quando
+> `APP_ENV=development`, `src/main.py` libera `localhost:5173`, `127.0.0.1:5173`
+> e `localhost:3000`. Em produção o CORS permissivo fica desabilitado.
+>
+> E o cliente real **não usa proxy do Vite** — usa `rewrites()` do Next
+> (`web/next.config.ts`) mandando `/api/v1/*` para `API_BASE_URL`. O motivo é o
+> mesmo do proxy: as ações `api_call` trazem caminhos **absolutos** da API, e o
+> rewrite faz o `fetch` do browser sair da **mesma origem**, então o CORS nem
+> entra no caminho. O `CORSMiddleware` fica como rede de segurança para quem
+> chamar a API direto (curl, Swagger, outro cliente).
+>
+> ```ts
+> // web/next.config.ts
+> async rewrites() {
+>   return [{ source: "/api/v1/:path*", destination: `${API_BASE}/api/v1/:path*` }];
+> }
+> ```
+>
+> O registro original da Sprint 2 fica abaixo.
 
 O backend **não** configura CORS. Se o React rodar em `http://localhost:5173`:
 
@@ -349,6 +454,11 @@ for (const block of screen.components) {
 
 ## 11. Mapa de componentes React (sugestão)
 
+> **Hoje isso deixou de ser sugestão:** `web/components/sdui.tsx` tem um
+> `REGISTRY` que mapeia `component.type` → componente React, e
+> `web/components/blocks.tsx` implementa **um componente por bloco** — os 8, não
+> só estes 2.
+
 | `block.type` | Componente | Props principais |
 |--------------|------------|------------------|
 | `hero_banner` | `<HeroBanner />` | `title`, `subtitle`, `image_url` |
@@ -373,13 +483,17 @@ function SustainabilityBadge({ badge }) {
 
 ## 12. Critérios de aceite (lado frontend)
 
-- [ ] Home carrega com **`customer_zip_prefix` real** (não só `context`).
-- [ ] Com `05311` + `electronics_expert`, **pelo menos um** card mostra selo verde.
-- [ ] Com `60165`, **nenhum** card mostra selo (todos `badge: null`).
-- [ ] CEP inválido (`00000`) mostra erro tratado (422).
-- [ ] Cards usam `product_id`/`price` da API, não lista fixa da Sprint 1.
-- [ ] `image_url: null` não quebra layout (placeholder).
-- [ ] Ação `open_modal` no card abre algo (mesmo que modal simples).
+> **Hoje todos passam, e não no olho:** `web/tests/` (Vitest) cobre os blocos e
+> `web/e2e/journey.spec.ts` percorre a jornada contra a pilha real.
+
+- [x] Home carrega com **`customer_zip_prefix` real** (não só `context`).
+- [x] Com `05311` + `electronics_expert`, **pelo menos um** card mostra selo verde.
+- [x] Com `60165`, **nenhum** card mostra selo (todos `badge: null`).
+- [x] CEP inválido (`00000`) mostra erro tratado (422).
+- [x] Cards usam `product_id`/`price` da API, não lista fixa da Sprint 1.
+- [x] `image_url: null` não quebra layout (placeholder).
+- [x] ~~Ação `open_modal` no card~~ → hoje o card dispara `api_call` e abre a
+      **tela de detalhe do servidor**.
 
 ---
 
@@ -421,8 +535,12 @@ Se você já tinha código da Sprint 1:
 | Demo curl / CEPs de exemplo | `README.md` → seção **Demo** |
 | Contrato JSON completo | `docs/tech_spec.md` §2 + Swagger `/docs` |
 | Regra do selo (< 100 km) | `docs/prd.md`, `README.md` → Logística Verde |
+| O cliente de hoje | `web/` + `README.md` → **Frontend (`web/`)** |
+| A jornada inteira, executável | `web/e2e/journey.spec.ts` (`npm run e2e`) |
+| Sprints 3–5 (histórico) | `docs/sprint3-handoff.md`, `docs/sprint4-handoff.md`, `docs/sprint5-handoff.md` |
+| Sprint 6 | `README.md` → **Sprint 6** (não tem handoff próprio) |
 | Sprint 1 (histórico) | `docs/frontend-sprint1.md` |
 
 ---
 
-*Documento para integrantes de frontend — Sprint 2 (dados reais Olist + selo de logística verde). Backend em Python; este guia cobre só o que o cliente precisa consumir e renderizar.*
+*Documento para integrantes de frontend — Sprint 2 (dados reais Olist + selo de logística verde). **Mantido como registro histórico:** o cliente que ele antecipava existe em `web/` desde logo depois da Sprint 3 (commit `548c96d`), e as notas “Hoje:” marcam onde a Sprint 2 ficou para trás. Para consumir a API hoje, comece pelo `README.md` e por `docs/tech_spec.md` §2.*
