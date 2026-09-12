@@ -6,9 +6,16 @@ em cenários de alta concorrência**, "com auxílio de cache Redis".
 Até esta medição a promessa não tinha **nenhum número** por trás. Este documento
 tem os números, a causa da lentidão e o que a correção vale — medido, não estimado.
 
-**Resposta curta:** a meta **não é cumprida hoje**, e o motivo **não é falta de
-cache**. É a aplicação perguntar ao banco a mesma coisa dezenas de vezes por
-requisição.
+**Resposta curta:** a meta **não era cumprida**, e o motivo **não era falta de
+cache** — era a aplicação perguntar ao banco a mesma coisa dezenas de vezes por
+requisição. Corrigido nas §6 e §7: `conscious_buyer` foi de **63 para 2 queries**
+e de **150 ms para 12 ms**, e a meta passa a ser cumprida **até 25 usuários**.
+Acima disso o limite deixa de ser o banco e vira o **worker único** — com
+`--workers 4` o p50 a 50 usuários cai de 940 ms para **58 ms**.
+
+> As §§1–5 são o diagnóstico, escritas antes das correções; §6 e §7 são o que foi
+> feito e o que cada passo rendeu. Os números de "antes" ficam de propósito: eles
+> são a evidência de que o diagnóstico estava certo.
 
 ---
 
@@ -145,17 +152,13 @@ ETL e nunca alterado em runtime. Ela **cabe inteira na memória do processo**.
 
 Ordem sugerida, do mais barato para o mais caro:
 
-1. **Não perguntar duas vezes.** Buscar o centroide do comprador uma vez por
-   requisição e passá-lo adiante. Corta 30 queries do `conscious_buyer`; medido
-   em **−52%**.
-2. **Carregar `cep_centroids` na memória** no startup (~1,1 MB). Elimina também o
-   `SELECT` dos 6403 prefixos por requisição. Medido em **−82%**, e chega mais
-   perto que o Redis chegaria, porque não tem salto de rede.
-3. **Paralelizar o ranking** com `asyncio.gather` se ainda faltar — hoje os
-   `await` são sequenciais.
-4. **Redis, se ainda fizer falta.** Ele resolve estado *compartilhado entre
-   processos*; com 1 worker e dado estático de 1 MB, ainda não há esse problema.
-   Quando houver mais de um worker, reavaliar.
+1. ~~**Não perguntar duas vezes.**~~ **Feito** — §6.
+2. ~~**Carregar `cep_centroids` na memória.**~~ **Feito** — §7. Acabou substituindo
+   o item 1 em vez de somar a ele.
+3. **Paralelizar o ranking** com `asyncio.gather` — hoje os `await` são
+   sequenciais. **Provavelmente não vale mais:** depois do item 2 as 24 chamadas
+   de distância não tocam o banco, viraram aritmética. Medir antes de mexer.
+4. **Redis, se ainda fizer falta.** Continua sem justificativa — ver §7.
 
 **O que esta medição ainda não responde:** os itens 1–3 foram medidos
 **sem concorrência**. Confirmar que eles levam o p95 sob carga para baixo de
@@ -229,6 +232,91 @@ pago em toda request só para validar se um prefixo existe, com 1 worker de uvic
 serializando tudo. É o item 2 da §5, e agora ele é o maior item isolado.
 
 Dados brutos do antes e do depois em `load/results/antes/` e `load/results/depois/`.
+
+---
+
+---
+
+## 7. Correção aplicada: `cep_centroids` em memória (item 2)
+
+A tabela inteira passa a viver no processo, carregada **preguiçosamente na
+primeira consulta** — e não no startup, para a API continuar subindo sem depender
+do Postgres estar de pé. Um `asyncio.Lock` garante que N requisições concorrentes
+num processo frio disparem **uma** carga, não N.
+
+O mesmo `dict` serve as duas perguntas que o sistema faz: `get_centroid` é uma
+busca, `list_known_prefixes` são as chaves. Com isso o `SELECT` dos 6403
+prefixos **desapareceu de toda requisição**.
+
+Isto **substituiu** o memo por requisição do item 1, em vez de empilhar: com a
+tabela em memória, `get_centroid` não faz I/O nenhum, e o memo de sessão viraria
+um segundo `dict` na frente do primeiro.
+
+**Queries por requisição, os três estados:**
+
+| contexto | original | item 1 | **item 2** |
+|---|---|---|---|
+| `default` | 15 | 10 | **2** |
+| `conscious_buyer` | 63 | 27 | **2** |
+
+Só sobraram as duas buscas de dados reais — produtos e categorias.
+
+**Latência com 1 usuário** (30 amostras, p50):
+
+| endpoint | original | item 1 | **item 2** | |
+|---|---|---|---|---|
+| `default` | 44 ms | 39 ms | **15 ms** | −66% |
+| `electronics_expert` | 84 ms | 37 ms | **14 ms** | −83% |
+| **`conscious_buyer`** | **150 ms** | 63 ms | **12 ms** | **−92%** |
+| busca | 54 ms | 33 ms | **12 ms** | −78% |
+
+### Sob carga: a meta é cumprida até 25 usuários
+
+p50 agregado, `original > item 1 > item 2`:
+
+| | u=1 | u=10 | u=25 | u=50 |
+|---|---|---|---|---|
+| **p50** | 87 > 130 > **13** | 130 > 89 > **16** | 270 > 230 > **39** | 890 > 760 > **940** |
+| p95 | 310 > 270 > 150 | 570 > 470 > **76** | 1100 > 1300 > **670** | 2500 > 1900 > 2000 |
+| throughput | 0,7 > 0,7 > 0,8 | 7,0 > 7,3 > **7,9** | 15,8 > 15,3 > **19,4** | 22,4 > 24,6 > 23,6 |
+
+**A meta de 200 ms passa a ser cumprida até 25 usuários** — p50 de 39 ms, contra
+270 ms no começo. Mas a 50 usuários **nada mudou**: 940 ms de p50 e throughput
+preso em ~23 req/s, igual a antes de qualquer correção.
+
+### A 50 usuários o gargalo não é mais o banco
+
+Ir de 63 para 2 queries não mexeu no resultado de u=50. Isso é o bastante para
+descartar o banco como causa. O suspeito seguinte era o **worker único** — um
+processo Python, um core. Testado trocando só isso:
+
+| 50 usuários | 1 worker | **4 workers** |
+|---|---|---|
+| p50 | 940 ms | **58 ms** |
+| p95 | 2000 ms | 800 ms |
+| throughput | 23,6 req/s | **37,2 req/s** |
+| falhas | 0 | 0 |
+
+**p50 de 940 ms para 58 ms sem tocar em uma linha de código.** O limite era o
+processo único saturando.
+
+> **Por que o throughput de u=25 não subiu junto:** com `wait_time` de 0,5 a 2 s,
+> 25 usuários geram no máximo ~20 req/s **por construção**. Ali o teste é limitado
+> pela demanda, não pela capacidade — por isso 19,4 req/s com 1 worker e 18,9 com
+> 4. O gargalo real só aparece em u=50, onde a demanda passa de 40 req/s.
+
+### O que continua em aberto
+
+- **p95 sob carga.** Mesmo com 4 workers, o p95 a 50 usuários é 800 ms. Parte
+  disso é o Locust disputando CPU com a API na mesma máquina; separar cliente e
+  servidor é o próximo passo para uma medição limpa.
+- **Redis continua sem justificativa.** Com 4 workers há 4 cópias do `dict`
+  (~4,4 MB), o que continua desprezível. Redis resolveria a duplicação, não a
+  latência — e cobraria um salto de rede por isso.
+- **Escolher o número de workers** é uma decisão de deploy, não de código. O
+  comando da §1 usa 1 worker; para carga real, `--workers`.
+
+Dados brutos em `load/results/memoria/` e `load/results/memoria-4workers/`.
 
 ---
 

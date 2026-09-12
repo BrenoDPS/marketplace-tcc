@@ -268,14 +268,20 @@ locust -f load/locustfile.py --headless -u 50 -r 10 -t 45s --host http://127.0.0
 
 Percorre a jornada da defesa sob concorrencia, contra a pilha real. O diagnostico
 foi um N+1: o `conscious_buyer` fazia **63 idas ao banco para montar 6 cards**,
-metade pedindo o mesmo CEP do comprador. A **deduplicacao ja foi aplicada** (memo
-por requisicao em `get_centroid`): 63 -> 27 queries, e 150 ms -> 63 ms com um
-usuario.
+metade pedindo o mesmo CEP do comprador.
 
-**A meta de TTFB < 200 ms ainda nao e cumprida sob concorrencia.** O gargalo
-dominante agora e outro: `list_known_prefixes` faz `SELECT` dos 6403 prefixos em
-toda requisicao e sozinho custa ~48% de uma Home `default`. Numeros do antes e do
-depois em [docs/performance.md](docs/performance.md).
+**Corrigido.** `cep_centroids` (6403 linhas, ~1,1 MB) vive em memoria no processo,
+e o mesmo `dict` serve `get_centroid` e `list_known_prefixes`:
+
+```
+conscious_buyer      63 -> 2 queries     150 ms -> 12 ms  (1 usuario)
+p50 agregado, 25 usuarios                 270 ms -> 39 ms
+```
+
+**A meta de TTFB < 200 ms passa a ser cumprida ate 25 usuarios.** A 50 o limite
+deixa de ser o banco e vira o worker unico: so trocando para `--workers 4`, o p50
+cai de 940 ms para 58 ms. Numeros completos em
+[docs/performance.md](docs/performance.md).
 
 Fora do CI pelo mesmo motivo do E2E: `data/raw/` e gitignored.
 

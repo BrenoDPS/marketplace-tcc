@@ -1,98 +1,142 @@
-"""O memo de centroides em `get_centroid`.
+"""O snapshot de `cep_centroids` em memoria.
 
 Nao depende de Postgres: uma sessao falsa conta quantas vezes o banco foi
-consultado, que e exatamente a propriedade em teste. Sem esta contagem o memo
+consultado, que e exatamente a propriedade em teste. Sem essa contagem o cache
 "funciona" mesmo quebrado — os valores voltam certos de qualquer jeito, so que
 pagando a ida ao banco de novo.
 """
 
 from __future__ import annotations
 
+import asyncio
+
 import pytest
 
-from src.features.green_logistics.repository import get_centroid
+from src.features.green_logistics import repository
+from src.features.green_logistics.repository import (
+    get_centroid,
+    list_known_prefixes,
+    reset_centroid_cache,
+)
+
+CENTROIDS = {"01000": (-23.5, -46.6), "60000": (-3.7, -38.5)}
 
 
 class _Row:
-    def __init__(self, lat: float, lng: float) -> None:
-        self.lat, self.lng = lat, lng
+    def __init__(self, zip_prefix: str, lat: float, lng: float) -> None:
+        self.zip_prefix, self.lat, self.lng = zip_prefix, lat, lng
 
 
 class _Result:
-    def __init__(self, row: _Row | None) -> None:
-        self._row = row
+    def __init__(self, rows: list[_Row]) -> None:
+        self._rows = rows
 
-    def first(self) -> _Row | None:
-        return self._row
+    def all(self) -> list[_Row]:
+        return self._rows
 
 
 class FakeSession:
-    """Sessao minima: um `info` (como a real) e um contador de consultas."""
+    """Sessao minima que conta quantos SELECT da tabela inteira aconteceram."""
 
-    def __init__(self, centroids: dict[str, tuple[float, float]]) -> None:
-        self.info: dict[str, object] = {}
+    def __init__(self, centroids: dict[str, tuple[float, float]] = CENTROIDS) -> None:
         self.centroids = centroids
-        self.queries: list[str] = []
+        self.loads = 0
 
-    async def execute(self, stmt):  # noqa: ANN001 - so precisa do parametro
-        # O prefixo procurado e o unico bind da clausula WHERE.
-        prefix = next(iter(stmt.compile().params.values()))
-        self.queries.append(prefix)
-        found = self.centroids.get(prefix)
-        return _Result(None if found is None else _Row(*found))
-
-
-@pytest.mark.asyncio
-async def test_mesmo_prefixo_consulta_o_banco_uma_vez():
-    session = FakeSession({"01000": (-23.5, -46.6)})
-
-    primeiro = await get_centroid(session, "01000")
-    segundo = await get_centroid(session, "01000")
-
-    assert primeiro == segundo == (-23.5, -46.6)
-    assert session.queries == ["01000"], "o segundo acesso deveria vir do memo"
+    async def execute(self, _stmt):  # noqa: ANN001 - o stmt nao importa aqui
+        self.loads += 1
+        # Cede o controle como uma consulta de verdade faz. Sem isto o `execute`
+        # falso corre ate o fim sem suspender, as corrotinas do teste de
+        # concorrencia nunca se intercalam e o teste passa mesmo sem o lock —
+        # verificado por mutacao.
+        await asyncio.sleep(0)
+        return _Result([_Row(p, *latlng) for p, latlng in self.centroids.items()])
 
 
-@pytest.mark.asyncio
-async def test_prefixo_desconhecido_tambem_e_memoizado():
-    """O caso que `.get()` no lugar de `in` deixaria passar.
-
-    `None` e uma resposta valida — cliente fora da amostra. Se ela nao fosse
-    memoizada, o CEP desconhecido voltaria ao banco a cada consulta, que e
-    justamente o caminho mais quente quando nenhum selo e calculavel.
-    """
-    session = FakeSession({})
-
-    assert await get_centroid(session, "99999") is None
-    assert await get_centroid(session, "99999") is None
-
-    assert session.queries == ["99999"]
+@pytest.fixture(autouse=True)
+def _cache_limpo():
+    """O cache e estado de MODULO: sem isto um teste contamina o seguinte."""
+    reset_centroid_cache()
+    yield
+    reset_centroid_cache()
 
 
 @pytest.mark.asyncio
-async def test_prefixos_diferentes_nao_se_confundem():
-    session = FakeSession({"01000": (-23.5, -46.6), "60000": (-3.7, -38.5)})
+async def test_carrega_uma_vez_e_serve_todo_o_resto_de_memoria():
+    session = FakeSession()
 
     assert await get_centroid(session, "01000") == (-23.5, -46.6)
     assert await get_centroid(session, "60000") == (-3.7, -38.5)
     assert await get_centroid(session, "01000") == (-23.5, -46.6)
+    assert await list_known_prefixes(session) == {"01000", "60000"}
 
-    assert session.queries == ["01000", "60000"]
+    assert session.loads == 1, "so a primeira consulta deveria ir ao banco"
 
 
 @pytest.mark.asyncio
-async def test_memo_nao_vaza_entre_sessoes():
-    """O memo tem que morrer com a requisicao.
+async def test_prefixo_desconhecido_nao_consulta_o_banco():
+    """`None` e resposta, nao "cache vazio".
 
-    `get_db` abre uma sessao por request; se o cache sobrevivesse a ela viraria
-    estado global, e uma recarga do ETL passaria a servir centroides velhos.
+    O cliente fora da amostra e um caminho quente — e o `60165` da demo do
+    README. Se ele furasse o cache, cada card sem selo pagaria uma ida ao banco.
     """
-    centroids = {"01000": (-23.5, -46.6)}
-    primeira = FakeSession(centroids)
-    segunda = FakeSession(centroids)
+    session = FakeSession()
+
+    assert await get_centroid(session, "99999") is None
+    assert await get_centroid(session, "99999") is None
+
+    assert session.loads == 1
+
+
+@pytest.mark.asyncio
+async def test_carga_concorrente_acontece_uma_vez_so():
+    """O lock existe para isto: processo frio recebendo N requisicoes juntas."""
+    session = FakeSession()
+
+    await asyncio.gather(*(get_centroid(session, "01000") for _ in range(10)))
+
+    assert session.loads == 1, "as 10 corrotinas deveriam compartilhar uma carga"
+
+
+@pytest.mark.asyncio
+async def test_reset_forca_recarga():
+    """O escape para quem recarregar o ETL com a API no ar."""
+    session = FakeSession()
+    await get_centroid(session, "01000")
+    assert session.loads == 1
+
+    reset_centroid_cache()
+    await get_centroid(session, "01000")
+
+    assert session.loads == 2
+
+
+@pytest.mark.asyncio
+async def test_recarga_enxerga_a_tabela_nova():
+    """Um snapshot velho serviria selo errado, nao erro — por isso o teste."""
+    session = FakeSession({"01000": (-23.5, -46.6)})
+    assert await list_known_prefixes(session) == {"01000"}
+
+    reset_centroid_cache()
+    session.centroids = {"01000": (-23.5, -46.6), "70000": (-15.8, -47.9)}
+
+    assert await list_known_prefixes(session) == {"01000", "70000"}
+
+
+@pytest.mark.asyncio
+async def test_o_cache_e_do_processo_e_nao_da_sessao():
+    """Duas requisicoes seguidas: a segunda nao paga carga nenhuma.
+
+    E a diferenca entre este cache e o memo por requisicao que ele substituiu.
+    """
+    primeira, segunda = FakeSession(), FakeSession()
 
     await get_centroid(primeira, "01000")
     await get_centroid(segunda, "01000")
 
-    assert primeira.queries == ["01000"]
-    assert segunda.queries == ["01000"], "cada sessao consulta por conta propria"
+    assert primeira.loads == 1
+    assert segunda.loads == 0, "a segunda sessao deveria achar tudo em memoria"
+
+
+def test_o_cache_comeca_vazio():
+    """Guarda o `reset` do fixture: se ele parasse de rodar, isto denuncia."""
+    assert repository._centroids is None
