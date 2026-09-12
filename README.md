@@ -23,6 +23,7 @@ pip install -r requirements.txt
 | [docs/sprint2-handoff.md](docs/sprint2-handoff.md) | Sprint 2 (historico) |
 | [docs/frontend-sprint2.md](docs/frontend-sprint2.md) | Guia de consumo da API (historico da Sprint 2, com notas do que mudou ate hoje) |
 | [docs/tech_spec.md](docs/tech_spec.md) | Contrato SDUI e logistica verde |
+| [docs/performance.md](docs/performance.md) | **Medicao de latencia:** numeros do Locust, causa da lentidao e por que nao comecar pelo Redis |
 
 ## Fluxo completo (Sprint 2+)
 
@@ -256,6 +257,22 @@ cd web && npm run typecheck
 ```
 
 Os testes de backend nao dependem de Postgres rodando (uso de `app.dependency_overrides` + monkeypatch nos repositorios). Os de frontend cobrem as duas pecas com logica nao trivial — o executor de `actions` e o `ScreenRenderer` —; o resto e apresentacao e nao ganha teste de proposito.
+
+### Carga — a medicao de latencia
+
+```bash
+pip install locust==2.46.5
+uvicorn src.main:app --port 8000    # SEM --reload: o file-watcher entra na medicao
+locust -f load/locustfile.py --headless -u 50 -r 10 -t 45s --host http://127.0.0.1:8000
+```
+
+Percorre a jornada da defesa sob concorrencia, contra a pilha real. **A meta de
+TTFB < 200 ms nao e cumprida hoje** — e a causa nao e falta de cache, e um N+1:
+o `conscious_buyer` faz **63 idas ao banco para montar 6 cards**, metade delas
+pedindo o mesmo CEP do comprador. Numeros, diagnostico e a ordem de correcao
+sugerida em [docs/performance.md](docs/performance.md).
+
+Fora do CI pelo mesmo motivo do E2E: `data/raw/` e gitignored.
 
 ### E2E — o check de pre-defesa
 

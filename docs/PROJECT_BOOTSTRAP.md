@@ -62,6 +62,7 @@ web/                 # Frontend Next.js (App Router) que consome o SDUI
 | `docs/sprint3-handoff.md` | Spec Sprint 3 (histórico) |
 | `docs/sprint2-handoff.md` | Spec Sprint 2 (histórico) |
 | `docs/tech_spec.md` | Contrato SDUI + logística |
+| `docs/performance.md` | Medição de latência (Locust) e diagnóstico do N+1 |
 | `docs/prd.md` | Produto |
 | `docs/frontend-sprint2.md` | Consumo da API pelo front (histórico da Sprint 2 + notas “Hoje:”) |
 | `.cursorrules` | Regras de implementação |

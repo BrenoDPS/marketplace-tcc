@@ -154,6 +154,7 @@ o argumento do SDUI na prática.
 4. Performance, Cache e Hidratação
 
 - **Meta:** TTFB **\< 200 ms**; backend **async**; cache onde couber.
+- **Medido (Sprint 6):** a meta **não é cumprida** — p50 agregado de **890 ms** a 50 usuários, e o `conscious_buyer` já passa de 200 ms **com um único usuário**. A causa é um **N+1**: 63 queries por requisição, metade repetindo o centroide do comprador. Antes de introduzir Redis, deduplicar: medido em **−52%** com memo por requisição e **−82%** mantendo `cep_centroids` (~1,1 MB) em memória. Suíte, números e metodologia em `docs/performance.md`.
 - **SDUI:** 1ª resposta com blocos “above the fold”; restante em **resposta(s) seguinte(s)** ou paginação (documentar o endpoint/decisão no repo).
 - **Redis:** cache de **distâncias/CEP** e **fragmentos JSON SDUI** alinhados a `version` do bloco e `schema_version` da tela.
 
