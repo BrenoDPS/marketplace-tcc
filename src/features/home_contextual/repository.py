@@ -101,6 +101,14 @@ async def fetch_products_for_home(
                 pattern, escape="\\"
             )
         )
+    # Sem ORDER BY, SQL nao promete ordem nenhuma: a vitrine mudava de produtos
+    # a cada recarga do ETL, com a MESMA amostra e o mesmo seed — verificado
+    # rodando o ETL duas vezes e comparando a resposta. Isso quebrava a demo da
+    # defesa (produtos diferentes a cada carga) e tornava as medicoes de carga
+    # incomparaveis entre si. `product_id` e criterio arbitrario, mas estavel;
+    # ordenacao com significado (proximidade, preco) entra junto com a escolha
+    # de oferta por distancia.
+    stmt = stmt.order_by(OrderItem.product_id)
     stmt = stmt.limit(limit * 4)  # margem para de-dup por product_id
 
     result = await session.execute(stmt)
