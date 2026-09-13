@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.models import CepCentroid, OrderItem, Product, Seller
+from src.core.models import CepCentroid, Offer, Product, Seller
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,7 +45,7 @@ class CheckoutProductRow:
 async def fetch_products_for_checkout(
     session: AsyncSession, product_ids: list[str]
 ) -> dict[str, CheckoutProductRow]:
-    """Mapa `product_id` -> primeira linha de order_items daquele produto.
+    """Mapa `product_id` -> oferta default daquele produto.
 
     Uma consulta para o carrinho inteiro: com 20 itens, buscar um a um seriam
     20 round-trips para montar uma tela so. Produto ausente simplesmente nao
@@ -56,27 +56,23 @@ async def fetch_products_for_checkout(
 
     stmt = (
         select(
-            OrderItem.product_id,
-            OrderItem.seller_id,
+            Offer.product_id,
+            Offer.seller_id,
             Seller.seller_zip_code_prefix,
-            OrderItem.price,
-            OrderItem.freight_value,
+            Offer.price,
+            Offer.freight_value,
             Product.product_weight_g,
             Product.product_category_name,
         )
-        .join(Product, Product.product_id == OrderItem.product_id)
-        .join(Seller, Seller.seller_id == OrderItem.seller_id)
-        .where(OrderItem.product_id.in_(set(product_ids)))
-        .order_by(OrderItem.product_id, OrderItem.order_id, OrderItem.order_item_id)
+        .join(Product, Product.product_id == Offer.product_id)
+        .join(Seller, Seller.seller_id == Offer.seller_id)
+        .where(Offer.product_id.in_(set(product_ids)))
+        .where(Offer.is_default)
     )
     result = await session.execute(stmt)
 
     out: dict[str, CheckoutProductRow] = {}
     for product_id, seller_id, zip_prefix, price, freight, weight_g, category in result:
-        # Ordenado por (product_id, order_id, order_item_id): a primeira linha
-        # de cada produto e a mesma "primeira order_item" da Sprint 3.
-        if product_id in out:
-            continue
         out[product_id] = CheckoutProductRow(
             product_id=product_id,
             seller_id=seller_id,
@@ -113,33 +109,30 @@ async def fetch_alternative_candidates(
 
     stmt = (
         select(
-            OrderItem.product_id,
+            Offer.product_id,
             Product.product_category_name,
-            OrderItem.price,
+            Offer.price,
             Product.product_weight_g,
-            OrderItem.seller_id,
+            Offer.seller_id,
             CepCentroid.lat,
             CepCentroid.lng,
         )
-        .join(Product, Product.product_id == OrderItem.product_id)
-        .join(Seller, Seller.seller_id == OrderItem.seller_id)
+        .join(Product, Product.product_id == Offer.product_id)
+        .join(Seller, Seller.seller_id == Offer.seller_id)
         .join(CepCentroid, CepCentroid.zip_prefix == Seller.seller_zip_code_prefix)
         .where(Product.product_category_name.in_(set(categories)))
         .where(Product.product_weight_g.is_not(None))
-        .order_by(OrderItem.product_id)
+        .where(Offer.is_default)
+        .order_by(Offer.product_id)
         .limit(limit)
     )
     if exclude_seller_ids:
-        stmt = stmt.where(OrderItem.seller_id.not_in(set(exclude_seller_ids)))
+        stmt = stmt.where(Offer.seller_id.not_in(set(exclude_seller_ids)))
 
     result = await session.execute(stmt)
 
-    seen: set[str] = set()
     out: list[AlternativeRow] = []
     for product_id, category, price, weight_g, seller_id, lat, lng in result:
-        if product_id in seen:
-            continue
-        seen.add(product_id)
         out.append(
             AlternativeRow(
                 product_id=product_id,

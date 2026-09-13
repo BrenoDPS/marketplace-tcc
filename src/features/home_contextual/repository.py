@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.models import OrderItem, Product, Seller
+from src.core.models import Offer, Product, Seller
 
 
 @dataclass(frozen=True, slots=True)
@@ -71,23 +71,28 @@ async def fetch_products_for_home(
 ) -> list[ProductRow]:
     """Retorna ate `limit` produtos distintos da amostra.
 
-    JOIN order_items -> products -> sellers, filtrando por categoria e/ou termo
+    JOIN offers -> products -> sellers, filtrando por categoria e/ou termo
     de busca quando informados. **Sem fallback:** filtro que nao casa devolve
     lista vazia. Quem decide se cabe cair para a vitrine sem filtro e o composer,
     que sabe se a categoria veio do usuario ou do contexto — mostrar produtos
     aleatorios para quem buscou algo especifico seria mentir sobre o resultado.
+
+    `is_default` escolhe uma oferta por produto. Enquanto a vitrine mostrar um
+    vendedor so, e ele; quando passar a mostrar o mais proximo do comprador, o
+    filtro sai daqui e a escolha vira do composer, que sabe onde o cliente esta.
     """
     stmt = (
         select(
-            OrderItem.product_id,
-            OrderItem.seller_id,
+            Offer.product_id,
+            Offer.seller_id,
             Seller.seller_zip_code_prefix,
-            OrderItem.price,
+            Offer.price,
             Product.product_weight_g,
             Product.product_category_name,
         )
-        .join(Product, Product.product_id == OrderItem.product_id)
-        .join(Seller, Seller.seller_id == OrderItem.seller_id)
+        .join(Product, Product.product_id == Offer.product_id)
+        .join(Seller, Seller.seller_id == Offer.seller_id)
+        .where(Offer.is_default)
     )
     if category is not None:
         stmt = stmt.where(Product.product_category_name == category)
@@ -108,31 +113,20 @@ async def fetch_products_for_home(
     # incomparaveis entre si. `product_id` e criterio arbitrario, mas estavel;
     # ordenacao com significado (proximidade, preco) entra junto com a escolha
     # de oferta por distancia.
-    stmt = stmt.order_by(OrderItem.product_id)
-    stmt = stmt.limit(limit * 4)  # margem para de-dup por product_id
+    stmt = stmt.order_by(Offer.product_id).limit(limit)
 
     result = await session.execute(stmt)
-    rows = result.all()
-
-    seen: set[str] = set()
-    out: list[ProductRow] = []
-    for product_id, seller_id, zip_prefix, price, weight_g, cat in rows:
-        if product_id in seen:
-            continue
-        seen.add(product_id)
-        out.append(
-            ProductRow(
-                product_id=product_id,
-                seller_id=seller_id,
-                seller_zip_prefix=zip_prefix,
-                price=float(price),
-                weight_g=float(weight_g) if weight_g is not None else None,
-                category=cat,
-            )
+    return [
+        ProductRow(
+            product_id=product_id,
+            seller_id=seller_id,
+            seller_zip_prefix=zip_prefix,
+            price=float(price),
+            weight_g=float(weight_g) if weight_g is not None else None,
+            category=cat,
         )
-        if len(out) >= limit:
-            break
-    return out
+        for product_id, seller_id, zip_prefix, price, weight_g, cat in result
+    ]
 
 
 async def list_categories(

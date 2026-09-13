@@ -557,14 +557,14 @@
                       "type": "api_call"
                     }
                   ],
-                  "co2_kg": 0.00022571550738276848,
-                  "co2_saved_kg": 0.0016911546531566256,
-                  "distance_km": 22.128971312036125,
-                  "price": 35.0,
-                  "product_id": "2fea0f2cec6b6324a277d4a61c2ed2c6",
+                  "co2_kg": 0.00010267130469136634,
+                  "co2_saved_kg": 0.0018141988558480278,
+                  "distance_km": 2.8759469101223067,
+                  "price": 9.5,
+                  "product_id": "7efc9c66bf68e3026c7846b0ec3e8682",
                   "replaces_product_id": "00210e41887c2a8ef9f791ebc780cc36",
-                  "saved_share": 0.8822478892783987,
-                  "seller_id": "beadbee30901a7f61d031b6b686095ad",
+                  "saved_share": 0.94643804948037,
+                  "seller_id": "5f1dc28029d2c244352a68107ec2b542",
                   "title": "Beleza Saude"
                 }
               ],
@@ -729,14 +729,14 @@
                       "type": "api_call"
                     }
                   ],
-                  "co2_kg": 0.0005642887684569212,
-                  "co2_saved_kg": 0.004227886632891564,
-                  "distance_km": 22.128971312036125,
-                  "price": 35.0,
-                  "product_id": "2fea0f2cec6b6324a277d4a61c2ed2c6",
+                  "co2_kg": 0.00025667826172841583,
+                  "co2_saved_kg": 0.004535497139620069,
+                  "distance_km": 2.8759469101223067,
+                  "price": 9.5,
+                  "product_id": "7efc9c66bf68e3026c7846b0ec3e8682",
                   "replaces_product_id": "00210e41887c2a8ef9f791ebc780cc36",
-                  "saved_share": 0.8822478892783987,
-                  "seller_id": "beadbee30901a7f61d031b6b686095ad",
+                  "saved_share": 0.94643804948037,
+                  "seller_id": "5f1dc28029d2c244352a68107ec2b542",
                   "title": "Beleza Saude"
                 }
               ],
@@ -901,14 +901,14 @@
                       "type": "api_call"
                     }
                   ],
-                  "co2_kg": 0.0001354293044296611,
-                  "co2_saved_kg": 0.0010146927918939753,
-                  "distance_km": 22.128971312036125,
-                  "price": 35.0,
-                  "product_id": "2fea0f2cec6b6324a277d4a61c2ed2c6",
+                  "co2_kg": 6.16027828148198e-05,
+                  "co2_saved_kg": 0.0010885193135088166,
+                  "distance_km": 2.8759469101223067,
+                  "price": 9.5,
+                  "product_id": "7efc9c66bf68e3026c7846b0ec3e8682",
                   "replaces_product_id": "00210e41887c2a8ef9f791ebc780cc36",
-                  "saved_share": 0.8822478892783987,
-                  "seller_id": "beadbee30901a7f61d031b6b686095ad",
+                  "saved_share": 0.94643804948037,
+                  "seller_id": "5f1dc28029d2c244352a68107ec2b542",
                   "title": "Beleza Saude"
                 }
               ],
@@ -3582,7 +3582,7 @@
         "props": {
           "badge": null,
           "image_url": null,
-          "price": 17.9,
+          "price": 13.9,
           "product_id": "0152f69b6cf919bcdaf117aa8c43e5a2",
           "title": "Cama Mesa Banho"
         },
@@ -5536,7 +5536,7 @@
         "props": {
           "badge": null,
           "image_url": null,
-          "price": 17.9,
+          "price": 13.9,
           "product_id": "0152f69b6cf919bcdaf117aa8c43e5a2",
           "title": "Cama Mesa Banho"
         },
