@@ -165,24 +165,46 @@ def _category_grid(
     )
 
 
-async def _rank_by_proximity(
+INFINITY = float("inf")
+
+
+async def _nearest_offer_per_product(
     session: AsyncSession,
-    products: list[ProductRow],
+    offers: list[ProductRow],
     customer_zip_prefix: str,
-    limit: int,
-) -> list[ProductRow]:
-    """Ordena produtos por distancia ascendente (sem centroide vai para o fim)."""
-    INFINITY = float("inf")
+) -> list[tuple[float, ProductRow]]:
+    """Colapsa as ofertas em uma por produto: a mais perto do comprador.
 
-    async def _distance(product: ProductRow) -> float:
+    E o ponto da feature. O mesmo item vendido de Recife e de Maringa sao duas
+    origens a 2483 km uma da outra, e so uma delas ganha selo verde para quem
+    mora perto — escolher a errada seria anunciar impacto maior do que o
+    necessario, numa tela cujo assunto e justamente impacto.
+
+    Custa zero consulta: os centroides vivem em memoria desde a Sprint 6, entao
+    medir todas as ofertas de um produto e aritmetica em `dict`.
+
+    Devolve `(distancia, oferta)` porque quem chama ja precisa da distancia para
+    ordenar — sem isso o `conscious_buyer` mediria tudo duas vezes.
+    """
+    melhor: dict[str, tuple[float, ProductRow]] = {}
+    for offer in offers:
         distance = await compute_distance_km(
-            session, customer_zip_prefix, product.seller_zip_prefix
+            session, customer_zip_prefix, offer.seller_zip_prefix
         )
-        return distance if distance is not None else INFINITY
+        if distance is None:
+            # Vendedor sem centroide nao e descartado: o produto ainda existe e
+            # tem preco. Fica por ultimo e sem selo, que e a resposta honesta —
+            # "nao sei a distancia" nao e "a distancia e grande".
+            distance = INFINITY
+        atual = melhor.get(offer.product_id)
+        # `<` estrito: em empate fica a primeira, e a consulta ordena por
+        # `seller_id`, entao o desempate e estavel entre execucoes.
+        if atual is None or distance < atual[0]:
+            melhor[offer.product_id] = (distance, offer)
 
-    scored = [(await _distance(product), product) for product in products]
-    scored.sort(key=lambda item: item[0])
-    return [product for _, product in scored[:limit]]
+    # `dict` preserva ordem de insercao: os produtos saem na ordem em que a
+    # consulta os trouxe.
+    return list(melhor.values())
 
 
 def _checkout_action() -> ApiCallAction:
@@ -235,11 +257,17 @@ async def compose_home(
             search=search,
             limit=_CONSCIOUS_POOL_LIMIT,
         )
-        products = await _rank_by_proximity(
-            session, pool, customer_zip_prefix, limit=_DEFAULT_LIMIT
+        escolhidas = await _nearest_offer_per_product(
+            session, pool, customer_zip_prefix
         )
+        # Cada produto ja entra com a sua MELHOR origem; a ordenacao aqui e
+        # entre produtos. Antes o ranking usava o vendedor arbitrario do
+        # produto, entao um item podia cair no fim da lista por causa de uma
+        # origem distante enquanto tinha outra ao lado do comprador.
+        escolhidas.sort(key=lambda par: par[0])
+        products = [offer for _, offer in escolhidas[:_DEFAULT_LIMIT]]
     else:
-        products = await fetch_products_for_home(
+        offers = await fetch_products_for_home(
             session,
             category=effective_category,
             search=search,
@@ -248,8 +276,14 @@ async def compose_home(
         # Categoria vinda do contexto e uma heuristica nossa: se nao rende
         # produtos, cair para a vitrine geral (comportamento da Sprint 2). Filtro
         # que o usuario pediu nao cai — resultado vazio e a resposta honesta.
-        if not products and effective_category and not explicit_filter:
-            products = await fetch_products_for_home(session, limit=_DEFAULT_LIMIT)
+        if not offers and effective_category and not explicit_filter:
+            offers = await fetch_products_for_home(session, limit=_DEFAULT_LIMIT)
+        products = [
+            offer
+            for _, offer in await _nearest_offer_per_product(
+                session, offers, customer_zip_prefix
+            )
+        ]
 
     categories = await list_categories(session, limit=_CATEGORY_GRID_LIMIT)
 

@@ -14,7 +14,6 @@ from httpx import ASGITransport, AsyncClient
 from src.core.database import get_db
 from src.features.product_detail.repository import ProductDetailRow
 from src.main import app
-from src.schemas.sdui import SustainabilityProps
 
 KNOWN_PREFIXES = {"05311", "01000"}
 
@@ -45,7 +44,40 @@ PRODUCT_UNRATED = ProductDetailRow(
     seller_state=None,
 )
 
-CATALOG = {p.product_id: p for p in (PRODUCT, PRODUCT_UNRATED)}
+# Mesmo produto, duas origens: e o caso que a amostra tem 579 vezes e que o
+# detalhe escondia ate a Sprint 7 (mostrava a oferta `is_default`, arbitraria).
+PRODUCT_MULTI_PERTO = ProductDetailRow(
+    product_id="prod_dois_vendedores",
+    category="relogios_presentes",
+    weight_g=1000.0,
+    rating=4.0,
+    review_count=3,
+    unit_price=39.90,
+    seller_id="seller_recife",
+    seller_zip_prefix="08275",
+    seller_city="recife",
+    seller_state="PE",
+)
+PRODUCT_MULTI_LONGE = ProductDetailRow(
+    product_id="prod_dois_vendedores",
+    category="relogios_presentes",
+    weight_g=1000.0,
+    rating=4.0,
+    review_count=3,
+    unit_price=39.90,
+    seller_id="seller_maringa",
+    seller_zip_prefix="60000",
+    seller_city="maringa",
+    seller_state="PR",
+)
+
+CATALOG: dict[str, list[ProductDetailRow]] = {
+    "prod_real_1": [PRODUCT],
+    "prod_sem_nota": [PRODUCT_UNRATED],
+    # Longe PRIMEIRO: se o composer pegasse a primeira em vez da mais proxima,
+    # os testes de multi-vendedor passariam por acidente.
+    "prod_dois_vendedores": [PRODUCT_MULTI_LONGE, PRODUCT_MULTI_PERTO],
+}
 DISTANCE_BY_SELLER_ZIP = {"08275": 27.0, "60000": 2000.0}
 
 
@@ -57,23 +89,19 @@ async def _fake_list_known_prefixes(_session: object) -> set[str]:
     return KNOWN_PREFIXES
 
 
-async def _fake_fetch(_session: object, product_id: str) -> ProductDetailRow | None:
-    return CATALOG.get(product_id)
+async def _fake_fetch(_session: object, product_id: str) -> list[ProductDetailRow]:
+    return CATALOG.get(product_id, [])
 
 
-async def _fake_badge_for_pair(
-    _session: object,
-    customer_zip_prefix: str,
-    seller_zip_prefix: str,
-    weight_g: float | None = None,
-    co2_factor: float = 1.0,
-) -> tuple[float | None, SustainabilityProps | None]:
-    d = DISTANCE_BY_SELLER_ZIP.get(seller_zip_prefix)
-    if d is None or d >= 100.0:
-        return d, None
-    return d, SustainabilityProps(
-        label=f"Entrega local (~{d:.0f} km)", impact_level="green"
-    )
+async def _fake_distance(
+    _session: object, customer_zip_prefix: str, seller_zip_prefix: str
+) -> float | None:
+    """So a distancia e falsa. O selo sai da regra de verdade (`badge.py`).
+
+    Antes o teste tambem falseava `build_badge_for_pair`, e com isso a regra do
+    limiar de 100 km nunca era exercida aqui.
+    """
+    return DISTANCE_BY_SELLER_ZIP.get(seller_zip_prefix)
 
 
 @pytest.fixture(autouse=True)
@@ -84,11 +112,10 @@ def patch_dependencies(monkeypatch: pytest.MonkeyPatch) -> None:
         _fake_list_known_prefixes,
     )
     monkeypatch.setattr(
-        "src.features.product_detail.router.fetch_product_detail", _fake_fetch
+        "src.features.product_detail.router.fetch_product_offers", _fake_fetch
     )
     monkeypatch.setattr(
-        "src.features.product_detail.composer.build_badge_for_pair",
-        _fake_badge_for_pair,
+        "src.features.product_detail.composer.compute_distance_km", _fake_distance
     )
     yield
     app.dependency_overrides.clear()
@@ -168,6 +195,62 @@ async def test_detail_carries_the_checkout_action() -> None:
         a["type"] == "api_call" and a["payload"]["body_key"] == "checkout"
         for a in actions
     )
+
+
+# ---------------------------------------------------------------------------
+# Mesmo produto, varios vendedores (Sprint 7)
+# ---------------------------------------------------------------------------
+
+async def test_escolhe_o_vendedor_mais_proximo_do_comprador() -> None:
+    """O nucleo da feature.
+
+    O produto tem duas origens: 27 km e 2000 km. A lista chega com a distante
+    primeiro, entao pegar "a primeira" daria a errada.
+    """
+    _, body = await _get(
+        "/api/v1/products/prod_dois_vendedores?customer_zip_prefix=05311"
+    )
+    props = _block(body, "product_detail")["props"]
+
+    assert props["seller_id"] == "seller_recife"
+    assert props["seller_city"] == "recife"
+    assert _block(body, "impact_banner")["props"]["distance_km"] == pytest.approx(27.0)
+
+
+async def test_a_origem_proxima_ganha_selo_que_a_distante_nao_teria() -> None:
+    """A escolha muda o selo, nao so um rotulo: 27 km tem selo, 2000 km nao.
+
+    E o que a feature compra — anunciar a origem distante seria declarar
+    impacto maior do que o necessario, numa tela cujo assunto e impacto.
+    """
+    _, body = await _get(
+        "/api/v1/products/prod_dois_vendedores?customer_zip_prefix=05311"
+    )
+    assert _block(body, "product_detail")["props"]["badge"] is not None
+
+
+async def test_a_tela_revela_que_havia_outra_origem() -> None:
+    """Sem isto a feature fica invisivel: o usuario veria o vendedor proximo
+    sem saber que existia um distante, e o argumento do trabalho e a
+    comparacao, nao o resultado dela."""
+    _, body = await _get(
+        "/api/v1/products/prod_dois_vendedores?customer_zip_prefix=05311"
+    )
+    mensagem = _block(body, "impact_banner")["props"]["message"]
+
+    assert "2 vendedores" in mensagem
+    assert "2000 km" in mensagem
+    assert "maringa" in mensagem
+    assert "evita" in mensagem
+
+
+async def test_produto_de_um_vendedor_so_nao_inventa_comparacao() -> None:
+    """Nao ha com o que comparar: a mensagem nao pode sugerir que ha."""
+    _, body = await _get("/api/v1/products/prod_real_1?customer_zip_prefix=05311")
+    mensagem = _block(body, "impact_banner")["props"]["message"]
+
+    assert "vendedores" not in mensagem
+    assert "evita" not in mensagem
 
 
 async def test_unknown_product_returns_404() -> None:

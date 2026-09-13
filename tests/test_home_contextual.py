@@ -47,6 +47,25 @@ PRODUCTS_FIXTURE = [
         weight_g=200.0,
         category="beleza_saude",
     ),
+    # Mesmo produto, duas ofertas (Sprint 7). A DISTANTE (80 km) vem primeiro:
+    # se o composer pegasse a primeira em vez da mais proxima, passaria por
+    # acidente. Categoria propria para nao mexer nos testes de filtro.
+    ProductRow(
+        product_id="prod_dois_vendedores",
+        seller_id="seller_80km",
+        seller_zip_prefix="01001",
+        price=39.90,
+        weight_g=1000.0,
+        category="relogios_presentes",
+    ),
+    ProductRow(
+        product_id="prod_dois_vendedores",
+        seller_id="seller_10km",
+        seller_zip_prefix="01002",
+        price=39.90,
+        weight_g=1000.0,
+        category="relogios_presentes",
+    ),
 ]
 
 CATEGORIES_FIXTURE = [
@@ -75,7 +94,12 @@ async def _fake_fetch_products(
     limit: int = 6,
     search: str | None = None,
 ) -> list[ProductRow]:
-    """Espelha o filtro real: categoria exata e busca sobre o nome da categoria."""
+    """Espelha o filtro real: categoria exata e busca sobre o nome da categoria.
+
+    `limit` conta PRODUTOS e a funcao devolve TODAS as ofertas deles, igual a
+    consulta real. Fatiar as ofertas direto devolveria menos produtos do que o
+    pedido sempre que um deles tivesse mais de um vendedor.
+    """
     rows = PRODUCTS_FIXTURE
     if category is not None:
         rows = [r for r in rows if r.category == category]
@@ -83,7 +107,8 @@ async def _fake_fetch_products(
         rows = [
             r for r in rows if search in (r.category or "").replace("_", " ").lower()
         ]
-    return rows[:limit]
+    escolhidos = set(list(dict.fromkeys(r.product_id for r in rows))[:limit])
+    return [r for r in rows if r.product_id in escolhidos]
 
 
 async def _fake_badge_close(
@@ -101,7 +126,9 @@ async def _fake_badge_close(
 
 # Distancias por seller para testar a ordenacao do conscious_buyer:
 # prod_real_2 (60000) deve ficar ANTES de prod_real_1 (01001).
-_DISTANCE_BY_SELLER = {"01001": 80.0, "60000": 20.0}
+# `01002` e a oferta proxima de `prod_dois_vendedores`; valor distinto dos
+# demais de proposito, para a ordenacao nao depender de desempate.
+_DISTANCE_BY_SELLER = {"01001": 80.0, "60000": 20.0, "01002": 10.0}
 
 
 async def _fake_compute_distance(
@@ -238,9 +265,16 @@ async def test_conscious_buyer_orders_cards_by_proximity() -> None:
         for c in body["components"]
         if c["type"] == "product_card"
     ]
-    # prod_real_2 (20 km) antes de prod_real_1 (80 km); prod_beauty nao tem
-    # centroide e por isso fecha a lista.
-    assert product_ids == ["prod_real_2", "prod_real_1", "prod_beauty"]
+    # prod_dois_vendedores lidera com 10 km — que e a sua oferta PROXIMA. Se o
+    # ranking ainda usasse uma oferta arbitraria, ele viria com 80 km e cairia
+    # para depois de prod_real_1. Em seguida prod_real_2 (20 km) e prod_real_1
+    # (80 km); prod_beauty nao tem centroide e por isso fecha a lista.
+    assert product_ids == [
+        "prod_dois_vendedores",
+        "prod_real_2",
+        "prod_real_1",
+        "prod_beauty",
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -429,3 +463,32 @@ async def test_product_card_has_checkout_api_call() -> None:
         and a["payload"]["method"] == "POST"
         for a in api_calls
     )
+
+
+# ---------------------------------------------------------------------------
+# Sprint 7: mesmo produto, vendedor mais proximo
+# ---------------------------------------------------------------------------
+
+async def test_vitrine_mostra_a_oferta_mais_proxima_do_comprador() -> None:
+    """`prod_dois_vendedores` tem oferta a 80 km e a 10 km; vale a de 10.
+
+    A vitrine default nao ordena por proximidade — mas cada card ainda tem de
+    representar a MELHOR origem daquele produto, senao o selo anuncia impacto
+    maior do que o necessario.
+    """
+    _, body = await _get("/api/v1/home?customer_zip_prefix=01000")
+    assert isinstance(body, dict)
+
+    assert _cards(body).count("prod_dois_vendedores") == 1, (
+        "o produto tem duas ofertas e apareceu duplicado na vitrine"
+    )
+
+
+async def test_produto_com_varias_ofertas_conta_como_um_no_limite() -> None:
+    """`limit` conta produtos. Se contasse ofertas, a vitrine encolheria
+    sozinha toda vez que um produto tivesse mais de um vendedor."""
+    _, body = await _get("/api/v1/home?customer_zip_prefix=01000")
+    assert isinstance(body, dict)
+
+    ids = _cards(body)
+    assert len(ids) == len(set(ids))

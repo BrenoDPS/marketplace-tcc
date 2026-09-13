@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database import get_db
 from src.features.green_logistics.repository import list_known_prefixes
 from src.features.product_detail.composer import compose_product_detail
-from src.features.product_detail.repository import fetch_product_detail
+from src.features.product_detail.repository import fetch_product_offers
 from src.schemas.sdui import ScreenResponse
 
 router = APIRouter(tags=["Product Detail"])
@@ -32,8 +32,8 @@ async def get_product_detail(
             detail=f"customer_zip_prefix desconhecido: {customer_zip_prefix!r}",
         )
 
-    product = await fetch_product_detail(session, product_id)
-    if product is None:
+    offers = await fetch_product_offers(session, product_id)
+    if not offers:
         raise HTTPException(
             status_code=404,
             detail=f"product_id nao encontrado na amostra: {product_id!r}",
@@ -41,6 +41,6 @@ async def get_product_detail(
 
     return await compose_product_detail(
         session,
-        product=product,
+        offers=offers,
         customer_zip_prefix=customer_zip_prefix,
     )

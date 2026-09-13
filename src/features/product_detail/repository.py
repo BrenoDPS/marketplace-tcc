@@ -24,14 +24,19 @@ class ProductDetailRow:
     seller_state: str | None
 
 
-async def fetch_product_detail(
+async def fetch_product_offers(
     session: AsyncSession, product_id: str
-) -> ProductDetailRow | None:
-    """Oferta default do produto, com vendedor e avaliacao.
+) -> list[ProductDetailRow]:
+    """TODAS as ofertas do produto — uma linha por vendedor.
 
-    `is_default` e a mesma oferta que o checkout usa, e e por isso que o preco
-    da tela bate com o da simulacao de compra. Quando o detalhe passar a listar
-    todas as ofertas, esta funcao devolve varias e o desempate sai daqui.
+    O detalhe mostrava a oferta `is_default`, que e um desempate arbitrario
+    herdado de quando o catalogo saia de `order_items`. Para 579 produtos da
+    amostra isso significava esconder origens: o mesmo item sai de Recife ou de
+    Maringa, a 2483 km de distancia, e a tela anunciava uma delas sem dizer que
+    havia outra.
+
+    Quem escolhe e o composer, que sabe onde o comprador esta. Lista vazia
+    significa produto inexistente na amostra — quem chama decide se e 404.
     """
     stmt = (
         select(
@@ -49,33 +54,34 @@ async def fetch_product_detail(
         .join(Offer, Offer.product_id == Product.product_id)
         .join(Seller, Seller.seller_id == Offer.seller_id)
         .where(Product.product_id == product_id)
-        .where(Offer.is_default)
+        # Desempate estavel entre ofertas equidistantes.
+        .order_by(Offer.seller_id)
     )
-    row = (await session.execute(stmt)).first()
-    if row is None:
-        return None
+    rows = (await session.execute(stmt)).all()
 
-    (
-        pid,
-        category,
-        weight_g,
-        rating,
-        review_count,
-        price,
-        seller_id,
-        zip_prefix,
-        city,
-        state,
-    ) = row
-    return ProductDetailRow(
-        product_id=pid,
-        category=category,
-        weight_g=float(weight_g) if weight_g is not None else None,
-        rating=float(rating) if rating is not None else None,
-        review_count=int(review_count or 0),
-        unit_price=float(price),
-        seller_id=seller_id,
-        seller_zip_prefix=zip_prefix,
-        seller_city=city,
-        seller_state=state,
-    )
+    return [
+        ProductDetailRow(
+            product_id=pid,
+            category=category,
+            weight_g=float(weight_g) if weight_g is not None else None,
+            rating=float(rating) if rating is not None else None,
+            review_count=int(review_count or 0),
+            unit_price=float(price),
+            seller_id=seller_id,
+            seller_zip_prefix=zip_prefix,
+            seller_city=city,
+            seller_state=state,
+        )
+        for (
+            pid,
+            category,
+            weight_g,
+            rating,
+            review_count,
+            price,
+            seller_id,
+            zip_prefix,
+            city,
+            state,
+        ) in rows
+    ]

@@ -69,18 +69,50 @@ async def fetch_products_for_home(
     limit: int = 6,
     search: str | None = None,
 ) -> list[ProductRow]:
-    """Retorna ate `limit` produtos distintos da amostra.
+    """Retorna TODAS as ofertas dos ate `limit` produtos da vitrine.
 
-    JOIN offers -> products -> sellers, filtrando por categoria e/ou termo
-    de busca quando informados. **Sem fallback:** filtro que nao casa devolve
-    lista vazia. Quem decide se cabe cair para a vitrine sem filtro e o composer,
-    que sabe se a categoria veio do usuario ou do contexto — mostrar produtos
-    aleatorios para quem buscou algo especifico seria mentir sobre o resultado.
+    Uma linha por (produto, vendedor), entao um produto com tres vendedores vem
+    em tres linhas. **Quem escolhe entre elas e o composer**, porque a escolha
+    depende de onde o comprador esta e o repositorio nao sabe isso.
 
-    `is_default` escolhe uma oferta por produto. Enquanto a vitrine mostrar um
-    vendedor so, e ele; quando passar a mostrar o mais proximo do comprador, o
-    filtro sai daqui e a escolha vira do composer, que sabe onde o cliente esta.
+    Duas etapas numa consulta so: a subconsulta decide QUAIS produtos entram na
+    vitrine (com os filtros, e limitada a `limit`), e a externa traz as ofertas
+    deles. Aplicar o `LIMIT` direto sobre as ofertas devolveria menos produtos
+    do que o pedido sempre que um deles tivesse mais de um vendedor.
+
+    **Sem fallback:** filtro que nao casa devolve lista vazia. Quem decide se
+    cabe cair para a vitrine sem filtro e o composer, que sabe se a categoria
+    veio do usuario ou do contexto — mostrar produtos aleatorios para quem
+    buscou algo especifico seria mentir sobre o resultado.
     """
+    escolhidos = select(Offer.product_id).join(
+        Product, Product.product_id == Offer.product_id
+    )
+    if category is not None:
+        escolhidos = escolhidos.where(Product.product_category_name == category)
+    if search:
+        # ponytail: ILIKE com `%` a esquerda ignora o indice de categoria; com
+        # 6,5k produtos na amostra e irrelevante. Se o dataset crescer para o
+        # Olist completo, trocar por trigram (pg_trgm) ou tsvector.
+        pattern = f"%{search.translate(_LIKE_SPECIALS)}%"
+        escolhidos = escolhidos.where(
+            func.replace(Product.product_category_name, "_", " ").ilike(
+                pattern, escape="\\"
+            )
+        )
+    # Sem ORDER BY, SQL nao promete ordem nenhuma: a vitrine mudava de produtos
+    # a cada recarga do ETL, com a MESMA amostra e o mesmo seed — verificado
+    # rodando o ETL duas vezes e comparando a resposta. Isso quebrava a demo da
+    # defesa (produtos diferentes a cada carga) e tornava as medicoes de carga
+    # incomparaveis entre si. `product_id` e criterio arbitrario, mas estavel;
+    # ordenacao com significado entra quando a vitrine tiver por que ordenar.
+    escolhidos = (
+        escolhidos.group_by(Offer.product_id)
+        .order_by(Offer.product_id)
+        .limit(limit)
+        .subquery()
+    )
+
     stmt = (
         select(
             Offer.product_id,
@@ -92,28 +124,11 @@ async def fetch_products_for_home(
         )
         .join(Product, Product.product_id == Offer.product_id)
         .join(Seller, Seller.seller_id == Offer.seller_id)
-        .where(Offer.is_default)
+        .join(escolhidos, escolhidos.c.product_id == Offer.product_id)
+        # `seller_id` desempata entre ofertas do mesmo produto: sem ele, duas
+        # ofertas a mesma distancia poderiam trocar de lugar entre execucoes.
+        .order_by(Offer.product_id, Offer.seller_id)
     )
-    if category is not None:
-        stmt = stmt.where(Product.product_category_name == category)
-    if search:
-        # ponytail: ILIKE com `%` a esquerda ignora o indice de categoria; com
-        # 6,5k produtos na amostra e irrelevante. Se o dataset crescer para o
-        # Olist completo, trocar por trigram (pg_trgm) ou tsvector.
-        pattern = f"%{search.translate(_LIKE_SPECIALS)}%"
-        stmt = stmt.where(
-            func.replace(Product.product_category_name, "_", " ").ilike(
-                pattern, escape="\\"
-            )
-        )
-    # Sem ORDER BY, SQL nao promete ordem nenhuma: a vitrine mudava de produtos
-    # a cada recarga do ETL, com a MESMA amostra e o mesmo seed — verificado
-    # rodando o ETL duas vezes e comparando a resposta. Isso quebrava a demo da
-    # defesa (produtos diferentes a cada carga) e tornava as medicoes de carga
-    # incomparaveis entre si. `product_id` e criterio arbitrario, mas estavel;
-    # ordenacao com significado (proximidade, preco) entra junto com a escolha
-    # de oferta por distancia.
-    stmt = stmt.order_by(Offer.product_id).limit(limit)
 
     result = await session.execute(stmt)
     return [
