@@ -6,7 +6,7 @@ A tabela `cep_centroids` e derivada (mediana de lat/lng por prefixo).
 
 from __future__ import annotations
 
-from sqlalchemy import Float, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -70,6 +70,40 @@ class OrderItem(Base):
     )
     price: Mapped[float] = mapped_column(Float, nullable=False)
     freight_value: Mapped[float | None] = mapped_column(Float)
+
+
+class Offer(Base):
+    """Um vendedor oferecendo um produto por um preco. Derivada no ETL.
+
+    O Olist nao tem tabela de oferta: `olist_products_dataset.csv` nao traz
+    `seller_id`, e o vinculo produto->vendedor so existe dentro de
+    `order_items`. Por isso as telas liam um LOG DE PEDIDOS como se fosse
+    catalogo, cada uma reimplementando a regra tacita "primeira order_item do
+    produto" para escolher um vendedor entre varios.
+
+    Esta tabela materializa o vinculo uma vez, no ETL. As telas passam a ler
+    catalogo, e o mesmo produto vendido por varios vendedores deixa de ser um
+    caso a desempatar e vira a informacao que sustenta o argumento da tese:
+    dos dois vendedores do mesmo item, o mais perto emite menos.
+    """
+
+    __tablename__ = "offers"
+
+    product_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("olist_products.product_id"), primary_key=True
+    )
+    seller_id: Mapped[str] = mapped_column(
+        String(64), ForeignKey("olist_sellers.seller_id"), primary_key=True
+    )
+    price: Mapped[float] = mapped_column(Float, nullable=False)
+    freight_value: Mapped[float | None] = mapped_column(Float)
+    # Reproduz a "primeira order_item" de hoje para as telas que mostram UM
+    # vendedor. Exatamente uma por produto — `tests/test_offers.py` cobre o
+    # invariante. Quando a escolha passar a ser por distancia, isto vira o
+    # fallback de quando nao da para medir (vendedor sem centroide).
+    is_default: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, index=True
+    )
 
 
 class CepCentroid(Base):

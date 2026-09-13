@@ -161,6 +161,38 @@ def attach_product_ratings(
     return out
 
 
+def build_offers(items: pd.DataFrame) -> pd.DataFrame:
+    """Deriva `offers` de `order_items`: uma linha por (produto, vendedor).
+
+    Preco e frete saem da PRIMEIRA linha da oferta na ordem `(order_id,
+    order_item_id)`, e nao de uma media, para reproduzir exatamente o que as
+    telas mostram hoje — assim a troca de `order_items` por `offers` e
+    verificavel por diff, e nao por impressao.
+
+    `is_default` marca, para cada produto, a oferta que vem primeiro nessa
+    mesma ordem: e a "primeira order_item" que `product_detail` e `checkout`
+    ja usavam como criterio de desempate.
+    """
+    # ponytail: primeira linha em vez de mediana de preco. 8,2% das ofertas da
+    # amostra tem mais de um preco (dispersao ~15%) e 17,9% mais de um frete —
+    # a mediana seria mais representativa do catalogo, mas mudaria os numeros
+    # exibidos e tiraria a verificabilidade do refactor. Trocar depois que a
+    # migracao das telas estiver fechada e conferida.
+    ordered = items.sort_values(["order_id", "order_item_id"])
+    offers = ordered.groupby(["product_id", "seller_id"], as_index=False).agg(
+        price=("price", "first"),
+        freight_value=("freight_value", "first"),
+        order_id=("order_id", "first"),
+        order_item_id=("order_item_id", "first"),
+    )
+
+    # `duplicated` olha a ordem corrente das linhas: ordenar antes nao e
+    # cosmetico, e o que define QUAL oferta vira a default.
+    offers = offers.sort_values(["product_id", "order_id", "order_item_id"])
+    offers["is_default"] = ~offers.duplicated("product_id")
+    return offers.reset_index(drop=True)
+
+
 def build_cep_centroids(geolocation: pd.DataFrame, prefixes: set[str]) -> pd.DataFrame:
     geo = geolocation[geolocation["geolocation_zip_code_prefix"].isin(prefixes)]
     centroids = (
@@ -225,6 +257,11 @@ def load_tables(
             "olist_order_items",
             subset["order_items"],
             ["order_id", "order_item_id", "product_id", "seller_id", "price", "freight_value"],
+        ),
+        (
+            "offers",
+            subset["offers"],
+            ["product_id", "seller_id", "price", "freight_value", "is_default"],
         ),
         (
             "cep_centroids",
@@ -305,12 +342,20 @@ def main() -> int:
     subset["products"] = attach_product_ratings(
         subset["products"], subset["order_items"], frames["reviews"]
     )
+    subset["offers"] = build_offers(subset["order_items"])
+    multi = int(
+        (subset["offers"].groupby("product_id")["seller_id"].size() > 1).sum()
+    )
     rated = int((subset["products"]["review_count"] > 0).sum())
     print(
         "[etl] subset filtrado:",
         {k: len(v) for k, v in subset.items() if k != "geolocation"},
     )
     print(f"[etl] produtos com avaliacao real: {rated}/{len(subset['products'])}")
+    print(
+        f"[etl] ofertas derivadas: {len(subset['offers'])} "
+        f"({multi} produtos com mais de um vendedor)"
+    )
 
     items_with_customer = subset["order_items"].merge(
         subset["orders"][["order_id", "customer_id"]], on="order_id", how="left"

@@ -1,0 +1,5999 @@
+{
+  "checkout|n=1|modalidade=None": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/?customer_zip_prefix=05311",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "freight": 15.11,
+          "items": [
+            {
+              "line_total": 38.9,
+              "product_id": "001795ec6f1b187d37335e1c4704762e",
+              "quantity": 1,
+              "title": "Consoles Games",
+              "unit_price": 38.9
+            }
+          ],
+          "subtotal": 38.9,
+          "total": 54.01
+        },
+        "type": "checkout_summary",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "distance_km": 10.174980326629576,
+          "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
+          "options": [
+            {
+              "co2_kg": 0.001556771989974325,
+              "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
+              "eta_days": 2,
+              "id": "express",
+              "label": "Expressa",
+              "price": 24.18,
+              "recommended": false,
+              "selected": false
+            },
+            {
+              "co2_kg": 0.00062270879598973,
+              "description": "Frete rodoviário praticado na amostra Olist.",
+              "eta_days": 3,
+              "id": "standard",
+              "label": "Padrão",
+              "price": 15.11,
+              "recommended": false,
+              "selected": true
+            },
+            {
+              "co2_kg": 0.000373625277593838,
+              "description": "Carga consolidada com outros pedidos da região: menos viagens.",
+              "eta_days": 5,
+              "id": "green",
+              "label": "Verde",
+              "price": 12.84,
+              "recommended": true,
+              "selected": false
+            }
+          ],
+          "selected_id": "standard"
+        },
+        "type": "delivery_options",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "note": "Uma remessa por vendedor: itens do mesmo vendedor pagam um frete só, o maior da remessa. A emissão não cai por agrupar — ela é proporcional à massa e à distância. O que o agrupamento revela é qual vendedor domina a pegada do carrinho.",
+          "shipments": [
+            {
+              "alternatives": [
+                {
+                  "actions": [
+                    {
+                      "payload": {
+                        "body_key": "checkout",
+                        "method": "POST",
+                        "path": "/api/v1/checkout/simulate"
+                      },
+                      "type": "api_call"
+                    }
+                  ],
+                  "co2_kg": 0.00014598510353521193,
+                  "co2_saved_kg": 0.00047672369245451806,
+                  "distance_km": 9.541510034981174,
+                  "price": 89.99,
+                  "product_id": "6a87e794e29b73452703d95253a29c88",
+                  "replaces_product_id": "001795ec6f1b187d37335e1c4704762e",
+                  "saved_share": 0.7655644107239822,
+                  "seller_id": "43f8c9950d11ecd03a0304a49e010da6",
+                  "title": "Consoles Games"
+                }
+              ],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+              },
+              "co2_kg": 0.00062270879598973,
+              "co2_share": 1.0,
+              "distance_km": 10.174980326629576,
+              "freight": 15.11,
+              "product_ids": [
+                "001795ec6f1b187d37335e1c4704762e"
+              ],
+              "seller_id": "8b321bb669392f5163d04c59e235e066",
+              "total_quantity": 1,
+              "weight_g": 600.0
+            }
+          ],
+          "title": "Remessas"
+        },
+        "type": "shipment_breakdown",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+          },
+          "co2_kg": 0.00062270879598973,
+          "distance_km": 10.174980326629576,
+          "message": "Entrega local (~10 km) na modalidade Padrão, com menor impacto ambiental."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "checkout",
+    "schema_version": 1,
+    "screen_id": "checkout_simulate"
+  },
+  "checkout|n=1|modalidade=express": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/?customer_zip_prefix=05311",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "freight": 24.18,
+          "items": [
+            {
+              "line_total": 38.9,
+              "product_id": "001795ec6f1b187d37335e1c4704762e",
+              "quantity": 1,
+              "title": "Consoles Games",
+              "unit_price": 38.9
+            }
+          ],
+          "subtotal": 38.9,
+          "total": 63.08
+        },
+        "type": "checkout_summary",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "distance_km": 10.174980326629576,
+          "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
+          "options": [
+            {
+              "co2_kg": 0.001556771989974325,
+              "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
+              "eta_days": 2,
+              "id": "express",
+              "label": "Expressa",
+              "price": 24.18,
+              "recommended": false,
+              "selected": true
+            },
+            {
+              "co2_kg": 0.00062270879598973,
+              "description": "Frete rodoviário praticado na amostra Olist.",
+              "eta_days": 3,
+              "id": "standard",
+              "label": "Padrão",
+              "price": 15.11,
+              "recommended": false,
+              "selected": false
+            },
+            {
+              "co2_kg": 0.000373625277593838,
+              "description": "Carga consolidada com outros pedidos da região: menos viagens.",
+              "eta_days": 5,
+              "id": "green",
+              "label": "Verde",
+              "price": 12.84,
+              "recommended": true,
+              "selected": false
+            }
+          ],
+          "selected_id": "express"
+        },
+        "type": "delivery_options",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "note": "Uma remessa por vendedor: itens do mesmo vendedor pagam um frete só, o maior da remessa. A emissão não cai por agrupar — ela é proporcional à massa e à distância. O que o agrupamento revela é qual vendedor domina a pegada do carrinho.",
+          "shipments": [
+            {
+              "alternatives": [
+                {
+                  "actions": [
+                    {
+                      "payload": {
+                        "body_key": "checkout",
+                        "method": "POST",
+                        "path": "/api/v1/checkout/simulate"
+                      },
+                      "type": "api_call"
+                    }
+                  ],
+                  "co2_kg": 0.00036496275883802983,
+                  "co2_saved_kg": 0.001191809231136295,
+                  "distance_km": 9.541510034981174,
+                  "price": 89.99,
+                  "product_id": "6a87e794e29b73452703d95253a29c88",
+                  "replaces_product_id": "001795ec6f1b187d37335e1c4704762e",
+                  "saved_share": 0.7655644107239821,
+                  "seller_id": "43f8c9950d11ecd03a0304a49e010da6",
+                  "title": "Consoles Games"
+                }
+              ],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~10 km · ~1,56 g CO₂)"
+              },
+              "co2_kg": 0.001556771989974325,
+              "co2_share": 1.0,
+              "distance_km": 10.174980326629576,
+              "freight": 24.18,
+              "product_ids": [
+                "001795ec6f1b187d37335e1c4704762e"
+              ],
+              "seller_id": "8b321bb669392f5163d04c59e235e066",
+              "total_quantity": 1,
+              "weight_g": 600.0
+            }
+          ],
+          "title": "Remessas"
+        },
+        "type": "shipment_breakdown",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~10 km · ~1,56 g CO₂)"
+          },
+          "co2_kg": 0.001556771989974325,
+          "distance_km": 10.174980326629576,
+          "message": "Entrega local (~10 km) na modalidade Expressa, com menor impacto ambiental."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "checkout",
+    "schema_version": 1,
+    "screen_id": "checkout_simulate"
+  },
+  "checkout|n=1|modalidade=green": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/?customer_zip_prefix=05311",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "freight": 12.84,
+          "items": [
+            {
+              "line_total": 38.9,
+              "product_id": "001795ec6f1b187d37335e1c4704762e",
+              "quantity": 1,
+              "title": "Consoles Games",
+              "unit_price": 38.9
+            }
+          ],
+          "subtotal": 38.9,
+          "total": 51.74
+        },
+        "type": "checkout_summary",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "distance_km": 10.174980326629576,
+          "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
+          "options": [
+            {
+              "co2_kg": 0.001556771989974325,
+              "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
+              "eta_days": 2,
+              "id": "express",
+              "label": "Expressa",
+              "price": 24.18,
+              "recommended": false,
+              "selected": false
+            },
+            {
+              "co2_kg": 0.00062270879598973,
+              "description": "Frete rodoviário praticado na amostra Olist.",
+              "eta_days": 3,
+              "id": "standard",
+              "label": "Padrão",
+              "price": 15.11,
+              "recommended": false,
+              "selected": false
+            },
+            {
+              "co2_kg": 0.000373625277593838,
+              "description": "Carga consolidada com outros pedidos da região: menos viagens.",
+              "eta_days": 5,
+              "id": "green",
+              "label": "Verde",
+              "price": 12.84,
+              "recommended": true,
+              "selected": true
+            }
+          ],
+          "selected_id": "green"
+        },
+        "type": "delivery_options",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "note": "Uma remessa por vendedor: itens do mesmo vendedor pagam um frete só, o maior da remessa. A emissão não cai por agrupar — ela é proporcional à massa e à distância. O que o agrupamento revela é qual vendedor domina a pegada do carrinho.",
+          "shipments": [
+            {
+              "alternatives": [
+                {
+                  "actions": [
+                    {
+                      "payload": {
+                        "body_key": "checkout",
+                        "method": "POST",
+                        "path": "/api/v1/checkout/simulate"
+                      },
+                      "type": "api_call"
+                    }
+                  ],
+                  "co2_kg": 8.759106212112715e-05,
+                  "co2_saved_kg": 0.00028603421547271086,
+                  "distance_km": 9.541510034981174,
+                  "price": 89.99,
+                  "product_id": "6a87e794e29b73452703d95253a29c88",
+                  "replaces_product_id": "001795ec6f1b187d37335e1c4704762e",
+                  "saved_share": 0.7655644107239822,
+                  "seller_id": "43f8c9950d11ecd03a0304a49e010da6",
+                  "title": "Consoles Games"
+                }
+              ],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~10 km · ~0,37 g CO₂)"
+              },
+              "co2_kg": 0.000373625277593838,
+              "co2_share": 1.0,
+              "distance_km": 10.174980326629576,
+              "freight": 12.84,
+              "product_ids": [
+                "001795ec6f1b187d37335e1c4704762e"
+              ],
+              "seller_id": "8b321bb669392f5163d04c59e235e066",
+              "total_quantity": 1,
+              "weight_g": 600.0
+            }
+          ],
+          "title": "Remessas"
+        },
+        "type": "shipment_breakdown",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~10 km · ~0,37 g CO₂)"
+          },
+          "co2_kg": 0.000373625277593838,
+          "distance_km": 10.174980326629576,
+          "message": "Entrega local (~10 km) na modalidade Verde, com menor impacto ambiental."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "checkout",
+    "schema_version": 1,
+    "screen_id": "checkout_simulate"
+  },
+  "checkout|n=2|modalidade=None": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/?customer_zip_prefix=05311",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "freight": 30.21,
+          "items": [
+            {
+              "line_total": 38.9,
+              "product_id": "001795ec6f1b187d37335e1c4704762e",
+              "quantity": 1,
+              "title": "Consoles Games",
+              "unit_price": 38.9
+            },
+            {
+              "line_total": 32.98,
+              "product_id": "00210e41887c2a8ef9f791ebc780cc36",
+              "quantity": 1,
+              "title": "Beleza Saude",
+              "unit_price": 32.98
+            }
+          ],
+          "subtotal": 71.88,
+          "total": 102.09
+        },
+        "type": "checkout_summary",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "distance_km": 62.642815703901775,
+          "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
+          "options": [
+            {
+              "co2_kg": 0.014376526204045456,
+              "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
+              "eta_days": 2,
+              "id": "express",
+              "label": "Expressa",
+              "price": 48.34,
+              "recommended": false,
+              "selected": false
+            },
+            {
+              "co2_kg": 0.005750610481618183,
+              "description": "Frete rodoviário praticado na amostra Olist.",
+              "eta_days": 3,
+              "id": "standard",
+              "label": "Padrão",
+              "price": 30.21,
+              "recommended": false,
+              "selected": true
+            },
+            {
+              "co2_kg": 0.0034503662889709096,
+              "description": "Carga consolidada com outros pedidos da região: menos viagens.",
+              "eta_days": 5,
+              "id": "green",
+              "label": "Verde",
+              "price": 25.68,
+              "recommended": true,
+              "selected": false
+            }
+          ],
+          "selected_id": "standard"
+        },
+        "type": "delivery_options",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "note": "Uma remessa por vendedor: itens do mesmo vendedor pagam um frete só, o maior da remessa. A emissão não cai por agrupar — ela é proporcional à massa e à distância. O que o agrupamento revela é qual vendedor domina a pegada do carrinho.",
+          "shipments": [
+            {
+              "alternatives": [
+                {
+                  "actions": [
+                    {
+                      "payload": {
+                        "body_key": "checkout",
+                        "method": "POST",
+                        "path": "/api/v1/checkout/simulate"
+                      },
+                      "type": "api_call"
+                    }
+                  ],
+                  "co2_kg": 0.00022571550738276848,
+                  "co2_saved_kg": 0.0016911546531566256,
+                  "distance_km": 22.128971312036125,
+                  "price": 35.0,
+                  "product_id": "2fea0f2cec6b6324a277d4a61c2ed2c6",
+                  "replaces_product_id": "00210e41887c2a8ef9f791ebc780cc36",
+                  "saved_share": 0.8822478892783987,
+                  "seller_id": "beadbee30901a7f61d031b6b686095ad",
+                  "title": "Beleza Saude"
+                }
+              ],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~63 km · ~1,92 g CO₂)"
+              },
+              "co2_kg": 0.001916870160539394,
+              "co2_share": 0.7547984108197233,
+              "distance_km": 62.642815703901775,
+              "freight": 15.1,
+              "product_ids": [
+                "00210e41887c2a8ef9f791ebc780cc36"
+              ],
+              "seller_id": "e9779976487b77c6d4ac45f75ec7afe9",
+              "total_quantity": 1,
+              "weight_g": 300.0
+            },
+            {
+              "alternatives": [],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+              },
+              "co2_kg": 0.00062270879598973,
+              "co2_share": 0.24520158918027668,
+              "distance_km": 10.174980326629576,
+              "freight": 15.11,
+              "product_ids": [
+                "001795ec6f1b187d37335e1c4704762e"
+              ],
+              "seller_id": "8b321bb669392f5163d04c59e235e066",
+              "total_quantity": 1,
+              "weight_g": 600.0
+            }
+          ],
+          "title": "Remessas"
+        },
+        "type": "shipment_breakdown",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": null,
+          "co2_kg": 0.002539578956529124,
+          "distance_km": null,
+          "message": "2 remessas na modalidade Padrão — 2 de entrega local. Uma delas responde por 75% do CO₂."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "checkout",
+    "schema_version": 1,
+    "screen_id": "checkout_simulate"
+  },
+  "checkout|n=2|modalidade=express": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/?customer_zip_prefix=05311",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "freight": 48.34,
+          "items": [
+            {
+              "line_total": 38.9,
+              "product_id": "001795ec6f1b187d37335e1c4704762e",
+              "quantity": 1,
+              "title": "Consoles Games",
+              "unit_price": 38.9
+            },
+            {
+              "line_total": 32.98,
+              "product_id": "00210e41887c2a8ef9f791ebc780cc36",
+              "quantity": 1,
+              "title": "Beleza Saude",
+              "unit_price": 32.98
+            }
+          ],
+          "subtotal": 71.88,
+          "total": 120.22
+        },
+        "type": "checkout_summary",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "distance_km": 62.642815703901775,
+          "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
+          "options": [
+            {
+              "co2_kg": 0.014376526204045456,
+              "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
+              "eta_days": 2,
+              "id": "express",
+              "label": "Expressa",
+              "price": 48.34,
+              "recommended": false,
+              "selected": true
+            },
+            {
+              "co2_kg": 0.005750610481618183,
+              "description": "Frete rodoviário praticado na amostra Olist.",
+              "eta_days": 3,
+              "id": "standard",
+              "label": "Padrão",
+              "price": 30.21,
+              "recommended": false,
+              "selected": false
+            },
+            {
+              "co2_kg": 0.0034503662889709096,
+              "description": "Carga consolidada com outros pedidos da região: menos viagens.",
+              "eta_days": 5,
+              "id": "green",
+              "label": "Verde",
+              "price": 25.68,
+              "recommended": true,
+              "selected": false
+            }
+          ],
+          "selected_id": "express"
+        },
+        "type": "delivery_options",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "note": "Uma remessa por vendedor: itens do mesmo vendedor pagam um frete só, o maior da remessa. A emissão não cai por agrupar — ela é proporcional à massa e à distância. O que o agrupamento revela é qual vendedor domina a pegada do carrinho.",
+          "shipments": [
+            {
+              "alternatives": [
+                {
+                  "actions": [
+                    {
+                      "payload": {
+                        "body_key": "checkout",
+                        "method": "POST",
+                        "path": "/api/v1/checkout/simulate"
+                      },
+                      "type": "api_call"
+                    }
+                  ],
+                  "co2_kg": 0.0005642887684569212,
+                  "co2_saved_kg": 0.004227886632891564,
+                  "distance_km": 22.128971312036125,
+                  "price": 35.0,
+                  "product_id": "2fea0f2cec6b6324a277d4a61c2ed2c6",
+                  "replaces_product_id": "00210e41887c2a8ef9f791ebc780cc36",
+                  "saved_share": 0.8822478892783987,
+                  "seller_id": "beadbee30901a7f61d031b6b686095ad",
+                  "title": "Beleza Saude"
+                }
+              ],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~63 km · ~4,79 g CO₂)"
+              },
+              "co2_kg": 0.004792175401348485,
+              "co2_share": 0.7547984108197233,
+              "distance_km": 62.642815703901775,
+              "freight": 24.16,
+              "product_ids": [
+                "00210e41887c2a8ef9f791ebc780cc36"
+              ],
+              "seller_id": "e9779976487b77c6d4ac45f75ec7afe9",
+              "total_quantity": 1,
+              "weight_g": 300.0
+            },
+            {
+              "alternatives": [],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~10 km · ~1,56 g CO₂)"
+              },
+              "co2_kg": 0.001556771989974325,
+              "co2_share": 0.24520158918027668,
+              "distance_km": 10.174980326629576,
+              "freight": 24.18,
+              "product_ids": [
+                "001795ec6f1b187d37335e1c4704762e"
+              ],
+              "seller_id": "8b321bb669392f5163d04c59e235e066",
+              "total_quantity": 1,
+              "weight_g": 600.0
+            }
+          ],
+          "title": "Remessas"
+        },
+        "type": "shipment_breakdown",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": null,
+          "co2_kg": 0.00634894739132281,
+          "distance_km": null,
+          "message": "2 remessas na modalidade Expressa — 2 de entrega local. Uma delas responde por 75% do CO₂."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "checkout",
+    "schema_version": 1,
+    "screen_id": "checkout_simulate"
+  },
+  "checkout|n=2|modalidade=green": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/?customer_zip_prefix=05311",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "freight": 25.67,
+          "items": [
+            {
+              "line_total": 38.9,
+              "product_id": "001795ec6f1b187d37335e1c4704762e",
+              "quantity": 1,
+              "title": "Consoles Games",
+              "unit_price": 38.9
+            },
+            {
+              "line_total": 32.98,
+              "product_id": "00210e41887c2a8ef9f791ebc780cc36",
+              "quantity": 1,
+              "title": "Beleza Saude",
+              "unit_price": 32.98
+            }
+          ],
+          "subtotal": 71.88,
+          "total": 97.55
+        },
+        "type": "checkout_summary",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "distance_km": 62.642815703901775,
+          "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
+          "options": [
+            {
+              "co2_kg": 0.014376526204045456,
+              "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
+              "eta_days": 2,
+              "id": "express",
+              "label": "Expressa",
+              "price": 48.34,
+              "recommended": false,
+              "selected": false
+            },
+            {
+              "co2_kg": 0.005750610481618183,
+              "description": "Frete rodoviário praticado na amostra Olist.",
+              "eta_days": 3,
+              "id": "standard",
+              "label": "Padrão",
+              "price": 30.21,
+              "recommended": false,
+              "selected": false
+            },
+            {
+              "co2_kg": 0.0034503662889709096,
+              "description": "Carga consolidada com outros pedidos da região: menos viagens.",
+              "eta_days": 5,
+              "id": "green",
+              "label": "Verde",
+              "price": 25.68,
+              "recommended": true,
+              "selected": true
+            }
+          ],
+          "selected_id": "green"
+        },
+        "type": "delivery_options",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "note": "Uma remessa por vendedor: itens do mesmo vendedor pagam um frete só, o maior da remessa. A emissão não cai por agrupar — ela é proporcional à massa e à distância. O que o agrupamento revela é qual vendedor domina a pegada do carrinho.",
+          "shipments": [
+            {
+              "alternatives": [
+                {
+                  "actions": [
+                    {
+                      "payload": {
+                        "body_key": "checkout",
+                        "method": "POST",
+                        "path": "/api/v1/checkout/simulate"
+                      },
+                      "type": "api_call"
+                    }
+                  ],
+                  "co2_kg": 0.0001354293044296611,
+                  "co2_saved_kg": 0.0010146927918939753,
+                  "distance_km": 22.128971312036125,
+                  "price": 35.0,
+                  "product_id": "2fea0f2cec6b6324a277d4a61c2ed2c6",
+                  "replaces_product_id": "00210e41887c2a8ef9f791ebc780cc36",
+                  "saved_share": 0.8822478892783987,
+                  "seller_id": "beadbee30901a7f61d031b6b686095ad",
+                  "title": "Beleza Saude"
+                }
+              ],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~63 km · ~1,15 g CO₂)"
+              },
+              "co2_kg": 0.0011501220963236363,
+              "co2_share": 0.7547984108197233,
+              "distance_km": 62.642815703901775,
+              "freight": 12.83,
+              "product_ids": [
+                "00210e41887c2a8ef9f791ebc780cc36"
+              ],
+              "seller_id": "e9779976487b77c6d4ac45f75ec7afe9",
+              "total_quantity": 1,
+              "weight_g": 300.0
+            },
+            {
+              "alternatives": [],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~10 km · ~0,37 g CO₂)"
+              },
+              "co2_kg": 0.000373625277593838,
+              "co2_share": 0.2452015891802767,
+              "distance_km": 10.174980326629576,
+              "freight": 12.84,
+              "product_ids": [
+                "001795ec6f1b187d37335e1c4704762e"
+              ],
+              "seller_id": "8b321bb669392f5163d04c59e235e066",
+              "total_quantity": 1,
+              "weight_g": 600.0
+            }
+          ],
+          "title": "Remessas"
+        },
+        "type": "shipment_breakdown",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": null,
+          "co2_kg": 0.0015237473739174742,
+          "distance_km": null,
+          "message": "2 remessas na modalidade Verde — 2 de entrega local. Uma delas responde por 75% do CO₂."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "checkout",
+    "schema_version": 1,
+    "screen_id": "checkout_simulate"
+  },
+  "checkout|n=6|modalidade=None": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/?customer_zip_prefix=05311",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "freight": 82.55,
+          "items": [
+            {
+              "line_total": 38.9,
+              "product_id": "001795ec6f1b187d37335e1c4704762e",
+              "quantity": 1,
+              "title": "Consoles Games",
+              "unit_price": 38.9
+            },
+            {
+              "line_total": 32.98,
+              "product_id": "00210e41887c2a8ef9f791ebc780cc36",
+              "quantity": 1,
+              "title": "Beleza Saude",
+              "unit_price": 32.98
+            },
+            {
+              "line_total": 79.99,
+              "product_id": "00250175f79f584c14ab5cecd80553cd",
+              "quantity": 1,
+              "title": "Utilidades Domesticas",
+              "unit_price": 79.99
+            },
+            {
+              "line_total": 39.0,
+              "product_id": "002af88741ba70c7b5cf4e4a0ad7ef85",
+              "quantity": 1,
+              "title": "Cool Stuff",
+              "unit_price": 39.0
+            },
+            {
+              "line_total": 39.9,
+              "product_id": "0042f1a9a7e0edd1400c6cd0fda065f8",
+              "quantity": 1,
+              "title": "Beleza Saude",
+              "unit_price": 39.9
+            },
+            {
+              "line_total": 49.0,
+              "product_id": "004636c889c7c3dad6631f136b7fa082",
+              "quantity": 1,
+              "title": "Utilidades Domesticas",
+              "unit_price": 49.0
+            }
+          ],
+          "subtotal": 279.77,
+          "total": 362.32
+        },
+        "type": "checkout_summary",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "distance_km": 299.5677308824423,
+          "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
+          "options": [
+            {
+              "co2_kg": 0.22725956984069276,
+              "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
+              "eta_days": 2,
+              "id": "express",
+              "label": "Expressa",
+              "price": 132.08,
+              "recommended": false,
+              "selected": false
+            },
+            {
+              "co2_kg": 0.0909038279362771,
+              "description": "Frete rodoviário praticado na amostra Olist.",
+              "eta_days": 3,
+              "id": "standard",
+              "label": "Padrão",
+              "price": 82.55,
+              "recommended": false,
+              "selected": true
+            },
+            {
+              "co2_kg": 0.05454229676176626,
+              "description": "Carga consolidada com outros pedidos da região: menos viagens.",
+              "eta_days": 5,
+              "id": "green",
+              "label": "Verde",
+              "price": 70.17,
+              "recommended": true,
+              "selected": false
+            }
+          ],
+          "selected_id": "standard"
+        },
+        "type": "delivery_options",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "note": "Uma remessa por vendedor: itens do mesmo vendedor pagam um frete só, o maior da remessa. A emissão não cai por agrupar — ela é proporcional à massa e à distância. O que o agrupamento revela é qual vendedor domina a pegada do carrinho.",
+          "shipments": [
+            {
+              "alternatives": [
+                {
+                  "actions": [
+                    {
+                      "payload": {
+                        "body_key": "checkout",
+                        "method": "POST",
+                        "path": "/api/v1/checkout/simulate"
+                      },
+                      "type": "api_call"
+                    }
+                  ],
+                  "co2_kg": 5.8669316966495053e-05,
+                  "co2_saved_kg": 0.016747080385538515,
+                  "distance_km": 2.8759469101223067,
+                  "price": 39.9,
+                  "product_id": "31fd02b02c33827cbde22902cf80338c",
+                  "replaces_product_id": "004636c889c7c3dad6631f136b7fa082",
+                  "saved_share": 0.9965089735355424,
+                  "seller_id": "5f1dc28029d2c244352a68107ec2b542",
+                  "title": "Utilidades Domesticas"
+                }
+              ],
+              "badge": null,
+              "co2_kg": 0.01680574970250501,
+              "co2_share": 0.5396423309395375,
+              "distance_km": 299.5677308824423,
+              "freight": 13.92,
+              "product_ids": [
+                "004636c889c7c3dad6631f136b7fa082"
+              ],
+              "seller_id": "e333046ce6517bd8bb510291d44f0130",
+              "total_quantity": 1,
+              "weight_g": 550.0
+            },
+            {
+              "alternatives": [],
+              "badge": null,
+              "co2_kg": 0.009479451983421731,
+              "co2_share": 0.3043906790781623,
+              "distance_km": 123.91440501204877,
+              "freight": 15.31,
+              "product_ids": [
+                "00250175f79f584c14ab5cecd80553cd"
+              ],
+              "seller_id": "b499c00f28f4b7069ff6550af8c1348a",
+              "total_quantity": 1,
+              "weight_g": 750.0
+            },
+            {
+              "alternatives": [],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~63 km · ~1,92 g CO₂)"
+              },
+              "co2_kg": 0.001916870160539394,
+              "co2_share": 0.06155180815216688,
+              "distance_km": 62.642815703901775,
+              "freight": 15.1,
+              "product_ids": [
+                "00210e41887c2a8ef9f791ebc780cc36"
+              ],
+              "seller_id": "e9779976487b77c6d4ac45f75ec7afe9",
+              "total_quantity": 1,
+              "weight_g": 300.0
+            },
+            {
+              "alternatives": [],
+              "badge": null,
+              "co2_kg": 0.001899199074162913,
+              "co2_share": 0.06098437936075648,
+              "distance_km": 106.39770723601755,
+              "freight": 7.0,
+              "product_ids": [
+                "0042f1a9a7e0edd1400c6cd0fda065f8"
+              ],
+              "seller_id": "a5a1bfcf728ab0e19182959cf0771ee4",
+              "total_quantity": 1,
+              "weight_g": 175.0
+            },
+            {
+              "alternatives": [],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+              },
+              "co2_kg": 0.00062270879598973,
+              "co2_share": 0.01999553915255335,
+              "distance_km": 10.174980326629576,
+              "freight": 15.11,
+              "product_ids": [
+                "001795ec6f1b187d37335e1c4704762e"
+              ],
+              "seller_id": "8b321bb669392f5163d04c59e235e066",
+              "total_quantity": 1,
+              "weight_g": 600.0
+            },
+            {
+              "alternatives": [],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~7 km · ~0,42 g CO₂)"
+              },
+              "co2_kg": 0.00041840615449250393,
+              "co2_share": 0.013435263316823503,
+              "distance_km": 6.836701870792548,
+              "freight": 16.11,
+              "product_ids": [
+                "002af88741ba70c7b5cf4e4a0ad7ef85"
+              ],
+              "seller_id": "3a734b715d333a2588a3d54a0c9b8746",
+              "total_quantity": 1,
+              "weight_g": 600.0
+            }
+          ],
+          "title": "Remessas"
+        },
+        "type": "shipment_breakdown",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": null,
+          "co2_kg": 0.031142385871111282,
+          "distance_km": null,
+          "message": "6 remessas na modalidade Padrão — 3 de entrega local. Uma delas responde por 54% do CO₂."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "checkout",
+    "schema_version": 1,
+    "screen_id": "checkout_simulate"
+  },
+  "checkout|n=6|modalidade=express": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/?customer_zip_prefix=05311",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "freight": 132.09,
+          "items": [
+            {
+              "line_total": 38.9,
+              "product_id": "001795ec6f1b187d37335e1c4704762e",
+              "quantity": 1,
+              "title": "Consoles Games",
+              "unit_price": 38.9
+            },
+            {
+              "line_total": 32.98,
+              "product_id": "00210e41887c2a8ef9f791ebc780cc36",
+              "quantity": 1,
+              "title": "Beleza Saude",
+              "unit_price": 32.98
+            },
+            {
+              "line_total": 79.99,
+              "product_id": "00250175f79f584c14ab5cecd80553cd",
+              "quantity": 1,
+              "title": "Utilidades Domesticas",
+              "unit_price": 79.99
+            },
+            {
+              "line_total": 39.0,
+              "product_id": "002af88741ba70c7b5cf4e4a0ad7ef85",
+              "quantity": 1,
+              "title": "Cool Stuff",
+              "unit_price": 39.0
+            },
+            {
+              "line_total": 39.9,
+              "product_id": "0042f1a9a7e0edd1400c6cd0fda065f8",
+              "quantity": 1,
+              "title": "Beleza Saude",
+              "unit_price": 39.9
+            },
+            {
+              "line_total": 49.0,
+              "product_id": "004636c889c7c3dad6631f136b7fa082",
+              "quantity": 1,
+              "title": "Utilidades Domesticas",
+              "unit_price": 49.0
+            }
+          ],
+          "subtotal": 279.77,
+          "total": 411.86
+        },
+        "type": "checkout_summary",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "distance_km": 299.5677308824423,
+          "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
+          "options": [
+            {
+              "co2_kg": 0.22725956984069276,
+              "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
+              "eta_days": 2,
+              "id": "express",
+              "label": "Expressa",
+              "price": 132.08,
+              "recommended": false,
+              "selected": true
+            },
+            {
+              "co2_kg": 0.0909038279362771,
+              "description": "Frete rodoviário praticado na amostra Olist.",
+              "eta_days": 3,
+              "id": "standard",
+              "label": "Padrão",
+              "price": 82.55,
+              "recommended": false,
+              "selected": false
+            },
+            {
+              "co2_kg": 0.05454229676176626,
+              "description": "Carga consolidada com outros pedidos da região: menos viagens.",
+              "eta_days": 5,
+              "id": "green",
+              "label": "Verde",
+              "price": 70.17,
+              "recommended": true,
+              "selected": false
+            }
+          ],
+          "selected_id": "express"
+        },
+        "type": "delivery_options",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "note": "Uma remessa por vendedor: itens do mesmo vendedor pagam um frete só, o maior da remessa. A emissão não cai por agrupar — ela é proporcional à massa e à distância. O que o agrupamento revela é qual vendedor domina a pegada do carrinho.",
+          "shipments": [
+            {
+              "alternatives": [
+                {
+                  "actions": [
+                    {
+                      "payload": {
+                        "body_key": "checkout",
+                        "method": "POST",
+                        "path": "/api/v1/checkout/simulate"
+                      },
+                      "type": "api_call"
+                    }
+                  ],
+                  "co2_kg": 0.00014667329241623762,
+                  "co2_saved_kg": 0.04186770096384629,
+                  "distance_km": 2.8759469101223067,
+                  "price": 39.9,
+                  "product_id": "31fd02b02c33827cbde22902cf80338c",
+                  "replaces_product_id": "004636c889c7c3dad6631f136b7fa082",
+                  "saved_share": 0.9965089735355425,
+                  "seller_id": "5f1dc28029d2c244352a68107ec2b542",
+                  "title": "Utilidades Domesticas"
+                }
+              ],
+              "badge": null,
+              "co2_kg": 0.042014374256262525,
+              "co2_share": 0.5396423309395374,
+              "distance_km": 299.5677308824423,
+              "freight": 22.27,
+              "product_ids": [
+                "004636c889c7c3dad6631f136b7fa082"
+              ],
+              "seller_id": "e333046ce6517bd8bb510291d44f0130",
+              "total_quantity": 1,
+              "weight_g": 550.0
+            },
+            {
+              "alternatives": [],
+              "badge": null,
+              "co2_kg": 0.02369862995855433,
+              "co2_share": 0.3043906790781623,
+              "distance_km": 123.91440501204877,
+              "freight": 24.5,
+              "product_ids": [
+                "00250175f79f584c14ab5cecd80553cd"
+              ],
+              "seller_id": "b499c00f28f4b7069ff6550af8c1348a",
+              "total_quantity": 1,
+              "weight_g": 750.0
+            },
+            {
+              "alternatives": [],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~63 km · ~4,79 g CO₂)"
+              },
+              "co2_kg": 0.004792175401348485,
+              "co2_share": 0.061551808152166876,
+              "distance_km": 62.642815703901775,
+              "freight": 24.16,
+              "product_ids": [
+                "00210e41887c2a8ef9f791ebc780cc36"
+              ],
+              "seller_id": "e9779976487b77c6d4ac45f75ec7afe9",
+              "total_quantity": 1,
+              "weight_g": 300.0
+            },
+            {
+              "alternatives": [],
+              "badge": null,
+              "co2_kg": 0.0047479976854072825,
+              "co2_share": 0.06098437936075647,
+              "distance_km": 106.39770723601755,
+              "freight": 11.2,
+              "product_ids": [
+                "0042f1a9a7e0edd1400c6cd0fda065f8"
+              ],
+              "seller_id": "a5a1bfcf728ab0e19182959cf0771ee4",
+              "total_quantity": 1,
+              "weight_g": 175.0
+            },
+            {
+              "alternatives": [],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~10 km · ~1,56 g CO₂)"
+              },
+              "co2_kg": 0.001556771989974325,
+              "co2_share": 0.01999553915255335,
+              "distance_km": 10.174980326629576,
+              "freight": 24.18,
+              "product_ids": [
+                "001795ec6f1b187d37335e1c4704762e"
+              ],
+              "seller_id": "8b321bb669392f5163d04c59e235e066",
+              "total_quantity": 1,
+              "weight_g": 600.0
+            },
+            {
+              "alternatives": [],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~7 km · ~1,05 g CO₂)"
+              },
+              "co2_kg": 0.0010460153862312598,
+              "co2_share": 0.0134352633168235,
+              "distance_km": 6.836701870792548,
+              "freight": 25.78,
+              "product_ids": [
+                "002af88741ba70c7b5cf4e4a0ad7ef85"
+              ],
+              "seller_id": "3a734b715d333a2588a3d54a0c9b8746",
+              "total_quantity": 1,
+              "weight_g": 600.0
+            }
+          ],
+          "title": "Remessas"
+        },
+        "type": "shipment_breakdown",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": null,
+          "co2_kg": 0.07785596467777821,
+          "distance_km": null,
+          "message": "6 remessas na modalidade Expressa — 3 de entrega local. Uma delas responde por 54% do CO₂."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "checkout",
+    "schema_version": 1,
+    "screen_id": "checkout_simulate"
+  },
+  "checkout|n=6|modalidade=green": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/?customer_zip_prefix=05311",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "freight": 70.15,
+          "items": [
+            {
+              "line_total": 38.9,
+              "product_id": "001795ec6f1b187d37335e1c4704762e",
+              "quantity": 1,
+              "title": "Consoles Games",
+              "unit_price": 38.9
+            },
+            {
+              "line_total": 32.98,
+              "product_id": "00210e41887c2a8ef9f791ebc780cc36",
+              "quantity": 1,
+              "title": "Beleza Saude",
+              "unit_price": 32.98
+            },
+            {
+              "line_total": 79.99,
+              "product_id": "00250175f79f584c14ab5cecd80553cd",
+              "quantity": 1,
+              "title": "Utilidades Domesticas",
+              "unit_price": 79.99
+            },
+            {
+              "line_total": 39.0,
+              "product_id": "002af88741ba70c7b5cf4e4a0ad7ef85",
+              "quantity": 1,
+              "title": "Cool Stuff",
+              "unit_price": 39.0
+            },
+            {
+              "line_total": 39.9,
+              "product_id": "0042f1a9a7e0edd1400c6cd0fda065f8",
+              "quantity": 1,
+              "title": "Beleza Saude",
+              "unit_price": 39.9
+            },
+            {
+              "line_total": 49.0,
+              "product_id": "004636c889c7c3dad6631f136b7fa082",
+              "quantity": 1,
+              "title": "Utilidades Domesticas",
+              "unit_price": 49.0
+            }
+          ],
+          "subtotal": 279.77,
+          "total": 349.92
+        },
+        "type": "checkout_summary",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "distance_km": 299.5677308824423,
+          "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
+          "options": [
+            {
+              "co2_kg": 0.22725956984069276,
+              "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
+              "eta_days": 2,
+              "id": "express",
+              "label": "Expressa",
+              "price": 132.08,
+              "recommended": false,
+              "selected": false
+            },
+            {
+              "co2_kg": 0.0909038279362771,
+              "description": "Frete rodoviário praticado na amostra Olist.",
+              "eta_days": 3,
+              "id": "standard",
+              "label": "Padrão",
+              "price": 82.55,
+              "recommended": false,
+              "selected": false
+            },
+            {
+              "co2_kg": 0.05454229676176626,
+              "description": "Carga consolidada com outros pedidos da região: menos viagens.",
+              "eta_days": 5,
+              "id": "green",
+              "label": "Verde",
+              "price": 70.17,
+              "recommended": true,
+              "selected": true
+            }
+          ],
+          "selected_id": "green"
+        },
+        "type": "delivery_options",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "note": "Uma remessa por vendedor: itens do mesmo vendedor pagam um frete só, o maior da remessa. A emissão não cai por agrupar — ela é proporcional à massa e à distância. O que o agrupamento revela é qual vendedor domina a pegada do carrinho.",
+          "shipments": [
+            {
+              "alternatives": [
+                {
+                  "actions": [
+                    {
+                      "payload": {
+                        "body_key": "checkout",
+                        "method": "POST",
+                        "path": "/api/v1/checkout/simulate"
+                      },
+                      "type": "api_call"
+                    }
+                  ],
+                  "co2_kg": 3.520159017989703e-05,
+                  "co2_saved_kg": 0.01004824823132311,
+                  "distance_km": 2.8759469101223067,
+                  "price": 39.9,
+                  "product_id": "31fd02b02c33827cbde22902cf80338c",
+                  "replaces_product_id": "004636c889c7c3dad6631f136b7fa082",
+                  "saved_share": 0.9965089735355425,
+                  "seller_id": "5f1dc28029d2c244352a68107ec2b542",
+                  "title": "Utilidades Domesticas"
+                }
+              ],
+              "badge": null,
+              "co2_kg": 0.010083449821503006,
+              "co2_share": 0.5396423309395374,
+              "distance_km": 299.5677308824423,
+              "freight": 11.83,
+              "product_ids": [
+                "004636c889c7c3dad6631f136b7fa082"
+              ],
+              "seller_id": "e333046ce6517bd8bb510291d44f0130",
+              "total_quantity": 1,
+              "weight_g": 550.0
+            },
+            {
+              "alternatives": [],
+              "badge": null,
+              "co2_kg": 0.0056876711900530385,
+              "co2_share": 0.3043906790781623,
+              "distance_km": 123.91440501204877,
+              "freight": 13.01,
+              "product_ids": [
+                "00250175f79f584c14ab5cecd80553cd"
+              ],
+              "seller_id": "b499c00f28f4b7069ff6550af8c1348a",
+              "total_quantity": 1,
+              "weight_g": 750.0
+            },
+            {
+              "alternatives": [],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~63 km · ~1,15 g CO₂)"
+              },
+              "co2_kg": 0.0011501220963236363,
+              "co2_share": 0.06155180815216687,
+              "distance_km": 62.642815703901775,
+              "freight": 12.83,
+              "product_ids": [
+                "00210e41887c2a8ef9f791ebc780cc36"
+              ],
+              "seller_id": "e9779976487b77c6d4ac45f75ec7afe9",
+              "total_quantity": 1,
+              "weight_g": 300.0
+            },
+            {
+              "alternatives": [],
+              "badge": null,
+              "co2_kg": 0.0011395194444977477,
+              "co2_share": 0.06098437936075647,
+              "distance_km": 106.39770723601755,
+              "freight": 5.95,
+              "product_ids": [
+                "0042f1a9a7e0edd1400c6cd0fda065f8"
+              ],
+              "seller_id": "a5a1bfcf728ab0e19182959cf0771ee4",
+              "total_quantity": 1,
+              "weight_g": 175.0
+            },
+            {
+              "alternatives": [],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~10 km · ~0,37 g CO₂)"
+              },
+              "co2_kg": 0.000373625277593838,
+              "co2_share": 0.01999553915255335,
+              "distance_km": 10.174980326629576,
+              "freight": 12.84,
+              "product_ids": [
+                "001795ec6f1b187d37335e1c4704762e"
+              ],
+              "seller_id": "8b321bb669392f5163d04c59e235e066",
+              "total_quantity": 1,
+              "weight_g": 600.0
+            },
+            {
+              "alternatives": [],
+              "badge": {
+                "icon": "leaf",
+                "impact_level": "green",
+                "label": "Entrega local (~7 km · ~0,25 g CO₂)"
+              },
+              "co2_kg": 0.00025104369269550236,
+              "co2_share": 0.0134352633168235,
+              "distance_km": 6.836701870792548,
+              "freight": 13.69,
+              "product_ids": [
+                "002af88741ba70c7b5cf4e4a0ad7ef85"
+              ],
+              "seller_id": "3a734b715d333a2588a3d54a0c9b8746",
+              "total_quantity": 1,
+              "weight_g": 600.0
+            }
+          ],
+          "title": "Remessas"
+        },
+        "type": "shipment_breakdown",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": null,
+          "co2_kg": 0.01868543152266677,
+          "distance_km": null,
+          "message": "6 remessas na modalidade Verde — 3 de entrega local. Uma delas responde por 54% do CO₂."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "checkout",
+    "schema_version": 1,
+    "screen_id": "checkout_simulate"
+  },
+  "detalhe|001795ec6f1b187d37335e1c4704762e": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+          },
+          "category": "consoles_games",
+          "image_url": null,
+          "price": 38.9,
+          "product_id": "001795ec6f1b187d37335e1c4704762e",
+          "rating": 2.33,
+          "review_count": 3,
+          "seller_city": "sao paulo",
+          "seller_id": "8b321bb669392f5163d04c59e235e066",
+          "seller_state": "SP",
+          "title": "Consoles Games",
+          "weight_g": 600.0
+        },
+        "type": "product_detail",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+          },
+          "co2_kg": 0.00062270879598973,
+          "distance_km": 10.174980326629576,
+          "message": "Este produto sai de ~10 km de você (sao paulo, SP)."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "product",
+    "schema_version": 1,
+    "screen_id": "product_detail"
+  },
+  "detalhe|00210e41887c2a8ef9f791ebc780cc36": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~63 km · ~1,92 g CO₂)"
+          },
+          "category": "beleza_saude",
+          "image_url": null,
+          "price": 32.98,
+          "product_id": "00210e41887c2a8ef9f791ebc780cc36",
+          "rating": 5.0,
+          "review_count": 1,
+          "seller_city": "praia grande",
+          "seller_id": "e9779976487b77c6d4ac45f75ec7afe9",
+          "seller_state": "SP",
+          "title": "Beleza Saude",
+          "weight_g": 300.0
+        },
+        "type": "product_detail",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~63 km · ~1,92 g CO₂)"
+          },
+          "co2_kg": 0.001916870160539394,
+          "distance_km": 62.642815703901775,
+          "message": "Este produto sai de ~63 km de você (praia grande, SP)."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "product",
+    "schema_version": 1,
+    "screen_id": "product_detail"
+  },
+  "detalhe|00250175f79f584c14ab5cecd80553cd": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "category": "utilidades_domesticas",
+          "image_url": null,
+          "price": 79.99,
+          "product_id": "00250175f79f584c14ab5cecd80553cd",
+          "rating": 5.0,
+          "review_count": 1,
+          "seller_city": "limeira",
+          "seller_id": "b499c00f28f4b7069ff6550af8c1348a",
+          "seller_state": "SP",
+          "title": "Utilidades Domesticas",
+          "weight_g": 750.0
+        },
+        "type": "product_detail",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": null,
+          "co2_kg": 0.009479451983421731,
+          "distance_km": 123.91440501204877,
+          "message": "Este produto sai de ~124 km de você (limeira, SP)."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "product",
+    "schema_version": 1,
+    "screen_id": "product_detail"
+  },
+  "detalhe|002af88741ba70c7b5cf4e4a0ad7ef85": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~7 km · ~0,42 g CO₂)"
+          },
+          "category": "cool_stuff",
+          "image_url": null,
+          "price": 39.0,
+          "product_id": "002af88741ba70c7b5cf4e4a0ad7ef85",
+          "rating": 5.0,
+          "review_count": 1,
+          "seller_city": "osasco",
+          "seller_id": "3a734b715d333a2588a3d54a0c9b8746",
+          "seller_state": "SP",
+          "title": "Cool Stuff",
+          "weight_g": 600.0
+        },
+        "type": "product_detail",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~7 km · ~0,42 g CO₂)"
+          },
+          "co2_kg": 0.00041840615449250393,
+          "distance_km": 6.836701870792548,
+          "message": "Este produto sai de ~7 km de você (osasco, SP)."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "product",
+    "schema_version": 1,
+    "screen_id": "product_detail"
+  },
+  "detalhe|0042f1a9a7e0edd1400c6cd0fda065f8": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "category": "beleza_saude",
+          "image_url": null,
+          "price": 39.9,
+          "product_id": "0042f1a9a7e0edd1400c6cd0fda065f8",
+          "rating": 5.0,
+          "review_count": 1,
+          "seller_city": "socorro",
+          "seller_id": "a5a1bfcf728ab0e19182959cf0771ee4",
+          "seller_state": "SP",
+          "title": "Beleza Saude",
+          "weight_g": 175.0
+        },
+        "type": "product_detail",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": null,
+          "co2_kg": 0.001899199074162913,
+          "distance_km": 106.39770723601755,
+          "message": "Este produto sai de ~106 km de você (socorro, SP)."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "product",
+    "schema_version": 1,
+    "screen_id": "product_detail"
+  },
+  "detalhe|004636c889c7c3dad6631f136b7fa082": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "category": "utilidades_domesticas",
+          "image_url": null,
+          "price": 49.0,
+          "product_id": "004636c889c7c3dad6631f136b7fa082",
+          "rating": 1.0,
+          "review_count": 1,
+          "seller_city": "ipaussu",
+          "seller_id": "e333046ce6517bd8bb510291d44f0130",
+          "seller_state": "SP",
+          "title": "Utilidades Domesticas",
+          "weight_g": 550.0
+        },
+        "type": "product_detail",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "badge": null,
+          "co2_kg": 0.01680574970250501,
+          "distance_km": 299.5677308824423,
+          "message": "Este produto sai de ~300 km de você (ipaussu, SP)."
+        },
+        "type": "impact_banner",
+        "version": 1
+      }
+    ],
+    "context": "product",
+    "schema_version": 1,
+    "screen_id": "product_detail"
+  },
+  "home|zip=05311|context=conscious_buyer": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/explore",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "cta_label": null,
+          "image_url": "https://placeholders.dev/800x400?text=Entregas+Locais",
+          "subtitle": "Entregas locais com menor impacto ambiental",
+          "title": "Consumo consciente"
+        },
+        "type": "hero_banner",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "categories": [
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=conscious_buyer&category=cama_mesa_banho",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Cama Mesa Banho",
+              "product_count": 637,
+              "selected": false,
+              "slug": "cama_mesa_banho"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=conscious_buyer&category=esporte_lazer",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Esporte Lazer",
+              "product_count": 562,
+              "selected": false,
+              "slug": "esporte_lazer"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=conscious_buyer&category=moveis_decoracao",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Moveis Decoracao",
+              "product_count": 503,
+              "selected": false,
+              "slug": "moveis_decoracao"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=conscious_buyer&category=beleza_saude",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Beleza Saude",
+              "product_count": 490,
+              "selected": false,
+              "slug": "beleza_saude"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=conscious_buyer&category=utilidades_domesticas",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Utilidades Domesticas",
+              "product_count": 487,
+              "selected": false,
+              "slug": "utilidades_domesticas"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=conscious_buyer&category=informatica_acessorios",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Informatica Acessorios",
+              "product_count": 386,
+              "selected": false,
+              "slug": "informatica_acessorios"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=conscious_buyer&category=automotivo",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Automotivo",
+              "product_count": 322,
+              "selected": false,
+              "slug": "automotivo"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=conscious_buyer&category=relogios_presentes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Relogios Presentes",
+              "product_count": 303,
+              "selected": false,
+              "slug": "relogios_presentes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=conscious_buyer&category=telefonia",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Telefonia",
+              "product_count": 268,
+              "selected": false,
+              "slug": "telefonia"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=conscious_buyer&category=brinquedos",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Brinquedos",
+              "product_count": 241,
+              "selected": false,
+              "slug": "brinquedos"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=conscious_buyer&category=bebes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Bebes",
+              "product_count": 205,
+              "selected": false,
+              "slug": "bebes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=conscious_buyer&category=perfumaria",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Perfumaria",
+              "product_count": 200,
+              "selected": false,
+              "slug": "perfumaria"
+            }
+          ],
+          "title": "Categorias"
+        },
+        "type": "category_grid",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/006baa9a5b8f95895f15273a35bc2664?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~4 km · ~0,40 g CO₂)"
+          },
+          "image_url": null,
+          "price": 99.9,
+          "product_id": "006baa9a5b8f95895f15273a35bc2664",
+          "title": "Esporte Lazer"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/002af88741ba70c7b5cf4e4a0ad7ef85?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~7 km · ~0,42 g CO₂)"
+          },
+          "image_url": null,
+          "price": 39.0,
+          "product_id": "002af88741ba70c7b5cf4e4a0ad7ef85",
+          "title": "Cool Stuff"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/001795ec6f1b187d37335e1c4704762e?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+          },
+          "image_url": null,
+          "price": 38.9,
+          "product_id": "001795ec6f1b187d37335e1c4704762e",
+          "title": "Consoles Games"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/009af1277432f1a05742df69cdf72d1e?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~13 km · ~0,90 g CO₂)"
+          },
+          "image_url": null,
+          "price": 59.9,
+          "product_id": "009af1277432f1a05742df69cdf72d1e",
+          "title": "Brinquedos"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00905d58c87afcbce21420b3712cacaa?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~14 km · ~5,52 g CO₂)"
+          },
+          "image_url": null,
+          "price": 159.9,
+          "product_id": "00905d58c87afcbce21420b3712cacaa",
+          "title": "Cama Mesa Banho"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/0067f97995b0c3a86739734dc87ee6b6?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~14 km · ~0,28 g CO₂)"
+          },
+          "image_url": null,
+          "price": 79.0,
+          "product_id": "0067f97995b0c3a86739734dc87ee6b6",
+          "title": "Fashion Bolsas E Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      }
+    ],
+    "context": "conscious_buyer",
+    "schema_version": 1,
+    "screen_id": "home"
+  },
+  "home|zip=05311|context=default": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/explore",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "cta_label": null,
+          "image_url": "https://placeholders.dev/800x400?text=Olist",
+          "subtitle": "Compre de pequenos vendedores brasileiros",
+          "title": "Olist Marketplace"
+        },
+        "type": "hero_banner",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "categories": [
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=cama_mesa_banho",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Cama Mesa Banho",
+              "product_count": 637,
+              "selected": false,
+              "slug": "cama_mesa_banho"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=esporte_lazer",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Esporte Lazer",
+              "product_count": 562,
+              "selected": false,
+              "slug": "esporte_lazer"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=moveis_decoracao",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Moveis Decoracao",
+              "product_count": 503,
+              "selected": false,
+              "slug": "moveis_decoracao"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=beleza_saude",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Beleza Saude",
+              "product_count": 490,
+              "selected": false,
+              "slug": "beleza_saude"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=utilidades_domesticas",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Utilidades Domesticas",
+              "product_count": 487,
+              "selected": false,
+              "slug": "utilidades_domesticas"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=informatica_acessorios",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Informatica Acessorios",
+              "product_count": 386,
+              "selected": false,
+              "slug": "informatica_acessorios"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=automotivo",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Automotivo",
+              "product_count": 322,
+              "selected": false,
+              "slug": "automotivo"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=relogios_presentes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Relogios Presentes",
+              "product_count": 303,
+              "selected": false,
+              "slug": "relogios_presentes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=telefonia",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Telefonia",
+              "product_count": 268,
+              "selected": false,
+              "slug": "telefonia"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=brinquedos",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Brinquedos",
+              "product_count": 241,
+              "selected": false,
+              "slug": "brinquedos"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=bebes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Bebes",
+              "product_count": 205,
+              "selected": false,
+              "slug": "bebes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=perfumaria",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Perfumaria",
+              "product_count": 200,
+              "selected": false,
+              "slug": "perfumaria"
+            }
+          ],
+          "title": "Categorias"
+        },
+        "type": "category_grid",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/001795ec6f1b187d37335e1c4704762e?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+          },
+          "image_url": null,
+          "price": 38.9,
+          "product_id": "001795ec6f1b187d37335e1c4704762e",
+          "title": "Consoles Games"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00210e41887c2a8ef9f791ebc780cc36?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~63 km · ~1,92 g CO₂)"
+          },
+          "image_url": null,
+          "price": 32.98,
+          "product_id": "00210e41887c2a8ef9f791ebc780cc36",
+          "title": "Beleza Saude"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00250175f79f584c14ab5cecd80553cd?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 79.99,
+          "product_id": "00250175f79f584c14ab5cecd80553cd",
+          "title": "Utilidades Domesticas"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/002af88741ba70c7b5cf4e4a0ad7ef85?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~7 km · ~0,42 g CO₂)"
+          },
+          "image_url": null,
+          "price": 39.0,
+          "product_id": "002af88741ba70c7b5cf4e4a0ad7ef85",
+          "title": "Cool Stuff"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/0042f1a9a7e0edd1400c6cd0fda065f8?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 39.9,
+          "product_id": "0042f1a9a7e0edd1400c6cd0fda065f8",
+          "title": "Beleza Saude"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/004636c889c7c3dad6631f136b7fa082?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 49.0,
+          "product_id": "004636c889c7c3dad6631f136b7fa082",
+          "title": "Utilidades Domesticas"
+        },
+        "type": "product_card",
+        "version": 1
+      }
+    ],
+    "context": "default",
+    "schema_version": 1,
+    "screen_id": "home"
+  },
+  "home|zip=05311|context=electronics_expert": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/categories/electronics",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "cta_label": null,
+          "image_url": "https://placeholders.dev/800x400?text=Tech+Deals",
+          "subtitle": "Eletronicos com entrega rapida",
+          "title": "Tech Deals"
+        },
+        "type": "hero_banner",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "categories": [
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=electronics_expert&category=cama_mesa_banho",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Cama Mesa Banho",
+              "product_count": 637,
+              "selected": false,
+              "slug": "cama_mesa_banho"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=electronics_expert&category=esporte_lazer",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Esporte Lazer",
+              "product_count": 562,
+              "selected": false,
+              "slug": "esporte_lazer"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=electronics_expert&category=moveis_decoracao",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Moveis Decoracao",
+              "product_count": 503,
+              "selected": false,
+              "slug": "moveis_decoracao"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=electronics_expert&category=beleza_saude",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Beleza Saude",
+              "product_count": 490,
+              "selected": false,
+              "slug": "beleza_saude"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=electronics_expert&category=utilidades_domesticas",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Utilidades Domesticas",
+              "product_count": 487,
+              "selected": false,
+              "slug": "utilidades_domesticas"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=electronics_expert&category=informatica_acessorios",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Informatica Acessorios",
+              "product_count": 386,
+              "selected": false,
+              "slug": "informatica_acessorios"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=electronics_expert&category=automotivo",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Automotivo",
+              "product_count": 322,
+              "selected": false,
+              "slug": "automotivo"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=electronics_expert&category=relogios_presentes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Relogios Presentes",
+              "product_count": 303,
+              "selected": false,
+              "slug": "relogios_presentes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=electronics_expert&category=telefonia",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Telefonia",
+              "product_count": 268,
+              "selected": false,
+              "slug": "telefonia"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=electronics_expert&category=brinquedos",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Brinquedos",
+              "product_count": 241,
+              "selected": false,
+              "slug": "brinquedos"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=electronics_expert&category=bebes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Bebes",
+              "product_count": 205,
+              "selected": false,
+              "slug": "bebes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=electronics_expert&category=perfumaria",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Perfumaria",
+              "product_count": 200,
+              "selected": false,
+              "slug": "perfumaria"
+            }
+          ],
+          "title": "Categorias"
+        },
+        "type": "category_grid",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00917855135d67fb060dcd81863166a4?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 39.9,
+          "product_id": "00917855135d67fb060dcd81863166a4",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/013e6676e0e3529e5909ff54370daddf?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 299.9,
+          "product_id": "013e6676e0e3529e5909ff54370daddf",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/05542c6ab7bce0a01a5f7210380e72b3?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 92.65,
+          "product_id": "05542c6ab7bce0a01a5f7210380e72b3",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/05a9dadb8402b6b7ae3dd28f7da187b5?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 149.0,
+          "product_id": "05a9dadb8402b6b7ae3dd28f7da187b5",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/060c17562f97e5bb60bc0dfa4dd5b3f2?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~13 km · ~0,20 g CO₂)"
+          },
+          "image_url": null,
+          "price": 24.99,
+          "product_id": "060c17562f97e5bb60bc0dfa4dd5b3f2",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/060ed45e8d50384910a47c9224931f56?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 319.12,
+          "product_id": "060ed45e8d50384910a47c9224931f56",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      }
+    ],
+    "context": "electronics_expert",
+    "schema_version": 1,
+    "screen_id": "home"
+  },
+  "home|zip=05311|q=cama mesa banho": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/?customer_zip_prefix=05311&context=default",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "cta_label": "Ver tudo",
+          "image_url": "https://placeholders.dev/800x400?text=Filtro",
+          "subtitle": "6 produtos nesta vitrine",
+          "title": "Busca: cama mesa banho"
+        },
+        "type": "hero_banner",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "categories": [
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=cama_mesa_banho",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Cama Mesa Banho",
+              "product_count": 637,
+              "selected": false,
+              "slug": "cama_mesa_banho"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=esporte_lazer",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Esporte Lazer",
+              "product_count": 562,
+              "selected": false,
+              "slug": "esporte_lazer"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=moveis_decoracao",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Moveis Decoracao",
+              "product_count": 503,
+              "selected": false,
+              "slug": "moveis_decoracao"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=beleza_saude",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Beleza Saude",
+              "product_count": 490,
+              "selected": false,
+              "slug": "beleza_saude"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=utilidades_domesticas",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Utilidades Domesticas",
+              "product_count": 487,
+              "selected": false,
+              "slug": "utilidades_domesticas"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=informatica_acessorios",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Informatica Acessorios",
+              "product_count": 386,
+              "selected": false,
+              "slug": "informatica_acessorios"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=automotivo",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Automotivo",
+              "product_count": 322,
+              "selected": false,
+              "slug": "automotivo"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=relogios_presentes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Relogios Presentes",
+              "product_count": 303,
+              "selected": false,
+              "slug": "relogios_presentes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=telefonia",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Telefonia",
+              "product_count": 268,
+              "selected": false,
+              "slug": "telefonia"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=brinquedos",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Brinquedos",
+              "product_count": 241,
+              "selected": false,
+              "slug": "brinquedos"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=bebes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Bebes",
+              "product_count": 205,
+              "selected": false,
+              "slug": "bebes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=perfumaria",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Perfumaria",
+              "product_count": 200,
+              "selected": false,
+              "slug": "perfumaria"
+            }
+          ],
+          "title": "Categorias"
+        },
+        "type": "category_grid",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00905d58c87afcbce21420b3712cacaa?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~14 km · ~5,52 g CO₂)"
+          },
+          "image_url": null,
+          "price": 159.9,
+          "product_id": "00905d58c87afcbce21420b3712cacaa",
+          "title": "Cama Mesa Banho"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00be617b58175bf207fd35910d5097a4?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 48.9,
+          "product_id": "00be617b58175bf207fd35910d5097a4",
+          "title": "Cama Mesa Banho"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00d2fa6f2a87633084c8e0400d41a65a?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 113.9,
+          "product_id": "00d2fa6f2a87633084c8e0400d41a65a",
+          "title": "Cama Mesa Banho"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/0152f69b6cf919bcdaf117aa8c43e5a2?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 17.9,
+          "product_id": "0152f69b6cf919bcdaf117aa8c43e5a2",
+          "title": "Cama Mesa Banho"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/01b864cf36d60d972e2e29d8c5084d64?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 139.99,
+          "product_id": "01b864cf36d60d972e2e29d8c5084d64",
+          "title": "Cama Mesa Banho"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/01d4157fd9738ea81038316ae4cfc192?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 56.0,
+          "product_id": "01d4157fd9738ea81038316ae4cfc192",
+          "title": "Cama Mesa Banho"
+        },
+        "type": "product_card",
+        "version": 1
+      }
+    ],
+    "context": "default",
+    "schema_version": 1,
+    "screen_id": "home"
+  },
+  "home|zip=05311|q=informatica": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/?customer_zip_prefix=05311&context=default",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "cta_label": "Ver tudo",
+          "image_url": "https://placeholders.dev/800x400?text=Filtro",
+          "subtitle": "6 produtos nesta vitrine",
+          "title": "Busca: informatica"
+        },
+        "type": "hero_banner",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "categories": [
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=cama_mesa_banho",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Cama Mesa Banho",
+              "product_count": 637,
+              "selected": false,
+              "slug": "cama_mesa_banho"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=esporte_lazer",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Esporte Lazer",
+              "product_count": 562,
+              "selected": false,
+              "slug": "esporte_lazer"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=moveis_decoracao",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Moveis Decoracao",
+              "product_count": 503,
+              "selected": false,
+              "slug": "moveis_decoracao"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=beleza_saude",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Beleza Saude",
+              "product_count": 490,
+              "selected": false,
+              "slug": "beleza_saude"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=utilidades_domesticas",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Utilidades Domesticas",
+              "product_count": 487,
+              "selected": false,
+              "slug": "utilidades_domesticas"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=informatica_acessorios",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Informatica Acessorios",
+              "product_count": 386,
+              "selected": false,
+              "slug": "informatica_acessorios"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=automotivo",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Automotivo",
+              "product_count": 322,
+              "selected": false,
+              "slug": "automotivo"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=relogios_presentes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Relogios Presentes",
+              "product_count": 303,
+              "selected": false,
+              "slug": "relogios_presentes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=telefonia",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Telefonia",
+              "product_count": 268,
+              "selected": false,
+              "slug": "telefonia"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=brinquedos",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Brinquedos",
+              "product_count": 241,
+              "selected": false,
+              "slug": "brinquedos"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=bebes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Bebes",
+              "product_count": 205,
+              "selected": false,
+              "slug": "bebes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=05311&context=default&category=perfumaria",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Perfumaria",
+              "product_count": 200,
+              "selected": false,
+              "slug": "perfumaria"
+            }
+          ],
+          "title": "Categorias"
+        },
+        "type": "category_grid",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00917855135d67fb060dcd81863166a4?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 39.9,
+          "product_id": "00917855135d67fb060dcd81863166a4",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/013e6676e0e3529e5909ff54370daddf?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 299.9,
+          "product_id": "013e6676e0e3529e5909ff54370daddf",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/05542c6ab7bce0a01a5f7210380e72b3?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 92.65,
+          "product_id": "05542c6ab7bce0a01a5f7210380e72b3",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/05a9dadb8402b6b7ae3dd28f7da187b5?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 149.0,
+          "product_id": "05a9dadb8402b6b7ae3dd28f7da187b5",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/060c17562f97e5bb60bc0dfa4dd5b3f2?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": {
+            "icon": "leaf",
+            "impact_level": "green",
+            "label": "Entrega local (~13 km · ~0,20 g CO₂)"
+          },
+          "image_url": null,
+          "price": 24.99,
+          "product_id": "060c17562f97e5bb60bc0dfa4dd5b3f2",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/060ed45e8d50384910a47c9224931f56?customer_zip_prefix=05311"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 319.12,
+          "product_id": "060ed45e8d50384910a47c9224931f56",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      }
+    ],
+    "context": "default",
+    "schema_version": 1,
+    "screen_id": "home"
+  },
+  "home|zip=60165|context=conscious_buyer": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/explore",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "cta_label": null,
+          "image_url": "https://placeholders.dev/800x400?text=Entregas+Locais",
+          "subtitle": "Entregas locais com menor impacto ambiental",
+          "title": "Consumo consciente"
+        },
+        "type": "hero_banner",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "categories": [
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=conscious_buyer&category=cama_mesa_banho",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Cama Mesa Banho",
+              "product_count": 637,
+              "selected": false,
+              "slug": "cama_mesa_banho"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=conscious_buyer&category=esporte_lazer",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Esporte Lazer",
+              "product_count": 562,
+              "selected": false,
+              "slug": "esporte_lazer"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=conscious_buyer&category=moveis_decoracao",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Moveis Decoracao",
+              "product_count": 503,
+              "selected": false,
+              "slug": "moveis_decoracao"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=conscious_buyer&category=beleza_saude",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Beleza Saude",
+              "product_count": 490,
+              "selected": false,
+              "slug": "beleza_saude"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=conscious_buyer&category=utilidades_domesticas",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Utilidades Domesticas",
+              "product_count": 487,
+              "selected": false,
+              "slug": "utilidades_domesticas"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=conscious_buyer&category=informatica_acessorios",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Informatica Acessorios",
+              "product_count": 386,
+              "selected": false,
+              "slug": "informatica_acessorios"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=conscious_buyer&category=automotivo",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Automotivo",
+              "product_count": 322,
+              "selected": false,
+              "slug": "automotivo"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=conscious_buyer&category=relogios_presentes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Relogios Presentes",
+              "product_count": 303,
+              "selected": false,
+              "slug": "relogios_presentes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=conscious_buyer&category=telefonia",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Telefonia",
+              "product_count": 268,
+              "selected": false,
+              "slug": "telefonia"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=conscious_buyer&category=brinquedos",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Brinquedos",
+              "product_count": 241,
+              "selected": false,
+              "slug": "brinquedos"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=conscious_buyer&category=bebes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Bebes",
+              "product_count": 205,
+              "selected": false,
+              "slug": "bebes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=conscious_buyer&category=perfumaria",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Perfumaria",
+              "product_count": 200,
+              "selected": false,
+              "slug": "perfumaria"
+            }
+          ],
+          "title": "Categorias"
+        },
+        "type": "category_grid",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00baba5b58e274d0332a0c8a0a66f877?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 47.9,
+          "product_id": "00baba5b58e274d0332a0c8a0a66f877",
+          "title": "Perfumaria"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/0092a9e1c8a471753ed7ffa7eef5086e?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 44.9,
+          "product_id": "0092a9e1c8a471753ed7ffa7eef5086e",
+          "title": "Beleza Saude"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00917855135d67fb060dcd81863166a4?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 39.9,
+          "product_id": "00917855135d67fb060dcd81863166a4",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/0075c14603d80515e20908c156ceb47b?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 49.9,
+          "product_id": "0075c14603d80515e20908c156ceb47b",
+          "title": "Esporte Lazer"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/0042f1a9a7e0edd1400c6cd0fda065f8?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 39.9,
+          "product_id": "0042f1a9a7e0edd1400c6cd0fda065f8",
+          "title": "Beleza Saude"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00be617b58175bf207fd35910d5097a4?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 48.9,
+          "product_id": "00be617b58175bf207fd35910d5097a4",
+          "title": "Cama Mesa Banho"
+        },
+        "type": "product_card",
+        "version": 1
+      }
+    ],
+    "context": "conscious_buyer",
+    "schema_version": 1,
+    "screen_id": "home"
+  },
+  "home|zip=60165|context=default": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/explore",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "cta_label": null,
+          "image_url": "https://placeholders.dev/800x400?text=Olist",
+          "subtitle": "Compre de pequenos vendedores brasileiros",
+          "title": "Olist Marketplace"
+        },
+        "type": "hero_banner",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "categories": [
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=cama_mesa_banho",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Cama Mesa Banho",
+              "product_count": 637,
+              "selected": false,
+              "slug": "cama_mesa_banho"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=esporte_lazer",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Esporte Lazer",
+              "product_count": 562,
+              "selected": false,
+              "slug": "esporte_lazer"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=moveis_decoracao",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Moveis Decoracao",
+              "product_count": 503,
+              "selected": false,
+              "slug": "moveis_decoracao"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=beleza_saude",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Beleza Saude",
+              "product_count": 490,
+              "selected": false,
+              "slug": "beleza_saude"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=utilidades_domesticas",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Utilidades Domesticas",
+              "product_count": 487,
+              "selected": false,
+              "slug": "utilidades_domesticas"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=informatica_acessorios",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Informatica Acessorios",
+              "product_count": 386,
+              "selected": false,
+              "slug": "informatica_acessorios"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=automotivo",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Automotivo",
+              "product_count": 322,
+              "selected": false,
+              "slug": "automotivo"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=relogios_presentes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Relogios Presentes",
+              "product_count": 303,
+              "selected": false,
+              "slug": "relogios_presentes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=telefonia",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Telefonia",
+              "product_count": 268,
+              "selected": false,
+              "slug": "telefonia"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=brinquedos",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Brinquedos",
+              "product_count": 241,
+              "selected": false,
+              "slug": "brinquedos"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=bebes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Bebes",
+              "product_count": 205,
+              "selected": false,
+              "slug": "bebes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=perfumaria",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Perfumaria",
+              "product_count": 200,
+              "selected": false,
+              "slug": "perfumaria"
+            }
+          ],
+          "title": "Categorias"
+        },
+        "type": "category_grid",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/001795ec6f1b187d37335e1c4704762e?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 38.9,
+          "product_id": "001795ec6f1b187d37335e1c4704762e",
+          "title": "Consoles Games"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00210e41887c2a8ef9f791ebc780cc36?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 32.98,
+          "product_id": "00210e41887c2a8ef9f791ebc780cc36",
+          "title": "Beleza Saude"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00250175f79f584c14ab5cecd80553cd?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 79.99,
+          "product_id": "00250175f79f584c14ab5cecd80553cd",
+          "title": "Utilidades Domesticas"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/002af88741ba70c7b5cf4e4a0ad7ef85?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 39.0,
+          "product_id": "002af88741ba70c7b5cf4e4a0ad7ef85",
+          "title": "Cool Stuff"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/0042f1a9a7e0edd1400c6cd0fda065f8?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 39.9,
+          "product_id": "0042f1a9a7e0edd1400c6cd0fda065f8",
+          "title": "Beleza Saude"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/004636c889c7c3dad6631f136b7fa082?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 49.0,
+          "product_id": "004636c889c7c3dad6631f136b7fa082",
+          "title": "Utilidades Domesticas"
+        },
+        "type": "product_card",
+        "version": 1
+      }
+    ],
+    "context": "default",
+    "schema_version": 1,
+    "screen_id": "home"
+  },
+  "home|zip=60165|context=electronics_expert": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/categories/electronics",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "cta_label": null,
+          "image_url": "https://placeholders.dev/800x400?text=Tech+Deals",
+          "subtitle": "Eletronicos com entrega rapida",
+          "title": "Tech Deals"
+        },
+        "type": "hero_banner",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "categories": [
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=electronics_expert&category=cama_mesa_banho",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Cama Mesa Banho",
+              "product_count": 637,
+              "selected": false,
+              "slug": "cama_mesa_banho"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=electronics_expert&category=esporte_lazer",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Esporte Lazer",
+              "product_count": 562,
+              "selected": false,
+              "slug": "esporte_lazer"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=electronics_expert&category=moveis_decoracao",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Moveis Decoracao",
+              "product_count": 503,
+              "selected": false,
+              "slug": "moveis_decoracao"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=electronics_expert&category=beleza_saude",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Beleza Saude",
+              "product_count": 490,
+              "selected": false,
+              "slug": "beleza_saude"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=electronics_expert&category=utilidades_domesticas",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Utilidades Domesticas",
+              "product_count": 487,
+              "selected": false,
+              "slug": "utilidades_domesticas"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=electronics_expert&category=informatica_acessorios",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Informatica Acessorios",
+              "product_count": 386,
+              "selected": false,
+              "slug": "informatica_acessorios"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=electronics_expert&category=automotivo",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Automotivo",
+              "product_count": 322,
+              "selected": false,
+              "slug": "automotivo"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=electronics_expert&category=relogios_presentes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Relogios Presentes",
+              "product_count": 303,
+              "selected": false,
+              "slug": "relogios_presentes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=electronics_expert&category=telefonia",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Telefonia",
+              "product_count": 268,
+              "selected": false,
+              "slug": "telefonia"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=electronics_expert&category=brinquedos",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Brinquedos",
+              "product_count": 241,
+              "selected": false,
+              "slug": "brinquedos"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=electronics_expert&category=bebes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Bebes",
+              "product_count": 205,
+              "selected": false,
+              "slug": "bebes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=electronics_expert&category=perfumaria",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Perfumaria",
+              "product_count": 200,
+              "selected": false,
+              "slug": "perfumaria"
+            }
+          ],
+          "title": "Categorias"
+        },
+        "type": "category_grid",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00917855135d67fb060dcd81863166a4?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 39.9,
+          "product_id": "00917855135d67fb060dcd81863166a4",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/013e6676e0e3529e5909ff54370daddf?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 299.9,
+          "product_id": "013e6676e0e3529e5909ff54370daddf",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/05542c6ab7bce0a01a5f7210380e72b3?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 92.65,
+          "product_id": "05542c6ab7bce0a01a5f7210380e72b3",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/05a9dadb8402b6b7ae3dd28f7da187b5?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 149.0,
+          "product_id": "05a9dadb8402b6b7ae3dd28f7da187b5",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/060c17562f97e5bb60bc0dfa4dd5b3f2?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 24.99,
+          "product_id": "060c17562f97e5bb60bc0dfa4dd5b3f2",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/060ed45e8d50384910a47c9224931f56?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 319.12,
+          "product_id": "060ed45e8d50384910a47c9224931f56",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      }
+    ],
+    "context": "electronics_expert",
+    "schema_version": 1,
+    "screen_id": "home"
+  },
+  "home|zip=60165|q=cama mesa banho": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/?customer_zip_prefix=60165&context=default",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "cta_label": "Ver tudo",
+          "image_url": "https://placeholders.dev/800x400?text=Filtro",
+          "subtitle": "6 produtos nesta vitrine",
+          "title": "Busca: cama mesa banho"
+        },
+        "type": "hero_banner",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "categories": [
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=cama_mesa_banho",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Cama Mesa Banho",
+              "product_count": 637,
+              "selected": false,
+              "slug": "cama_mesa_banho"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=esporte_lazer",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Esporte Lazer",
+              "product_count": 562,
+              "selected": false,
+              "slug": "esporte_lazer"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=moveis_decoracao",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Moveis Decoracao",
+              "product_count": 503,
+              "selected": false,
+              "slug": "moveis_decoracao"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=beleza_saude",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Beleza Saude",
+              "product_count": 490,
+              "selected": false,
+              "slug": "beleza_saude"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=utilidades_domesticas",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Utilidades Domesticas",
+              "product_count": 487,
+              "selected": false,
+              "slug": "utilidades_domesticas"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=informatica_acessorios",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Informatica Acessorios",
+              "product_count": 386,
+              "selected": false,
+              "slug": "informatica_acessorios"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=automotivo",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Automotivo",
+              "product_count": 322,
+              "selected": false,
+              "slug": "automotivo"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=relogios_presentes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Relogios Presentes",
+              "product_count": 303,
+              "selected": false,
+              "slug": "relogios_presentes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=telefonia",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Telefonia",
+              "product_count": 268,
+              "selected": false,
+              "slug": "telefonia"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=brinquedos",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Brinquedos",
+              "product_count": 241,
+              "selected": false,
+              "slug": "brinquedos"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=bebes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Bebes",
+              "product_count": 205,
+              "selected": false,
+              "slug": "bebes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=perfumaria",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Perfumaria",
+              "product_count": 200,
+              "selected": false,
+              "slug": "perfumaria"
+            }
+          ],
+          "title": "Categorias"
+        },
+        "type": "category_grid",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00905d58c87afcbce21420b3712cacaa?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 159.9,
+          "product_id": "00905d58c87afcbce21420b3712cacaa",
+          "title": "Cama Mesa Banho"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00be617b58175bf207fd35910d5097a4?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 48.9,
+          "product_id": "00be617b58175bf207fd35910d5097a4",
+          "title": "Cama Mesa Banho"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00d2fa6f2a87633084c8e0400d41a65a?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 113.9,
+          "product_id": "00d2fa6f2a87633084c8e0400d41a65a",
+          "title": "Cama Mesa Banho"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/0152f69b6cf919bcdaf117aa8c43e5a2?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 17.9,
+          "product_id": "0152f69b6cf919bcdaf117aa8c43e5a2",
+          "title": "Cama Mesa Banho"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/01b864cf36d60d972e2e29d8c5084d64?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 139.99,
+          "product_id": "01b864cf36d60d972e2e29d8c5084d64",
+          "title": "Cama Mesa Banho"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/01d4157fd9738ea81038316ae4cfc192?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 56.0,
+          "product_id": "01d4157fd9738ea81038316ae4cfc192",
+          "title": "Cama Mesa Banho"
+        },
+        "type": "product_card",
+        "version": 1
+      }
+    ],
+    "context": "default",
+    "schema_version": 1,
+    "screen_id": "home"
+  },
+  "home|zip=60165|q=informatica": {
+    "components": [
+      {
+        "actions": [
+          {
+            "payload": {
+              "path": "/?customer_zip_prefix=60165&context=default",
+              "replace": false
+            },
+            "type": "navigate"
+          }
+        ],
+        "props": {
+          "cta_label": "Ver tudo",
+          "image_url": "https://placeholders.dev/800x400?text=Filtro",
+          "subtitle": "6 produtos nesta vitrine",
+          "title": "Busca: informatica"
+        },
+        "type": "hero_banner",
+        "version": 1
+      },
+      {
+        "actions": [],
+        "props": {
+          "categories": [
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=cama_mesa_banho",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Cama Mesa Banho",
+              "product_count": 637,
+              "selected": false,
+              "slug": "cama_mesa_banho"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=esporte_lazer",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Esporte Lazer",
+              "product_count": 562,
+              "selected": false,
+              "slug": "esporte_lazer"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=moveis_decoracao",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Moveis Decoracao",
+              "product_count": 503,
+              "selected": false,
+              "slug": "moveis_decoracao"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=beleza_saude",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Beleza Saude",
+              "product_count": 490,
+              "selected": false,
+              "slug": "beleza_saude"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=utilidades_domesticas",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Utilidades Domesticas",
+              "product_count": 487,
+              "selected": false,
+              "slug": "utilidades_domesticas"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=informatica_acessorios",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Informatica Acessorios",
+              "product_count": 386,
+              "selected": false,
+              "slug": "informatica_acessorios"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=automotivo",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Automotivo",
+              "product_count": 322,
+              "selected": false,
+              "slug": "automotivo"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=relogios_presentes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Relogios Presentes",
+              "product_count": 303,
+              "selected": false,
+              "slug": "relogios_presentes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=telefonia",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Telefonia",
+              "product_count": 268,
+              "selected": false,
+              "slug": "telefonia"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=brinquedos",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Brinquedos",
+              "product_count": 241,
+              "selected": false,
+              "slug": "brinquedos"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=bebes",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Bebes",
+              "product_count": 205,
+              "selected": false,
+              "slug": "bebes"
+            },
+            {
+              "actions": [
+                {
+                  "payload": {
+                    "path": "/?customer_zip_prefix=60165&context=default&category=perfumaria",
+                    "replace": false
+                  },
+                  "type": "navigate"
+                }
+              ],
+              "label": "Perfumaria",
+              "product_count": 200,
+              "selected": false,
+              "slug": "perfumaria"
+            }
+          ],
+          "title": "Categorias"
+        },
+        "type": "category_grid",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/00917855135d67fb060dcd81863166a4?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 39.9,
+          "product_id": "00917855135d67fb060dcd81863166a4",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/013e6676e0e3529e5909ff54370daddf?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 299.9,
+          "product_id": "013e6676e0e3529e5909ff54370daddf",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/05542c6ab7bce0a01a5f7210380e72b3?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 92.65,
+          "product_id": "05542c6ab7bce0a01a5f7210380e72b3",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/05a9dadb8402b6b7ae3dd28f7da187b5?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 149.0,
+          "product_id": "05a9dadb8402b6b7ae3dd28f7da187b5",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/060c17562f97e5bb60bc0dfa4dd5b3f2?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 24.99,
+          "product_id": "060c17562f97e5bb60bc0dfa4dd5b3f2",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      },
+      {
+        "actions": [
+          {
+            "payload": {
+              "body_key": null,
+              "method": "GET",
+              "path": "/api/v1/products/060ed45e8d50384910a47c9224931f56?customer_zip_prefix=60165"
+            },
+            "type": "api_call"
+          },
+          {
+            "payload": {
+              "body_key": "checkout",
+              "method": "POST",
+              "path": "/api/v1/checkout/simulate"
+            },
+            "type": "api_call"
+          }
+        ],
+        "props": {
+          "badge": null,
+          "image_url": null,
+          "price": 319.12,
+          "product_id": "060ed45e8d50384910a47c9224931f56",
+          "title": "Informatica Acessorios"
+        },
+        "type": "product_card",
+        "version": 1
+      }
+    ],
+    "context": "default",
+    "schema_version": 1,
+    "screen_id": "home"
+  }
+}
