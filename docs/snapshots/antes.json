@@ -12,7 +12,7 @@
           }
         ],
         "props": {
-          "freight": 15.11,
+          "freight": 8.72,
           "items": [
             {
               "line_total": 38.9,
@@ -23,7 +23,7 @@
             }
           ],
           "subtotal": 38.9,
-          "total": 54.01
+          "total": 47.62
         },
         "type": "checkout_summary",
         "version": 1
@@ -49,7 +49,7 @@
               "eta_days": 2,
               "id": "express",
               "label": "Expressa",
-              "price": 24.18,
+              "price": 13.95,
               "recommended": false,
               "selected": false
             },
@@ -59,7 +59,7 @@
               "eta_days": 3,
               "id": "standard",
               "label": "Padrão",
-              "price": 15.11,
+              "price": 8.72,
               "recommended": false,
               "selected": true
             },
@@ -69,7 +69,7 @@
               "eta_days": 5,
               "id": "green",
               "label": "Verde",
-              "price": 12.84,
+              "price": 7.41,
               "recommended": true,
               "selected": false
             }
@@ -116,7 +116,7 @@
               "co2_kg": 0.00062270879598973,
               "co2_share": 1.0,
               "distance_km": 10.174980326629576,
-              "freight": 15.11,
+              "freight": 8.72,
               "product_ids": [
                 "001795ec6f1b187d37335e1c4704762e"
               ],
@@ -163,7 +163,7 @@
           }
         ],
         "props": {
-          "freight": 24.18,
+          "freight": 13.95,
           "items": [
             {
               "line_total": 38.9,
@@ -174,7 +174,7 @@
             }
           ],
           "subtotal": 38.9,
-          "total": 63.08
+          "total": 52.85
         },
         "type": "checkout_summary",
         "version": 1
@@ -200,7 +200,7 @@
               "eta_days": 2,
               "id": "express",
               "label": "Expressa",
-              "price": 24.18,
+              "price": 13.95,
               "recommended": false,
               "selected": true
             },
@@ -210,7 +210,7 @@
               "eta_days": 3,
               "id": "standard",
               "label": "Padrão",
-              "price": 15.11,
+              "price": 8.72,
               "recommended": false,
               "selected": false
             },
@@ -220,7 +220,7 @@
               "eta_days": 5,
               "id": "green",
               "label": "Verde",
-              "price": 12.84,
+              "price": 7.41,
               "recommended": true,
               "selected": false
             }
@@ -267,7 +267,7 @@
               "co2_kg": 0.001556771989974325,
               "co2_share": 1.0,
               "distance_km": 10.174980326629576,
-              "freight": 24.18,
+              "freight": 13.95,
               "product_ids": [
                 "001795ec6f1b187d37335e1c4704762e"
               ],
@@ -314,7 +314,7 @@
           }
         ],
         "props": {
-          "freight": 12.84,
+          "freight": 7.41,
           "items": [
             {
               "line_total": 38.9,
@@ -325,7 +325,7 @@
             }
           ],
           "subtotal": 38.9,
-          "total": 51.74
+          "total": 46.31
         },
         "type": "checkout_summary",
         "version": 1
@@ -351,7 +351,7 @@
               "eta_days": 2,
               "id": "express",
               "label": "Expressa",
-              "price": 24.18,
+              "price": 13.95,
               "recommended": false,
               "selected": false
             },
@@ -361,7 +361,7 @@
               "eta_days": 3,
               "id": "standard",
               "label": "Padrão",
-              "price": 15.11,
+              "price": 8.72,
               "recommended": false,
               "selected": false
             },
@@ -371,7 +371,7 @@
               "eta_days": 5,
               "id": "green",
               "label": "Verde",
-              "price": 12.84,
+              "price": 7.41,
               "recommended": true,
               "selected": true
             }
@@ -418,7 +418,7 @@
               "co2_kg": 0.000373625277593838,
               "co2_share": 1.0,
               "distance_km": 10.174980326629576,
-              "freight": 12.84,
+              "freight": 7.41,
               "product_ids": [
                 "001795ec6f1b187d37335e1c4704762e"
               ],
@@ -465,7 +465,7 @@
           }
         ],
         "props": {
-          "freight": 30.21,
+          "freight": 16.99,
           "items": [
             {
               "line_total": 38.9,
@@ -483,7 +483,7 @@
             }
           ],
           "subtotal": 71.88,
-          "total": 102.09
+          "total": 88.87
         },
         "type": "checkout_summary",
         "version": 1
@@ -509,7 +509,7 @@
               "eta_days": 2,
               "id": "express",
               "label": "Expressa",
-              "price": 48.34,
+              "price": 27.18,
               "recommended": false,
               "selected": false
             },
@@ -519,7 +519,7 @@
               "eta_days": 3,
               "id": "standard",
               "label": "Padrão",
-              "price": 30.21,
+              "price": 16.99,
               "recommended": false,
               "selected": true
             },
@@ -529,7 +529,7 @@
               "eta_days": 5,
               "id": "green",
               "label": "Verde",
-              "price": 25.68,
+              "price": 14.44,
               "recommended": true,
               "selected": false
             }
@@ -576,7 +576,7 @@
               "co2_kg": 0.001916870160539394,
               "co2_share": 0.7547984108197233,
               "distance_km": 62.642815703901775,
-              "freight": 15.1,
+              "freight": 8.27,
               "product_ids": [
                 "00210e41887c2a8ef9f791ebc780cc36"
               ],
@@ -594,7 +594,7 @@
               "co2_kg": 0.00062270879598973,
               "co2_share": 0.24520158918027668,
               "distance_km": 10.174980326629576,
-              "freight": 15.11,
+              "freight": 8.72,
               "product_ids": [
                 "001795ec6f1b187d37335e1c4704762e"
               ],
@@ -637,7 +637,7 @@
           }
         ],
         "props": {
-          "freight": 48.34,
+          "freight": 27.18,
           "items": [
             {
               "line_total": 38.9,
@@ -655,7 +655,7 @@
             }
           ],
           "subtotal": 71.88,
-          "total": 120.22
+          "total": 99.06
         },
         "type": "checkout_summary",
         "version": 1
@@ -681,7 +681,7 @@
               "eta_days": 2,
               "id": "express",
               "label": "Expressa",
-              "price": 48.34,
+              "price": 27.18,
               "recommended": false,
               "selected": true
             },
@@ -691,7 +691,7 @@
               "eta_days": 3,
               "id": "standard",
               "label": "Padrão",
-              "price": 30.21,
+              "price": 16.99,
               "recommended": false,
               "selected": false
             },
@@ -701,7 +701,7 @@
               "eta_days": 5,
               "id": "green",
               "label": "Verde",
-              "price": 25.68,
+              "price": 14.44,
               "recommended": true,
               "selected": false
             }
@@ -748,7 +748,7 @@
               "co2_kg": 0.004792175401348485,
               "co2_share": 0.7547984108197233,
               "distance_km": 62.642815703901775,
-              "freight": 24.16,
+              "freight": 13.23,
               "product_ids": [
                 "00210e41887c2a8ef9f791ebc780cc36"
               ],
@@ -766,7 +766,7 @@
               "co2_kg": 0.001556771989974325,
               "co2_share": 0.24520158918027668,
               "distance_km": 10.174980326629576,
-              "freight": 24.18,
+              "freight": 13.95,
               "product_ids": [
                 "001795ec6f1b187d37335e1c4704762e"
               ],
@@ -809,7 +809,7 @@
           }
         ],
         "props": {
-          "freight": 25.67,
+          "freight": 14.44,
           "items": [
             {
               "line_total": 38.9,
@@ -827,7 +827,7 @@
             }
           ],
           "subtotal": 71.88,
-          "total": 97.55
+          "total": 86.32
         },
         "type": "checkout_summary",
         "version": 1
@@ -853,7 +853,7 @@
               "eta_days": 2,
               "id": "express",
               "label": "Expressa",
-              "price": 48.34,
+              "price": 27.18,
               "recommended": false,
               "selected": false
             },
@@ -863,7 +863,7 @@
               "eta_days": 3,
               "id": "standard",
               "label": "Padrão",
-              "price": 30.21,
+              "price": 16.99,
               "recommended": false,
               "selected": false
             },
@@ -873,7 +873,7 @@
               "eta_days": 5,
               "id": "green",
               "label": "Verde",
-              "price": 25.68,
+              "price": 14.44,
               "recommended": true,
               "selected": true
             }
@@ -920,7 +920,7 @@
               "co2_kg": 0.0011501220963236363,
               "co2_share": 0.7547984108197233,
               "distance_km": 62.642815703901775,
-              "freight": 12.83,
+              "freight": 7.03,
               "product_ids": [
                 "00210e41887c2a8ef9f791ebc780cc36"
               ],
@@ -938,7 +938,7 @@
               "co2_kg": 0.000373625277593838,
               "co2_share": 0.2452015891802767,
               "distance_km": 10.174980326629576,
-              "freight": 12.84,
+              "freight": 7.41,
               "product_ids": [
                 "001795ec6f1b187d37335e1c4704762e"
               ],
@@ -981,7 +981,7 @@
           }
         ],
         "props": {
-          "freight": 82.55,
+          "freight": 66.59,
           "items": [
             {
               "line_total": 38.9,
@@ -1027,7 +1027,7 @@
             }
           ],
           "subtotal": 279.77,
-          "total": 362.32
+          "total": 346.36
         },
         "type": "checkout_summary",
         "version": 1
@@ -1053,7 +1053,7 @@
               "eta_days": 2,
               "id": "express",
               "label": "Expressa",
-              "price": 132.08,
+              "price": 106.54,
               "recommended": false,
               "selected": false
             },
@@ -1063,7 +1063,7 @@
               "eta_days": 3,
               "id": "standard",
               "label": "Padrão",
-              "price": 82.55,
+              "price": 66.59,
               "recommended": false,
               "selected": true
             },
@@ -1073,7 +1073,7 @@
               "eta_days": 5,
               "id": "green",
               "label": "Verde",
-              "price": 70.17,
+              "price": 56.6,
               "recommended": true,
               "selected": false
             }
@@ -1116,7 +1116,7 @@
               "co2_kg": 0.01680574970250501,
               "co2_share": 0.5396423309395375,
               "distance_km": 299.5677308824423,
-              "freight": 13.92,
+              "freight": 14.44,
               "product_ids": [
                 "004636c889c7c3dad6631f136b7fa082"
               ],
@@ -1130,7 +1130,7 @@
               "co2_kg": 0.009479451983421731,
               "co2_share": 0.3043906790781623,
               "distance_km": 123.91440501204877,
-              "freight": 15.31,
+              "freight": 12.05,
               "product_ids": [
                 "00250175f79f584c14ab5cecd80553cd"
               ],
@@ -1148,7 +1148,7 @@
               "co2_kg": 0.001916870160539394,
               "co2_share": 0.06155180815216688,
               "distance_km": 62.642815703901775,
-              "freight": 15.1,
+              "freight": 8.27,
               "product_ids": [
                 "00210e41887c2a8ef9f791ebc780cc36"
               ],
@@ -1180,7 +1180,7 @@
               "co2_kg": 0.00062270879598973,
               "co2_share": 0.01999553915255335,
               "distance_km": 10.174980326629576,
-              "freight": 15.11,
+              "freight": 8.72,
               "product_ids": [
                 "001795ec6f1b187d37335e1c4704762e"
               ],
@@ -1241,7 +1241,7 @@
           }
         ],
         "props": {
-          "freight": 132.09,
+          "freight": 106.54,
           "items": [
             {
               "line_total": 38.9,
@@ -1287,7 +1287,7 @@
             }
           ],
           "subtotal": 279.77,
-          "total": 411.86
+          "total": 386.31
         },
         "type": "checkout_summary",
         "version": 1
@@ -1313,7 +1313,7 @@
               "eta_days": 2,
               "id": "express",
               "label": "Expressa",
-              "price": 132.08,
+              "price": 106.54,
               "recommended": false,
               "selected": true
             },
@@ -1323,7 +1323,7 @@
               "eta_days": 3,
               "id": "standard",
               "label": "Padrão",
-              "price": 82.55,
+              "price": 66.59,
               "recommended": false,
               "selected": false
             },
@@ -1333,7 +1333,7 @@
               "eta_days": 5,
               "id": "green",
               "label": "Verde",
-              "price": 70.17,
+              "price": 56.6,
               "recommended": true,
               "selected": false
             }
@@ -1376,7 +1376,7 @@
               "co2_kg": 0.042014374256262525,
               "co2_share": 0.5396423309395374,
               "distance_km": 299.5677308824423,
-              "freight": 22.27,
+              "freight": 23.1,
               "product_ids": [
                 "004636c889c7c3dad6631f136b7fa082"
               ],
@@ -1390,7 +1390,7 @@
               "co2_kg": 0.02369862995855433,
               "co2_share": 0.3043906790781623,
               "distance_km": 123.91440501204877,
-              "freight": 24.5,
+              "freight": 19.28,
               "product_ids": [
                 "00250175f79f584c14ab5cecd80553cd"
               ],
@@ -1408,7 +1408,7 @@
               "co2_kg": 0.004792175401348485,
               "co2_share": 0.061551808152166876,
               "distance_km": 62.642815703901775,
-              "freight": 24.16,
+              "freight": 13.23,
               "product_ids": [
                 "00210e41887c2a8ef9f791ebc780cc36"
               ],
@@ -1440,7 +1440,7 @@
               "co2_kg": 0.001556771989974325,
               "co2_share": 0.01999553915255335,
               "distance_km": 10.174980326629576,
-              "freight": 24.18,
+              "freight": 13.95,
               "product_ids": [
                 "001795ec6f1b187d37335e1c4704762e"
               ],
@@ -1501,7 +1501,7 @@
           }
         ],
         "props": {
-          "freight": 70.15,
+          "freight": 56.59,
           "items": [
             {
               "line_total": 38.9,
@@ -1547,7 +1547,7 @@
             }
           ],
           "subtotal": 279.77,
-          "total": 349.92
+          "total": 336.36
         },
         "type": "checkout_summary",
         "version": 1
@@ -1573,7 +1573,7 @@
               "eta_days": 2,
               "id": "express",
               "label": "Expressa",
-              "price": 132.08,
+              "price": 106.54,
               "recommended": false,
               "selected": false
             },
@@ -1583,7 +1583,7 @@
               "eta_days": 3,
               "id": "standard",
               "label": "Padrão",
-              "price": 82.55,
+              "price": 66.59,
               "recommended": false,
               "selected": false
             },
@@ -1593,7 +1593,7 @@
               "eta_days": 5,
               "id": "green",
               "label": "Verde",
-              "price": 70.17,
+              "price": 56.6,
               "recommended": true,
               "selected": true
             }
@@ -1636,7 +1636,7 @@
               "co2_kg": 0.010083449821503006,
               "co2_share": 0.5396423309395374,
               "distance_km": 299.5677308824423,
-              "freight": 11.83,
+              "freight": 12.27,
               "product_ids": [
                 "004636c889c7c3dad6631f136b7fa082"
               ],
@@ -1650,7 +1650,7 @@
               "co2_kg": 0.0056876711900530385,
               "co2_share": 0.3043906790781623,
               "distance_km": 123.91440501204877,
-              "freight": 13.01,
+              "freight": 10.24,
               "product_ids": [
                 "00250175f79f584c14ab5cecd80553cd"
               ],
@@ -1668,7 +1668,7 @@
               "co2_kg": 0.0011501220963236363,
               "co2_share": 0.06155180815216687,
               "distance_km": 62.642815703901775,
-              "freight": 12.83,
+              "freight": 7.03,
               "product_ids": [
                 "00210e41887c2a8ef9f791ebc780cc36"
               ],
@@ -1700,7 +1700,7 @@
               "co2_kg": 0.000373625277593838,
               "co2_share": 0.01999553915255335,
               "distance_km": 10.174980326629576,
-              "freight": 12.84,
+              "freight": 7.41,
               "product_ids": [
                 "001795ec6f1b187d37335e1c4704762e"
               ],
@@ -1771,8 +1771,8 @@
           "image_url": null,
           "price": 38.9,
           "product_id": "001795ec6f1b187d37335e1c4704762e",
-          "rating": 2.33,
-          "review_count": 3,
+          "rating": 3.22,
+          "review_count": 9,
           "seller_city": "sao paulo",
           "seller_id": "8b321bb669392f5163d04c59e235e066",
           "seller_state": "SP",
@@ -1825,8 +1825,8 @@
           "image_url": null,
           "price": 32.98,
           "product_id": "00210e41887c2a8ef9f791ebc780cc36",
-          "rating": 5.0,
-          "review_count": 1,
+          "rating": 4.43,
+          "review_count": 7,
           "seller_city": "praia grande",
           "seller_id": "e9779976487b77c6d4ac45f75ec7afe9",
           "seller_state": "SP",
@@ -1875,8 +1875,8 @@
           "image_url": null,
           "price": 79.99,
           "product_id": "00250175f79f584c14ab5cecd80553cd",
-          "rating": 5.0,
-          "review_count": 1,
+          "rating": 4.45,
+          "review_count": 11,
           "seller_city": "limeira",
           "seller_id": "b499c00f28f4b7069ff6550af8c1348a",
           "seller_state": "SP",
@@ -1926,7 +1926,7 @@
           "price": 39.0,
           "product_id": "002af88741ba70c7b5cf4e4a0ad7ef85",
           "rating": 5.0,
-          "review_count": 1,
+          "review_count": 6,
           "seller_city": "osasco",
           "seller_id": "3a734b715d333a2588a3d54a0c9b8746",
           "seller_state": "SP",
@@ -2021,8 +2021,8 @@
           "image_url": null,
           "price": 49.0,
           "product_id": "004636c889c7c3dad6631f136b7fa082",
-          "rating": 1.0,
-          "review_count": 1,
+          "rating": 4.0,
+          "review_count": 4,
           "seller_city": "ipaussu",
           "seller_id": "e333046ce6517bd8bb510291d44f0130",
           "seller_state": "SP",
@@ -2084,7 +2084,7 @@
                 }
               ],
               "label": "Cama Mesa Banho",
-              "product_count": 637,
+              "product_count": 639,
               "selected": false,
               "slug": "cama_mesa_banho"
             },
@@ -2099,7 +2099,7 @@
                 }
               ],
               "label": "Esporte Lazer",
-              "product_count": 562,
+              "product_count": 563,
               "selected": false,
               "slug": "esporte_lazer"
             },
@@ -2114,7 +2114,7 @@
                 }
               ],
               "label": "Moveis Decoracao",
-              "product_count": 503,
+              "product_count": 505,
               "selected": false,
               "slug": "moveis_decoracao"
             },
@@ -2129,7 +2129,7 @@
                 }
               ],
               "label": "Beleza Saude",
-              "product_count": 490,
+              "product_count": 491,
               "selected": false,
               "slug": "beleza_saude"
             },
@@ -2234,7 +2234,7 @@
                 }
               ],
               "label": "Bebes",
-              "product_count": 205,
+              "product_count": 206,
               "selected": false,
               "slug": "bebes"
             },
@@ -2498,7 +2498,7 @@
                 }
               ],
               "label": "Cama Mesa Banho",
-              "product_count": 637,
+              "product_count": 639,
               "selected": false,
               "slug": "cama_mesa_banho"
             },
@@ -2513,7 +2513,7 @@
                 }
               ],
               "label": "Esporte Lazer",
-              "product_count": 562,
+              "product_count": 563,
               "selected": false,
               "slug": "esporte_lazer"
             },
@@ -2528,7 +2528,7 @@
                 }
               ],
               "label": "Moveis Decoracao",
-              "product_count": 503,
+              "product_count": 505,
               "selected": false,
               "slug": "moveis_decoracao"
             },
@@ -2543,7 +2543,7 @@
                 }
               ],
               "label": "Beleza Saude",
-              "product_count": 490,
+              "product_count": 491,
               "selected": false,
               "slug": "beleza_saude"
             },
@@ -2648,7 +2648,7 @@
                 }
               ],
               "label": "Bebes",
-              "product_count": 205,
+              "product_count": 206,
               "selected": false,
               "slug": "bebes"
             },
@@ -2900,7 +2900,7 @@
                 }
               ],
               "label": "Cama Mesa Banho",
-              "product_count": 637,
+              "product_count": 639,
               "selected": false,
               "slug": "cama_mesa_banho"
             },
@@ -2915,7 +2915,7 @@
                 }
               ],
               "label": "Esporte Lazer",
-              "product_count": 562,
+              "product_count": 563,
               "selected": false,
               "slug": "esporte_lazer"
             },
@@ -2930,7 +2930,7 @@
                 }
               ],
               "label": "Moveis Decoracao",
-              "product_count": 503,
+              "product_count": 505,
               "selected": false,
               "slug": "moveis_decoracao"
             },
@@ -2945,7 +2945,7 @@
                 }
               ],
               "label": "Beleza Saude",
-              "product_count": 490,
+              "product_count": 491,
               "selected": false,
               "slug": "beleza_saude"
             },
@@ -3050,7 +3050,7 @@
                 }
               ],
               "label": "Bebes",
-              "product_count": 205,
+              "product_count": 206,
               "selected": false,
               "slug": "bebes"
             },
@@ -3294,7 +3294,7 @@
                 }
               ],
               "label": "Cama Mesa Banho",
-              "product_count": 637,
+              "product_count": 639,
               "selected": false,
               "slug": "cama_mesa_banho"
             },
@@ -3309,7 +3309,7 @@
                 }
               ],
               "label": "Esporte Lazer",
-              "product_count": 562,
+              "product_count": 563,
               "selected": false,
               "slug": "esporte_lazer"
             },
@@ -3324,7 +3324,7 @@
                 }
               ],
               "label": "Moveis Decoracao",
-              "product_count": 503,
+              "product_count": 505,
               "selected": false,
               "slug": "moveis_decoracao"
             },
@@ -3339,7 +3339,7 @@
                 }
               ],
               "label": "Beleza Saude",
-              "product_count": 490,
+              "product_count": 491,
               "selected": false,
               "slug": "beleza_saude"
             },
@@ -3444,7 +3444,7 @@
                 }
               ],
               "label": "Bebes",
-              "product_count": 205,
+              "product_count": 206,
               "selected": false,
               "slug": "bebes"
             },
@@ -3688,7 +3688,7 @@
                 }
               ],
               "label": "Cama Mesa Banho",
-              "product_count": 637,
+              "product_count": 639,
               "selected": false,
               "slug": "cama_mesa_banho"
             },
@@ -3703,7 +3703,7 @@
                 }
               ],
               "label": "Esporte Lazer",
-              "product_count": 562,
+              "product_count": 563,
               "selected": false,
               "slug": "esporte_lazer"
             },
@@ -3718,7 +3718,7 @@
                 }
               ],
               "label": "Moveis Decoracao",
-              "product_count": 503,
+              "product_count": 505,
               "selected": false,
               "slug": "moveis_decoracao"
             },
@@ -3733,7 +3733,7 @@
                 }
               ],
               "label": "Beleza Saude",
-              "product_count": 490,
+              "product_count": 491,
               "selected": false,
               "slug": "beleza_saude"
             },
@@ -3838,7 +3838,7 @@
                 }
               ],
               "label": "Bebes",
-              "product_count": 205,
+              "product_count": 206,
               "selected": false,
               "slug": "bebes"
             },
@@ -4082,7 +4082,7 @@
                 }
               ],
               "label": "Cama Mesa Banho",
-              "product_count": 637,
+              "product_count": 639,
               "selected": false,
               "slug": "cama_mesa_banho"
             },
@@ -4097,7 +4097,7 @@
                 }
               ],
               "label": "Esporte Lazer",
-              "product_count": 562,
+              "product_count": 563,
               "selected": false,
               "slug": "esporte_lazer"
             },
@@ -4112,7 +4112,7 @@
                 }
               ],
               "label": "Moveis Decoracao",
-              "product_count": 503,
+              "product_count": 505,
               "selected": false,
               "slug": "moveis_decoracao"
             },
@@ -4127,7 +4127,7 @@
                 }
               ],
               "label": "Beleza Saude",
-              "product_count": 490,
+              "product_count": 491,
               "selected": false,
               "slug": "beleza_saude"
             },
@@ -4232,7 +4232,7 @@
                 }
               ],
               "label": "Bebes",
-              "product_count": 205,
+              "product_count": 206,
               "selected": false,
               "slug": "bebes"
             },
@@ -4472,7 +4472,7 @@
                 }
               ],
               "label": "Cama Mesa Banho",
-              "product_count": 637,
+              "product_count": 639,
               "selected": false,
               "slug": "cama_mesa_banho"
             },
@@ -4487,7 +4487,7 @@
                 }
               ],
               "label": "Esporte Lazer",
-              "product_count": 562,
+              "product_count": 563,
               "selected": false,
               "slug": "esporte_lazer"
             },
@@ -4502,7 +4502,7 @@
                 }
               ],
               "label": "Moveis Decoracao",
-              "product_count": 503,
+              "product_count": 505,
               "selected": false,
               "slug": "moveis_decoracao"
             },
@@ -4517,7 +4517,7 @@
                 }
               ],
               "label": "Beleza Saude",
-              "product_count": 490,
+              "product_count": 491,
               "selected": false,
               "slug": "beleza_saude"
             },
@@ -4622,7 +4622,7 @@
                 }
               ],
               "label": "Bebes",
-              "product_count": 205,
+              "product_count": 206,
               "selected": false,
               "slug": "bebes"
             },
@@ -4862,7 +4862,7 @@
                 }
               ],
               "label": "Cama Mesa Banho",
-              "product_count": 637,
+              "product_count": 639,
               "selected": false,
               "slug": "cama_mesa_banho"
             },
@@ -4877,7 +4877,7 @@
                 }
               ],
               "label": "Esporte Lazer",
-              "product_count": 562,
+              "product_count": 563,
               "selected": false,
               "slug": "esporte_lazer"
             },
@@ -4892,7 +4892,7 @@
                 }
               ],
               "label": "Moveis Decoracao",
-              "product_count": 503,
+              "product_count": 505,
               "selected": false,
               "slug": "moveis_decoracao"
             },
@@ -4907,7 +4907,7 @@
                 }
               ],
               "label": "Beleza Saude",
-              "product_count": 490,
+              "product_count": 491,
               "selected": false,
               "slug": "beleza_saude"
             },
@@ -5012,7 +5012,7 @@
                 }
               ],
               "label": "Bebes",
-              "product_count": 205,
+              "product_count": 206,
               "selected": false,
               "slug": "bebes"
             },
@@ -5252,7 +5252,7 @@
                 }
               ],
               "label": "Cama Mesa Banho",
-              "product_count": 637,
+              "product_count": 639,
               "selected": false,
               "slug": "cama_mesa_banho"
             },
@@ -5267,7 +5267,7 @@
                 }
               ],
               "label": "Esporte Lazer",
-              "product_count": 562,
+              "product_count": 563,
               "selected": false,
               "slug": "esporte_lazer"
             },
@@ -5282,7 +5282,7 @@
                 }
               ],
               "label": "Moveis Decoracao",
-              "product_count": 503,
+              "product_count": 505,
               "selected": false,
               "slug": "moveis_decoracao"
             },
@@ -5297,7 +5297,7 @@
                 }
               ],
               "label": "Beleza Saude",
-              "product_count": 490,
+              "product_count": 491,
               "selected": false,
               "slug": "beleza_saude"
             },
@@ -5402,7 +5402,7 @@
                 }
               ],
               "label": "Bebes",
-              "product_count": 205,
+              "product_count": 206,
               "selected": false,
               "slug": "bebes"
             },
@@ -5642,7 +5642,7 @@
                 }
               ],
               "label": "Cama Mesa Banho",
-              "product_count": 637,
+              "product_count": 639,
               "selected": false,
               "slug": "cama_mesa_banho"
             },
@@ -5657,7 +5657,7 @@
                 }
               ],
               "label": "Esporte Lazer",
-              "product_count": 562,
+              "product_count": 563,
               "selected": false,
               "slug": "esporte_lazer"
             },
@@ -5672,7 +5672,7 @@
                 }
               ],
               "label": "Moveis Decoracao",
-              "product_count": 503,
+              "product_count": 505,
               "selected": false,
               "slug": "moveis_decoracao"
             },
@@ -5687,7 +5687,7 @@
                 }
               ],
               "label": "Beleza Saude",
-              "product_count": 490,
+              "product_count": 491,
               "selected": false,
               "slug": "beleza_saude"
             },
@@ -5792,7 +5792,7 @@
                 }
               ],
               "label": "Bebes",
-              "product_count": 205,
+              "product_count": 206,
               "selected": false,
               "slug": "bebes"
             },

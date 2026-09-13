@@ -2,13 +2,16 @@
 
 Fluxo:
 1. Le CSVs em data/raw/.
-2. Amostra 10000 linhas de olist_order_items_dataset.csv com seed=42.
+2. Amostra 10000 linhas de olist_order_items_dataset.csv com seed=42 e COMPLETA
+   as ofertas dos produtos sorteados — ver `sample_order_items`, que explica
+   por que a amostra crua trazia produto pela metade.
 3. Filtra rows com product_weight_g valido e CEPs presentes nos lookups.
 4. Deriva subset de orders/customers/sellers/products e geolocation por prefixo.
-5. Calcula centroides via mediana de lat/lng por prefixo.
-6. Carrega tudo no Postgres (drop+create do schema, sem migrations nesta sprint).
-7. Imprime um par (customer_prefix, seller_prefix) com distancia Haversine < 100 km
-   para ser documentado como demo no README.
+5. Deriva `offers` (produto, vendedor) a partir de order_items.
+6. Calcula centroides via mediana de lat/lng por prefixo.
+7. Carrega tudo no Postgres (drop+create do schema, sem migrations nesta sprint).
+8. Imprime um par (customer_prefix, seller_prefix) com distancia Haversine < 100 km
+   e o melhor caso multi-vendedor, para servirem de demo no README.
 
 Execucao:
     python -m scripts.etl_load_sample [--data-dir data/raw] [--sample-size 10000] [--seed 42]
@@ -87,7 +90,33 @@ def normalize_prefixes(frames: dict[str, pd.DataFrame]) -> None:
 def sample_order_items(
     items: pd.DataFrame, n: int = DEFAULT_SAMPLE_SIZE, seed: int = DEFAULT_SEED
 ) -> pd.DataFrame:
-    return items.sample(n=min(n, len(items)), random_state=seed).reset_index(drop=True)
+    """Sorteia `n` order_items e COMPLETA as ofertas dos produtos sorteados.
+
+    Sortear `order_items` por linha trazia produtos pela metade: o dataset tem
+    dois vendedores para um item, a amostra mostrava um so. Medido na amostra
+    de 10 mil linhas — **528 produtos truncados, e 474 deles viram
+    multi-vendedor apenas completando**. O produto entrava no catalogo com
+    parte das suas origens escondida.
+
+    Isso apagava justamente a comparacao que o trabalho defende ("mesmo item,
+    duas origens, a mais perto emite menos"): sobravam 106 produtos com mais de
+    um vendedor, 1,6% contra 3,7% do universo. Completando, sao 580 (8,8%), sem
+    sortear nenhum produto a mais.
+
+    A correcao e de ARTEFATO, nao estratificacao: o conjunto de produtos
+    continua sendo o sorteio aleatorio de antes, e a amostra base e um
+    subconjunto do resultado. Nada e super-representado de proposito.
+
+    Sobre os 8,8% contra 3,7% do universo: sortear por LINHA pesa cada produto
+    pelo numero de pedidos em que ele aparece, entao produtos populares entram
+    mais — e produto popular tende a ter mais de um vendedor. A amostra e
+    ponderada por popularidade, nao uniforme sobre o catalogo. Isso e mais
+    parecido com o que um comprador encontra, mas precisa ser dito ao citar
+    proporcoes.
+    """
+    base = items.sample(n=min(n, len(items)), random_state=seed)
+    produtos = set(base["product_id"])
+    return items[items["product_id"].isin(produtos)].reset_index(drop=True)
 
 
 def filter_valid(
@@ -323,6 +352,54 @@ def pick_demo_pair(
 # Main
 # ---------------------------------------------------------------------------
 
+def pick_demo_multi_seller(
+    offers: pd.DataFrame, sellers: pd.DataFrame, centroids: pd.DataFrame
+) -> tuple[str, float, list[tuple[str, str]]] | None:
+    """Produto com dois vendedores o mais longe possivel um do outro.
+
+    E o caso de demonstracao da tese: mesmo item, duas origens, e a escolha
+    entre elas muda a emissao. Sem isto a amostra estratificada existe mas
+    ninguem sabe qual produto abrir na defesa.
+    """
+    centroid_map = {
+        row.zip_prefix: (row.lat, row.lng) for row in centroids.itertuples(index=False)
+    }
+    prefixo = dict(
+        zip(sellers["seller_id"], sellers["seller_zip_code_prefix"], strict=False)
+    )
+    cidade = dict(zip(sellers["seller_id"], sellers["seller_city"], strict=False))
+    uf = dict(zip(sellers["seller_id"], sellers["seller_state"], strict=False))
+
+    contagem = offers.groupby("product_id")["seller_id"].transform("size")
+    candidatos = offers[contagem > 1]
+
+    melhor: tuple[str, float, list[tuple[str, str]]] | None = None
+    for product_id, grupo in candidatos.groupby("product_id"):
+        pontos = [
+            (sid, centroid_map[prefixo[sid]])
+            for sid in grupo["seller_id"]
+            if prefixo.get(sid) in centroid_map
+        ]
+        if len(pontos) < 2:
+            continue
+        # Par a par: um produto tem no maximo 8 vendedores no Olist, entao sao
+        # 28 distancias no pior caso. Nao vale indice espacial.
+        for i in range(len(pontos)):
+            for j in range(i + 1, len(pontos)):
+                (_, (lat1, lng1)), (_, (lat2, lng2)) = pontos[i], pontos[j]
+                d = _haversine(lat1, lng1, lat2, lng2)
+                if melhor is None or d > melhor[1]:
+                    melhor = (
+                        product_id,
+                        d,
+                        [
+                            (f"{cidade.get(sid)}/{uf.get(sid)}", prefixo.get(sid, "?"))
+                            for sid, _ in pontos
+                        ],
+                    )
+    return melhor
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="ETL Olist sample loader (Sprint 2)")
     parser.add_argument("--data-dir", default=DEFAULT_DATA_DIR)
@@ -336,7 +413,14 @@ def main() -> int:
     normalize_prefixes(frames)
 
     print(f"[etl] amostrando {args.sample_size} order_items (seed={args.seed})")
-    items_sample = sample_order_items(frames["order_items"], n=args.sample_size, seed=args.seed)
+    items_sample = sample_order_items(
+        frames["order_items"], n=args.sample_size, seed=args.seed
+    )
+    print(
+        f"[etl] ofertas completadas: {len(items_sample)} order_items cobrindo "
+        f"todos os vendedores dos produtos sorteados (amostra ponderada por "
+        f"popularidade — declarar ao citar proporcoes)"
+    )
 
     subset = filter_valid(frames, items_sample)
     subset["products"] = attach_product_ratings(
@@ -383,6 +467,17 @@ def main() -> int:
         )
     else:
         print("[etl] aviso: nenhum par com distancia < 100 km encontrado nesta amostra")
+
+    multi_demo = pick_demo_multi_seller(subset["offers"], subset["sellers"], centroids)
+    if multi_demo:
+        product_id, spread, origens = multi_demo
+        locais = " | ".join(f"{cidade} ({prefixo})" for cidade, prefixo in origens)
+        print(
+            f"[etl] DEMO MULTI-VENDEDOR: product_id={product_id} "
+            f"spread={spread:.0f} km entre {locais}"
+        )
+    else:
+        print("[etl] aviso: nenhum produto multi-vendedor com centroide nesta amostra")
 
     engine.dispose()
     return 0

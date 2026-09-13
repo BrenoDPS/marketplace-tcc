@@ -49,6 +49,21 @@ Apos o ETL, o script imprime no console um par `(customer_zip_prefix, seller_zip
 
 Par de demo conhecido (amostra padrao, `seed=42`): `customer_zip_prefix=05311` (Sao Paulo, SP), seller correspondente em `08275` — distancia Haversine ~27 km, **badge presente**.
 
+### Demo multi-vendedor
+
+O ETL tambem imprime o melhor caso de **mesmo produto vendido por vendedores distantes** — a comparacao que sustenta o argumento de logistica verde. Na amostra padrao:
+
+| | |
+|---|---|
+| `product_id` | `909b87db6cb3a7ab26bd03cc59860136` |
+| vendedor A | Recife/PE (`51250`) — R$ 39,90 |
+| vendedor B | Maringa/PR (`87050`) — R$ 39,90 |
+| separacao | **2.483 km** |
+
+**Mesmo item, mesmo preco, origens a 2.483 km uma da outra.** Preco nao e variavel de confusao aqui: a unica coisa que muda entre as duas opcoes e a distancia — e, portanto, a emissao.
+
+Esse caso so existe porque o ETL **completa as ofertas** dos produtos sorteados. A amostragem crua por linha trazia produto pela metade e escondia 474 casos como este; ver `sample_order_items` em `scripts/etl_load_sample.py`.
+
 ```bash
 # Badge presente em pelo menos um ProductCard (vendedor proximo)
 # O label inclui o CO2 estimado quando o produto tem peso. A unidade e
