@@ -369,7 +369,24 @@ docker-compose.yml           # Postgres 16 (sem PostGIS nesta sprint)
 - **Selo:** `SustainabilityProps` no `ProductCard` quando `distance_km < 100`; senao `badge: null`.
 - **CO2:** `EMISSION_FACTOR = 0,102` kg CO2/(t.km) (GHG Protocol) em `green_logistics/co2.py`. A emissao acompanha a **massa embarcada**: `quantity` unidades pesam `quantity` vezes mais.
 - **Exibicao do CO2:** `format_co2` escolhe a unidade (g abaixo de 10 g, kg acima). Com a amostra de 10k as distancias caem para poucos km e um `.2f` em kg imprimia `0,00 kg` em todo selo — apagando o numero que sustenta o trabalho.
-- **Modalidades:** `green_logistics/delivery_options.py`. **Leia o docstring do modulo antes de citar esses numeros no TCC.** Distancia, massa e o FE base sao reais; `standard` usa o frete real da amostra sem fator. Os fatores de preco/emissao/prazo de `express` e `green` sao um **cenario declarado**, nao dado do Olist — o dataset nao tem modalidade nem transportadora. A ressalva viaja no proprio JSON (campo `note`) e e exibida na tela.
+- **Modalidades:** `green_logistics/delivery_options.py`. **Leia o docstring do modulo antes de citar esses numeros no TCC.** Distancia, massa e o FE base sao reais; `standard` usa o frete real da amostra sem fator e o **prazo medido em 95.921 entregas do Olist** (`ETA_BANDS`). Os fatores de preco/emissao/prazo de `express` e `green` sao um **cenario declarado** sobre essa linha de base, nao dado do Olist — o dataset nao tem modalidade nem transportadora. A ressalva viaja no proprio JSON (campo `note`) e e exibida na tela.
+
+### Prazo de entrega: medido, nao arbitrado
+
+Ate a Sprint 7 o prazo saia de `dias_fixos + ceil(distancia / km_por_dia)`, com os dois numeros escolhidos a mao — e subestimava muito. O dataset tem `order_purchase_timestamp` e `order_delivered_customer_date` em 97% dos pedidos, e essa informacao nunca tinha sido usada. Mediana de dias ate a entrega, por faixa de distancia:
+
+| faixa | prazo real (p50) | n |
+|---|---|---|
+| < 50 km | **4,9 dias** | 11.758 |
+| 50–100 km | 5,8 dias | 6.133 |
+| 100–300 km | 8,2 dias | 13.340 |
+| 300–600 km | 10,3 dias | 31.477 |
+| 600–1.200 km | 12,8 dias | 21.019 |
+| > 1.200 km | **17,2 dias** | 12.194 |
+
+**Comprar perto e ~3,5x mais rapido.** E um segundo argumento a favor de logistica local, independente de CO2: beneficio direto ao consumidor, medido e nao estimado.
+
+O ETL rederiva a tabela a cada carga e avisa se ela divergir da constante no codigo.
 
 ## Sprint 3 (concluida)
 

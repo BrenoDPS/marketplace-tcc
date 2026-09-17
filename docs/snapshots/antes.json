@@ -46,7 +46,7 @@
             {
               "co2_kg": 0.001556771989974325,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
-              "eta_days": 2,
+              "eta_days": 3,
               "id": "express",
               "label": "Expressa",
               "price": 13.95,
@@ -56,7 +56,7 @@
             {
               "co2_kg": 0.00062270879598973,
               "description": "Frete rodoviário praticado na amostra Olist.",
-              "eta_days": 3,
+              "eta_days": 5,
               "id": "standard",
               "label": "Padrão",
               "price": 8.72,
@@ -66,7 +66,7 @@
             {
               "co2_kg": 0.000373625277593838,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
-              "eta_days": 5,
+              "eta_days": 8,
               "id": "green",
               "label": "Verde",
               "price": 7.41,
@@ -197,7 +197,7 @@
             {
               "co2_kg": 0.001556771989974325,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
-              "eta_days": 2,
+              "eta_days": 3,
               "id": "express",
               "label": "Expressa",
               "price": 13.95,
@@ -207,7 +207,7 @@
             {
               "co2_kg": 0.00062270879598973,
               "description": "Frete rodoviário praticado na amostra Olist.",
-              "eta_days": 3,
+              "eta_days": 5,
               "id": "standard",
               "label": "Padrão",
               "price": 8.72,
@@ -217,7 +217,7 @@
             {
               "co2_kg": 0.000373625277593838,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
-              "eta_days": 5,
+              "eta_days": 8,
               "id": "green",
               "label": "Verde",
               "price": 7.41,
@@ -348,7 +348,7 @@
             {
               "co2_kg": 0.001556771989974325,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
-              "eta_days": 2,
+              "eta_days": 3,
               "id": "express",
               "label": "Expressa",
               "price": 13.95,
@@ -358,7 +358,7 @@
             {
               "co2_kg": 0.00062270879598973,
               "description": "Frete rodoviário praticado na amostra Olist.",
-              "eta_days": 3,
+              "eta_days": 5,
               "id": "standard",
               "label": "Padrão",
               "price": 8.72,
@@ -368,7 +368,7 @@
             {
               "co2_kg": 0.000373625277593838,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
-              "eta_days": 5,
+              "eta_days": 8,
               "id": "green",
               "label": "Verde",
               "price": 7.41,
@@ -506,7 +506,7 @@
             {
               "co2_kg": 0.014376526204045456,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
-              "eta_days": 2,
+              "eta_days": 3,
               "id": "express",
               "label": "Expressa",
               "price": 27.18,
@@ -516,7 +516,7 @@
             {
               "co2_kg": 0.005750610481618183,
               "description": "Frete rodoviário praticado na amostra Olist.",
-              "eta_days": 3,
+              "eta_days": 6,
               "id": "standard",
               "label": "Padrão",
               "price": 16.99,
@@ -526,7 +526,7 @@
             {
               "co2_kg": 0.0034503662889709096,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
-              "eta_days": 5,
+              "eta_days": 9,
               "id": "green",
               "label": "Verde",
               "price": 14.44,
@@ -678,7 +678,7 @@
             {
               "co2_kg": 0.014376526204045456,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
-              "eta_days": 2,
+              "eta_days": 3,
               "id": "express",
               "label": "Expressa",
               "price": 27.18,
@@ -688,7 +688,7 @@
             {
               "co2_kg": 0.005750610481618183,
               "description": "Frete rodoviário praticado na amostra Olist.",
-              "eta_days": 3,
+              "eta_days": 6,
               "id": "standard",
               "label": "Padrão",
               "price": 16.99,
@@ -698,7 +698,7 @@
             {
               "co2_kg": 0.0034503662889709096,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
-              "eta_days": 5,
+              "eta_days": 9,
               "id": "green",
               "label": "Verde",
               "price": 14.44,
@@ -850,7 +850,7 @@
             {
               "co2_kg": 0.014376526204045456,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
-              "eta_days": 2,
+              "eta_days": 3,
               "id": "express",
               "label": "Expressa",
               "price": 27.18,
@@ -860,7 +860,7 @@
             {
               "co2_kg": 0.005750610481618183,
               "description": "Frete rodoviário praticado na amostra Olist.",
-              "eta_days": 3,
+              "eta_days": 6,
               "id": "standard",
               "label": "Padrão",
               "price": 16.99,
@@ -870,7 +870,7 @@
             {
               "co2_kg": 0.0034503662889709096,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
-              "eta_days": 5,
+              "eta_days": 9,
               "id": "green",
               "label": "Verde",
               "price": 14.44,
@@ -1050,7 +1050,7 @@
             {
               "co2_kg": 0.22725956984069276,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
-              "eta_days": 2,
+              "eta_days": 5,
               "id": "express",
               "label": "Expressa",
               "price": 106.54,
@@ -1060,7 +1060,7 @@
             {
               "co2_kg": 0.0909038279362771,
               "description": "Frete rodoviário praticado na amostra Olist.",
-              "eta_days": 3,
+              "eta_days": 9,
               "id": "standard",
               "label": "Padrão",
               "price": 66.59,
@@ -1070,7 +1070,7 @@
             {
               "co2_kg": 0.05454229676176626,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
-              "eta_days": 5,
+              "eta_days": 13,
               "id": "green",
               "label": "Verde",
               "price": 56.6,
@@ -1310,7 +1310,7 @@
             {
               "co2_kg": 0.22725956984069276,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
-              "eta_days": 2,
+              "eta_days": 5,
               "id": "express",
               "label": "Expressa",
               "price": 106.54,
@@ -1320,7 +1320,7 @@
             {
               "co2_kg": 0.0909038279362771,
               "description": "Frete rodoviário praticado na amostra Olist.",
-              "eta_days": 3,
+              "eta_days": 9,
               "id": "standard",
               "label": "Padrão",
               "price": 66.59,
@@ -1330,7 +1330,7 @@
             {
               "co2_kg": 0.05454229676176626,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
-              "eta_days": 5,
+              "eta_days": 13,
               "id": "green",
               "label": "Verde",
               "price": 56.6,
@@ -1570,7 +1570,7 @@
             {
               "co2_kg": 0.22725956984069276,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
-              "eta_days": 2,
+              "eta_days": 5,
               "id": "express",
               "label": "Expressa",
               "price": 106.54,
@@ -1580,7 +1580,7 @@
             {
               "co2_kg": 0.0909038279362771,
               "description": "Frete rodoviário praticado na amostra Olist.",
-              "eta_days": 3,
+              "eta_days": 9,
               "id": "standard",
               "label": "Padrão",
               "price": 66.59,
@@ -1590,7 +1590,7 @@
             {
               "co2_kg": 0.05454229676176626,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
-              "eta_days": 5,
+              "eta_days": 13,
               "id": "green",
               "label": "Verde",
               "price": 56.6,

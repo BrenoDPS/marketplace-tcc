@@ -81,10 +81,19 @@ mais rápida → mais verde:
 | `standard` | Padrão | **1.0** | **1.0** | 2 | 450 |
 | `green` | Verde | 0.85 | 0.6 | 4 | 350 |
 
+> **Hoje (Sprint 7): `base_days` e `km_per_day` não existem mais.** O prazo
+> deixou de ser arbitrado e passou a sair de `ETA_BANDS`, a mediana medida em
+> 95.921 entregas reais do Olist por faixa de distância. Cada modalidade agora
+> tem um único `eta_factor` sobre essa linha de base: `express` 0.5,
+> `standard` **1.0** (é a medição, sem fator), `green` 1.5. O modelo antigo
+> subestimava — dava 3 dias para uma entrega local que leva 4,9, e 7 dias para
+> 2.000 km que levam 17,2. Ver o docstring de `delivery_options.py`.
+
 Funções expostas:
 
 - `resolve_mode(id | None)` — cai em `standard` quando ausente
 - `eta_days(mode, distance_km)` — `base_days + ceil(distance / km_per_day)`
+  (**hoje:** `ceil(base_eta_days(distance) × eta_factor)`)
 - `mode_co2_kg(mode, distance_km, weight_g)` — baseline GHG × `co2_factor`; `None` sem distância ou massa
 - `build_delivery_options(base_freight, distance_km, weight_g, selected_id)` — uma `DeliveryOptionProps` por modalidade
 

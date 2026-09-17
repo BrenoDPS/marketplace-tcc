@@ -33,6 +33,7 @@ from sqlalchemy.engine import Engine
 
 from src.core.config import settings
 from src.core.models import Base
+from src.features.green_logistics.delivery_options import ETA_BANDS
 
 DEFAULT_SAMPLE_SIZE = 10000
 DEFAULT_SEED = 42
@@ -352,6 +353,66 @@ def pick_demo_pair(
 # Main
 # ---------------------------------------------------------------------------
 
+def derive_eta_bands(
+    frames: dict[str, pd.DataFrame], centroids_all: dict[str, tuple[float, float]]
+) -> list[tuple[float, float, int]]:
+    """Prazo real por faixa de distancia: `(limite_km, dias_p50, n)`.
+
+    Sai do dataset COMPLETO, nao da amostra: a relacao distancia -> prazo e uma
+    propriedade do Olist inteiro, e os 96 mil pedidos entregues dao estimativa
+    melhor que o subconjunto que vira catalogo. Por isso o resultado nao muda
+    com `--sample-size`, e pode viver como constante no codigo.
+
+    Existe para CONFERIR `ETA_BANDS` em `delivery_options.py`. Sem esta
+    rederivacao a tabela viraria numero magico que ninguem sabe de onde veio.
+    """
+    orders = frames["orders"]
+    entregues = orders.dropna(subset=["order_delivered_customer_date"]).copy()
+    for col in ("order_purchase_timestamp", "order_delivered_customer_date"):
+        entregues[col] = pd.to_datetime(entregues[col], errors="coerce")
+
+    # Um vendedor por pedido (o primeiro): pedido multi-vendedor tem mais de uma
+    # origem e nao ha como atribuir o prazo a uma delas.
+    primeiro = frames["order_items"][["order_id", "seller_id"]].drop_duplicates("order_id")
+    cliente = frames["customers"][["customer_id", "customer_zip_code_prefix"]]
+    vendedor = frames["sellers"][["seller_id", "seller_zip_code_prefix"]]
+
+    base = (
+        primeiro.merge(
+            entregues[
+                ["order_id", "customer_id", "order_purchase_timestamp",
+                 "order_delivered_customer_date"]
+            ],
+            on="order_id",
+        )
+        .merge(cliente, on="customer_id")
+        .merge(vendedor, on="seller_id")
+    )
+
+    def _km(row: object) -> float:
+        c = centroids_all.get(getattr(row, "customer_zip_code_prefix", None))
+        s = centroids_all.get(getattr(row, "seller_zip_code_prefix", None))
+        if not c or not s:
+            return float("nan")
+        return _haversine(c[0], c[1], s[0], s[1])
+
+    base["km"] = [_km(row) for row in base.itertuples(index=False)]
+    base["dias"] = (
+        base["order_delivered_customer_date"] - base["order_purchase_timestamp"]
+    ).dt.total_seconds() / 86400
+    # Prazo negativo ou absurdo e erro de registro, nao entrega lenta.
+    base = base[base["km"].notna() & (base["dias"] > 0) & (base["dias"] < 90)]
+
+    saida: list[tuple[float, float, int]] = []
+    anterior = 0.0
+    for limite in (50.0, 100.0, 300.0, 600.0, 1200.0, float("inf")):
+        faixa = base[(base["km"] >= anterior) & (base["km"] < limite)]
+        if len(faixa):
+            saida.append((limite, round(float(faixa["dias"].median()), 1), len(faixa)))
+        anterior = limite
+    return saida
+
+
 def pick_demo_multi_seller(
     offers: pd.DataFrame, sellers: pd.DataFrame, centroids: pd.DataFrame
 ) -> tuple[str, float, list[tuple[str, str]]] | None:
@@ -467,6 +528,34 @@ def main() -> int:
         )
     else:
         print("[etl] aviso: nenhum par com distancia < 100 km encontrado nesta amostra")
+
+    # Confere `ETA_BANDS` contra o dataset. Nao carrega nada: a tabela vive no
+    # codigo porque sai dos CSVs, que sao fixos. O que este passo compra e o
+    # aviso quando alguem mexer nela sem rederivar.
+    todos_centroides = build_cep_centroids(
+        frames["geolocation"],
+        set(frames["geolocation"]["geolocation_zip_code_prefix"].dropna().unique()),
+    )
+    mapa = {
+        row.zip_prefix: (row.lat, row.lng)
+        for row in todos_centroides.itertuples(index=False)
+    }
+    faixas = derive_eta_bands(frames, mapa)
+    print("[etl] prazo real de entrega por faixa de distancia:")
+    divergiu = False
+    for (limite, dias, n), (lim_cod, dias_cod) in zip(faixas, ETA_BANDS, strict=False):
+        rot = "inf" if limite == float("inf") else f"{limite:.0f}"
+        marca = ""
+        if limite != lim_cod or abs(dias - dias_cod) > 0.05:
+            marca = f"  <<< DIVERGE de delivery_options.ETA_BANDS ({dias_cod})"
+            divergiu = True
+        print(f"[etl]   ate {rot:>5} km: {dias:5.1f} dias  (n={n}){marca}")
+    if divergiu:
+        print(
+            "[etl] AVISO: `ETA_BANDS` em src/features/green_logistics/"
+            "delivery_options.py esta desatualizada. Atualize com os valores "
+            "acima antes de citar prazos no TCC."
+        )
 
     multi_demo = pick_demo_multi_seller(subset["offers"], subset["sellers"], centroids)
     if multi_demo:

@@ -1,6 +1,10 @@
+import math
+
 from src.features.green_logistics.co2 import calculate_co2_kg, format_co2
 from src.features.green_logistics.delivery_options import (
     DEFAULT_MODE_ID,
+    ETA_BANDS,
+    ETA_UNKNOWN_DISTANCE_DAYS,
     GREENEST_MODE_ID,
     MODES,
     MODES_BY_ID,
@@ -39,9 +43,63 @@ def test_eta_grows_with_distance() -> None:
     assert eta_days(mode, 10.0) < eta_days(mode, 5000.0)
 
 
-def test_eta_falls_back_to_base_without_distance() -> None:
+def test_sem_distancia_o_prazo_e_o_tipico_geral() -> None:
+    """Vendedor sem centroide: nao sabemos a distancia, entao respondemos com a
+    mediana de TODAS as entregas em vez de escolher uma faixa."""
     mode = MODES_BY_ID[DEFAULT_MODE_ID]
-    assert eta_days(mode, None) == mode.base_days
+    assert eta_days(mode, None) == math.ceil(ETA_UNKNOWN_DISTANCE_DAYS)
+
+
+# ---------------------------------------------------------------------------
+# Prazo medido (Sprint 7)
+# ---------------------------------------------------------------------------
+
+def test_o_prazo_padrao_e_o_medido_sem_fator() -> None:
+    """`standard` e a linha de base: o que o Olist de fato levou para entregar.
+
+    Antes o prazo saia de `dias_fixos + ceil(distancia / km_por_dia)`, com os
+    dois numeros arbitrados. Se alguem reintroduzir um fator aqui, o prazo
+    "real" deixa de ser real sem ninguem notar.
+    """
+    standard = MODES_BY_ID[DEFAULT_MODE_ID]
+    assert standard.eta_factor == 1.0
+    for limite, dias in ETA_BANDS:
+        # Uma distancia dentro da faixa: logo abaixo do limite superior, e um
+        # valor bem grande para a ultima, que termina em `inf`.
+        distancia = 5000.0 if limite == float("inf") else limite - 1.0
+        assert eta_days(standard, distancia) == math.ceil(dias)
+
+
+def test_as_faixas_sao_monotonicas() -> None:
+    """Mais longe nunca pode chegar antes — guarda contra erro de digitacao
+    ao rederivar a tabela."""
+    dias = [d for _, d in ETA_BANDS]
+    assert dias == sorted(dias)
+
+
+def test_entrega_local_e_muito_mais_rapida_que_a_distante() -> None:
+    """O achado que o card cita: comprar perto e ~3,5x mais rapido.
+
+    Nao e detalhe de implementacao — e um argumento a favor de logistica local
+    que nao depende de CO2 nenhum, e o teste garante que ele continua valendo
+    se a tabela for rederivada.
+    """
+    standard = MODES_BY_ID[DEFAULT_MODE_ID]
+    perto = eta_days(standard, 20.0)
+    longe = eta_days(standard, 2500.0)
+    assert longe / perto >= 3.0
+
+
+def test_o_prazo_medido_corrige_a_subestimacao_do_modelo_antigo() -> None:
+    """O modelo anterior dava 3 dias para entrega local e 7 para 2000 km.
+
+    Os valores medidos sao 4,9 e 17,2. Prender isso evita voltar a um prazo
+    otimista demais, que faria a comparacao entre modalidades parecer mais
+    confortavel do que a realidade da amostra.
+    """
+    standard = MODES_BY_ID[DEFAULT_MODE_ID]
+    assert eta_days(standard, 20.0) > 3
+    assert eta_days(standard, 2000.0) > 7
 
 
 def test_mode_co2_applies_factor_over_ghg_baseline() -> None:
