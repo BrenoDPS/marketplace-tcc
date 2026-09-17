@@ -303,6 +303,7 @@ async def compose_home(
             customer_zip_prefix=customer_zip_prefix,
             seller_zip_prefix=product.seller_zip_prefix,
             weight_g=product.weight_g,
+            volume_cm3=product.volume_cm3,
         )
         components.append(
             ProductCardBlock(

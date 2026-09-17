@@ -15,8 +15,9 @@ preco e distancia do substituto — a troca nao e equivalente, e quem decide e o
 usuario.
 
 A economia e real e vem so de dados reais: distancia (Haversine sobre
-centroides de CEP), massa (`product_weight_g`) e o FE do GHG Protocol. Nenhum
-coeficiente arbitrado entra aqui.
+centroides de CEP), massa cobravel (`max` entre `product_weight_g` e o peso
+cubado das dimensoes, ver `co2.chargeable_weight_g`) e o FE do GHG Protocol.
+Nenhum coeficiente arbitrado entra aqui.
 """
 
 from __future__ import annotations
@@ -31,8 +32,15 @@ from src.schemas.sdui import AlternativeProps
 MAX_SUGGESTIONS = 3
 
 
-def _co2(distance_km: float, weight_g: float | None, quantity: int, factor: float) -> float:
-    return calculate_co2_kg(distance_km, (weight_g or 0.0) * quantity) * factor
+def _co2(
+    distance_km: float,
+    weight_g: float | None,
+    quantity: int,
+    factor: float,
+    volume_cm3: float | None = None,
+) -> float:
+    volume = volume_cm3 * quantity if volume_cm3 else None
+    return calculate_co2_kg(distance_km, (weight_g or 0.0) * quantity, volume) * factor
 
 
 def best_alternative_for(
@@ -51,7 +59,9 @@ def best_alternative_for(
     perto com produto mais pesado pode emitir mais. Distancia e massa entram
     juntas porque e assim que a emissao se comporta.
     """
-    current = _co2(current_distance_km, product.weight_g, quantity, co2_factor)
+    current = _co2(
+        current_distance_km, product.weight_g, quantity, co2_factor, product.volume_cm3
+    )
 
     best: AlternativeProps | None = None
     for row in candidates:
@@ -64,7 +74,9 @@ def best_alternative_for(
         if distance >= current_distance_km:
             continue
 
-        emission = _co2(distance, row.weight_g, quantity, co2_factor)
+        emission = _co2(
+            distance, row.weight_g, quantity, co2_factor, row.volume_cm3
+        )
         saved = current - emission
         if saved <= 0:
             continue

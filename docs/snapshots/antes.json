@@ -44,7 +44,7 @@
           "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
           "options": [
             {
-              "co2_kg": 0.001556771989974325,
+              "co2_kg": 0.005189239966581084,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
               "eta_days": 3,
               "id": "express",
@@ -54,7 +54,7 @@
               "selected": false
             },
             {
-              "co2_kg": 0.00062270879598973,
+              "co2_kg": 0.0020756959866324335,
               "description": "Frete rodoviário praticado na amostra Olist.",
               "eta_days": 5,
               "id": "standard",
@@ -64,7 +64,7 @@
               "selected": true
             },
             {
-              "co2_kg": 0.000373625277593838,
+              "co2_kg": 0.00124541759197946,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
               "eta_days": 8,
               "id": "green",
@@ -97,13 +97,13 @@
                       "type": "api_call"
                     }
                   ],
-                  "co2_kg": 0.00014598510353521193,
-                  "co2_saved_kg": 0.00047672369245451806,
+                  "co2_kg": 0.00017518212424225436,
+                  "co2_saved_kg": 0.0019005138623901792,
                   "distance_km": 9.541510034981174,
                   "price": 89.99,
                   "product_id": "6a87e794e29b73452703d95253a29c88",
                   "replaces_product_id": "001795ec6f1b187d37335e1c4704762e",
-                  "saved_share": 0.7655644107239822,
+                  "saved_share": 0.9156031878606335,
                   "seller_id": "43f8c9950d11ecd03a0304a49e010da6",
                   "title": "Consoles Games"
                 }
@@ -111,9 +111,9 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+                "label": "Entrega local (~10 km · ~2,08 g CO₂)"
               },
-              "co2_kg": 0.00062270879598973,
+              "co2_kg": 0.0020756959866324335,
               "co2_share": 1.0,
               "distance_km": 10.174980326629576,
               "freight": 8.72,
@@ -136,9 +136,9 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+            "label": "Entrega local (~10 km · ~2,08 g CO₂)"
           },
-          "co2_kg": 0.00062270879598973,
+          "co2_kg": 0.0020756959866324335,
           "distance_km": 10.174980326629576,
           "message": "Entrega local (~10 km) na modalidade Padrão, com menor impacto ambiental."
         },
@@ -195,7 +195,7 @@
           "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
           "options": [
             {
-              "co2_kg": 0.001556771989974325,
+              "co2_kg": 0.005189239966581084,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
               "eta_days": 3,
               "id": "express",
@@ -205,7 +205,7 @@
               "selected": true
             },
             {
-              "co2_kg": 0.00062270879598973,
+              "co2_kg": 0.0020756959866324335,
               "description": "Frete rodoviário praticado na amostra Olist.",
               "eta_days": 5,
               "id": "standard",
@@ -215,7 +215,7 @@
               "selected": false
             },
             {
-              "co2_kg": 0.000373625277593838,
+              "co2_kg": 0.00124541759197946,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
               "eta_days": 8,
               "id": "green",
@@ -248,13 +248,13 @@
                       "type": "api_call"
                     }
                   ],
-                  "co2_kg": 0.00036496275883802983,
-                  "co2_saved_kg": 0.001191809231136295,
+                  "co2_kg": 0.0004379553106056359,
+                  "co2_saved_kg": 0.004751284655975448,
                   "distance_km": 9.541510034981174,
                   "price": 89.99,
                   "product_id": "6a87e794e29b73452703d95253a29c88",
                   "replaces_product_id": "001795ec6f1b187d37335e1c4704762e",
-                  "saved_share": 0.7655644107239821,
+                  "saved_share": 0.9156031878606335,
                   "seller_id": "43f8c9950d11ecd03a0304a49e010da6",
                   "title": "Consoles Games"
                 }
@@ -262,9 +262,9 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~10 km · ~1,56 g CO₂)"
+                "label": "Entrega local (~10 km · ~5,19 g CO₂)"
               },
-              "co2_kg": 0.001556771989974325,
+              "co2_kg": 0.005189239966581084,
               "co2_share": 1.0,
               "distance_km": 10.174980326629576,
               "freight": 13.95,
@@ -287,9 +287,9 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~10 km · ~1,56 g CO₂)"
+            "label": "Entrega local (~10 km · ~5,19 g CO₂)"
           },
-          "co2_kg": 0.001556771989974325,
+          "co2_kg": 0.005189239966581084,
           "distance_km": 10.174980326629576,
           "message": "Entrega local (~10 km) na modalidade Expressa, com menor impacto ambiental."
         },
@@ -346,7 +346,7 @@
           "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
           "options": [
             {
-              "co2_kg": 0.001556771989974325,
+              "co2_kg": 0.005189239966581084,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
               "eta_days": 3,
               "id": "express",
@@ -356,7 +356,7 @@
               "selected": false
             },
             {
-              "co2_kg": 0.00062270879598973,
+              "co2_kg": 0.0020756959866324335,
               "description": "Frete rodoviário praticado na amostra Olist.",
               "eta_days": 5,
               "id": "standard",
@@ -366,7 +366,7 @@
               "selected": false
             },
             {
-              "co2_kg": 0.000373625277593838,
+              "co2_kg": 0.00124541759197946,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
               "eta_days": 8,
               "id": "green",
@@ -399,13 +399,13 @@
                       "type": "api_call"
                     }
                   ],
-                  "co2_kg": 8.759106212112715e-05,
-                  "co2_saved_kg": 0.00028603421547271086,
+                  "co2_kg": 0.00010510927454535261,
+                  "co2_saved_kg": 0.0011403083174341075,
                   "distance_km": 9.541510034981174,
                   "price": 89.99,
                   "product_id": "6a87e794e29b73452703d95253a29c88",
                   "replaces_product_id": "001795ec6f1b187d37335e1c4704762e",
-                  "saved_share": 0.7655644107239822,
+                  "saved_share": 0.9156031878606337,
                   "seller_id": "43f8c9950d11ecd03a0304a49e010da6",
                   "title": "Consoles Games"
                 }
@@ -413,9 +413,9 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~10 km · ~0,37 g CO₂)"
+                "label": "Entrega local (~10 km · ~1,25 g CO₂)"
               },
-              "co2_kg": 0.000373625277593838,
+              "co2_kg": 0.00124541759197946,
               "co2_share": 1.0,
               "distance_km": 10.174980326629576,
               "freight": 7.41,
@@ -438,9 +438,9 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~10 km · ~0,37 g CO₂)"
+            "label": "Entrega local (~10 km · ~1,25 g CO₂)"
           },
-          "co2_kg": 0.000373625277593838,
+          "co2_kg": 0.00124541759197946,
           "distance_km": 10.174980326629576,
           "message": "Entrega local (~10 km) na modalidade Verde, com menor impacto ambiental."
         },
@@ -504,7 +504,7 @@
           "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
           "options": [
             {
-              "co2_kg": 0.014376526204045456,
+              "co2_kg": 0.04991849376404672,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
               "eta_days": 3,
               "id": "express",
@@ -514,7 +514,7 @@
               "selected": false
             },
             {
-              "co2_kg": 0.005750610481618183,
+              "co2_kg": 0.01996739750561869,
               "description": "Frete rodoviário praticado na amostra Olist.",
               "eta_days": 6,
               "id": "standard",
@@ -524,7 +524,7 @@
               "selected": true
             },
             {
-              "co2_kg": 0.0034503662889709096,
+              "co2_kg": 0.011980438503371214,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
               "eta_days": 9,
               "id": "green",
@@ -557,13 +557,13 @@
                       "type": "api_call"
                     }
                   ],
-                  "co2_kg": 0.00010267130469136634,
-                  "co2_saved_kg": 0.0018141988558480278,
+                  "co2_kg": 0.00011440516808466535,
+                  "co2_saved_kg": 0.007073857933938062,
                   "distance_km": 2.8759469101223067,
                   "price": 9.5,
                   "product_id": "7efc9c66bf68e3026c7846b0ec3e8682",
                   "replaces_product_id": "00210e41887c2a8ef9f791ebc780cc36",
-                  "saved_share": 0.94643804948037,
+                  "saved_share": 0.9840844489884527,
                   "seller_id": "5f1dc28029d2c244352a68107ec2b542",
                   "title": "Beleza Saude"
                 }
@@ -571,10 +571,10 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~63 km · ~1,92 g CO₂)"
+                "label": "Entrega local (~63 km · ~7,19 g CO₂)"
               },
-              "co2_kg": 0.001916870160539394,
-              "co2_share": 0.7547984108197233,
+              "co2_kg": 0.007188263102022727,
+              "co2_share": 0.7759385629007823,
               "distance_km": 62.642815703901775,
               "freight": 8.27,
               "product_ids": [
@@ -589,10 +589,10 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+                "label": "Entrega local (~10 km · ~2,08 g CO₂)"
               },
-              "co2_kg": 0.00062270879598973,
-              "co2_share": 0.24520158918027668,
+              "co2_kg": 0.0020756959866324335,
+              "co2_share": 0.22406143709921758,
               "distance_km": 10.174980326629576,
               "freight": 8.72,
               "product_ids": [
@@ -612,9 +612,9 @@
         "actions": [],
         "props": {
           "badge": null,
-          "co2_kg": 0.002539578956529124,
+          "co2_kg": 0.009263959088655162,
           "distance_km": null,
-          "message": "2 remessas na modalidade Padrão — 2 de entrega local. Uma delas responde por 75% do CO₂."
+          "message": "2 remessas na modalidade Padrão — 2 de entrega local. Uma delas responde por 78% do CO₂."
         },
         "type": "impact_banner",
         "version": 1
@@ -676,7 +676,7 @@
           "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
           "options": [
             {
-              "co2_kg": 0.014376526204045456,
+              "co2_kg": 0.04991849376404672,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
               "eta_days": 3,
               "id": "express",
@@ -686,7 +686,7 @@
               "selected": true
             },
             {
-              "co2_kg": 0.005750610481618183,
+              "co2_kg": 0.01996739750561869,
               "description": "Frete rodoviário praticado na amostra Olist.",
               "eta_days": 6,
               "id": "standard",
@@ -696,7 +696,7 @@
               "selected": false
             },
             {
-              "co2_kg": 0.0034503662889709096,
+              "co2_kg": 0.011980438503371214,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
               "eta_days": 9,
               "id": "green",
@@ -729,13 +729,13 @@
                       "type": "api_call"
                     }
                   ],
-                  "co2_kg": 0.00025667826172841583,
-                  "co2_saved_kg": 0.004535497139620069,
+                  "co2_kg": 0.00028601292021166336,
+                  "co2_saved_kg": 0.017684644834845154,
                   "distance_km": 2.8759469101223067,
                   "price": 9.5,
                   "product_id": "7efc9c66bf68e3026c7846b0ec3e8682",
                   "replaces_product_id": "00210e41887c2a8ef9f791ebc780cc36",
-                  "saved_share": 0.94643804948037,
+                  "saved_share": 0.9840844489884528,
                   "seller_id": "5f1dc28029d2c244352a68107ec2b542",
                   "title": "Beleza Saude"
                 }
@@ -743,10 +743,10 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~63 km · ~4,79 g CO₂)"
+                "label": "Entrega local (~63 km · ~0,02 kg CO₂)"
               },
-              "co2_kg": 0.004792175401348485,
-              "co2_share": 0.7547984108197233,
+              "co2_kg": 0.017970657755056817,
+              "co2_share": 0.7759385629007823,
               "distance_km": 62.642815703901775,
               "freight": 13.23,
               "product_ids": [
@@ -761,10 +761,10 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~10 km · ~1,56 g CO₂)"
+                "label": "Entrega local (~10 km · ~5,19 g CO₂)"
               },
-              "co2_kg": 0.001556771989974325,
-              "co2_share": 0.24520158918027668,
+              "co2_kg": 0.005189239966581084,
+              "co2_share": 0.22406143709921764,
               "distance_km": 10.174980326629576,
               "freight": 13.95,
               "product_ids": [
@@ -784,9 +784,9 @@
         "actions": [],
         "props": {
           "badge": null,
-          "co2_kg": 0.00634894739132281,
+          "co2_kg": 0.0231598977216379,
           "distance_km": null,
-          "message": "2 remessas na modalidade Expressa — 2 de entrega local. Uma delas responde por 75% do CO₂."
+          "message": "2 remessas na modalidade Expressa — 2 de entrega local. Uma delas responde por 78% do CO₂."
         },
         "type": "impact_banner",
         "version": 1
@@ -848,7 +848,7 @@
           "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
           "options": [
             {
-              "co2_kg": 0.014376526204045456,
+              "co2_kg": 0.04991849376404672,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
               "eta_days": 3,
               "id": "express",
@@ -858,7 +858,7 @@
               "selected": false
             },
             {
-              "co2_kg": 0.005750610481618183,
+              "co2_kg": 0.01996739750561869,
               "description": "Frete rodoviário praticado na amostra Olist.",
               "eta_days": 6,
               "id": "standard",
@@ -868,7 +868,7 @@
               "selected": false
             },
             {
-              "co2_kg": 0.0034503662889709096,
+              "co2_kg": 0.011980438503371214,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
               "eta_days": 9,
               "id": "green",
@@ -901,13 +901,13 @@
                       "type": "api_call"
                     }
                   ],
-                  "co2_kg": 6.16027828148198e-05,
-                  "co2_saved_kg": 0.0010885193135088166,
+                  "co2_kg": 6.864310085079922e-05,
+                  "co2_saved_kg": 0.004244314760362837,
                   "distance_km": 2.8759469101223067,
                   "price": 9.5,
                   "product_id": "7efc9c66bf68e3026c7846b0ec3e8682",
                   "replaces_product_id": "00210e41887c2a8ef9f791ebc780cc36",
-                  "saved_share": 0.94643804948037,
+                  "saved_share": 0.9840844489884528,
                   "seller_id": "5f1dc28029d2c244352a68107ec2b542",
                   "title": "Beleza Saude"
                 }
@@ -915,10 +915,10 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~63 km · ~1,15 g CO₂)"
+                "label": "Entrega local (~63 km · ~4,31 g CO₂)"
               },
-              "co2_kg": 0.0011501220963236363,
-              "co2_share": 0.7547984108197233,
+              "co2_kg": 0.004312957861213636,
+              "co2_share": 0.7759385629007824,
               "distance_km": 62.642815703901775,
               "freight": 7.03,
               "product_ids": [
@@ -933,10 +933,10 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~10 km · ~0,37 g CO₂)"
+                "label": "Entrega local (~10 km · ~1,25 g CO₂)"
               },
-              "co2_kg": 0.000373625277593838,
-              "co2_share": 0.2452015891802767,
+              "co2_kg": 0.00124541759197946,
+              "co2_share": 0.2240614370992176,
               "distance_km": 10.174980326629576,
               "freight": 7.41,
               "product_ids": [
@@ -956,9 +956,9 @@
         "actions": [],
         "props": {
           "badge": null,
-          "co2_kg": 0.0015237473739174742,
+          "co2_kg": 0.005558375453193096,
           "distance_km": null,
-          "message": "2 remessas na modalidade Verde — 2 de entrega local. Uma delas responde por 75% do CO₂."
+          "message": "2 remessas na modalidade Verde — 2 de entrega local. Uma delas responde por 78% do CO₂."
         },
         "type": "impact_banner",
         "version": 1
@@ -1048,7 +1048,7 @@
           "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
           "options": [
             {
-              "co2_kg": 0.22725956984069276,
+              "co2_kg": 1.0540387970611267,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
               "eta_days": 5,
               "id": "express",
@@ -1058,7 +1058,7 @@
               "selected": false
             },
             {
-              "co2_kg": 0.0909038279362771,
+              "co2_kg": 0.4216155188244507,
               "description": "Frete rodoviário praticado na amostra Olist.",
               "eta_days": 9,
               "id": "standard",
@@ -1068,7 +1068,7 @@
               "selected": true
             },
             {
-              "co2_kg": 0.05454229676176626,
+              "co2_kg": 0.25296931129467043,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
               "eta_days": 13,
               "id": "green",
@@ -1101,20 +1101,20 @@
                       "type": "api_call"
                     }
                   ],
-                  "co2_kg": 5.8669316966495053e-05,
-                  "co2_saved_kg": 0.016747080385538515,
+                  "co2_kg": 8.008361765926576e-05,
+                  "co2_saved_kg": 0.03811480206985212,
                   "distance_km": 2.8759469101223067,
                   "price": 39.9,
                   "product_id": "31fd02b02c33827cbde22902cf80338c",
                   "replaces_product_id": "004636c889c7c3dad6631f136b7fa082",
-                  "saved_share": 0.9965089735355424,
+                  "saved_share": 0.9979032895054468,
                   "seller_id": "5f1dc28029d2c244352a68107ec2b542",
                   "title": "Utilidades Domesticas"
                 }
               ],
               "badge": null,
-              "co2_kg": 0.01680574970250501,
-              "co2_share": 0.5396423309395375,
+              "co2_kg": 0.038194885687511386,
+              "co2_share": 0.54528313546681,
               "distance_km": 299.5677308824423,
               "freight": 14.44,
               "product_ids": [
@@ -1127,8 +1127,8 @@
             {
               "alternatives": [],
               "badge": null,
-              "co2_kg": 0.009479451983421731,
-              "co2_share": 0.3043906790781623,
+              "co2_kg": 0.011059360647325352,
+              "co2_share": 0.15788718152921738,
               "distance_km": 123.91440501204877,
               "freight": 12.05,
               "product_ids": [
@@ -1143,10 +1143,10 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~63 km · ~1,92 g CO₂)"
+                "label": "Entrega local (~63 km · ~7,19 g CO₂)"
               },
-              "co2_kg": 0.001916870160539394,
-              "co2_share": 0.06155180815216688,
+              "co2_kg": 0.007188263102022727,
+              "co2_share": 0.10262208073875549,
               "distance_km": 62.642815703901775,
               "freight": 8.27,
               "product_ids": [
@@ -1159,8 +1159,8 @@
             {
               "alternatives": [],
               "badge": null,
-              "co2_kg": 0.001899199074162913,
-              "co2_share": 0.06098437936075648,
+              "co2_kg": 0.00594901500468745,
+              "co2_share": 0.08493015481797166,
               "distance_km": 106.39770723601755,
               "freight": 7.0,
               "product_ids": [
@@ -1175,16 +1175,16 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+                "label": "Entrega local (~7 km · ~5,58 g CO₂)"
               },
-              "co2_kg": 0.00062270879598973,
-              "co2_share": 0.01999553915255335,
-              "distance_km": 10.174980326629576,
-              "freight": 8.72,
+              "co2_kg": 0.005578748726566719,
+              "co2_share": 0.07964410791778906,
+              "distance_km": 6.836701870792548,
+              "freight": 16.11,
               "product_ids": [
-                "001795ec6f1b187d37335e1c4704762e"
+                "002af88741ba70c7b5cf4e4a0ad7ef85"
               ],
-              "seller_id": "8b321bb669392f5163d04c59e235e066",
+              "seller_id": "3a734b715d333a2588a3d54a0c9b8746",
               "total_quantity": 1,
               "weight_g": 600.0
             },
@@ -1193,16 +1193,16 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~7 km · ~0,42 g CO₂)"
+                "label": "Entrega local (~10 km · ~2,08 g CO₂)"
               },
-              "co2_kg": 0.00041840615449250393,
-              "co2_share": 0.013435263316823503,
-              "distance_km": 6.836701870792548,
-              "freight": 16.11,
+              "co2_kg": 0.0020756959866324335,
+              "co2_share": 0.02963333952945659,
+              "distance_km": 10.174980326629576,
+              "freight": 8.72,
               "product_ids": [
-                "002af88741ba70c7b5cf4e4a0ad7ef85"
+                "001795ec6f1b187d37335e1c4704762e"
               ],
-              "seller_id": "3a734b715d333a2588a3d54a0c9b8746",
+              "seller_id": "8b321bb669392f5163d04c59e235e066",
               "total_quantity": 1,
               "weight_g": 600.0
             }
@@ -1216,9 +1216,9 @@
         "actions": [],
         "props": {
           "badge": null,
-          "co2_kg": 0.031142385871111282,
+          "co2_kg": 0.07004596915474606,
           "distance_km": null,
-          "message": "6 remessas na modalidade Padrão — 3 de entrega local. Uma delas responde por 54% do CO₂."
+          "message": "6 remessas na modalidade Padrão — 3 de entrega local. Uma delas responde por 55% do CO₂."
         },
         "type": "impact_banner",
         "version": 1
@@ -1308,7 +1308,7 @@
           "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
           "options": [
             {
-              "co2_kg": 0.22725956984069276,
+              "co2_kg": 1.0540387970611267,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
               "eta_days": 5,
               "id": "express",
@@ -1318,7 +1318,7 @@
               "selected": true
             },
             {
-              "co2_kg": 0.0909038279362771,
+              "co2_kg": 0.4216155188244507,
               "description": "Frete rodoviário praticado na amostra Olist.",
               "eta_days": 9,
               "id": "standard",
@@ -1328,7 +1328,7 @@
               "selected": false
             },
             {
-              "co2_kg": 0.05454229676176626,
+              "co2_kg": 0.25296931129467043,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
               "eta_days": 13,
               "id": "green",
@@ -1361,20 +1361,20 @@
                       "type": "api_call"
                     }
                   ],
-                  "co2_kg": 0.00014667329241623762,
-                  "co2_saved_kg": 0.04186770096384629,
+                  "co2_kg": 0.0002002090441481644,
+                  "co2_saved_kg": 0.0952870051746303,
                   "distance_km": 2.8759469101223067,
                   "price": 39.9,
                   "product_id": "31fd02b02c33827cbde22902cf80338c",
                   "replaces_product_id": "004636c889c7c3dad6631f136b7fa082",
-                  "saved_share": 0.9965089735355425,
+                  "saved_share": 0.9979032895054468,
                   "seller_id": "5f1dc28029d2c244352a68107ec2b542",
                   "title": "Utilidades Domesticas"
                 }
               ],
               "badge": null,
-              "co2_kg": 0.042014374256262525,
-              "co2_share": 0.5396423309395374,
+              "co2_kg": 0.09548721421877847,
+              "co2_share": 0.5452831354668098,
               "distance_km": 299.5677308824423,
               "freight": 23.1,
               "product_ids": [
@@ -1387,8 +1387,8 @@
             {
               "alternatives": [],
               "badge": null,
-              "co2_kg": 0.02369862995855433,
-              "co2_share": 0.3043906790781623,
+              "co2_kg": 0.02764840161831338,
+              "co2_share": 0.15788718152921735,
               "distance_km": 123.91440501204877,
               "freight": 19.28,
               "product_ids": [
@@ -1403,10 +1403,10 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~63 km · ~4,79 g CO₂)"
+                "label": "Entrega local (~63 km · ~0,02 kg CO₂)"
               },
-              "co2_kg": 0.004792175401348485,
-              "co2_share": 0.061551808152166876,
+              "co2_kg": 0.017970657755056817,
+              "co2_share": 0.10262208073875548,
               "distance_km": 62.642815703901775,
               "freight": 13.23,
               "product_ids": [
@@ -1419,8 +1419,8 @@
             {
               "alternatives": [],
               "badge": null,
-              "co2_kg": 0.0047479976854072825,
-              "co2_share": 0.06098437936075647,
+              "co2_kg": 0.014872537511718626,
+              "co2_share": 0.08493015481797164,
               "distance_km": 106.39770723601755,
               "freight": 11.2,
               "product_ids": [
@@ -1435,16 +1435,16 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~10 km · ~1,56 g CO₂)"
+                "label": "Entrega local (~7 km · ~0,01 kg CO₂)"
               },
-              "co2_kg": 0.001556771989974325,
-              "co2_share": 0.01999553915255335,
-              "distance_km": 10.174980326629576,
-              "freight": 13.95,
+              "co2_kg": 0.013946871816416797,
+              "co2_share": 0.07964410791778904,
+              "distance_km": 6.836701870792548,
+              "freight": 25.78,
               "product_ids": [
-                "001795ec6f1b187d37335e1c4704762e"
+                "002af88741ba70c7b5cf4e4a0ad7ef85"
               ],
-              "seller_id": "8b321bb669392f5163d04c59e235e066",
+              "seller_id": "3a734b715d333a2588a3d54a0c9b8746",
               "total_quantity": 1,
               "weight_g": 600.0
             },
@@ -1453,16 +1453,16 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~7 km · ~1,05 g CO₂)"
+                "label": "Entrega local (~10 km · ~5,19 g CO₂)"
               },
-              "co2_kg": 0.0010460153862312598,
-              "co2_share": 0.0134352633168235,
-              "distance_km": 6.836701870792548,
-              "freight": 25.78,
+              "co2_kg": 0.005189239966581084,
+              "co2_share": 0.02963333952945659,
+              "distance_km": 10.174980326629576,
+              "freight": 13.95,
               "product_ids": [
-                "002af88741ba70c7b5cf4e4a0ad7ef85"
+                "001795ec6f1b187d37335e1c4704762e"
               ],
-              "seller_id": "3a734b715d333a2588a3d54a0c9b8746",
+              "seller_id": "8b321bb669392f5163d04c59e235e066",
               "total_quantity": 1,
               "weight_g": 600.0
             }
@@ -1476,9 +1476,9 @@
         "actions": [],
         "props": {
           "badge": null,
-          "co2_kg": 0.07785596467777821,
+          "co2_kg": 0.17511492288686517,
           "distance_km": null,
-          "message": "6 remessas na modalidade Expressa — 3 de entrega local. Uma delas responde por 54% do CO₂."
+          "message": "6 remessas na modalidade Expressa — 3 de entrega local. Uma delas responde por 55% do CO₂."
         },
         "type": "impact_banner",
         "version": 1
@@ -1568,7 +1568,7 @@
           "note": "Distância e massa vêm do dataset Olist; preço, prazo e emissão por modalidade são um cenário declarado sobre o frete real da amostra.",
           "options": [
             {
-              "co2_kg": 0.22725956984069276,
+              "co2_kg": 1.0540387970611267,
               "description": "Carga fracionada com prioridade na malha e veículo dedicado.",
               "eta_days": 5,
               "id": "express",
@@ -1578,7 +1578,7 @@
               "selected": false
             },
             {
-              "co2_kg": 0.0909038279362771,
+              "co2_kg": 0.4216155188244507,
               "description": "Frete rodoviário praticado na amostra Olist.",
               "eta_days": 9,
               "id": "standard",
@@ -1588,7 +1588,7 @@
               "selected": false
             },
             {
-              "co2_kg": 0.05454229676176626,
+              "co2_kg": 0.25296931129467043,
               "description": "Carga consolidada com outros pedidos da região: menos viagens.",
               "eta_days": 13,
               "id": "green",
@@ -1621,20 +1621,20 @@
                       "type": "api_call"
                     }
                   ],
-                  "co2_kg": 3.520159017989703e-05,
-                  "co2_saved_kg": 0.01004824823132311,
+                  "co2_kg": 4.805017059555946e-05,
+                  "co2_saved_kg": 0.022868881241911273,
                   "distance_km": 2.8759469101223067,
                   "price": 39.9,
                   "product_id": "31fd02b02c33827cbde22902cf80338c",
                   "replaces_product_id": "004636c889c7c3dad6631f136b7fa082",
-                  "saved_share": 0.9965089735355425,
+                  "saved_share": 0.9979032895054468,
                   "seller_id": "5f1dc28029d2c244352a68107ec2b542",
                   "title": "Utilidades Domesticas"
                 }
               ],
               "badge": null,
-              "co2_kg": 0.010083449821503006,
-              "co2_share": 0.5396423309395374,
+              "co2_kg": 0.022916931412506832,
+              "co2_share": 0.54528313546681,
               "distance_km": 299.5677308824423,
               "freight": 12.27,
               "product_ids": [
@@ -1647,8 +1647,8 @@
             {
               "alternatives": [],
               "badge": null,
-              "co2_kg": 0.0056876711900530385,
-              "co2_share": 0.3043906790781623,
+              "co2_kg": 0.006635616388395211,
+              "co2_share": 0.15788718152921738,
               "distance_km": 123.91440501204877,
               "freight": 10.24,
               "product_ids": [
@@ -1663,10 +1663,10 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~63 km · ~1,15 g CO₂)"
+                "label": "Entrega local (~63 km · ~4,31 g CO₂)"
               },
-              "co2_kg": 0.0011501220963236363,
-              "co2_share": 0.06155180815216687,
+              "co2_kg": 0.004312957861213636,
+              "co2_share": 0.10262208073875548,
               "distance_km": 62.642815703901775,
               "freight": 7.03,
               "product_ids": [
@@ -1679,8 +1679,8 @@
             {
               "alternatives": [],
               "badge": null,
-              "co2_kg": 0.0011395194444977477,
-              "co2_share": 0.06098437936075647,
+              "co2_kg": 0.00356940900281247,
+              "co2_share": 0.08493015481797164,
               "distance_km": 106.39770723601755,
               "freight": 5.95,
               "product_ids": [
@@ -1695,16 +1695,16 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~10 km · ~0,37 g CO₂)"
+                "label": "Entrega local (~7 km · ~3,35 g CO₂)"
               },
-              "co2_kg": 0.000373625277593838,
-              "co2_share": 0.01999553915255335,
-              "distance_km": 10.174980326629576,
-              "freight": 7.41,
+              "co2_kg": 0.003347249235940031,
+              "co2_share": 0.07964410791778904,
+              "distance_km": 6.836701870792548,
+              "freight": 13.69,
               "product_ids": [
-                "001795ec6f1b187d37335e1c4704762e"
+                "002af88741ba70c7b5cf4e4a0ad7ef85"
               ],
-              "seller_id": "8b321bb669392f5163d04c59e235e066",
+              "seller_id": "3a734b715d333a2588a3d54a0c9b8746",
               "total_quantity": 1,
               "weight_g": 600.0
             },
@@ -1713,16 +1713,16 @@
               "badge": {
                 "icon": "leaf",
                 "impact_level": "green",
-                "label": "Entrega local (~7 km · ~0,25 g CO₂)"
+                "label": "Entrega local (~10 km · ~1,25 g CO₂)"
               },
-              "co2_kg": 0.00025104369269550236,
-              "co2_share": 0.0134352633168235,
-              "distance_km": 6.836701870792548,
-              "freight": 13.69,
+              "co2_kg": 0.00124541759197946,
+              "co2_share": 0.029633339529456588,
+              "distance_km": 10.174980326629576,
+              "freight": 7.41,
               "product_ids": [
-                "002af88741ba70c7b5cf4e4a0ad7ef85"
+                "001795ec6f1b187d37335e1c4704762e"
               ],
-              "seller_id": "3a734b715d333a2588a3d54a0c9b8746",
+              "seller_id": "8b321bb669392f5163d04c59e235e066",
               "total_quantity": 1,
               "weight_g": 600.0
             }
@@ -1736,9 +1736,9 @@
         "actions": [],
         "props": {
           "badge": null,
-          "co2_kg": 0.01868543152266677,
+          "co2_kg": 0.04202758149284764,
           "distance_km": null,
-          "message": "6 remessas na modalidade Verde — 3 de entrega local. Uma delas responde por 54% do CO₂."
+          "message": "6 remessas na modalidade Verde — 3 de entrega local. Uma delas responde por 55% do CO₂."
         },
         "type": "impact_banner",
         "version": 1
@@ -1765,7 +1765,7 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+            "label": "Entrega local (~10 km · ~2,08 g CO₂)"
           },
           "category": "consoles_games",
           "image_url": null,
@@ -1788,9 +1788,9 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+            "label": "Entrega local (~10 km · ~2,08 g CO₂)"
           },
-          "co2_kg": 0.00062270879598973,
+          "co2_kg": 0.0020756959866324335,
           "distance_km": 10.174980326629576,
           "message": "Este produto sai de ~10 km de você (sao paulo, SP)."
         },
@@ -1819,7 +1819,7 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~63 km · ~1,92 g CO₂)"
+            "label": "Entrega local (~63 km · ~7,19 g CO₂)"
           },
           "category": "beleza_saude",
           "image_url": null,
@@ -1842,9 +1842,9 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~63 km · ~1,92 g CO₂)"
+            "label": "Entrega local (~63 km · ~7,19 g CO₂)"
           },
-          "co2_kg": 0.001916870160539394,
+          "co2_kg": 0.007188263102022727,
           "distance_km": 62.642815703901775,
           "message": "Este produto sai de ~63 km de você (praia grande, SP)."
         },
@@ -1890,7 +1890,7 @@
         "actions": [],
         "props": {
           "badge": null,
-          "co2_kg": 0.009479451983421731,
+          "co2_kg": 0.011059360647325352,
           "distance_km": 123.91440501204877,
           "message": "Este produto sai de ~124 km de você (limeira, SP)."
         },
@@ -1919,7 +1919,7 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~7 km · ~0,42 g CO₂)"
+            "label": "Entrega local (~7 km · ~5,58 g CO₂)"
           },
           "category": "cool_stuff",
           "image_url": null,
@@ -1942,9 +1942,9 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~7 km · ~0,42 g CO₂)"
+            "label": "Entrega local (~7 km · ~5,58 g CO₂)"
           },
-          "co2_kg": 0.00041840615449250393,
+          "co2_kg": 0.005578748726566719,
           "distance_km": 6.836701870792548,
           "message": "Este produto sai de ~7 km de você (osasco, SP)."
         },
@@ -1990,7 +1990,7 @@
         "actions": [],
         "props": {
           "badge": null,
-          "co2_kg": 0.001899199074162913,
+          "co2_kg": 0.00594901500468745,
           "distance_km": 106.39770723601755,
           "message": "Este produto sai de ~106 km de você (socorro, SP)."
         },
@@ -2036,7 +2036,7 @@
         "actions": [],
         "props": {
           "badge": null,
-          "co2_kg": 0.01680574970250501,
+          "co2_kg": 0.038194885687511386,
           "distance_km": 299.5677308824423,
           "message": "Este produto sai de ~300 km de você (ipaussu, SP)."
         },
@@ -2282,7 +2282,7 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~4 km · ~0,40 g CO₂)"
+            "label": "Entrega local (~4 km · ~0,95 g CO₂)"
           },
           "image_url": null,
           "price": 99.9,
@@ -2315,7 +2315,7 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~7 km · ~0,42 g CO₂)"
+            "label": "Entrega local (~7 km · ~5,58 g CO₂)"
           },
           "image_url": null,
           "price": 39.0,
@@ -2348,7 +2348,7 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+            "label": "Entrega local (~10 km · ~2,08 g CO₂)"
           },
           "image_url": null,
           "price": 38.9,
@@ -2381,7 +2381,7 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~13 km · ~0,90 g CO₂)"
+            "label": "Entrega local (~13 km · ~2,99 g CO₂)"
           },
           "image_url": null,
           "price": 59.9,
@@ -2414,7 +2414,7 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~14 km · ~5,52 g CO₂)"
+            "label": "Entrega local (~14 km · ~5,63 g CO₂)"
           },
           "image_url": null,
           "price": 159.9,
@@ -2696,7 +2696,7 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~10 km · ~0,62 g CO₂)"
+            "label": "Entrega local (~10 km · ~2,08 g CO₂)"
           },
           "image_url": null,
           "price": 38.9,
@@ -2729,7 +2729,7 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~63 km · ~1,92 g CO₂)"
+            "label": "Entrega local (~63 km · ~7,19 g CO₂)"
           },
           "image_url": null,
           "price": 32.98,
@@ -2791,7 +2791,7 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~7 km · ~0,42 g CO₂)"
+            "label": "Entrega local (~7 km · ~5,58 g CO₂)"
           },
           "image_url": null,
           "price": 39.0,
@@ -3214,7 +3214,7 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~13 km · ~0,20 g CO₂)"
+            "label": "Entrega local (~13 km · ~0,33 g CO₂)"
           },
           "image_url": null,
           "price": 24.99,
@@ -3492,7 +3492,7 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~14 km · ~5,52 g CO₂)"
+            "label": "Entrega local (~14 km · ~5,63 g CO₂)"
           },
           "image_url": null,
           "price": 159.9,
@@ -4002,7 +4002,7 @@
           "badge": {
             "icon": "leaf",
             "impact_level": "green",
-            "label": "Entrega local (~13 km · ~0,20 g CO₂)"
+            "label": "Entrega local (~13 km · ~0,33 g CO₂)"
           },
           "image_url": null,
           "price": 24.99,

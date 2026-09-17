@@ -38,6 +38,12 @@ class Product(Base):
     product_id: Mapped[str] = mapped_column(String(64), primary_key=True)
     product_category_name: Mapped[str | None] = mapped_column(String(120), index=True)
     product_weight_g: Mapped[float | None] = mapped_column(Float)
+    # Produto das tres dimensoes do dataset (comprimento x altura x largura).
+    # Preenchidas em 100% dos produtos e nunca usadas ate a Sprint 7. Guardamos
+    # o volume e nao as tres medidas porque nada aqui precisa de uma dimensao
+    # isolada; o fator de cubagem que o transforma em massa fica em `co2.py`,
+    # ao lado do FE, e nao pre-aplicado no banco.
+    product_volume_cm3: Mapped[float | None] = mapped_column(Float)
     # Media/contagem de `review_score` dos pedidos que contem o produto. A nota
     # no Olist e do PEDIDO, nao do item — a atribuicao e uma aproximacao, mas os
     # numeros sao reais. Sem pedido avaliado, `rating` fica nulo.

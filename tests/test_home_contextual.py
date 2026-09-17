@@ -116,6 +116,8 @@ async def _fake_badge_close(
     customer_zip_prefix: str,
     seller_zip_prefix: str,
     weight_g: float | None = None,
+    co2_factor: float = 1.0,
+    volume_cm3: float | None = None,
 ) -> tuple[float | None, SustainabilityProps | None]:
     """Sellers em zip que comeca com '0100' -> proximo (50km); outros -> longe (500km)."""
     if seller_zip_prefix.startswith("0100"):

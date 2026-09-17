@@ -30,6 +30,7 @@ def build_sustainability_props(
     distance_km: float,
     weight_g: float | None = None,
     co2_factor: float = 1.0,
+    volume_cm3: float | None = None,
 ) -> SustainabilityProps | None:
     """Selo verde apenas para entregas com `d_km < 100`. Senao retorna None.
 
@@ -45,7 +46,7 @@ def build_sustainability_props(
         # sai junto, porque afirmar "0,00 g" e afirmar zero, nao "pouco".
         label = "Entrega local (mesma região)"
     elif weight_g is not None and weight_g > 0:
-        co2_kg = calculate_co2_kg(distance_km, weight_g) * co2_factor
+        co2_kg = calculate_co2_kg(distance_km, weight_g, volume_cm3) * co2_factor
         label = f"Entrega local (~{distance_km:.0f} km · ~{format_co2(co2_kg)} CO₂)"
     else:
         label = f"Entrega local (~{distance_km:.0f} km)"

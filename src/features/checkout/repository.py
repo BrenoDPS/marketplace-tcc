@@ -29,6 +29,9 @@ class AlternativeRow:
     seller_id: str
     lat: float
     lng: float
+    # Volume do dataset; entra no CO2 como massa cubada quando ela supera
+    # a real. Default `None` para quem so tem massa (fixtures, chamadas antigas).
+    volume_cm3: float | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -40,6 +43,9 @@ class CheckoutProductRow:
     freight_value: float
     weight_g: float | None
     category: str | None
+    # Volume do dataset; entra no CO2 como massa cubada quando ela supera
+    # a real. Default `None` para quem so tem massa (fixtures, chamadas antigas).
+    volume_cm3: float | None = None
 
 
 async def fetch_products_for_checkout(
@@ -63,6 +69,7 @@ async def fetch_products_for_checkout(
             Offer.freight_value,
             Product.product_weight_g,
             Product.product_category_name,
+            Product.product_volume_cm3,
         )
         .join(Product, Product.product_id == Offer.product_id)
         .join(Seller, Seller.seller_id == Offer.seller_id)
@@ -72,7 +79,8 @@ async def fetch_products_for_checkout(
     result = await session.execute(stmt)
 
     out: dict[str, CheckoutProductRow] = {}
-    for product_id, seller_id, zip_prefix, price, freight, weight_g, category in result:
+    for (product_id, seller_id, zip_prefix, price, freight,
+         weight_g, category, volume) in result:
         out[product_id] = CheckoutProductRow(
             product_id=product_id,
             seller_id=seller_id,
@@ -81,6 +89,7 @@ async def fetch_products_for_checkout(
             freight_value=float(freight) if freight is not None else 0.0,
             weight_g=float(weight_g) if weight_g is not None else None,
             category=category,
+            volume_cm3=float(volume) if volume is not None else None,
         )
     return out
 
@@ -113,6 +122,7 @@ async def fetch_alternative_candidates(
             Product.product_category_name,
             Offer.price,
             Product.product_weight_g,
+            Product.product_volume_cm3,
             Offer.seller_id,
             CepCentroid.lat,
             CepCentroid.lng,
@@ -132,7 +142,7 @@ async def fetch_alternative_candidates(
     result = await session.execute(stmt)
 
     out: list[AlternativeRow] = []
-    for product_id, category, price, weight_g, seller_id, lat, lng in result:
+    for product_id, category, price, weight_g, volume, seller_id, lat, lng in result:
         out.append(
             AlternativeRow(
                 product_id=product_id,
@@ -142,6 +152,7 @@ async def fetch_alternative_candidates(
                 seller_id=seller_id,
                 lat=float(lat),
                 lng=float(lng),
+                volume_cm3=float(volume) if volume is not None else None,
             )
         )
     return out

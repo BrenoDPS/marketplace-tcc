@@ -87,7 +87,7 @@ def _mensagem_comparativa(
     if not perto.weight_g:
         return base
 
-    evitado = calculate_co2_kg(longe_km - perto_km, perto.weight_g)
+    evitado = calculate_co2_kg(longe_km - perto_km, perto.weight_g, perto.volume_cm3)
     return f"{base} Comprar do mais próximo evita ~{format_co2(evitado)} de CO₂."
 
 
@@ -111,7 +111,7 @@ async def compose_product_detail(
     bruto, product = escolhida
     medido = None if bruto == INFINITY else bruto
     badge = (
-        build_sustainability_props(medido, product.weight_g)
+        build_sustainability_props(medido, product.weight_g, volume_cm3=product.volume_cm3)
         if medido is not None
         else None
     )
@@ -125,7 +125,7 @@ async def compose_product_detail(
 
     co2_kg: float | None = None
     if distance_km is not None and product.weight_g:
-        co2_kg = calculate_co2_kg(distance_km, product.weight_g)
+        co2_kg = calculate_co2_kg(distance_km, product.weight_g, product.volume_cm3)
 
     comparativo = _mensagem_comparativa(escolhida, descartadas)
     mensagem = _impact_message(product, medido)

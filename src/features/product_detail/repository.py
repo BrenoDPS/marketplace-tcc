@@ -22,6 +22,9 @@ class ProductDetailRow:
     seller_zip_prefix: str
     seller_city: str | None
     seller_state: str | None
+    # Volume do dataset; entra no CO2 como massa cubada quando ela supera
+    # a real. Default `None` para quem so tem massa (fixtures, chamadas antigas).
+    volume_cm3: float | None = None
 
 
 async def fetch_product_offers(
@@ -43,6 +46,7 @@ async def fetch_product_offers(
             Product.product_id,
             Product.product_category_name,
             Product.product_weight_g,
+            Product.product_volume_cm3,
             Product.rating,
             Product.review_count,
             Offer.price,
@@ -64,6 +68,7 @@ async def fetch_product_offers(
             product_id=pid,
             category=category,
             weight_g=float(weight_g) if weight_g is not None else None,
+            volume_cm3=float(volume) if volume is not None else None,
             rating=float(rating) if rating is not None else None,
             review_count=int(review_count or 0),
             unit_price=float(price),
@@ -76,6 +81,7 @@ async def fetch_product_offers(
             pid,
             category,
             weight_g,
+            volume,
             rating,
             review_count,
             price,

@@ -33,6 +33,7 @@ from sqlalchemy.engine import Engine
 
 from src.core.config import settings
 from src.core.models import Base
+from src.features.green_logistics.co2 import VOLUMETRIC_FACTOR_CM3_PER_KG
 from src.features.green_logistics.delivery_options import ETA_BANDS
 
 DEFAULT_SAMPLE_SIZE = 10000
@@ -126,8 +127,15 @@ def filter_valid(
 ) -> dict[str, pd.DataFrame]:
     """Filtra subset coerente: produtos com peso valido, CEPs com geolocation."""
 
-    products = frames["products"]
+    products = frames["products"].copy()
     products = products[products["product_weight_g"].notna() & (products["product_weight_g"] > 0)]
+    # Volume das tres dimensoes do dataset. Produto sem alguma delas fica com
+    # volume nulo e cai no peso real — nao inventamos caixa.
+    products["product_volume_cm3"] = (
+        products["product_length_cm"]
+        * products["product_height_cm"]
+        * products["product_width_cm"]
+    )
 
     valid_geo_prefixes = set(
         frames["geolocation"]["geolocation_zip_code_prefix"].dropna().unique()
@@ -274,6 +282,7 @@ def load_tables(
                 "product_id",
                 "product_category_name",
                 "product_weight_g",
+                "product_volume_cm3",
                 "rating",
                 "review_count",
             ],
@@ -500,6 +509,14 @@ def main() -> int:
     print(
         f"[etl] ofertas derivadas: {len(subset['offers'])} "
         f"({multi} produtos com mais de um vendedor)"
+    )
+    cubado = (
+        subset["products"]["product_volume_cm3"] / VOLUMETRIC_FACTOR_CM3_PER_KG * 1000.0
+    )
+    domina = (cubado > subset["products"]["product_weight_g"]).mean()
+    print(
+        f"[etl] peso cubado supera o real em {domina * 100:.1f}% dos produtos "
+        f"— e ele que entra no calculo de CO2 (ver co2.chargeable_weight_g)"
     )
 
     items_with_customer = subset["order_items"].merge(

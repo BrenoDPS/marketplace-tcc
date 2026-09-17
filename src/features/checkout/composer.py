@@ -176,6 +176,11 @@ async def compose_checkout(
         # A emissao acompanha a massa embarcada: 2 unidades pesam 2x, e a
         # remessa carrega a soma dos itens daquele vendedor.
         weight_g = sum((p.weight_g or 0.0) * q for p, q in group) or None
+        # Volume somado, e nao peso cubado somado item a item. A cubagem se
+        # aplica a REMESSA: um item denso e um volumoso viajam na mesma carga,
+        # e `max(soma_real, soma_cubada)` e menor que a soma dos `max` de cada
+        # item. Somar os `max` cobraria o espaco vazio duas vezes.
+        volume_cm3 = sum((p.volume_cm3 or 0.0) * q for p, q in group) or None
         # Um frete por remessa, dimensionado pelo maior item (ver
         # CONSOLIDATION_NOTE). Com um item so, e o frete da Sprint 3 intacto.
         base_freight = max(p.freight_value for p, _ in group)
@@ -187,6 +192,7 @@ async def compose_checkout(
             seller_zip_prefix=group[0][0].seller_zip_prefix,
             weight_g=weight_g,
             co2_factor=mode.co2_factor,
+            volume_cm3=volume_cm3,
         )
         shipments.append(
             ShipmentProps(
@@ -196,7 +202,7 @@ async def compose_checkout(
                 weight_g=weight_g,
                 distance_km=distance_km,
                 freight=round(base_freight * mode.price_factor, 2),
-                co2_kg=mode_co2_kg(mode, distance_km, weight_g),
+                co2_kg=mode_co2_kg(mode, distance_km, weight_g, volume_cm3),
                 badge=badge,
             )
         )
@@ -241,6 +247,9 @@ async def compose_checkout(
     weights = [s.weight_g for s in shipments if s.weight_g is not None]
     eta_distance_km = max(distances) if distances else None
     cart_weight_g = sum(weights) if weights else None
+    # Volume do carrinho inteiro, pelo mesmo motivo da remessa: a cubagem se
+    # aplica ao que embarca junto, nao item a item.
+    cart_volume_cm3 = sum((p.volume_cm3 or 0.0) * q for p, q in lines) or None
 
     components: list[UIComponent] = [
         CheckoutSummaryBlock(
@@ -274,6 +283,7 @@ async def compose_checkout(
                     distance_km=eta_distance_km,
                     weight_g=cart_weight_g,
                     selected_id=mode.id,
+                    volume_cm3=cart_volume_cm3,
                 ),
                 note=NOTE,
             ),

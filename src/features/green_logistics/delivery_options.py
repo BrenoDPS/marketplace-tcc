@@ -7,7 +7,8 @@ de modalidade, transportadora ou modal de transporte. As tres opcoes abaixo
 sao um CENARIO DECLARADO sobre uma linha de base MEDIDA. O que e real:
 
 - `distance_km`: Haversine sobre centroides de CEP da amostra
-- `weight_g`: `product_weight_g` do dataset
+- massa cobravel: `max(product_weight_g, peso cubado das dimensoes)` — as
+  duas colunas sao do dataset; ver `co2.chargeable_weight_g`
 - emissao base: FE = 0,102 kg CO2/(t.km) do GHG Protocol (`co2.py`)
 - `standard`: usa o `freight_value` real da amostra, sem fator
 - **prazo da linha de base: medido em 95.921 entregas reais** — ver `ETA_BANDS`
@@ -151,12 +152,15 @@ def eta_days(mode: DeliveryMode, distance_km: float | None) -> int:
 
 
 def mode_co2_kg(
-    mode: DeliveryMode, distance_km: float | None, weight_g: float | None
+    mode: DeliveryMode,
+    distance_km: float | None,
+    weight_g: float | None,
+    volume_cm3: float | None = None,
 ) -> float | None:
     """Emissao da modalidade, ou None quando falta distancia ou massa."""
     if distance_km is None or not weight_g:
         return None
-    return calculate_co2_kg(distance_km, weight_g) * mode.co2_factor
+    return calculate_co2_kg(distance_km, weight_g, volume_cm3) * mode.co2_factor
 
 
 def build_delivery_options(
@@ -164,6 +168,7 @@ def build_delivery_options(
     distance_km: float | None,
     weight_g: float | None,
     selected_id: str = DEFAULT_MODE_ID,
+    volume_cm3: float | None = None,
 ) -> list[DeliveryOptionProps]:
     """Uma opcao por modalidade, na ordem de MODES (mais rapida -> mais verde)."""
     return [
@@ -173,7 +178,7 @@ def build_delivery_options(
             description=mode.description,
             eta_days=eta_days(mode, distance_km),
             price=round(base_freight * mode.price_factor, 2),
-            co2_kg=mode_co2_kg(mode, distance_km, weight_g),
+            co2_kg=mode_co2_kg(mode, distance_km, weight_g, volume_cm3),
             recommended=mode.id == GREENEST_MODE_ID,
             selected=mode.id == selected_id,
         )

@@ -371,6 +371,23 @@ docker-compose.yml           # Postgres 16 (sem PostGIS nesta sprint)
 - **Exibicao do CO2:** `format_co2` escolhe a unidade (g abaixo de 10 g, kg acima). Com a amostra de 10k as distancias caem para poucos km e um `.2f` em kg imprimia `0,00 kg` em todo selo — apagando o numero que sustenta o trabalho.
 - **Modalidades:** `green_logistics/delivery_options.py`. **Leia o docstring do modulo antes de citar esses numeros no TCC.** Distancia, massa e o FE base sao reais; `standard` usa o frete real da amostra sem fator e o **prazo medido em 95.921 entregas do Olist** (`ETA_BANDS`). Os fatores de preco/emissao/prazo de `express` e `green` sao um **cenario declarado** sobre essa linha de base, nao dado do Olist — o dataset nao tem modalidade nem transportadora. A ressalva viaja no proprio JSON (campo `note`) e e exibida na tela.
 
+### Peso cubado: o que a carga OCUPA, nao o que ela pesa
+
+Ate a Sprint 7 o CO2 saia so da massa (`product_weight_g`). Mas as tres dimensoes do produto estao preenchidas em **100%** dos produtos do Olist e nunca tinham sido usadas — e um veiculo enche por volume antes de atingir o limite de peso quando a carga e leve.
+
+Com o fator de cubagem rodoviario (6.000 cm³ = 1 kg), na amostra carregada:
+
+| | |
+|---|---|
+| produtos em que o cubado supera o real | **66,7%** |
+| razao cubado/real — mediana | 1,44x |
+| razao cubado/real — p90 | 4,33x |
+| **massa cobravel agregada** | **1,41x a massa real** |
+
+> ⚠️ **A correcao AUMENTA a emissao estimada.** Qualquer numero de CO2 publicado antes desta mudanca subestimava — nao e a mudanca que superestima. Ver `co2.chargeable_weight_g`, que cita GLEC (Smart Freight Centre, 2023) e ISO 14083, ambas ja na bibliografia.
+
+O **peso exibido na tela continua sendo o real**: a cubagem entra no calculo de emissao, nao na ficha do produto. E no checkout ela se aplica a REMESSA (`max(soma_real, soma_cubada)`), nao item a item — somar os `max` cobraria o espaco vazio duas vezes.
+
 ### Prazo de entrega: medido, nao arbitrado
 
 Ate a Sprint 7 o prazo saia de `dias_fixos + ceil(distancia / km_por_dia)`, com os dois numeros escolhidos a mao — e subestimava muito. O dataset tem `order_purchase_timestamp` e `order_delivered_customer_date` em 97% dos pedidos, e essa informacao nunca tinha sido usada. Mediana de dias ate a entrega, por faixa de distancia:
