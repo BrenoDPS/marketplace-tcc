@@ -71,14 +71,48 @@ PRODUCT_MULTI_LONGE = ProductDetailRow(
     seller_state="PR",
 )
 
+# Vendedor no MESMO prefixo do comprador: distancia entre centroides = 0.
+# Caso raro antes, comum depois que o sistema passou a buscar o mais proximo.
+PRODUCT_MESMA_REGIAO = ProductDetailRow(
+    product_id="prod_mesma_regiao",
+    category="bebes",
+    weight_g=1000.0,
+    rating=None,
+    review_count=0,
+    unit_price=29.90,
+    seller_id="seller_vizinho",
+    seller_zip_prefix="05311",
+    seller_city="sao paulo",
+    seller_state="SP",
+)
+
+# Vendedor sem centroide: distancia DESCONHECIDA, que nao e a mesma coisa que
+# distancia pequena demais para medir.
+PRODUCT_SEM_CENTROIDE = ProductDetailRow(
+    product_id="prod_sem_centroide",
+    category="bebes",
+    weight_g=1000.0,
+    rating=None,
+    review_count=0,
+    unit_price=19.90,
+    seller_id="seller_sem_geo",
+    seller_zip_prefix="99999",
+    seller_city="lugar nenhum",
+    seller_state="ZZ",
+)
+
 CATALOG: dict[str, list[ProductDetailRow]] = {
     "prod_real_1": [PRODUCT],
     "prod_sem_nota": [PRODUCT_UNRATED],
     # Longe PRIMEIRO: se o composer pegasse a primeira em vez da mais proxima,
     # os testes de multi-vendedor passariam por acidente.
     "prod_dois_vendedores": [PRODUCT_MULTI_LONGE, PRODUCT_MULTI_PERTO],
+    "prod_mesma_regiao": [PRODUCT_MESMA_REGIAO],
+    "prod_sem_centroide": [PRODUCT_SEM_CENTROIDE],
 }
-DISTANCE_BY_SELLER_ZIP = {"08275": 27.0, "60000": 2000.0}
+# `05311` ausente do mapa de proposito: `_fake_distance` devolve None para
+# vendedor sem centroide, e 0.0 so para o vizinho do proprio comprador.
+DISTANCE_BY_SELLER_ZIP = {"08275": 27.0, "60000": 2000.0, "05311": 0.0}
 
 
 async def _override_get_db() -> AsyncIterator[None]:
@@ -238,10 +272,13 @@ async def test_a_tela_revela_que_havia_outra_origem() -> None:
     )
     mensagem = _block(body, "impact_banner")["props"]["message"]
 
-    assert "2 vendedores" in mensagem
+    assert "outro vendedor" in mensagem
     assert "2000 km" in mensagem
     assert "maringa" in mensagem
     assert "evita" in mensagem
+    # A origem escolhida aparece UMA vez: a primeira frase ja a nomeou, e o
+    # comparativo so descreve a alternativa.
+    assert mensagem.count("recife") == 1
 
 
 async def test_produto_de_um_vendedor_so_nao_inventa_comparacao() -> None:
@@ -268,3 +305,45 @@ async def test_unknown_cep_returns_422() -> None:
 async def test_missing_cep_returns_422() -> None:
     status, _ = await _get("/api/v1/products/prod_real_1")
     assert status == 422
+
+
+async def test_banner_nao_anuncia_0km_nem_0g_para_vendedor_da_mesma_regiao() -> None:
+    """A aresta que a feature do vendedor mais proximo tornou comum.
+
+    Escolher ativamente o vendedor mais perto faz cair com frequencia no caso
+    "mesmo prefixo de CEP", onde a distancia entre centroides e exatamente 0.
+    O banner nao pode responder "Distancia: 0 km / CO₂: 0,00 g" — o cliente
+    omite a linha quando o campo vem nulo, e o texto explica o porque.
+    """
+    _, body = await _get("/api/v1/products/prod_mesma_regiao?customer_zip_prefix=05311")
+    banner = _block(body, "impact_banner")["props"]
+
+    assert banner["distance_km"] is None
+    assert banner["co2_kg"] is None
+    assert "0 km" not in banner["message"]
+    assert "sua região" in banner["message"]
+    assert _block(body, "product_detail")["props"]["badge"]["label"] == (
+        "Entrega local (mesma região)"
+    )
+
+
+async def test_mesma_regiao_e_diferente_de_distancia_desconhecida() -> None:
+    """Os dois casos caem no mesmo nulo; so a `message` os separa.
+
+    Sem esta distincao, "o vendedor e do seu bairro" e "nao faco ideia de onde
+    ele esta" ficariam indistinguiveis na tela.
+    """
+    _, perto = await _get(
+        "/api/v1/products/prod_mesma_regiao?customer_zip_prefix=05311"
+    )
+    _, desconhecido = await _get(
+        "/api/v1/products/prod_sem_centroide?customer_zip_prefix=05311"
+    )
+
+    m_perto = _block(perto, "impact_banner")["props"]["message"]
+    m_desconhecido = _block(desconhecido, "impact_banner")["props"]["message"]
+
+    assert "sua região" in m_perto
+    assert "Não foi possível estimar" in m_desconhecido
+    assert _block(perto, "product_detail")["props"]["badge"] is not None
+    assert _block(desconhecido, "product_detail")["props"]["badge"] is None

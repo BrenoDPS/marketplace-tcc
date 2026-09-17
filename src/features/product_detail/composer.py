@@ -10,7 +10,10 @@ from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.features.green_logistics.badge import build_sustainability_props
+from src.features.green_logistics.badge import (
+    RESOLUTION_FLOOR_KM,
+    build_sustainability_props,
+)
 from src.features.green_logistics.co2 import calculate_co2_kg, format_co2
 from src.features.green_logistics.service import compute_distance_km
 from src.features.product_detail.repository import ProductDetailRow
@@ -42,6 +45,8 @@ def _origem(product: ProductDetailRow) -> str:
 def _impact_message(product: ProductDetailRow, distance_km: float | None) -> str:
     if distance_km is None:
         return f"Não foi possível estimar a distância até este vendedor{_origem(product)}."
+    if distance_km < RESOLUTION_FLOOR_KM:
+        return f"Este produto sai de um vendedor na sua região{_origem(product)}."
     return f"Este produto sai de ~{distance_km:.0f} km de você{_origem(product)}."
 
 
@@ -69,12 +74,16 @@ def _mensagem_comparativa(
     if longe_km <= perto_km:
         return None
 
-    total = len(descartadas) + 1
-    base = (
-        f"Este item tem {total} vendedores na amostra. "
-        f"O mais distante fica a ~{longe_km:.0f} km{_origem(longe)}, "
-        f"contra ~{perto_km:.0f} km{_origem(perto)}."
-    )
+    # So descreve a alternativa: a frase anterior ja disse de onde sai a
+    # escolhida, e repetir isso dava "um vendedor na sua regiao (recife, PE)
+    # [...] contra um vendedor na sua regiao (recife, PE)".
+    if len(descartadas) == 1:
+        base = f"O outro vendedor deste item fica a ~{longe_km:.0f} km{_origem(longe)}."
+    else:
+        base = (
+            f"Este item tem {len(descartadas) + 1} vendedores na amostra; "
+            f"o mais distante fica a ~{longe_km:.0f} km{_origem(longe)}."
+        )
     if not perto.weight_g:
         return base
 
@@ -100,19 +109,26 @@ async def compose_product_detail(
 
     escolhida, *descartadas = medidas
     bruto, product = escolhida
-    distance_km = None if bruto == INFINITY else bruto
+    medido = None if bruto == INFINITY else bruto
     badge = (
-        build_sustainability_props(distance_km, product.weight_g)
-        if distance_km is not None
+        build_sustainability_props(medido, product.weight_g)
+        if medido is not None
         else None
     )
+
+    # Abaixo do piso de resolucao o banner nao afirma numero nenhum: o cliente
+    # ja omite a linha quando o campo vem nulo, entao a regra vale para as duas
+    # telas sem tocar no frontend. "Nao resolvemos" e "nao sabemos" caem no
+    # mesmo nulo de proposito — a `message` distingue os dois casos em texto.
+    mesma_regiao = medido is not None and medido < RESOLUTION_FLOOR_KM
+    distance_km = None if mesma_regiao else medido
 
     co2_kg: float | None = None
     if distance_km is not None and product.weight_g:
         co2_kg = calculate_co2_kg(distance_km, product.weight_g)
 
     comparativo = _mensagem_comparativa(escolhida, descartadas)
-    mensagem = _impact_message(product, distance_km)
+    mensagem = _impact_message(product, medido)
     if comparativo:
         mensagem = f"{mensagem} {comparativo}"
 

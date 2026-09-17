@@ -13,6 +13,18 @@ from src.schemas.sdui import SustainabilityProps
 
 DISTANCE_THRESHOLD_KM: float = 100.0
 
+# Piso de resolucao do modelo. O centroide e a MEDIANA dos enderecos do prefixo,
+# e um endereco real fica a 0,50 km dele na mediana — p90 de 1,56 km, medido
+# sobre o milhao de pontos de `olist_geolocation`. Dois enderecos quaisquer do
+# mesmo prefixo distam tipicamente ~1 km.
+#
+# Abaixo disto o modelo NAO distingue a distancia de zero. Dizer "~0 km" anuncia
+# uma precisao que ele nao tem, e o CO2 correspondente sai como "0,00 g" — que
+# le como defeito e, pior, afirma emissao zero onde a verdade e "abaixo do que
+# da para medir". Numa tela cujo assunto e credibilidade ambiental, a diferenca
+# importa.
+RESOLUTION_FLOOR_KM: float = 1.0
+
 
 def build_sustainability_props(
     distance_km: float,
@@ -28,7 +40,11 @@ def build_sustainability_props(
     """
     if distance_km >= DISTANCE_THRESHOLD_KM:
         return None
-    if weight_g is not None and weight_g > 0:
+    if distance_km < RESOLUTION_FLOOR_KM:
+        # Mesma regiao: o numero existe, mas seria ruido do modelo — e o CO2
+        # sai junto, porque afirmar "0,00 g" e afirmar zero, nao "pouco".
+        label = "Entrega local (mesma região)"
+    elif weight_g is not None and weight_g > 0:
         co2_kg = calculate_co2_kg(distance_km, weight_g) * co2_factor
         label = f"Entrega local (~{distance_km:.0f} km · ~{format_co2(co2_kg)} CO₂)"
     else:
