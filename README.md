@@ -277,7 +277,7 @@ Os testes de backend nao dependem de Postgres rodando (uso de `app.dependency_ov
 
 ```bash
 pip install locust==2.46.5
-uvicorn src.main:app --port 8000    # SEM --reload: o file-watcher entra na medicao
+DEBUG=false uvicorn src.main:app --port 8000   # SEM --reload (file-watcher) e SEM echo de SQL
 locust -f load/locustfile.py --headless -u 50 -r 10 -t 45s --host http://127.0.0.1:8000
 ```
 
@@ -320,17 +320,29 @@ metodologia promete tres condicoes de cache, entao ele entra como variavel:
 ```bash
 docker compose up -d redis
 docker exec olist-redis redis-cli FLUSHALL        # condicao "frio"
-CACHE_ENABLED=true uvicorn src.main:app --port 8000
+DEBUG=false CACHE_ENABLED=true uvicorn src.main:app --port 8000
 ```
 
 Frio e aquecido **nao sao modos de codigo** — sao procedimento de ensaio. Tres
 modos no codigo seriam complexidade inventada para um estado que o `redis-cli`
 resolve em uma linha.
 
-Primeira sondagem (1 ensaio de 60 s, **nao** o protocolo dos 27): p50 agregado
-**16 -> 11 ms**, taxa de acerto **75,4%** — e p99 de **470 -> 550 ms**. Redis
-compra mediana, nao cauda; o que produz a cauda e o worker unico, e cache nenhum
-resolve isso. A decisao fica pendente dos 27 ensaios.
+Sondagem de 1 ensaio de 60 s por condicao (**nao** o protocolo dos 27):
+
+```
+                off      frio
+p50 agregado   14 ms     7 ms
+p95 agregado  210 ms    75 ms
+p99 agregado  650 ms   400 ms
+taxa de acerto    —     77,2%
+```
+
+Controle interno: `/products/{id}` e `/checkout` nao passam pelo cache e nao se
+moveram (8->7 e 20->18 ms) — a queda das rotas de Home e o cache, nao deriva.
+
+**Um ensaio por condicao nao decide a cauda**: duas execucoes da MESMA condicao
+"off" deram p95 de 140 e 210 ms. A mediana e estavel entre execucoes, a cauda
+nao. A decisao sobre Redis fica pendente dos 27 ensaios do protocolo.
 
 Fora do CI pelo mesmo motivo do E2E: `data/raw/` e gitignored.
 

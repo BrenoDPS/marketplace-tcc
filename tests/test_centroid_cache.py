@@ -9,6 +9,7 @@ pagando a ida ao banco de novo.
 from __future__ import annotations
 
 import asyncio
+from collections.abc import KeysView
 
 import pytest
 
@@ -70,6 +71,17 @@ async def test_carrega_uma_vez_e_serve_todo_o_resto_de_memoria():
     assert await list_known_prefixes(session) == {"01000", "60000"}
 
     assert session.loads == 1, "so a primeira consulta deveria ir ao banco"
+
+
+@pytest.mark.asyncio
+async def test_list_known_prefixes_nao_copia():
+    """Visao das chaves, nao copia: copiar custava 0,54 ms por requisicao.
+
+    Testa a implementacao de proposito — a propriedade que importa e justamente
+    nao materializar 12.809 strings para responder a um `in` de 0,06 us. Com o
+    cache de resposta ligado isso valia 9% de um p50 de 6 ms.
+    """
+    assert isinstance(await list_known_prefixes(FakeSession()), KeysView)
 
 
 @pytest.mark.asyncio

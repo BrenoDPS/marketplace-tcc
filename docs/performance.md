@@ -354,6 +354,11 @@ A meta de 200 ms é cumprida no p50 e no p95, e **não** no p99. O throughput ca
 em relação à Sprint 6 porque o think time subiu: 50 usuários com pausa de 1–3 s
 geram ~25 req/s por construção, não por limite do servidor.
 
+> :warning: **Estes números ainda saem de uma API com `echo` do SQLAlchemy
+> ligado** — o confundidor só apareceu na §9, que traz a linha de base limpa
+> (p50 14 ms, p95 210 ms, p99 650 ms). A comparação com/sem selo abaixo continua
+> válida: o `echo` estava nos dois lados.
+
 ### O selo não custa nada
 
 O perfil "com selo / sem selo" agora **emerge** do CEP real de cada usuário, em
@@ -392,54 +397,81 @@ um custo que ele não tem na prática.
 | frio | `CACHE_ENABLED=true` + `docker exec olist-redis redis-cli FLUSHALL` |
 | aquecido | `CACHE_ENABLED=true` + as chaves do ensaio anterior |
 
-### Uma sondagem — 1 ensaio de 60 s, não os 27 do protocolo
+### Antes dos números: um confundidor que estava em TODAS as medições
+
+`src/core/database.py:8` liga o `echo` do SQLAlchemy ao flag `DEBUG`, que é
+`True` por padrão. **Toda medição das §§1–8 foi feita com a API imprimindo cada
+SQL executado.** As primeiras sondagens do cache também, até isso aparecer —
+numa delas o log bloqueou o event loop o bastante para o cliente Redis estourar
+o timeout e devolver 28 respostas 500.
+
+Os números abaixo são os primeiros medidos com `DEBUG=false`. Comparações
+internas às §§1–8 continuam válidas (o confundidor estava nos dois lados), mas
+**nenhum valor absoluto daquelas seções descreve a aplicação em produção**.
+
+### Sondagem limpa — 1 ensaio de 60 s por condição, 50 VU, 1 worker
 
 | | cache off | cache frio |
 |---|---|---|
-| p50 agregado | 16 ms | **11 ms** |
-| p95 agregado | 140 ms | 120 ms |
-| p99 agregado | 470 ms | **550 ms** |
-| throughput | 24,8 req/s | 25,1 req/s |
-| taxa de acerto | — | **75,4%** (848 de 1.124) |
+| p50 agregado | 14 ms | **7 ms** |
+| p95 agregado | 210 ms | **75 ms** |
+| p99 agregado | 650 ms | **400 ms** |
+| throughput | 24,7 req/s | 25,3 req/s |
+| taxa de acerto | — | **77,2%** (880 de 1.140) |
+| falhas | 0 de 1.492 | 0 de 1.520 |
 
 Por rota, p50:
 
 | rota | off | frio | |
 |---|---|---|---|
-| Home (default, sem selo) | 15 ms | **6 ms** | cacheada |
-| Home (default, com selo) | 14 ms | **7 ms** | cacheada |
-| Home (`electronics_expert`) | 16 ms | **10 ms** | cacheada |
-| Home (`conscious_buyer`) | 16 ms | **11 ms** | cacheada |
-| Home (busca) | 20 ms | 17 ms | cacheada |
-| `GET /products/{id}` | 9 ms | 10 ms | **não cacheada** |
-| `POST /checkout/simulate` | 21 ms | 22 ms | **não cacheada** |
+| Home (default, sem selo) | 14 ms | **5 ms** | cacheada |
+| Home (default, com selo) | 13 ms | **5 ms** | cacheada |
+| Home (`conscious_buyer`) | 15 ms | **6 ms** | cacheada |
+| `GET /products/{id}` | 8 ms | 7 ms | **não cacheada** |
+| `POST /checkout/simulate` | 20 ms | 18 ms | **não cacheada** |
 
-As duas últimas linhas são o **controle interno**: elas não passam pelo cache e
-não se moveram. A queda das outras é o cache, não deriva entre execuções.
+As duas últimas são o **controle interno**: não passam pelo cache e quase não se
+moveram. A queda das rotas de Home é o cache, não deriva entre execuções.
 
-### O que esta sondagem já mostra
+### O que esta sondagem mostra — e o que ela não pode mostrar
 
-**A mediana cai pela metade; a cauda não melhora — piora.** p99 de 470 para
-550 ms. É coerente com a §7: o que produz a cauda é o **worker único**
-saturando, e cache nenhum resolve isso. Redis compra mediana, não p99.
+**A mediana cai pela metade, e desta vez a cauda também melhora.** Uma sondagem
+anterior, ainda com `echo` ligado, tinha dado o contrário (p99 de 470 para
+550 ms) e eu havia concluído que "Redis compra mediana, não cauda". **Com a
+medição limpa, a conclusão não se sustenta** — o p99 caiu de 650 para 400 ms.
 
-**A previsão registrada antes de medir estava errada, e o motivo importa.** O
-card previa pouco reaproveitamento porque a distribuição de CEPs é quase plana
-(os 100 prefixos mais frequentes são 6,5% do tráfego). Deu 75,4% de acerto. A
-razão está declarada no próprio `locustfile`: cada usuário virtual **mantém seu
-CEP pela jornada inteira**, então o espaço de chaves ativo é da ordem do número
-de VUs (254 chaves observadas para 50 usuários), não dos 12.809 prefixos. A
-previsão descrevia a população; o que decide a taxa de acerto é a **sessão**.
+**Mas um ensaio por condição não decide a cauda.** Duas execuções da MESMA
+condição "cache off" deram p95 de 140 e 210 ms. A mediana é estável entre
+execuções; a cauda não é. É exatamente por isso que o protocolo da §3.3 pede
+**três repetições** — sem elas, qualquer afirmação sobre p95/p99 está dentro do
+ruído.
 
-> Consequência a conferir no protocolo: se a taxa de acerto acompanha o número
-> de VUs, os cenários 2 (250 VU) e 3 (1.000 VU) devem mostrar taxa **menor**,
-> não maior — o oposto do que se espera intuitivamente de "mais carga, mais
-> cache". É uma previsão falsificável, e desta vez está escrita antes do ensaio.
+**A previsão que eu registrei antes de medir estava errada, e o motivo importa.**
+O card previa pouco reaproveitamento porque a distribuição de CEPs é quase plana
+(os 100 prefixos mais frequentes são 6,5% do tráfego). Deu 77% de acerto. A razão
+está declarada no próprio `locustfile`: cada usuário virtual **mantém seu CEP
+pela jornada inteira**, então o espaço de chaves ativo é da ordem do número de
+VUs (203 chaves para 50 usuários), não dos 12.809 prefixos. A previsão descrevia
+a **população**; quem decide a taxa de acerto é a **sessão**.
 
-**Isto não decide nada ainda.** Um ensaio de 60 s, um worker, Locust na mesma
-máquina. A decisão sobre Redis depende dos 27 ensaios do protocolo da §3.3.
+> Previsão falsificável para o protocolo, escrita antes dos ensaios: se a taxa de
+> acerto é governada pelo número de VUs, os cenários de 250 e 1.000 VU devem dar
+> taxa **menor**, não maior — o oposto do que "mais carga, mais cache" sugere.
 
-Dados brutos em `load/results/s7-redis-frio/`.
+**Isto não decide nada ainda.** Um ensaio por condição, um worker, Locust na
+mesma máquina. A decisão sobre Redis depende dos 27 ensaios do protocolo.
+
+### De quebra: 0,54 ms por requisição que o cache não alcançava
+
+`list_known_prefixes` fazia `set()` de 12.809 strings a cada requisição para
+responder a um `in` que custa 0,06 µs — dez mil vezes o preço da pergunta. Pior:
+a validação acontece **antes** do cache, então era um piso que cache nenhum
+derruba. Passou a devolver a visão das chaves. Com o p50 cacheado em 5 ms, eram
+~10% do tempo de resposta.
+
+Dados brutos em `load/results/s7-limpo-off/` e `load/results/s7-limpo-frio/`. As
+sondagens com `echo` ligado ficaram em `s7-redis-frio/` e `s7-redis-frio-sem-copia/`
+como evidência do confundidor.
 
 ---
 

@@ -14,6 +14,7 @@ era ~48% de uma Home `default`. Ver `docs/performance.md`.
 from __future__ import annotations
 
 import asyncio
+from collections.abc import KeysView
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -71,6 +72,17 @@ async def get_centroid(
     return (await _load(session)).get(zip_prefix)
 
 
-async def list_known_prefixes(session: AsyncSession) -> set[str]:
-    """Prefixos com centroide conhecido. Usado pelos routers para validar o CEP."""
-    return set(await _load(session))
+async def list_known_prefixes(session: AsyncSession) -> KeysView[str]:
+    """Prefixos com centroide conhecido. Usado pelos routers para validar o CEP.
+
+    Devolve a VISAO das chaves, nao uma copia. Copiar custava 0,54 ms por
+    requisicao — 12.809 strings so para responder a um `in` que leva 0,06 us,
+    dez mil vezes o preco da pergunta. Com o cache de resposta ligado isso era
+    9% de um p50 de 6 ms, e um piso que cache nenhum consegue derrubar: a
+    validacao acontece ANTES dele.
+
+    A visao e viva: `reset_centroid_cache` troca o `dict` inteiro, entao quem
+    guardar esta referencia guarda o dicionario velho. Ninguem guarda — os tres
+    routers consultam e descartam.
+    """
+    return (await _load(session)).keys()
