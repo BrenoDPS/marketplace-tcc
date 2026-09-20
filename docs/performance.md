@@ -320,4 +320,61 @@ Dados brutos em `load/results/memoria/` e `load/results/memoria-4workers/`.
 
 ---
 
-*Medição da Sprint 6. Suíte em `load/locustfile.py`; dados em `load/results/`.*
+## 8. Sprint 7 — a medição das §§1–7 tinha um defeito de validade
+
+**Tudo acima foi medido com DOIS CEPs fixos** (`05311` e `60165`) e com
+`wait_time` de 0,5 a 2 s. Os dois pontos são problema:
+
+| defeito | consequência |
+|---|---|
+| 2 CEPs fixos | o espaço de chaves é ficcional: qualquer cache teria ~100% de acerto **por construção**, e a §7 conclui contra o Redis sem nunca ter medido um |
+| think time 0,5–2,0 s | a §3.3 da metodologia declara **1 a 3 s** — o texto do TCC e o código diziam coisas diferentes |
+
+Corrigido em `load/locustfile.py`: os CEPs saem agora de `olist_customers`, na
+proporção real (**53.114 clientes, 12.809 prefixos distintos**), e cada usuário
+virtual sorteia um CEP e o mantém pela jornada inteira, que é o que uma pessoa
+faz. `wait_time` passou a `between(1, 3)`.
+
+**A distribuição real é quase plana**: os 100 prefixos mais frequentes somam
+**6,5% do tráfego**. Um cache com chave por CEP não tem muito o que reaproveitar —
+registrado aqui *antes* de rodar o experimento de Redis, para que a previsão
+possa ser conferida contra o resultado.
+
+### Linha de base nova (50 VU, 60 s, 1 worker)
+
+| | valor |
+|---|---|
+| p50 agregado | **16 ms** |
+| p95 agregado | 140 ms |
+| p99 agregado | **470 ms** |
+| throughput | 24,8 req/s |
+| falhas | 0 de 1.490 |
+
+A meta de 200 ms é cumprida no p50 e no p95, e **não** no p99. O throughput caiu
+em relação à Sprint 6 porque o think time subiu: 50 usuários com pausa de 1–3 s
+geram ~25 req/s por construção, não por limite do servidor.
+
+### O selo não custa nada
+
+O perfil "com selo / sem selo" agora **emerge** do CEP real de cada usuário, em
+vez de vir de dois CEPs escolhidos a mão:
+
+| | p50 | p95 | # reqs |
+|---|---|---|---|
+| Home com selo | 14 ms | 67 ms | 230 |
+| Home sem selo | 15 ms | 78 ms | 272 |
+
+Montar o selo é indistinguível do ruído. A suspeita antiga de que o selo era
+caro fica descartada — o custo estava no N+1 de centroides, já corrigido na §6.
+
+> **Achado lateral, relevante para o texto do TCC:** 54% das requisições caíram no
+> perfil *sem selo* — com a distribuição real de clientes, **a maioria dos
+> compradores não tem nenhum vendedor próximo na amostra**. Isso não é defeito da
+> medição, é o retrato da concentração logística brasileira, e merece virar número
+> no capítulo 5.
+
+Dados brutos em `load/results/s7-ceps-reais/`.
+
+---
+
+*§§1–7: Sprint 6. §8: Sprint 7. Suíte em `load/locustfile.py`; dados em `load/results/`.*
