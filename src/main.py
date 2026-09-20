@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.core import cache
 from src.core.config import settings
 from src.core.database import close_db
 from src.features.checkout.router import router as checkout_router
@@ -20,7 +21,14 @@ DEV_CORS_ORIGINS = [
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    # Com o cache ligado, um Redis inacessivel derruba a subida. E de proposito:
+    # num ensaio de carga, uma API que sobe ignorando o Redis mediria a condicao
+    # errada e ninguem notaria.
+    client = cache.get_client()
+    if client is not None:
+        await client.ping()
     yield
+    await cache.close()
     await close_db()
 
 

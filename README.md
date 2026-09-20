@@ -298,6 +298,40 @@ deixa de ser o banco e vira o worker unico: so trocando para `--workers 4`, o p5
 cai de 940 ms para 58 ms. Numeros completos em
 [docs/performance.md](docs/performance.md).
 
+> **Sprint 7 — validade da medicao.** Ate aqui o `locustfile` usava **dois CEPs
+> fixos** e think time de 0,5 a 2,0 s. Com duas chaves, qualquer condicao de
+> "cache aquecido" teria ~100% de acerto **por construcao**; e o think time nao
+> batia com os 1 a 3 s declarados na metodologia. Os CEPs agora saem de
+> `olist_customers` na proporcao real (53.114 clientes, 12.809 prefixos), cada
+> usuario virtual mantem o seu pela jornada, e `wait_time` e `between(1, 3)`.
+> Linha de base nova: **p50 16 ms, p95 140 ms, p99 470 ms** a 50 VU.
+>
+> Dois achados: montar o selo **nao custa nada** (14 ms com selo contra 15 ms
+> sem — ruido), e **54%** das requisicoes cairam no perfil sem selo, ou seja, com
+> a distribuicao real de clientes a maioria dos compradores nao tem vendedor
+> proximo na amostra.
+
+### Redis — variavel de experimento, nao arquitetura
+
+Desligado por padrao. `docs/performance.md` §7 concluiu contra o Redis **sem
+nunca ter rodado Redis**, por inferencia sobre o gargalo medido. A secao 3.3 da
+metodologia promete tres condicoes de cache, entao ele entra como variavel:
+
+```bash
+docker compose up -d redis
+docker exec olist-redis redis-cli FLUSHALL        # condicao "frio"
+CACHE_ENABLED=true uvicorn src.main:app --port 8000
+```
+
+Frio e aquecido **nao sao modos de codigo** — sao procedimento de ensaio. Tres
+modos no codigo seriam complexidade inventada para um estado que o `redis-cli`
+resolve em uma linha.
+
+Primeira sondagem (1 ensaio de 60 s, **nao** o protocolo dos 27): p50 agregado
+**16 -> 11 ms**, taxa de acerto **75,4%** — e p99 de **470 -> 550 ms**. Redis
+compra mediana, nao cauda; o que produz a cauda e o worker unico, e cache nenhum
+resolve isso. A decisao fica pendente dos 27 ensaios.
+
 Fora do CI pelo mesmo motivo do E2E: `data/raw/` e gitignored.
 
 ### E2E — o check de pre-defesa
@@ -360,7 +394,7 @@ src/
 scripts/
   etl_load_sample.py         # ETL offline: 10000 order_items + cep_centroids
 web/                         # Frontend Next.js (consome o SDUI) — ver secao acima
-docker-compose.yml           # Postgres 16 (sem PostGIS nesta sprint)
+docker-compose.yml           # Postgres 16 (sem PostGIS nesta sprint) + Redis (desligado por padrao)
 ```
 
 ## Logistica Verde

@@ -377,4 +377,70 @@ Dados brutos em `load/results/s7-ceps-reais/`.
 
 ---
 
-*§§1–7: Sprint 6. §8: Sprint 7. Suíte em `load/locustfile.py`; dados em `load/results/`.*
+## 9. Redis entra como variável de experimento (sondagem, não o protocolo)
+
+`src/core/cache.py`, atrás de `CACHE_ENABLED` (padrão **desligado**). O que é
+cacheado é o **JSON já serializado** da Home; numa batida os bytes voltam sem
+reconstruir o modelo, porque revalidar só para re-serializar cobraria do cache
+um custo que ele não tem na prática.
+
+**Frio e aquecido não viraram modos de código** — são procedimento de ensaio:
+
+| condição | como se produz |
+|---|---|
+| desabilitado | `CACHE_ENABLED=false` |
+| frio | `CACHE_ENABLED=true` + `docker exec olist-redis redis-cli FLUSHALL` |
+| aquecido | `CACHE_ENABLED=true` + as chaves do ensaio anterior |
+
+### Uma sondagem — 1 ensaio de 60 s, não os 27 do protocolo
+
+| | cache off | cache frio |
+|---|---|---|
+| p50 agregado | 16 ms | **11 ms** |
+| p95 agregado | 140 ms | 120 ms |
+| p99 agregado | 470 ms | **550 ms** |
+| throughput | 24,8 req/s | 25,1 req/s |
+| taxa de acerto | — | **75,4%** (848 de 1.124) |
+
+Por rota, p50:
+
+| rota | off | frio | |
+|---|---|---|---|
+| Home (default, sem selo) | 15 ms | **6 ms** | cacheada |
+| Home (default, com selo) | 14 ms | **7 ms** | cacheada |
+| Home (`electronics_expert`) | 16 ms | **10 ms** | cacheada |
+| Home (`conscious_buyer`) | 16 ms | **11 ms** | cacheada |
+| Home (busca) | 20 ms | 17 ms | cacheada |
+| `GET /products/{id}` | 9 ms | 10 ms | **não cacheada** |
+| `POST /checkout/simulate` | 21 ms | 22 ms | **não cacheada** |
+
+As duas últimas linhas são o **controle interno**: elas não passam pelo cache e
+não se moveram. A queda das outras é o cache, não deriva entre execuções.
+
+### O que esta sondagem já mostra
+
+**A mediana cai pela metade; a cauda não melhora — piora.** p99 de 470 para
+550 ms. É coerente com a §7: o que produz a cauda é o **worker único**
+saturando, e cache nenhum resolve isso. Redis compra mediana, não p99.
+
+**A previsão registrada antes de medir estava errada, e o motivo importa.** O
+card previa pouco reaproveitamento porque a distribuição de CEPs é quase plana
+(os 100 prefixos mais frequentes são 6,5% do tráfego). Deu 75,4% de acerto. A
+razão está declarada no próprio `locustfile`: cada usuário virtual **mantém seu
+CEP pela jornada inteira**, então o espaço de chaves ativo é da ordem do número
+de VUs (254 chaves observadas para 50 usuários), não dos 12.809 prefixos. A
+previsão descrevia a população; o que decide a taxa de acerto é a **sessão**.
+
+> Consequência a conferir no protocolo: se a taxa de acerto acompanha o número
+> de VUs, os cenários 2 (250 VU) e 3 (1.000 VU) devem mostrar taxa **menor**,
+> não maior — o oposto do que se espera intuitivamente de "mais carga, mais
+> cache". É uma previsão falsificável, e desta vez está escrita antes do ensaio.
+
+**Isto não decide nada ainda.** Um ensaio de 60 s, um worker, Locust na mesma
+máquina. A decisão sobre Redis depende dos 27 ensaios do protocolo da §3.3.
+
+Dados brutos em `load/results/s7-redis-frio/`.
+
+---
+
+*§§1–7: Sprint 6. §§8–9: Sprint 7. Suíte em `load/locustfile.py`; dados em `load/results/`.*

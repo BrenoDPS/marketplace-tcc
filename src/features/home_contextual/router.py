@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core import cache
 from src.core.database import get_db
 from src.features.green_logistics.repository import list_known_prefixes
 from src.features.home_contextual.composer import compose_home
@@ -36,7 +38,7 @@ async def get_home(
         description="Filtro exato por `product_category_name` da amostra.",
     ),
     session: AsyncSession = Depends(get_db),
-) -> ScreenResponse:
+) -> ScreenResponse | Response:
     known = await list_known_prefixes(session)
     if customer_zip_prefix not in known:
         raise HTTPException(
@@ -57,10 +59,22 @@ async def get_home(
     # pode anunciar "Busca: " sobre uma vitrine que nao esta filtrada.
     search = normalize_search(q) or None if q else None
 
-    return await compose_home(
+    # A validacao acima fica FORA do cache de proposito: um CEP invalido tem de
+    # continuar dando 422 com o cache ligado. Ela nao vai ao banco no caminho
+    # comum — os prefixos ja estao em memoria desde a Sprint 6.
+    chave = cache.key("home", customer_zip_prefix, context, search, category)
+    cacheado = await cache.get(chave)
+    if cacheado is not None:
+        # Bytes direto: reconstruir o modelo so para o FastAPI re-serializa-lo
+        # cobraria do cache um custo que ele nao tem na pratica.
+        return Response(content=cacheado, media_type="application/json")
+
+    tela = await compose_home(
         session,
         context=context,
         customer_zip_prefix=customer_zip_prefix,
         search=search,
         category=category,
     )
+    await cache.set(chave, tela.model_dump_json())
+    return tela
