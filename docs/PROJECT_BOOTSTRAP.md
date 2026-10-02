@@ -32,12 +32,9 @@ Sprints 6 e 7 **não têm handoff**: o registro está no `README.md` (seções "
 
 ## Sprint ativa
 
-**Nenhuma com handoff.** Uma sprint nova começa escrevendo `docs/sprint<N>-handoff.md` (próxima: 8) no formato dos anteriores (objetivo · decisões fechadas · critérios de aceite · fora de escopo), com duas exigências:
+Ver **`docs/sprint8-handoff.md`**: os 27 ensaios do protocolo de carga (§3.3) e a decisão sobre o Redis. Há decisões a fechar **antes** do primeiro ensaio.
 
-- cada critério de aceite nomeia o **comando** que o prova (`pytest -q`, não "pytest verde");
-- falha recorrente encontrada na sprint termina num **teste** ou numa **regra** do `AGENTS.md`, não só na prosa.
-
-Ao abrir a sprint, atualize esta seção para apontar o handoff.
+Sprint nova começa escrevendo `docs/sprint<N>-handoff.md` no formato dos anteriores, com duas exigências: cada critério de aceite nomeia o **comando** que o prova; falha recorrente termina num **teste** ou numa **regra** do `AGENTS.md`.
 
 ## Subir o ambiente
 
@@ -69,6 +66,7 @@ web/                 # Frontend Next.js (App Router) que consome o SDUI
 | Arquivo | Uso |
 |---------|-----|
 | `AGENTS.md` | Mapa + regras de implementação (carregado em toda sessão) |
+| `docs/sprint8-handoff.md` | Spec da sprint atual |
 | `docs/sprint5-handoff.md` | Spec Sprint 5 (histórico) |
 | `docs/sprint4-handoff.md` | Spec Sprint 4 (histórico) |
 | `docs/sprint3-handoff.md` | Spec Sprint 3 (histórico) |

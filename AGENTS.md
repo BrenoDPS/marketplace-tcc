@@ -14,7 +14,7 @@ sem pedido explícito.
 | Visão geral, sprints, o que não fazer | `docs/PROJECT_BOOTSTRAP.md` |
 | Contrato SDUI (fonte de verdade) | `src/schemas/sdui.py`; descrição em `docs/tech_spec.md` |
 | Espelho do contrato no front | `web/lib/sdui.ts` + `REGISTRY` em `web/components/sdui.tsx` |
-| Latência, N+1, Redis | `docs/performance.md` §8–9 (as §§1–7 são histórico) |
+| Latência, N+1, Redis, protocolo | `docs/performance.md` §8–10 (as §§1–7 são histórico) |
 | Evidência já produzida | `docs/evidencia/`, `load/results/`, `docs/snapshots/` |
 
 A tarefa atual é o que foi pedido na conversa. Se existir sprint ativa com

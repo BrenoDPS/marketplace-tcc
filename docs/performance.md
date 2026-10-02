@@ -475,4 +475,109 @@ como evidência do confundidor.
 
 ---
 
-*§§1–7: Sprint 6. §§8–9: Sprint 7. Suíte em `load/locustfile.py`; dados em `load/results/`.*
+## 10. Sprint 8 — preparação do protocolo: três defeitos de validade e o piloto
+
+Antes de gastar ~4 h 40 min nos 27 ensaios, a pergunta foi: **o protocolo, como
+estava, mede o que diz medir?** Não media. Três defeitos, nenhum visível no
+número final — o mesmo padrão dos dois CEPs fixos e do `echo` ligado.
+
+### 10.1 Os defeitos e a correção
+
+| # | Defeito | Efeito no resultado | Correção |
+|---|---|---|---|
+| 1 | `CACHE_TTL_SECONDS = 60` (`src/core/config.py`) | "Aquecido" é definido como *as chaves do ensaio anterior*; com plateau de 10 min elas expiram no 1º minuto. Frio e aquecido convergem para o mesmo estado estacionário — **9 dos 27 ensaios mediriam a mesma coisa que outros 9**. | `--ttl` no runner, padrão 3600 s (decisão do autor; ver handoff da Sprint 8) |
+| 2 | CEP sorteado com `random.choice` **sem semente** | O aquecido sorteia **outros** compradores: as chaves que o frio deixou quase não são pedidas. A condição não existia na prática. Além disso, as condições comparavam populações diferentes. | `LOAD_SEED` no `locustfile` (RNG só do CEP, `ORDER BY` na consulta); o runner usa a mesma semente nas 3 condições de uma carga → **comparação pareada** |
+| 3 | `DEBUG=True` por padrão liga o `echo` (§9) | 27 reinícios manuais da API = 27 chances de medir com log de SQL | o runner sobe a API com `DEBUG=false` sempre |
+
+Também entraram no runner (`load/protocolo.py`): `--reset-stats` (o CSV é só o
+plateau — a rampa de 1.000 VU seriam 10 s de setup na conta), API reiniciada a
+cada ensaio (nenhuma condição herda processo de outra), ordem das cargas
+sorteada por repetição (deriva da máquina ao longo de horas não vira diferença
+entre condições) e taxa de acerto do Redis por ensaio (`CONFIG RESETSTAT` antes,
+`INFO stats` depois → `*_redis.txt`).
+
+### 10.2 Smoke do runner — verificação funcional, não dado
+
+50 VU, plateau de **15 s**, uma execução por condição, mesma semente:
+
+| | off | frio | aquecido |
+|---|---|---|---|
+| p50 agregado | 16 ms | 11 ms | **8 ms** |
+| requisições | 395 | 395 | 402 |
+
+Serve para uma coisa só: com a semente, **aquecido < frio**, ou seja, a condição
+agora existe. 15 s não sustentam nenhuma comparação de latência.
+
+### 10.3 Piloto — 1.000 VU, cache off, 1 worker, plateau de 120 s
+
+Dados: `load/results/s8-piloto-u1000-off/u1000_stats.csv`.
+
+| rota | n | falhas | p50 | p95 | p99 | máx |
+|---|---|---|---|---|---|---|
+| Home (default, sem selo) | 4.433 | 4 | 3,9 s | 12 s | 18 s | 30,1 s |
+| Home (default, com selo) | 2.297 | 1 | 3,8 s | 12 s | 19 s | 30,1 s |
+| Home (`conscious_buyer`) | 2.592 | 0 | 3,8 s | 12 s | 18 s | 27,5 s |
+| Home (`electronics_expert`) | 2.503 | 0 | 3,8 s | 12 s | 17 s | 29,2 s |
+| Home (busca) | 2.544 | 1 | 3,8 s | 12 s | 18 s | 30,1 s |
+| `GET /products/{id}` | 3.156 | 1 | 3,8 s | 12 s | 18 s | 31,5 s |
+| `POST /checkout/simulate` | 2.092 | 1 | 3,9 s | 12 s | 19 s | 30,2 s |
+| **agregado** | **19.972** | **8** | **3,9 s** | **12 s** | **18 s** | 31,5 s |
+
+Throughput **162,9 req/s**. O Locust **não** emitiu aviso de CPU — o gerador
+aguenta 1.000 VU nesta máquina (8 núcleos).
+
+### 10.4 Avaliação do piloto
+
+**O sistema está saturado, e a medição é coerente.** Pela Lei de Little num
+sistema fechado, `N = X · (R + Z)`: com N = 1.000 VU, X = 162,9 req/s e think
+time médio Z = 2 s, o tempo de resposta implicado é R ≈ 4,1 s. O medido foi
+4,04 s de média. O número não é artefato do gerador: é o regime de fila.
+
+**A latência é a da fila, não a da rota.** Todas as rotas têm o mesmo p50
+(3,8–3,9 s) — inclusive `/products` e `/checkout`, que custam 8 e 20 ms a 50 VU
+(§9). Rotas de custo tão diferente só convergem quando a espera domina o serviço.
+
+**Onde a fila aparece: o pool de conexões.** O máximo de **toda** rota fica em
+~30 s, que é exatamente o `timeout` do `QueuePool` do SQLAlchemy (5 + 10
+conexões, 30 s). As 8 falhas (0,04%) são esse timeout virando 500. **O que não dá
+para afirmar ainda:** se o pool é a causa ou só o lugar onde a espera aparece. Com
+um único event loop saturando a CPU, cada requisição segura a conexão por mais
+tempo, e o pool esgota como consequência. Separar as duas coisas exige medir a CPU
+do processo da API durante o ensaio — não medido.
+
+**Capacidade estimada de 1 worker sem cache: ~160 req/s.** A demanda de cada
+carga, com Z = 2 s e R pequeno, é ≈ N / 2:
+
+| carga | demanda | utilização estimada | regime esperado |
+|---|---|---|---|
+| 50 VU | ~25 req/s | ~15% | folga — confere com o §9 (p50 14 ms) |
+| 250 VU | ~125 req/s | **~75–80%** | **joelho da curva**: a cauda deve subir muito antes da mediana |
+| 1.000 VU | ~500 req/s | >100% | saturação — confirmado acima |
+
+> **Previsão registrada antes do protocolo, derivada do piloto:** a 250 VU, com o
+> cache desligado, o p95/p99 sobe desproporcionalmente ao p50; é a carga em que o
+> cache deve fazer **mais** diferença relativa, porque tira a Home (~74% das
+> requisições) da disputa pelo pool. A 1.000 VU, o cache não deve tirar o sistema
+> da saturação com 1 worker, porque `/products` e `/checkout` não são cacheadas e
+> continuam disputando o mesmo pool.
+
+### 10.5 Pontos de melhoria (registrados, não aplicados)
+
+| Ponto | Por que importa | Custo |
+|---|---|---|
+| Medir CPU do processo da API por ensaio | separar "event loop saturado" de "pool esgotado" (§10.4) | baixo — amostrar o PID durante o Locust |
+| `DEBUG=false` como padrão | o defeito 3 só some para medições manuais se o padrão mudar | 1 linha, mas muda o log de desenvolvimento — decisão à parte |
+| Taxa de acerto inclui a rampa | `CONFIG RESETSTAT` roda antes da subida da API, não no fim da rampa | baixo; o efeito é pequeno com plateau de 600 s |
+| Locust e API na mesma máquina | sem aviso de CPU no piloto, mas disputam núcleos com Postgres e Redis | alto (2ª máquina); declarar como limitação |
+| Agregação dos 27 CSVs em tabela | sem ela, a §11 vira cópia manual de 27 arquivos | baixo — script de leitura, a escrever na Sprint 8 |
+
+### 10.6 O que fica para o autor decidir antes de medir
+
+TTL do protocolo, reescrita da previsão do §9 sob o TTL escolhido, manter 1
+worker com 1.000 VU declarado como saturação, manter o pool atual, e conferir
+cargas/plateau contra o texto da §3.3. Recomendações e motivos em
+`docs/sprint8-handoff.md`.
+
+---
+
+*§§1–7: Sprint 6. §§8–9: Sprint 7. §10: Sprint 8. Suíte em `load/locustfile.py`; runner em `load/protocolo.py`; dados em `load/results/`.*

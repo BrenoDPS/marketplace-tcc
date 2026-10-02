@@ -28,10 +28,16 @@ que decide a taxa de acerto de um cache real.
 Cada usuario virtual sorteia UM CEP e o mantem na jornada inteira, porque e o
 que uma pessoa faz. Consequencia a registrar no relatorio: o espaco de chaves
 ativo e da ordem do numero de VUs, nao dos 12.933 prefixos do banco.
+
+`LOAD_SEED` fixa QUAIS CEPs os VUs sorteiam. O protocolo (`load/protocolo.py`)
+usa a mesma semente nas tres condicoes de cache de uma carga: off, frio e
+aquecido medem o MESMO conjunto de compradores, e o aquecido encontra no Redis
+as chaves que o frio deixou. Sem semente, o sorteio muda a cada execucao.
 """
 
 from __future__ import annotations
 
+import os
 import random
 
 from locust import HttpUser, between, task
@@ -52,7 +58,7 @@ def _cep_dos_clientes() -> list[str]:
         ceps = [
             row[0]
             for row in conn.execute(
-                text("SELECT customer_zip_code_prefix FROM olist_customers")
+                text("SELECT customer_zip_code_prefix FROM olist_customers ORDER BY 1")
             )
             if row[0]
         ]
@@ -63,6 +69,9 @@ def _cep_dos_clientes() -> list[str]:
 
 
 CEPS = _cep_dos_clientes()
+# RNG so do sorteio de CEP: as tasks usam o `random` global, e a ordem em que
+# elas o consomem depende de tempo — a semente nao fixaria nada.
+_rng_cep = random.Random(os.environ.get("LOAD_SEED"))
 
 # Maiores categorias do Olist — presentes em qualquer amostra razoavel.
 TERMOS = ["cama mesa banho", "beleza saude", "moveis", "informatica"]
@@ -88,7 +97,7 @@ class JornadaUser(HttpUser):
         de um par de CEPs escolhido a mao: as duas populacoes continuam
         separadas nas estatisticas do Locust, agora emergindo de CEPs reais.
         """
-        self.cep = random.choice(CEPS)
+        self.cep = _rng_cep.choice(CEPS)
         self.product_ids: list[str] = []
         self.perfil = "sem selo"
         res = self.client.get(
