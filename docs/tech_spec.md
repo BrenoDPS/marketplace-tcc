@@ -158,12 +158,12 @@ o argumento do SDUI na prática.
 - **Corrigido (Sprint 6):** `cep_centroids` (6403 linhas, ~1,1 MB) passa a viver **em memória no processo**, carregada na primeira consulta sob `asyncio.Lock`. O mesmo `dict` serve `get_centroid` e `list_known_prefixes`, então o `SELECT` dos 6403 prefixos sumiu de toda requisição. `conscious_buyer`: **63 → 2 queries** e **150 ms → 12 ms** com um usuário; p50 agregado a 25 usuários de **270 ms → 39 ms**. **A meta de 200 ms passa a ser cumprida até 25 usuários.**
 - **O limite seguinte não é o banco:** a 50 usuários a correção não mudou nada (p50 940 ms, ~23 req/s) porque satura o **worker único**. Só trocando para `--workers 4`: p50 **940 ms → 58 ms**, throughput **23,6 → 37,2 req/s**, sem tocar em código. Número de workers é decisão de deploy. Detalhes em `docs/performance.md` §7.
 - **SDUI:** 1ª resposta com blocos “above the fold”; restante em **resposta(s) seguinte(s)** ou paginação (documentar o endpoint/decisão no repo).
-- **Redis: avaliado e descartado (Sprint 6).** A medição mostrou que a lentidão era um N+1 e, depois dele, o worker único — não ausência de cache distribuído. `cep_centroids` são 6403 linhas estáticas (~1,1 MB) que vivem em memória no processo; Redis as guardaria do outro lado de um socket. O client stub, a dependência e a `REDIS_URL` foram removidos. Reabrir se: o dado deixar de caber em memória, surgir estado compartilhado entre processos (sessão, carrinho no servidor, rate limiting), ou o dado passar a mudar em runtime. Ver `docs/performance.md` §5 e §7.
+- **Redis: variável de experimento, não arquitetura (Sprint 7).** A Sprint 6 o descartou por inferência — a lentidão era um N+1 e, depois dele, o worker único — e removeu o código. A Sprint 7 o reinseriu atrás de `CACHE_ENABLED=false` (`src/core/cache.py`, `REDIS_URL` em `src/core/config.py`, serviço `redis` no `docker-compose.yml`) para que a decisão vire medição. `cep_centroids` continuam em memória no processo, com ou sem Redis. A decisão fica pendente dos ensaios do protocolo; ver `docs/performance.md` §9.
 
 5. Stack de Referência
 
 - **Python 3.12+, FastAPI (async), Pydantic v2**, servidor ASGI (ex. Uvicorn).
-- **PostgreSQL** (PostGIS = evolução futura opcional). **Sem Redis** — ver §4.
+- **PostgreSQL** (PostGIS = evolução futura opcional). Redis opcional, desligado por padrão — ver §4.
 - **Front:** **Next.js 16 (App Router) em `web/`** — renderiza por `type` via `REGISTRY`, lê `props`, executa `actions`. As telas vêm de Server Components; só o executor de `actions` e o carrinho rodam no cliente.
 - **CORS (dev):** habilitado quando `APP_ENV=development` para front local; em desenvolvimento o `web/next.config.ts` faz rewrite de `/api/v1/*` e o CORS nem entra no caminho.
 - **Testes:** `pytest` (backend, sem Postgres — `dependency_overrides` + monkeypatch) e **Vitest** em `web/`. CI em `.github/workflows/ci.yml`.
