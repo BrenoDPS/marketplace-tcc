@@ -16,8 +16,9 @@ pip install -r requirements.txt
 
 | Arquivo | Conteudo |
 |---------|----------|
+| [AGENTS.md](AGENTS.md) | Mapa e regras de implementacao para agentes (Cursor, Claude Code via `CLAUDE.md`) |
 | [docs/PROJECT_BOOTSTRAP.md](docs/PROJECT_BOOTSTRAP.md) | Visao geral para agentes/conversas novas |
-| [docs/sprint5-handoff.md](docs/sprint5-handoff.md) | **Sprint 5 (atual):** busca e categorias, carrinho multi-item, testes de frontend e CI |
+| [docs/sprint5-handoff.md](docs/sprint5-handoff.md) | Sprint 5 (historico) — sprints 6 e 7 nao tem handoff; ver secoes abaixo |
 | [docs/sprint4-handoff.md](docs/sprint4-handoff.md) | Sprint 4 (historico) |
 | [docs/sprint3-handoff.md](docs/sprint3-handoff.md) | Sprint 3 (historico) |
 | [docs/sprint2-handoff.md](docs/sprint2-handoff.md) | Sprint 2 (historico) |
@@ -304,7 +305,9 @@ cai de 940 ms para 58 ms. Numeros completos em
 > batia com os 1 a 3 s declarados na metodologia. Os CEPs agora saem de
 > `olist_customers` na proporcao real (53.114 clientes, 12.809 prefixos), cada
 > usuario virtual mantem o seu pela jornada, e `wait_time` e `between(1, 3)`.
-> Linha de base nova: **p50 16 ms, p95 140 ms, p99 470 ms** a 50 VU.
+> Linha de base nova: **p50 16 ms, p95 140 ms, p99 470 ms** a 50 VU — ainda com
+> o `echo` do SQLAlchemy ligado; a linha de base limpa (p50 14, p95 210, p99
+> 650 ms) esta na secao do Redis abaixo.
 >
 > Dois achados: montar o selo **nao custa nada** (14 ms com selo contra 15 ms
 > sem — ruido), e **54%** das requisicoes cairam no perfil sem selo, ou seja, com
@@ -498,7 +501,7 @@ Escopo em [docs/sprint5-handoff.md](docs/sprint5-handoff.md):
 - `.github/workflows/ci.yml` com dois jobs (backend e frontend)
 - `@types/node` alinhado ao Node 22 do projeto (estava em `^20`)
 
-## Sprint 6 (em andamento)
+## Sprint 6 (concluida)
 
 - Remessas ordenadas por **emissao decrescente** — a que domina a pegada aparece primeiro
 - `alternatives` no `shipment_breakdown`: produtos da mesma categoria em vendedores mais proximos, com CO2 economizado
@@ -510,6 +513,20 @@ Escopo em [docs/sprint5-handoff.md](docs/sprint5-handoff.md):
 - ETL passa a agregar `review_score` por produto (6.528/6.575 com avaliacao)
 - `npm run lint` entrou no CI (estava vermelho e ninguem via)
 - **E2E com Playwright** cobrindo a jornada da defesa de ponta a ponta, contra a pilha real (`npm run e2e`)
+- **Locust** mediu a meta de 200 ms; o gargalo era um N+1 (63 queries por requisicao). Memo por requisicao e `cep_centroids` em memoria: 63 -> 2 queries
+- Redis removido do codigo por inferencia sobre o gargalo — revertido na Sprint 7
+
+## Sprint 7 (concluida)
+
+Fidelidade dos dados e validade da medicao. Sem handoff; detalhes nas secoes citadas.
+
+- Tabela **`offers`** derivada de `order_items`; Home, detalhe e checkout passam a le-la. A vitrine deixou de trocar de produtos a cada recarga do ETL
+- ETL **completa as ofertas** dos produtos sorteados (ver [Demo multi-vendedor](#demo-multi-vendedor)); "mesmo produto, vendedor mais proximo"
+- Selo nao afirma mais "0 km" nem "0,00 g CO2"
+- **E2E de mutacao de contrato** (`web/e2e/contract-mutation.spec.ts`) — objetivo (d), a parte "flexibilidade"; evidencia em `docs/evidencia/`
+- **Prazo medido** (`ETA_BANDS`) substitui o arbitrado; **peso cubado** entra no CO2 (ver [Logistica Verde](#logistica-verde))
+- Locust com **CEPs reais** e think time da metodologia; `echo` do SQLAlchemy descoberto como confundidor de todas as medicoes anteriores
+- **Redis volta como variavel de experimento** (`CACHE_ENABLED=false`) — ver [Redis](#redis--variavel-de-experimento-nao-arquitetura)
 
 ## Roadmap (proximas sprints)
 
@@ -522,13 +539,13 @@ Escopo em [docs/sprint5-handoff.md](docs/sprint5-handoff.md):
   campo `version` ja existe no envelope, mas todos valem 1 — nao ha uma segunda versao para
   rotear entre.
 
-### Descartado com medicao
+### Descartado ou em aberto
 
-- **Cache Redis em runtime.** Avaliado na Sprint 6 e **descartado**. A medicao mostrou que a
-  lentidao era um N+1 (63 queries para montar 6 cards, metade repetindo o mesmo CEP) e, depois
-  disso, o worker unico — nao ausencia de cache distribuido. `cep_centroids` sao 6403 linhas
-  estaticas que cabem em ~1,1 MB de memoria; Redis guardaria isso do outro lado de um socket.
-  O client stub, a dependencia e a `REDIS_URL` foram removidos para o codigo nao contradizer a
-  decisao. Ver [docs/performance.md](docs/performance.md) §5 e §7, com as condicoes que
-  reabririam a discussao.
+- **Cache Redis como arquitetura: em aberto.** A Sprint 6 o descartou **por inferencia**: a
+  lentidao era um N+1 (63 queries para montar 6 cards) e, depois dele, o worker unico — e o
+  codigo do Redis foi removido. A Sprint 7 o reinseriu como **variavel de experimento**,
+  desligado por padrao (`CACHE_ENABLED=false`, `src/core/cache.py`), para que a decisao vire
+  medicao. A sondagem limpa favorece o cache na mediana; a decisao fica pendente dos 27 ensaios
+  do protocolo. Ver a secao [Redis](#redis--variavel-de-experimento-nao-arquitetura) acima e
+  [docs/performance.md](docs/performance.md) §9.
 - **Locust / TTFB:** feito — suite em `load/locustfile.py`, numeros em `docs/performance.md`.

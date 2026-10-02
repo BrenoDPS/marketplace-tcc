@@ -34,8 +34,8 @@ import { expect, test, type Page } from "@playwright/test";
  * arvore JSON, em runtime.
  *
  * Nao prova: que o backend saiba produzir estas arvores especificas. Isso e
- * outro teste — e as telas que o backend ja produz estao cobertas pelos 147
- * testes de `pytest` e pela jornada em `journey.spec.ts`.
+ * outro teste — e as telas que o backend ja produz estao cobertas pelo
+ * `pytest` e pela jornada em `journey.spec.ts`.
  *
  * A PAGINA NUNCA RECARREGA. Nenhuma das mutacoes provoca reload: o modal
  * refaz o `fetch` e redesenha. Um marcador plantado no `window` antes da

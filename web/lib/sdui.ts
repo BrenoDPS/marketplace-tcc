@@ -1,9 +1,10 @@
 /**
  * Espelho TypeScript do contrato SDUI (`src/schemas/sdui.py`, schema_version 1).
  *
- * Mantido a mao de proposito: o contrato tem 4 blocos e 3 acoes, e cada campo
- * aqui corresponde 1:1 a um campo Pydantic. Se o backend ganhar um bloco novo,
- * adicione o tipo aqui e registre-o no `REGISTRY` de components/sdui.tsx.
+ * Mantido a mao de proposito: cada campo aqui corresponde 1:1 a um campo
+ * Pydantic. Se o backend ganhar um bloco novo, adicione o tipo aqui e
+ * registre-o no `REGISTRY` de components/sdui.tsx — `tests/test_schemas.py`
+ * falha se os `type` dos tres lugares divergirem (props nao sao conferidos).
  */
 
 // --- Acoes -----------------------------------------------------------------

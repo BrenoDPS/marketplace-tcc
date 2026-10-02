@@ -1,3 +1,7 @@
+import re
+from pathlib import Path
+from typing import get_args
+
 import pytest
 from pydantic import TypeAdapter, ValidationError
 
@@ -203,3 +207,30 @@ class TestScreenResponse:
         assert block["version"] == 1
         assert "props" in block
         assert block["actions"] == []
+
+
+class TestEspelhoDoContratoNoFront:
+    """`web/lib/sdui.ts` e o `REGISTRY` sao escritos a mao. Isto pega o `type`
+    que existe de um lado so — bloco novo no backend sem renderer, ou acao sem
+    executor. Compara so os `type`; divergencia de props continua sem sensor."""
+
+    ROOT = Path(__file__).resolve().parent.parent
+
+    @staticmethod
+    def _py_types(annotated: object) -> set[str]:
+        union = get_args(annotated)[0]
+        return {m.model_fields["type"].default for m in get_args(union)}
+
+    def test_blocos_iguais_no_contrato_no_espelho_e_no_registry(self) -> None:
+        ts = (self.ROOT / "web/lib/sdui.ts").read_text(encoding="utf-8")
+        tsx = (self.ROOT / "web/components/sdui.tsx").read_text(encoding="utf-8")
+        registry = re.search(r"const REGISTRY = \{(.*?)\}", tsx, re.S)
+        assert registry, "REGISTRY nao encontrado em web/components/sdui.tsx"
+
+        py = self._py_types(UIComponent)
+        assert set(re.findall(r'Envelope<\s*"(\w+)"', ts)) == py
+        assert set(re.findall(r"(\w+):", registry.group(1))) == py
+
+    def test_acoes_iguais_no_contrato_e_no_espelho(self) -> None:
+        ts = (self.ROOT / "web/lib/sdui.ts").read_text(encoding="utf-8")
+        assert set(re.findall(r'type: "(\w+)";', ts)) == self._py_types(UIAction)
