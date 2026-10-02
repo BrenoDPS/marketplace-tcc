@@ -457,6 +457,9 @@ a **população**; quem decide a taxa de acerto é a **sessão**.
 > Previsão falsificável para o protocolo, escrita antes dos ensaios: se a taxa de
 > acerto é governada pelo número de VUs, os cenários de 250 e 1.000 VU devem dar
 > taxa **menor**, não maior — o oposto do que "mais carga, mais cache" sugere.
+>
+> **Substituída pela §10.9** (Sprint 8): foi escrita sob TTL de 60 s; com o TTL
+> de 3600 s do protocolo, a taxa passa a depender da duração do ensaio.
 
 **Isto não decide nada ainda.** Um ensaio por condição, um worker, Locust na
 mesma máquina. A decisão sobre Redis depende dos 27 ensaios do protocolo.
@@ -561,22 +564,97 @@ carga, com Z = 2 s e R pequeno, é ≈ N / 2:
 > da saturação com 1 worker, porque `/products` e `/checkout` não são cacheadas e
 > continuam disputando o mesmo pool.
 
-### 10.5 Pontos de melhoria (registrados, não aplicados)
+### 10.5 Pontos de melhoria
 
-| Ponto | Por que importa | Custo |
+| Ponto | Por que importa | Estado |
 |---|---|---|
-| Medir CPU do processo da API por ensaio | separar "event loop saturado" de "pool esgotado" (§10.4) | baixo — amostrar o PID durante o Locust |
-| `DEBUG=false` como padrão | o defeito 3 só some para medições manuais se o padrão mudar | 1 linha, mas muda o log de desenvolvimento — decisão à parte |
-| Taxa de acerto inclui a rampa | `CONFIG RESETSTAT` roda antes da subida da API, não no fim da rampa | baixo; o efeito é pequeno com plateau de 600 s |
-| Locust e API na mesma máquina | sem aviso de CPU no piloto, mas disputam núcleos com Postgres e Redis | alto (2ª máquina); declarar como limitação |
-| Agregação dos 27 CSVs em tabela | sem ela, a §11 vira cópia manual de 27 arquivos | baixo — script de leitura, a escrever na Sprint 8 |
+| Medir CPU do processo da API por ensaio | separar "event loop saturado" de "pool esgotado" (§10.4); a §3.3 promete "o ponto de esgotamento da CPU" | **aplicado** — `_cpu.csv` por ensaio; resultado em §10.8 |
+| Agregação dos 27 CSVs em tabela | a §3.3 pede média e desvio padrão por métrica | **aplicado** — `python -m load.resumo` |
+| Catálogo de metadados por execução | a §3.3 exige commit, imagens Docker, volume de dados e locustfile | **aplicado** — `meta.json`; o runner recusa árvore com mudança não commitada |
+| `DEBUG=false` como padrão | o defeito 3 só some para medições **manuais** se o padrão mudar | aberto — muda o log de desenvolvimento; decisão à parte |
+| Taxa de acerto inclui a rampa | `CONFIG RESETSTAT` roda antes da subida da API | aberto — efeito pequeno com plateau de 5–15 min; declarar |
+| Locust e API na mesma máquina | sem aviso de CPU no piloto, mas disputam núcleos com Postgres e Redis | aberto — declarar como limitação (ver §10.7) |
 
-### 10.6 O que fica para o autor decidir antes de medir
+### 10.6 Decisões fechadas pelo autor (2026-10-02)
 
-TTL do protocolo, reescrita da previsão do §9 sob o TTL escolhido, manter 1
-worker com 1.000 VU declarado como saturação, manter o pool atual, e conferir
-cargas/plateau contra o texto da §3.3. Recomendações e motivos em
+TTL de **3600 s** durante o protocolo; **1 worker** nos três cenários, com o
+cenário de 1.000 VU declarado como **saturação**; **pool mantido** em 5 + 10, com
+falhas reportadas como resultado. Detalhe e alternativas descartadas em
 `docs/sprint8-handoff.md`.
+
+### 10.7 O runner contra o texto da §3.3
+
+| §3.3 diz | Implementação | Situação |
+|---|---|---|
+| 50 / 250 / 1.000 VU; spawn 5 / 10 / 25 VU/s; rampa 10 / 25 / 40 s; plateau 5 / 10 / 15 min | `CENARIOS` em `load/protocolo.py` (Tabela 1) | conforme |
+| think time de 1 a 3 s | `between(1, 3)` | conforme |
+| triplicata × {desabilitado, frio, aquecido} | `--reps 3`, ordem off → frio → aquecido por cenário | conforme |
+| aquecido "condicionado por um ciclo prévio de requisições de carga (pre-warming)" | o ensaio frio, com a mesma semente de CEP, é o pré-aquecimento | conforme — **declarar** que o aquecido depende do frio anterior |
+| p50, p95, p99; RPS × percentis; ponto de inflexão | `_stats.csv` (plateau) e `_stats_history.csv` (série temporal) | conforme — gráficos a fazer na escrita |
+| falhas segregadas por código HTTP (500, 503, 504) | `load.resumo`, coluna "falhas por código" | conforme — sem proxy na frente, a API não emite 503/504: espera-se 500 (timeout do pool) e erro de conexão |
+| média e desvio padrão das três iterações | `load.resumo` | conforme — com n = 3 o desvio é frágil; manter os valores individuais nos anexos |
+| metadados: commit, imagens Docker, volume de dados, locustfile | `meta.json` | conforme |
+| carga "sobre o endpoint responsável pela orquestração da SDUI e pelo cálculo de pegada" | a jornada inteira: 4 formatos de Home, detalhe e checkout | **divergência** — declarar; as linhas por rota permitem isolar a Home (`--rota`) |
+| contêineres da aplicação, do banco e do Locust numa sub-rede *bridge* isolada | Postgres e Redis em contêiner; API e Locust no host, via *loopback* | **divergência — decisão do autor** (ver handoff) |
+
+### 10.8 É possível alcançar os cenários? Capacidade de 1 worker
+
+A premissa *"com 25 usuários a API já bate o limite"* vem da Sprint 6 (§7) e
+**não vale mais**: aquela medição tinha o `echo` ligado, think time de 0,5–2 s e
+dois CEPs fixos. Com a medição limpa (§9), 50 VU deram p50 de 14 ms.
+
+Duas estimativas **independentes** da capacidade de 1 worker, sem cache:
+
+| fonte | como | capacidade |
+|---|---|---|
+| piloto a 1.000 VU (§10.3) | throughput no regime saturado | **~163 req/s** |
+| smoke a 50 VU, 2 × 20 s (`load/results/s8-smoke-u50/`) | CPU da API ≈ 14% de um núcleo a 25 req/s → ~5,6 ms de CPU por requisição | **~180 req/s** |
+
+Batem. O limite é **a CPU do event loop único**; o pool é onde a espera aparece
+(§10.4). Com cache aquecido o smoke deu ~9% de CPU para a mesma vazão (~3,6 ms
+por requisição) → **~280 req/s**. *Ressalva:* o smoke é curto e de baixa
+utilização; o custo por requisição tende a subir sob contenção, então os tetos
+são otimistas.
+
+Demanda de cada cenário (sistema fechado, Z = 2 s → ≈ VU / 2):
+
+| cenário | demanda | utilização sem cache | com cache | leitura |
+|---|---|---|---|---|
+| 1 — nominal, 50 VU | ~25 req/s | ~15% | ~9% | folga; meta de 200 ms cumprida no p50 |
+| 2 — operacional, 250 VU | ~125 req/s | **~70–77%** | ~45% | **joelho da curva** sem cache; o cache deve tirá-lo de lá |
+| 3 — estresse, 1.000 VU | ~500 req/s | **>100%** | >100% | saturação nas três condições |
+
+**Resposta:** os três cenários **são executáveis** nesta máquina (o Locust
+sustentou 1.000 VU sem aviso de CPU). O que **não** acontece é o cenário 3 caber
+em 200 ms com 1 worker — e a §3.3 não promete isso: o objetivo declarado do
+cenário 3 é *"identificar o ponto de esgotamento da CPU, a formação de filas e a
+taxa de erros"*. Saturar é o resultado esperado; o achado é **onde** e **como**.
+Para servir ~500 req/s sem fila seriam necessários ~3 workers sem cache ou ~2 com
+cache — mudança de desenho descartada na decisão do autor (§10.6). Se quiser o
+dado, cabe como ensaio **complementar**, fora dos 27.
+
+### 10.9 Previsões registradas antes do protocolo (TTL 3600 s)
+
+Substituem a previsão do §9, escrita sob TTL de 60 s.
+
+1. **Taxa de acerto do frio ≥ ~93% nos três cenários; aquecido ≥ ~99%.** Com
+   TTL longo, cada chave erra **uma vez** e acerta até o fim. Cada VU usa ~7
+   chaves de Home (default, dois contextos, quatro termos de busca) e faz
+   ~115 (cenário 1) a ~230 (cenários 2 e 3) requisições de Home no ensaio. A taxa
+   passa a depender da **duração do ensaio**, não do número de VUs — a previsão
+   do §9 (taxa menor com mais VUs) deixa de se aplicar.
+2. **No agregado do plateau, frio e aquecido ficam próximos.** A penalidade das
+   rajadas de *cache miss* — o que a §3.3 quer medir no frio — acontece no
+   primeiro minuto, boa parte durante a rampa, que o `--reset-stats` exclui do
+   `_stats.csv`. **Ela tem de ser lida na série temporal** (`_stats_history.csv`),
+   comparando o início do frio com o do aquecido.
+3. **Cenário 2 sem cache: p95/p99 sobem muito mais que o p50**, e a CPU da API
+   fica acima de ~70%. Com cache, o p95 cai mais em termos relativos aqui do que
+   em qualquer outro cenário.
+4. **Cenário 3: CPU da API em ~100% de um núcleo nas três condições.** O cache
+   eleva o teto de vazão (de ~165 para algo entre 200 e 280 req/s) e reduz os
+   timeouts do pool, mas não tira o sistema da saturação: `/products` e
+   `/checkout` não são cacheadas.
 
 ---
 

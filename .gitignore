@@ -17,3 +17,8 @@ ex*.py
 load/results/**/*_stats_history.csv
 load/results/**/*_exceptions.csv
 load/results/**/*_failures.csv
+# O protocolo da §3.3 guarda tudo: falhas segregadas por codigo HTTP e a serie
+# temporal (rampa incluida) sao resultado, nao ruido.
+!load/results/protocolo/*_stats_history.csv
+!load/results/protocolo/*_failures.csv
+!load/results/protocolo/*.log

@@ -6,14 +6,14 @@
 ## Objetivo
 
 Executar os **27 ensaios** do protocolo da §3.3 da metodologia (3 condições de
-cache × 3 cargas × 3 repetições) e **fechar a decisão sobre o Redis** com
+cache × 3 cenários × 3 repetições) e **fechar a decisão sobre o Redis** com
 números que sobrevivam à banca. Nada de feature nova no produto nesta sprint.
 
 ## Estado de partida
 
 | Fato | Prova |
 |---|---|
-| O runner existe e fixa os defeitos de validade conhecidos: `DEBUG=false`, TTL longo, mesma semente de CEP nas três condições de uma carga, `--reset-stats`, ordem intercalada, taxa de acerto por ensaio | `python -m load.protocolo --help`; docstring de `load/protocolo.py` |
+| O runner existe e fixa os defeitos de validade conhecidos: `DEBUG=false`, TTL longo, mesma semente de CEP nas três condições de uma carga, `--reset-stats`, ordem intercalada, taxa de acerto por ensaio | `python -m load.protocolo --help`; `python -m load.resumo --help` |
 | Smoke a 50 VU (15 s, não é dado): p50 off 16 · frio 11 · aquecido 8 ms — o aquecido agora difere do frio | rodado em 2026-10-02, descartado |
 | **Piloto a 1.000 VU, cache off, 1 worker, 120 s:** p50 **3,9 s**, p99,9 26 s, 163 req/s; **8 respostas 500** por `QueuePool limit of size 5 overflow 10 reached`; o Locust **não** saturou a CPU | `load/results/s8-piloto-u1000-off/u1000_stats.csv` |
 
@@ -21,25 +21,48 @@ O piloto responde duas perguntas: o gerador de carga aguenta 1.000 VU nesta
 máquina; e a 1.000 VU com 1 worker a API está **saturada** — o que se mede ali é
 fila, não cache.
 
-## Decisões a fechar ANTES do primeiro ensaio (autor)
+## Decisões fechadas (não reinterpretar)
+
+| # | Decisão | Motivo |
+|---|---|---|
+| 1 | **TTL de 3600 s** durante o protocolo (`--ttl`, padrão do runner) | Com 60 s, "aquecido" vira "frio" no 1º minuto. O catálogo só muda com o ETL. |
+| 2 | **Previsões reescritas** sob o TTL de 3600 s → `docs/performance.md` §10.9; a do §9 fica marcada como substituída | A taxa de acerto passa a depender da duração do ensaio, não do nº de VUs. |
+| 3 | **1 worker** nos três cenários; **1.000 VU declarado como saturação** | É o objetivo do cenário 3 na §3.3 ("ponto de esgotamento da CPU, formação de filas, taxa de erros"). Mais workers mudariam as três cargas. |
+| 4 | **Pool mantido** em 5 + 10; falhas reportadas como resultado, separadas da latência | É a configuração real da aplicação. |
+| 5 | **Parâmetros da Tabela 1 da §3.3**: 50 / 250 / 1.000 VU; spawn 5 / 10 / 25 VU/s; plateau 5 / 10 / 15 min | Texto da metodologia, fornecido pelo autor em 2026-10-02. `CENARIOS` em `load/protocolo.py`. |
+
+## Decisão em aberto — fechar antes do primeiro ensaio
 
 | # | Decisão | Recomendação |
 |---|---|---|
-| 1 | **TTL do cache.** O padrão é 60 s: a condição "aquecido" (chaves do ensaio anterior) vira "frio" 1 min depois de começar, e o "frio" vira estado estacionário. | `--ttl 3600` (padrão do runner). O catálogo só muda com o ETL, então TTL longo é o realista. |
-| 2 | **A previsão do §9** ("250 e 1.000 VU dão taxa de acerto menor") foi escrita sob TTL 60 s. Com TTL longo, cada chave erra uma vez e acerta até o fim — a taxa passa a depender da **duração do ensaio**, não do nº de VUs. | Reescrever a previsão sob o TTL escolhido e commitar **antes** de medir. |
-| 3 | **1.000 VU com 1 worker é saturação** (piloto). | Manter 1 worker e declarar o cenário como saturação: a pergunta a 1.000 VU passa a ser *"o cache desloca o ponto de saturação?"*. Trocar o nº de workers muda as três cargas e invalida a sondagem do §9 como comparação. |
-| 4 | **Pool de conexões (5 + 10)**: no off a 1.000 VU as falhas são timeout do pool, não erro da aplicação. | Manter — é a configuração real — e reportar falhas como resultado, separadas da latência. |
-| 5 | **Cargas 50/250/1.000 e plateau de 600 s** foram derivados de "27 ensaios", "~4,5 h de plateau" e da previsão do §9. | Conferir com o texto da §3.3; o runner aceita `--cargas` e `--plateau`. |
+| 6 | A §3.3 diz que API, banco e Locust rodam em **contêineres numa sub-rede *bridge***. Hoje só Postgres e Redis estão em contêiner; API e Locust rodam no host, via *loopback*. | **Ajustar o texto**, não o ambiente: o objetivo declarado (*"suprimir ruídos de rede externa"*) é atingido igualmente pelo *loopback*, e no Windows o Docker roda numa VM (WSL2), que acrescentaria uma camada de virtualização à medição. A reprodutibilidade fica no `meta.json` (commit, imagens, volume de dados, locustfile). Alternativa: containerizar API e Locust — custa um Dockerfile, serviços no compose e um novo piloto. |
 
-Tempo real: 27 × (600 s + ~20 s de rampa e subida da API) ≈ **4 h 40 min**.
+Declarar também no texto: (a) a carga percorre a jornada inteira (4 formatos de
+Home, detalhe e checkout), não um endpoint só — as linhas por rota permitem
+isolar a Home; (b) o aquecido é pré-aquecido pelo ensaio frio imediatamente
+anterior, com os mesmos CEPs.
+
+Tempo total: 9 × (5 + 10 + 15 min) de plateau + rampas e subida da API ≈
+**4 h 50 min**, com a máquina dedicada.
+
+## Como rodar
+
+```bash
+docker compose up -d
+python -m load.protocolo
+python -m load.resumo load/results/protocolo
+```
 
 ## Critérios de aceite
 
-- [ ] Decisões 1–5 registradas nesta tabela → leitura
-- [ ] Previsões commitadas antes dos resultados → `git log --oneline -- docs/performance.md`
+- [x] Decisões 1–5 registradas → esta seção
+- [ ] Decisão 6 registrada → esta seção
+- [x] Previsões commitadas antes dos resultados → `git log --oneline -- docs/performance.md`
 - [ ] 27 ensaios completos → `ls load/results/protocolo/*_stats.csv | wc -l` = 27
 - [ ] Nenhum ensaio com o gerador saturado → `grep -l "CPU usage above" load/results/protocolo/*.log` vazio
-- [ ] `docs/performance.md` §11: por célula (condição × carga), mediana e amplitude das 3 repetições de p50/p95/p99, throughput, falhas e taxa de acerto (`*_redis.txt`)
+- [ ] Metadados da execução → `load/results/protocolo/meta.json` com `commit` igual ao `git log -1` da medição
+- [ ] `docs/performance.md` §11: tabela de `python -m load.resumo` (média ± dp de p50/p95/p99, RPS, falhas por código, taxa de acerto, CPU) para o agregado **e** para `GET /home (conscious_buyer)`; cada previsão da §10.9 marcada como confirmada ou refutada
+- [ ] Série temporal do início do frio × aquecido (`_stats_history.csv`) — a penalidade dos *cache misses*
 - [ ] Decisão sobre o Redis escrita no README, no `tech_spec.md` e na regra "Redis" do `AGENTS.md` → `pytest -q`
 
 ## Fora de escopo
