@@ -51,7 +51,7 @@ Situação item a item em `docs/performance.md` §10.7 (runner × texto). Resumo
 
 ## 5. Ajustes ao texto da §3.3 (fechados em 2026-10-03)
 
-Três trechos do texto não descrevem o experimento executado. O ambiente foi
+Quatro trechos do texto não descrevem o experimento executado com precisão. O ambiente foi
 mantido; o **texto** muda. Redação proposta para a monografia:
 
 **5.1 Rede** — onde se lê *"os contêineres do motor de aplicação, da base de
@@ -91,7 +91,20 @@ de um ciclo prévio de requisições de carga (pre-warming)"*:
 > 3.600 s, superior à duração de um par frio–aquecido, para que as chaves não
 > expirem entre os ensaios.
 
-**5.4 Parâmetros a declarar** (não estavam no texto):
+**5.4 O que "cache desabilitado" desliga** — a aplicação tem três camadas de
+cache, e o texto não diz qual delas é a variável. Complementar a definição do
+primeiro estado:
+
+> O estado "cache desabilitado" refere-se exclusivamente à camada de respostas em
+> Redis. Duas outras camadas permanecem ativas nos três estados e fazem parte da
+> linha de base: a tabela de centroides de CEP (cerca de 12,9 mil linhas de dado
+> de referência estático), mantida em memória no processo da aplicação desde a
+> otimização que eliminou o padrão N+1 de consultas, e o cache de páginas do
+> próprio PostgreSQL. Os CEPs dos usuários virtuais são sorteados da distribuição
+> real de clientes da amostra, de modo que a taxa de acerto do cache reflete a
+> concentração geográfica efetiva da demanda.
+
+**5.5 Parâmetros a declarar** (não estavam no texto):
 
 > Todos os ensaios utilizam um único processo de aplicação (1 *worker* do
 > servidor ASGI) e o pool de conexões padrão da aplicação (5 conexões fixas e 10
@@ -119,7 +132,7 @@ quê. Cada linha aponta a evidência.
 | 10 | Protocolo: TTL padrão do cache (60 s) | **3.600 s** durante o protocolo | com 60 s, "aquecido" vira "frio" no 1º minuto | `docs/performance.md` §10.1 | 8 |
 | 11 | Protocolo: sorteio de CEP sem semente | Mesma semente nas três condições de cada cenário | sem ela, o aquecido media outros compradores | `load/locustfile.py` (`LOAD_SEED`) | 8 |
 | 12 | Previsão do §9: taxa de acerto **menor** com mais VUs | **Substituída** pela §10.9 | foi escrita sob TTL de 60 s | `docs/performance.md` §§9, 10.9 | 8 |
-| 13 | §3.3: contêineres em sub-rede *bridge*; carga sobre um endpoint; pré-aquecimento genérico | Texto ajustado (§5 acima) | ver §5 | `docs/sprint8-handoff.md`, decisão 6 | 8 |
+| 13 | §3.3: contêineres em sub-rede *bridge*; carga sobre um endpoint; pré-aquecimento genérico; "cache desabilitado" sem definição | Texto ajustado (§5 acima) | ver §5 | `docs/sprint8-handoff.md`, decisão 6 | 8 |
 | 14 | Premissa de trabalho: "com 25 usuários a API já bate o limite" | **Não vale mais**: capacidade de 1 worker ≈ 165–180 req/s sem cache; 50 VU com folga | a premissa veio de medições com `echo` ligado | `docs/performance.md` §10.8 | 8 |
 
 ## 7. Pontos a confirmar contra o texto da monografia
