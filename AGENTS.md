@@ -16,6 +16,7 @@ sem pedido explícito.
 | Espelho do contrato no front | `web/lib/sdui.ts` + `REGISTRY` em `web/components/sdui.tsx` |
 | Latência, N+1, Redis, protocolo | `docs/performance.md` §8–10 (as §§1–7 são histórico) |
 | Evidência já produzida | `docs/evidencia/`, `load/results/`, `docs/snapshots/` |
+| Defesa: promessa da metodologia × teste que prova × o que mudou | `docs/tese-rastreabilidade.md` — mantenha-o em dia a cada resultado ou desvio |
 
 A tarefa atual é o que foi pedido na conversa. Se existir sprint ativa com
 handoff, ela está em `docs/PROJECT_BOOTSTRAP.md` → "Sprint ativa".

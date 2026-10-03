@@ -589,13 +589,13 @@ falhas reportadas como resultado. Detalhe e alternativas descartadas em
 | 50 / 250 / 1.000 VU; spawn 5 / 10 / 25 VU/s; rampa 10 / 25 / 40 s; plateau 5 / 10 / 15 min | `CENARIOS` em `load/protocolo.py` (Tabela 1) | conforme |
 | think time de 1 a 3 s | `between(1, 3)` | conforme |
 | triplicata × {desabilitado, frio, aquecido} | `--reps 3`, ordem off → frio → aquecido por cenário | conforme |
-| aquecido "condicionado por um ciclo prévio de requisições de carga (pre-warming)" | o ensaio frio, com a mesma semente de CEP, é o pré-aquecimento | conforme — **declarar** que o aquecido depende do frio anterior |
+| aquecido "condicionado por um ciclo prévio de requisições de carga (pre-warming)" | o ensaio frio, com a mesma semente de CEP, é o pré-aquecimento | conforme — texto complementado em `docs/tese-rastreabilidade.md` §5.3 |
 | p50, p95, p99; RPS × percentis; ponto de inflexão | `_stats.csv` (plateau) e `_stats_history.csv` (série temporal) | conforme — gráficos a fazer na escrita |
 | falhas segregadas por código HTTP (500, 503, 504) | `load.resumo`, coluna "falhas por código" | conforme — sem proxy na frente, a API não emite 503/504: espera-se 500 (timeout do pool) e erro de conexão |
 | média e desvio padrão das três iterações | `load.resumo` | conforme — com n = 3 o desvio é frágil; manter os valores individuais nos anexos |
 | metadados: commit, imagens Docker, volume de dados, locustfile | `meta.json` | conforme |
-| carga "sobre o endpoint responsável pela orquestração da SDUI e pelo cálculo de pegada" | a jornada inteira: 4 formatos de Home, detalhe e checkout | **divergência** — declarar; as linhas por rota permitem isolar a Home (`--rota`) |
-| contêineres da aplicação, do banco e do Locust numa sub-rede *bridge* isolada | Postgres e Redis em contêiner; API e Locust no host, via *loopback* | **divergência — decisão do autor** (ver handoff) |
+| carga "sobre o endpoint responsável pela orquestração da SDUI e pelo cálculo de pegada" | a jornada inteira: 4 formatos de Home, detalhe e checkout | **texto ajustado** — `docs/tese-rastreabilidade.md` §5.2; as linhas por rota isolam a Home (`--rota`) |
+| contêineres da aplicação, do banco e do Locust numa sub-rede *bridge* isolada | Postgres e Redis em contêiner; API e Locust no host, via *loopback* | **texto ajustado** (decisão 6, 2026-10-03) — redação em `docs/tese-rastreabilidade.md` §5.1 |
 
 ### 10.8 É possível alcançar os cenários? Capacidade de 1 worker
 

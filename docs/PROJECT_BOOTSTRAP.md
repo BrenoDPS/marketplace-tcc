@@ -67,6 +67,7 @@ web/                 # Frontend Next.js (App Router) que consome o SDUI
 |---------|-----|
 | `AGENTS.md` | Mapa + regras de implementação (carregado em toda sessão) |
 | `docs/sprint8-handoff.md` | Spec da sprint atual |
+| `docs/tese-rastreabilidade.md` | Metodologia × testes × desvios — base da defesa |
 | `docs/sprint5-handoff.md` | Spec Sprint 5 (histórico) |
 | `docs/sprint4-handoff.md` | Spec Sprint 4 (histórico) |
 | `docs/sprint3-handoff.md` | Spec Sprint 3 (histórico) |

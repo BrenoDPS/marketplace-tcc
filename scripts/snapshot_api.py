@@ -13,6 +13,10 @@ precisa de uma evidencia que nao seja impressao — esta.
 
 Precisa da API no ar e do banco carregado com a MESMA amostra (mesmo seed):
 mudar os dados e mudar a resposta, e ai o diff nao diz nada sobre o codigo.
+
+O `depois.json` do refactor de `offers` NAO foi e nao sera gerado: o ETL mudou
+depois do `antes.json` (`428118a` completa as ofertas), entao o diff diferiria
+por desenho. Registro em `docs/tese-rastreabilidade.md` §6.
 """
 
 from __future__ import annotations
