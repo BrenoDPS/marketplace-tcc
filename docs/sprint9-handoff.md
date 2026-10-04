@@ -103,7 +103,7 @@ do texto e do selo.
 - [x] **Caronas:** o ETL termina avisando para reiniciar a API e esvaziar o cache → `python -m scripts.etl_load_sample` (fim da saída); `SQL_ECHO` próprio → `pytest -q`
 - [x] **Concentração regional:** tabela por UF (itens com vendedor no mesmo estado; compradores sem vendedor a < 100 km) → `python -m scripts.concentracao_regional`; `docs/resultados/concentracao-regional.md`; leitura em `docs/tese-rastreabilidade.md` §4b
 - [x] **Motor de CO₂:** fator de desvio e FE por faixa com fonte no código; testes de valor conhecido atualizados → `pytest -q tests/test_co2.py`; antes/depois registrado em `docs/`
-- [ ] **CO₂ evitado:** número citável ("em N compras simuladas, a recomendação evitaria X kg, Y%") → `python -m scripts.<script>`
+- [x] **CO₂ evitado:** número citável ("em N compras simuladas, a recomendação evitaria X kg, Y%") → `python -m scripts.co2_evitado`; `docs/resultados/co2-evitado.md` (254 kg, 9,8%)
 - [ ] **Contexto regional** (meta): contexto derivado do CEP, query param como override, contrato SDUI inalterado → `pytest -q`; `cd web && npm run e2e`
 - [ ] **Números do texto conferidos** depois do motor novo: README, `docs/` e a lista para o capítulo 5
 - [ ] `docs/tese-rastreabilidade.md` atualizado: mudanças em §6, novos números com comando

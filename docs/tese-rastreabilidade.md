@@ -75,6 +75,25 @@ produto" — a métrica de CO₂ evitado (Sprint 9, item 3) mede a escolha produ
 produto. Dataset completo (112.096 itens, 95.828 compradores, 3.095 vendedores),
 distância em linha reta entre centroides de prefixo de CEP.
 
+**CO₂ evitado pela recomendação** (`python -m scripts.co2_evitado` →
+`docs/resultados/co2-evitado.md`), sobre as compras reais, motor da Sprint 9:
+
+| Número | Valor |
+|---|---|
+| Itens cujo produto tinha mais de um vendedor | 14.367 (12,8% do total) |
+| Desses, o comprador já escolheu o mais próximo | 48,3% |
+| **CO₂ evitado se todos seguissem a recomendação** | **254 kg CO₂e — 9,8%** dessas compras (SP 23,5%; BA 3,7%) |
+| Escala no dataset inteiro | 0,9% do CO₂ de todas as compras |
+| Preço da recomendada | mais barata em 43%, igual em 6%, mais cara em 50%; diferença mediana **R$ 0,01** |
+
+**Leitura.** A recomendação reduz quase 10% do CO₂ onde ela pode agir, a custo
+praticamente nulo para o comprador. Mas ela só pode agir em 12,8% das compras —
+as que têm o mesmo produto em mais de um vendedor. O limite do efeito é a
+**oferta de alternativas**, não a disposição do comprador: metade já escolhe o
+mais próximo sem recomendação nenhuma. Junto com a concentração regional
+(acima), o argumento fica completo e honesto: há vendedor perto para quase
+todos (94,7%), mas raramente com o mesmo produto.
+
 ## 5. Ajustes ao texto da §3.3 (fechados em 2026-10-03)
 
 Quatro trechos do texto não descrevem o experimento executado com precisão. O ambiente foi
