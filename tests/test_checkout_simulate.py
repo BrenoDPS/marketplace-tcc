@@ -52,10 +52,24 @@ PRODUCT_FAR_SELLER = CheckoutProductRow(
     category="bebes",
 )
 
+# Sprint 10: o mesmo produto em dois vendedores. A oferta LONGE vem primeiro
+# (`seller_a...` < `seller_b...`), como a default do ETL vinha: se o checkout
+# pegasse a primeira em vez de escolher pela distancia, passaria por acidente.
+PRODUCT_TWO_SELLERS = [
+    CheckoutProductRow(
+        product_id="prod_dois", seller_id="seller_a_longe", seller_zip_prefix="60000",
+        unit_price=39.90, freight_value=25.00, weight_g=1000.0, category="relogios_presentes",
+    ),
+    CheckoutProductRow(
+        product_id="prod_dois", seller_id="seller_b_perto", seller_zip_prefix="08275",
+        unit_price=39.90, freight_value=12.00, weight_g=1000.0, category="relogios_presentes",
+    ),
+]
+
 CATALOG = {
-    p.product_id: p
+    p.product_id: [p]
     for p in (PRODUCT_FIXTURE, PRODUCT_SAME_SELLER, PRODUCT_FAR_SELLER)
-}
+} | {"prod_dois": PRODUCT_TWO_SELLERS}
 
 # Distancias por prefixo do seller: uma perto (com selo) e uma longe (sem).
 DISTANCE_BY_SELLER_ZIP = {"08275": 27.0, "60000": 2000.0}
@@ -112,8 +126,15 @@ async def _fake_list_known_prefixes(_session: object) -> set[str]:
 
 async def _fake_fetch_products(
     _session: object, product_ids: list[str]
-) -> dict[str, CheckoutProductRow]:
+) -> dict[str, list[CheckoutProductRow]]:
+    """Todas as ofertas do produto, ordenadas por vendedor — igual a consulta."""
     return {pid: CATALOG[pid] for pid in product_ids if pid in CATALOG}
+
+
+async def _fake_compute_distance(
+    _session: object, customer_zip_prefix: str, seller_zip_prefix: str
+) -> float | None:
+    return DISTANCE_BY_SELLER_ZIP.get(seller_zip_prefix)
 
 
 async def _fake_badge_for_pair(
@@ -165,6 +186,10 @@ def patch_checkout_dependencies(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         "src.features.checkout.router.fetch_products_for_checkout",
         _fake_fetch_products,
+    )
+    monkeypatch.setattr(
+        "src.features.checkout.router.compute_distance_km",
+        _fake_compute_distance,
     )
     monkeypatch.setattr(
         "src.features.checkout.composer.build_badge_for_pair",
@@ -501,3 +526,21 @@ async def test_alternative_carries_price_so_the_trade_off_is_visible() -> None:
     alt = _shipments(body)[0]["alternatives"][0]
     assert alt["price"] == pytest.approx(79.90)
     assert alt["title"] == "Bebes"
+
+
+# ---------------------------------------------------------------------------
+# Sprint 10: o checkout entrega da MESMA oferta que a vitrine mostrou
+# ---------------------------------------------------------------------------
+
+async def test_checkout_entrega_do_vendedor_mais_proximo_nao_da_oferta_default() -> None:
+    """Antes: o detalhe dizia "sai de ~2 km; comprar do mais proximo evita
+    0,10 kg" e o checkout entregava do vendedor a 2.485 km, emitindo esses
+    0,10 kg. A oferta default (a primeira) e a longe; vale a perto."""
+    status, body = await _cart(("prod_dois", 1))
+    assert status == 200
+
+    remessa = next(c for c in body["components"] if c["type"] == "shipment_breakdown")
+    (envio,) = remessa["props"]["shipments"]
+    assert envio["seller_id"] == "seller_b_perto"
+    assert envio["distance_km"] == 27.0
+    assert envio["freight"] == 12.00, "o frete e o da oferta escolhida"

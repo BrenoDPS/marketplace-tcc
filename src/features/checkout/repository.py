@@ -1,7 +1,7 @@
 """Acesso async aos dados do produto para o checkout simulado.
 
-Frete: usa o `freight_value` da PRIMEIRA linha de `order_items` daquele
-`product_id` na amostra (decisao fechada no handoff da Sprint 3).
+Frete: o `freight_value` da oferta escolhida — primeira linha de `order_items`
+daquele produto NAQUELE vendedor (`offers`, Sprint 7; regra da Sprint 3).
 """
 
 from __future__ import annotations
@@ -50,8 +50,14 @@ class CheckoutProductRow:
 
 async def fetch_products_for_checkout(
     session: AsyncSession, product_ids: list[str]
-) -> dict[str, CheckoutProductRow]:
-    """Mapa `product_id` -> oferta default daquele produto.
+) -> dict[str, list[CheckoutProductRow]]:
+    """Mapa `product_id` -> TODAS as ofertas daquele produto.
+
+    Ate a Sprint 9 vinha so a oferta default (`is_default`), e o checkout
+    entregava de um vendedor diferente do que a vitrine e o detalhe mostraram.
+    Quem escolhe agora e a rota, pela regra comum
+    (`green_logistics.offers.escolher_oferta`), porque a escolha depende de onde
+    o comprador esta.
 
     Uma consulta para o carrinho inteiro: com 20 itens, buscar um a um seriam
     20 round-trips para montar uma tela so. Produto ausente simplesmente nao
@@ -74,14 +80,15 @@ async def fetch_products_for_checkout(
         .join(Product, Product.product_id == Offer.product_id)
         .join(Seller, Seller.seller_id == Offer.seller_id)
         .where(Offer.product_id.in_(set(product_ids)))
-        .where(Offer.is_default)
+        # `seller_id`: desempate estavel, igual ao da vitrine e do detalhe.
+        .order_by(Offer.product_id, Offer.seller_id)
     )
     result = await session.execute(stmt)
 
-    out: dict[str, CheckoutProductRow] = {}
+    out: dict[str, list[CheckoutProductRow]] = {}
     for (product_id, seller_id, zip_prefix, price, freight,
          weight_g, category, volume) in result:
-        out[product_id] = CheckoutProductRow(
+        out.setdefault(product_id, []).append(CheckoutProductRow(
             product_id=product_id,
             seller_id=seller_id,
             seller_zip_prefix=zip_prefix,
@@ -90,7 +97,7 @@ async def fetch_products_for_checkout(
             weight_g=float(weight_g) if weight_g is not None else None,
             category=category,
             volume_cm3=float(volume) if volume is not None else None,
-        )
+        ))
     return out
 
 

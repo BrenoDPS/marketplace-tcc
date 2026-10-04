@@ -104,10 +104,10 @@ class Offer(Base):
     )
     price: Mapped[float] = mapped_column(Float, nullable=False)
     freight_value: Mapped[float | None] = mapped_column(Float)
-    # Reproduz a "primeira order_item" de hoje para as telas que mostram UM
-    # vendedor. Exatamente uma por produto — `tests/test_offers.py` cobre o
-    # invariante. Quando a escolha passar a ser por distancia, isto vira o
-    # fallback de quando nao da para medir (vendedor sem centroide).
+    # A "primeira order_item" do produto. Exatamente uma por produto —
+    # `tests/test_offers.py` cobre o invariante. Desde a Sprint 10 as telas NAO
+    # usam isto para escolher o vendedor (regra comum em
+    # `green_logistics/offers.py`); so os candidatos a alternativa do checkout.
     is_default: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, index=True
     )

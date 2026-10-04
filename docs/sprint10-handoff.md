@@ -36,7 +36,7 @@ nova no produto:
 | 7 | Log de funil do ETL | Média |
 | 9 | Trabalhos futuros (cap. 6) — rascunho com motivos | Média |
 | 8 | Conferir monografia: persona Seller e versionamento | Média — **autor** |
-| 10 | Desempate de ofertas por preço | Baixa |
+| 10 | Desempate de ofertas por preço — **feito**, e com ele o bug do checkout (abaixo) | Baixa |
 | 11 | Observabilidade (contagem de queries) | Baixa |
 | 12 | Decidir sobre `docs/revisao-harness.md` | Baixa — autor da revisão |
 
@@ -69,4 +69,5 @@ máquina.
 |---|---|
 | `terminate` no Windows só derruba o lançador do venv: com `--workers`, os workers órfãos ficariam na porta 8000 | `derrubar()` em `load/protocolo.py` mata a árvore; o runner já recusava subir com a porta ocupada |
 | Um worker do uvicorn morreu ao subir (`WinError 10022`) e o amostrador de CPU parou junto: ensaio com 3 de 4 workers, sem CPU e sem registro de energia, sem aviso | `subir_api` só devolve com os N workers vivos (3 tentativas); `_cpu.csv` grava `workers_vivos`; ensaio sem amostra conta como inválido |
+| Checkout entregava pela oferta padrão do ETL, não pela que a vitrine e o detalhe mostraram (Maringá: detalhe a 2 km, checkout a 2.485 km) | regra única `escolher_oferta` nas três telas; regra no `AGENTS.md`; teste de regressão que falha com a oferta padrão |
 | Script de análise esquecido em segundo plano disputou CPU com um ensaio inteiro | detectado pela CPU do sistema no `_cpu.csv`; ensaio invalidado e refeito **em par** com o seu controle (`load/results/s10-workers/invalidado/MOTIVO.txt`) |

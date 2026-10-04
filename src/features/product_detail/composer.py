@@ -15,6 +15,7 @@ from src.features.green_logistics.badge import (
     build_sustainability_props,
 )
 from src.features.green_logistics.co2 import calculate_co2_kg, format_co2
+from src.features.green_logistics.offers import escolher_oferta
 from src.features.green_logistics.service import compute_distance_km
 from src.features.product_detail.repository import ProductDetailRow
 from src.schemas.sdui import (
@@ -100,18 +101,16 @@ async def compose_product_detail(
     offers: list[ProductDetailRow],
     customer_zip_prefix: str,
 ) -> ScreenResponse:
-    """Escolhe a oferta mais proxima do comprador entre as do produto."""
+    """Escolhe a oferta do produto pela regra comum (`escolher_oferta`): a mais
+    proxima, desempatada por preco — a mesma que a vitrine e o checkout usam."""
     medidas: list[tuple[float, ProductDetailRow]] = []
     for offer in offers:
         distance = await compute_distance_km(
             session, customer_zip_prefix, offer.seller_zip_prefix
         )
         medidas.append((INFINITY if distance is None else distance, offer))
-    # Estavel: a consulta ja ordena por `seller_id`, e `sort` do Python preserva
-    # a ordem de entrada em empates.
-    medidas.sort(key=lambda par: par[0])
-
-    escolhida, *descartadas = medidas
+    escolhida = escolher_oferta(medidas, lambda o: o.unit_price)
+    descartadas = [par for par in medidas if par is not escolhida]
     bruto, product = escolhida
     medido = None if bruto == INFINITY else bruto
     badge = (

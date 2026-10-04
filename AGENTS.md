@@ -42,6 +42,10 @@ handoff, ela está em `docs/PROJECT_BOOTSTRAP.md` → "Sprint ativa".
   `src/features/` — `home_contextual` (composição da Home), `green_logistics`
   (CEP, distância, CO₂, selo, modalidades), `checkout`, `product_detail`,
   `orchestrator` (stub).
+- **Oferta de um produto:** vitrine, detalhe e checkout escolhem o vendedor pela
+  MESMA regra — `escolher_oferta` em `src/features/green_logistics/offers.py`
+  (mais próxima; entre as equidistantes até 1%, a mais barata; nunca perde o
+  selo). Não escolha oferta por `is_default` nem por ordem de consulta.
 - **Contexto da Home:** sem `context` escolhido, vem da UF do CEP (categoria de
   maior lift, tabela `regional_categories` derivada no ETL); `context`, `q` e
   `category` explícitos vencem. UF e tabela vivem em memória — sem consulta nova.

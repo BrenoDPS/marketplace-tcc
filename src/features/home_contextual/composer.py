@@ -11,6 +11,7 @@ from urllib.parse import urlencode
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.features.green_logistics.offers import escolher_oferta
 from src.features.green_logistics.service import (
     build_badge_for_pair,
     compute_distance_km,
@@ -200,7 +201,8 @@ async def _nearest_offer_per_product(
     offers: list[ProductRow],
     customer_zip_prefix: str,
 ) -> list[tuple[float, ProductRow]]:
-    """Colapsa as ofertas em uma por produto: a mais perto do comprador.
+    """Colapsa as ofertas em uma por produto: a mais perto do comprador,
+    desempatada por preco (`green_logistics.offers.escolher_oferta`).
 
     E o ponto da feature. O mesmo item vendido de Recife e de Maringa sao duas
     origens a 2483 km uma da outra, e so uma delas ganha selo verde para quem
@@ -213,7 +215,7 @@ async def _nearest_offer_per_product(
     Devolve `(distancia, oferta)` porque quem chama ja precisa da distancia para
     ordenar — sem isso o `conscious_buyer` mediria tudo duas vezes.
     """
-    melhor: dict[str, tuple[float, ProductRow]] = {}
+    por_produto: dict[str, list[tuple[float, ProductRow]]] = {}
     for offer in offers:
         distance = await compute_distance_km(
             session, customer_zip_prefix, offer.seller_zip_prefix
@@ -223,15 +225,11 @@ async def _nearest_offer_per_product(
             # tem preco. Fica por ultimo e sem selo, que e a resposta honesta —
             # "nao sei a distancia" nao e "a distancia e grande".
             distance = INFINITY
-        atual = melhor.get(offer.product_id)
-        # `<` estrito: em empate fica a primeira, e a consulta ordena por
-        # `seller_id`, entao o desempate e estavel entre execucoes.
-        if atual is None or distance < atual[0]:
-            melhor[offer.product_id] = (distance, offer)
+        por_produto.setdefault(offer.product_id, []).append((distance, offer))
 
     # `dict` preserva ordem de insercao: os produtos saem na ordem em que a
     # consulta os trouxe.
-    return list(melhor.values())
+    return [escolher_oferta(medidas, lambda o: o.price) for medidas in por_produto.values()]
 
 
 def _checkout_action() -> ApiCallAction:

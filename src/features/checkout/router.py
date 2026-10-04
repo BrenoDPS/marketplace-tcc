@@ -7,13 +7,26 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.database import get_db
 from src.features.checkout.composer import compose_checkout
-from src.features.checkout.repository import fetch_products_for_checkout
+from src.features.checkout.repository import CheckoutProductRow, fetch_products_for_checkout
 from src.features.checkout.schemas import CheckoutSimulateRequest
 from src.features.green_logistics.delivery_options import MODES_BY_ID
+from src.features.green_logistics.offers import escolher_oferta
 from src.features.green_logistics.repository import list_known_prefixes
+from src.features.green_logistics.service import compute_distance_km
 from src.schemas.sdui import ScreenResponse
 
 router = APIRouter(tags=["Checkout"])
+
+
+async def _oferta_do_comprador(
+    session: AsyncSession, customer_zip_prefix: str, ofertas: list[CheckoutProductRow]
+) -> CheckoutProductRow:
+    """A MESMA oferta que a vitrine e o detalhe mostraram a este comprador."""
+    medidas = []
+    for oferta in ofertas:
+        d = await compute_distance_km(session, customer_zip_prefix, oferta.seller_zip_prefix)
+        medidas.append((float("inf") if d is None else d, oferta))
+    return escolher_oferta(medidas, lambda o: o.unit_price)[1]
 
 
 @router.post("/checkout/simulate", response_model=ScreenResponse)
@@ -37,15 +50,20 @@ async def simulate_checkout(
             detail=f"customer_zip_prefix desconhecido: {payload.customer_zip_prefix!r}",
         )
 
-    products = await fetch_products_for_checkout(
+    ofertas = await fetch_products_for_checkout(
         session, [item.product_id for item in payload.items]
     )
-    missing = [i.product_id for i in payload.items if i.product_id not in products]
+    missing = [i.product_id for i in payload.items if i.product_id not in ofertas]
     if missing:
         raise HTTPException(
             status_code=404,
             detail=f"product_id nao encontrado na amostra: {missing!r}",
         )
+
+    products = {
+        pid: await _oferta_do_comprador(session, payload.customer_zip_prefix, rows)
+        for pid, rows in ofertas.items()
+    }
 
     # Mesmo produto repetido no carrinho vira uma linha so: duas linhas iguais
     # dariam dois fretes na agregacao por vendedor e um resumo confuso.
