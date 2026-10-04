@@ -46,6 +46,8 @@ Situação item a item em `docs/performance.md` §10.7 (runner × texto). Resumo
   SDUI na meta (p95 190–200 ms). O cache desloca o ponto de inflexão em ~2,6×.
   Previsões: 2 confirmadas, 2 parcialmente refutadas — `docs/performance.md` §11.6.
 - **Conclusão sobre o Redis:** `docs/performance.md` §11.7.
+- **Gráficos de dispersão e evolução temporal** (prometidos na §3.3):
+  `docs/graficos/`, gerados por `python -m load.graficos` — `docs/performance.md` §11.10.
 
 ## 4. §3.3 — mutação de contrato (flexibilidade da SDUI)
 

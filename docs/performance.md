@@ -590,7 +590,7 @@ falhas reportadas como resultado. Detalhe e alternativas descartadas em
 | think time de 1 a 3 s | `between(1, 3)` | conforme |
 | triplicata × {desabilitado, frio, aquecido} | `--reps 3`, ordem off → frio → aquecido por cenário | conforme |
 | aquecido "condicionado por um ciclo prévio de requisições de carga (pre-warming)" | o ensaio frio, com a mesma semente de CEP, é o pré-aquecimento | conforme — texto complementado em `docs/tese-rastreabilidade.md` §5.3 |
-| p50, p95, p99; RPS × percentis; ponto de inflexão | `_stats.csv` (plateau) e `_stats_history.csv` (série temporal) | conforme — gráficos a fazer na escrita |
+| p50, p95, p99; RPS × percentis; ponto de inflexão | `_stats.csv` (plateau) e `_stats_history.csv` (série temporal); figuras em `docs/graficos/` (§11.10) | conforme |
 | falhas segregadas por código HTTP (500, 503, 504) | `load.resumo`, coluna "falhas por código" | conforme — sem proxy na frente, a API não emite 503/504: espera-se 500 (timeout do pool) e erro de conexão |
 | média e desvio padrão das três iterações | `load.resumo` | conforme — com n = 3 o desvio é frágil; manter os valores individuais nos anexos |
 | metadados: commit, imagens Docker, volume de dados, locustfile | `meta.json` | conforme |
@@ -858,8 +858,20 @@ concorrência** e só é dispensável em carga nominal.
 | Repetição 1 e repetições 2–3 em dias diferentes | possível diferença de ambiente | CPU por requisição estável entre os dias (§11.1) |
 | Taxa de acerto inclui a rampa | acerto do frio levemente subestimado | efeito pequeno com plateau de 5–15 min |
 
-Gráficos de evolução temporal e de dispersão RPS × percentis (§3.3): a fazer na
-escrita, a partir dos `_stats_history.csv`.
+### 11.10 Figuras do capítulo 5
+
+Geradas por `python -m load.graficos` (`pip install matplotlib`; a API não
+depende dele) a partir das mesmas fontes do resultado final, em `docs/graficos/`
+(PNG, 300 dpi):
+
+| Figura | O que mostra | Leitura |
+|---|---|---|
+| `fig-5-1-vazao-x-latencia.png` | dispersão vazão × p50/p95/p99 por condição; pontos vazados = ensaios, linha = média | o ponto de inflexão: sem cache a latência dispara entre 25 e ~150 req/s; com cache, só perto de ~400 (§11.5) |
+| `fig-5-2-serie-temporal-frio-aquecido.png` | primeiros 5 min a 250 e 1.000 VU, p50 e p95, mediana das 3 repetições a cada segundo | a rajada de misses do frio e sua convergência em 1–3 min; o aquecido já começa no regime |
+| `fig-5-3-por-rota-1000vu.png` | p50 e p95 por rota a 1.000 VU, média ± dp | as rotas da Home (cacheadas) ficam em torno da meta no p95; `/products` e `/checkout` carregam a fila (§11.4) |
+
+Cores: os três primeiros slots da paleta categórica validada para daltonismo
+(todos os pares); cada condição tem marcador próprio, legível em preto e branco.
 
 ### 11.9 Validação do pool bloqueante do Redis (2026-10-04)
 
