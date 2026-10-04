@@ -29,7 +29,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 
 from src.core.config import settings
@@ -125,8 +125,16 @@ def sample_order_items(
 def filter_valid(
     frames: dict[str, pd.DataFrame],
     items_sample: pd.DataFrame,
+    funil: list[tuple[str, int]] | None = None,
 ) -> dict[str, pd.DataFrame]:
-    """Filtra subset coerente: produtos com peso valido, CEPs com geolocation."""
+    """Filtra subset coerente: produtos com peso valido, CEPs com geolocation.
+
+    `funil` (Sprint 10) recebe `(etapa, order_items que sobraram)` por filtro,
+    na ordem em que eles se aplicam: a §3.3 pede o volume consolidado, e sem
+    isto o ETL descartava em silencio.
+    """
+    etapas = funil if funil is not None else []
+    etapas.append(("amostra (ofertas completadas)", len(items_sample)))
 
     products = frames["products"].copy()
     products = products[products["product_weight_g"].notna() & (products["product_weight_g"] > 0)]
@@ -151,16 +159,17 @@ def filter_valid(
     valid_product_ids = set(products["product_id"])
     valid_seller_ids = set(sellers["seller_id"])
 
-    items = items_sample[
-        items_sample["product_id"].isin(valid_product_ids)
-        & items_sample["seller_id"].isin(valid_seller_ids)
-    ].copy()
+    items = items_sample[items_sample["product_id"].isin(valid_product_ids)]
+    etapas.append(("produto com peso valido", len(items)))
+    items = items[items["seller_id"].isin(valid_seller_ids)].copy()
+    etapas.append(("vendedor com CEP geolocalizado", len(items)))
 
     orders = frames["orders"]
     orders = orders[orders["order_id"].isin(items["order_id"])]
     orders = orders[orders["customer_id"].isin(customers["customer_id"])]
 
     items = items[items["order_id"].isin(orders["order_id"])]
+    etapas.append(("pedido de cliente com CEP geolocalizado", len(items)))
     customers = customers[customers["customer_id"].isin(orders["customer_id"])]
     products = products[products["product_id"].isin(items["product_id"])]
     sellers = sellers[sellers["seller_id"].isin(items["seller_id"])]
@@ -560,7 +569,14 @@ def main() -> int:
         f"popularidade — declarar ao citar proporcoes)"
     )
 
-    subset = filter_valid(frames, items_sample)
+    funil: list[tuple[str, int]] = []
+    subset = filter_valid(frames, items_sample, funil)
+    print("[etl] funil de order_items (cada filtro sobre o anterior):")
+    anterior = funil[0][1]
+    for etapa, linhas in funil:
+        perda = f"  (-{anterior - linhas})" if linhas != anterior else ""
+        print(f"[etl]   {linhas:>7}  {etapa}{perda}")
+        anterior = linhas
     subset["products"] = attach_product_ratings(
         subset["products"], subset["order_items"], frames["reviews"]
     )
@@ -610,7 +626,16 @@ def main() -> int:
     engine = create_engine(_sync_database_url(), future=True)
     reset_schema(engine)
     load_tables(engine, subset, centroids, regional)
-    print("[etl] tabelas carregadas no Postgres")
+    # Conta no BANCO, nao no DataFrame: `load_tables` deduplica antes de gravar,
+    # e o volume que a §3.3 pede e o persistido.
+    with engine.connect() as conn:
+        persistido = {
+            t: conn.execute(text(f'SELECT count(*) FROM "{t}"')).scalar_one()
+            for t in Base.metadata.tables
+        }
+    print("[etl] tabelas carregadas no Postgres (linhas persistidas):")
+    for tabela, linhas in persistido.items():
+        print(f"[etl]   {linhas:>7}  {tabela}")
 
     demo = pick_demo_pair(
         items_with_customer, subset["customers"], subset["sellers"], centroids

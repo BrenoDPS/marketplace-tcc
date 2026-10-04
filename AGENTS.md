@@ -14,7 +14,7 @@ sem pedido explícito.
 | Visão geral, sprints, o que não fazer | `docs/PROJECT_BOOTSTRAP.md` |
 | Contrato SDUI (fonte de verdade) | `src/schemas/sdui.py`; descrição em `docs/tech_spec.md` |
 | Espelho do contrato no front | `web/lib/sdui.ts` + `REGISTRY` em `web/components/sdui.tsx` |
-| Latência, N+1, Redis, protocolo | `docs/performance.md` §10–11 (as §§1–9 são histórico) |
+| Latência, N+1, Redis, protocolo, workers | `docs/performance.md` §10–12 (as §§1–9 são histórico) |
 | Evidência já produzida | `docs/evidencia/`, `load/results/`, `docs/snapshots/` |
 | Defesa: promessa da metodologia × teste que prova × o que mudou | `docs/tese-rastreabilidade.md` — mantenha-o em dia a cada resultado ou desvio |
 

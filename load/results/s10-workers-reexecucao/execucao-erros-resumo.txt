@@ -1,0 +1,1 @@
+Resumo de load/results/s10-workers-reexecucao/execucao-erros.log (stderr bruto da API, gitignored): ocorrencias por tipo de excecao/linha de erro

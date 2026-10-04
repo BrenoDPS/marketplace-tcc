@@ -831,7 +831,7 @@ A decisão deixou de ser inferência:
   bloqueante), não ajustado para manter a configuração constante entre ensaios.
 - **O que estes dados não decidem:** se *mais workers* entregariam o mesmo ganho
   sem Redis. O protocolo fixou 1 worker (decisão 3); a comparação Redis ×
-  workers exige outro ensaio.
+  workers exige outro ensaio. **Feito na Sprint 10 — §12: não substituem.**
 
 **Recomendação:** o Redis passa de variável de experimento a componente
 justificado por medição para os cenários operacional e de pico.
@@ -853,7 +853,7 @@ concorrência** e só é dispensável em carga nominal.
 |---|---|---|
 | API, Postgres, Redis e Locust na mesma máquina (8 núcleos) | competem por CPU; a CPU total da máquina chegou a 100% em picos a 1.000 VU | declarado; nenhum aviso de CPU do Locust nos 27 ensaios válidos |
 | n = 3 | desvio padrão frágil, sobretudo na cauda a 1.000 VU (p95 ± 1–1,5 s) | valores individuais preservados nos CSVs |
-| 1 worker | o resultado vale para um processo; não compara cache × escala horizontal | declarado; ensaio complementar se o capítulo 5 precisar |
+| 1 worker | o resultado vale para um processo; não compara cache × escala horizontal | **ensaio complementar feito (§12)**: 4 workers sem cache dão 1,7× de vazão; o cache, 2,6× |
 | Pools no padrão das bibliotecas | parte das falhas a 1.000 VU é configuração, não limite da arquitetura | declarado (`docs/tese-rastreabilidade.md` §5.5) |
 | Repetição 1 e repetições 2–3 em dias diferentes | possível diferença de ambiente | CPU por requisição estável entre os dias (§11.1) |
 | Taxa de acerto inclui a rampa | acerto do frio levemente subestimado | efeito pequeno com plateau de 5–15 min |
@@ -906,6 +906,114 @@ ensaios. **Ponto de melhoria do runner:** um ensaio de calibração (CPU por
 requisição a 50 VU, que é 6–7 ms na máquina estável — §11.1) antes do protocolo
 detectaria esse estado em vez de depender do relatório de bateria.
 
+## 12. Redis × escala horizontal: mais workers substituem o cache? (Sprint 10)
+
+**A pergunta.** O protocolo (§11) fixou 1 worker e mostrou que o cache decide a
+partir de 250 VU. Não respondia se **mais processos, sem cache**, dariam o mesmo
+ganho. Ensaio complementar, fora dos 27: sem cache, **1 × 4 workers** (4 = núcleos
+físicos da máquina), 250 e 1.000 VU, n = 3, mesmas sementes da §11 (pareado),
+ordem dos workers sorteada por cenário. Decisões em `docs/sprint10-handoff.md`.
+
+```bash
+python -m load.protocolo --cargas 250 1000 --condicoes off --workers 1 4 --saida load/results/s10-workers
+python -m load.resumo load/results/s10-workers load/results/s10-workers-reexecucao load/results/s10-workers-reexecucao-w1
+```
+
+**Por que remedir o controle de 1 worker.** A Home `default` (13 de 38 no peso
+das tarefas) mudou na Sprint 9 — contexto regional. Comparar 4 workers de hoje
+com 1 worker da Sprint 8 confundiria as duas mudanças.
+
+### 12.1 Execução e o que foi invalidado
+
+| | Quando | Ensaios | Dados |
+|---|---|---|---|
+| Execução principal | 2026-10-04, 16:40–19:19, commit `f760996` | 12 (8 usados) | `load/results/s10-workers/` |
+| Refação do par da repetição 1 | 19:23–20:16, commit `df0ec49` (só o runner mudou) | 4 | `…/s10-workers-reexecucao/` (4 workers), `…/s10-workers-reexecucao-w1/` (1 worker) |
+
+Quatro ensaios da repetição 1 foram para `load/results/s10-workers/invalidado/`
+(motivo em `MOTIVO.txt`):
+
+- **`r1-u250-off-w4`**: um script de análise esquecido em segundo plano (pandas
+  sobre o dataset completo) rodou durante o ensaio inteiro, disputando CPU.
+- **`r1-u1000-off-w4`**: **um dos 4 workers morreu ao subir** (`WinError 10022`
+  no `listen` do socket compartilhado — uvicorn com vários workers no Windows) e
+  o amostrador de CPU parou junto, sem aviso. O ensaio rodou com 3 workers e sem
+  registro de energia. **Virou regra no runner:** só mede com os N workers vivos
+  (senão sobe de novo) e grava `workers_vivos` a cada segundo.
+- **`r1-u250-off` e `r1-u1000-off`** (1 worker): válidos pelos critérios do
+  runner, mas com CPU do sistema em 60–65% contra 37–44% do resto; e o par deles
+  tinha caído. Refeitos **em par** para manter o pareamento no tempo.
+
+Os 12 ensaios usados: todos na tomada, sem saturação do gerador, 4 workers vivos
+o tempo todo nos de 4.
+
+### 12.2 Resultado (n = 3, média ± dp, todas as rotas)
+
+| VU | workers | p50 | p95 | p99 | req/s | falhas | CPU da API (% de 1 núcleo) |
+|---|---|---|---|---|---|---|---|
+| 250 | 1 | 203 ± 15 | 873 ± 230 | 1.933 ± 862 | 108 ± 2 | 0% | 91 ± 1 |
+| 250 | **4** | **18 ± 4** | 550 ± 823 | 1.380 ± 1.230 | 119 ± 5 | 0% | 114 ± 12 |
+| 1.000 | 1 | 3.700 ± 361 | 11.333 ± 577 | 17.000 ± 1.000 | 170 ± 7 | 0,03% | 98 ± 0 |
+| 1.000 | **4** | **1.200 ± 200** | 3.267 ± 1.172 | 4.933 ± 2.157 | **284 ± 22** | 0,00% | **305 ± 15** |
+
+O p95 de 4 workers a 250 VU é **instável**: 58, 93 e 1.500 ms nas três
+repetições. Na de 1.500 ms a distribuição é bimodal (80% das requisições em até
+52 ms, 10% acima de 450 ms) e a cauda dura o ensaio todo. Hipótese:
+desequilíbrio entre workers (no Windows cada conexão keep-alive fica presa ao
+worker que a aceitou). **Não confirmada**: um diagnóstico de 2 min com CPU por
+worker não reproduziu a cauda (CPU equilibrada, 25–38% cada; p95 61 ms).
+
+**Lei de Little** (Z = 2 s): 1.000 VU, 4 workers, 1.000 / 284 − 2 = 1,5 s
+implicado × p50 de 1,2 s medido; 1 worker, 3,9 s × 3,7 s. Coerente.
+
+### 12.3 Contra o cache (1 worker, §11.3)
+
+| | 250 VU p50 / p95 | 1.000 VU vazão | Ganho de vazão a 1.000 VU | Núcleos usados pela API |
+|---|---|---|---|---|
+| 1 worker, sem cache | 203 / 873 ms | 170 req/s | — | ~1 |
+| **4 workers, sem cache** | 18 / 550 ms (instável) | 284 req/s | **1,7×** | **~3** (a máquina inteira em 98%) |
+| **1 worker, com cache** | 5,7 / 25–29 ms | ~400 req/s | **2,6×** (§11.5) | ~1 |
+
+**CPU por requisição a 1.000 VU:** 5,6–6,1 ms com 1 worker e **10,4–11 ms com
+4**. Quatro processos, o Postgres e o gerador dividem 4 núcleos físicos; cada
+requisição passa a custar quase o dobro. A 1.000 VU a máquina inteira chega a
+98% de CPU com 4 workers — o teto é o hardware, não a API.
+
+### 12.4 Leitura
+
+**Nesta máquina, mais workers não substituem o cache.**
+
+- **A 250 VU**, 4 workers tiram a API da fila no p50 (203 → 18 ms) e atendem
+  quase toda a demanda (119 de ~125 req/s). Mas a cauda é instável, e o cache faz
+  melhor (p95 25–29 ms) com um terço da CPU.
+- **A 1.000 VU**, 4 workers multiplicam a vazão por 1,7 usando três núcleos; o
+  cache multiplica por 2,6 usando um. A Home `conscious_buyer` com 4 workers
+  fica em p95 de 3,3 s; com cache, em 190–200 ms (§11.4).
+- **O cache troca CPU por memória:** um acerto não executa a composição. Workers
+  só repartem a mesma CPU, que nesta máquina já é disputada pelo banco e pelo
+  gerador.
+
+**O que estes dados não decidem:** workers **com** cache (complementares em
+princípio — mais processos, cada um servindo acertos) e máquinas separadas para
+API, banco e gerador. Ficam em trabalhos futuros
+(`docs/tese-rastreabilidade.md` §8).
+
+### 12.5 Efeito da Sprint 9 na latência (subproduto)
+
+O controle de 1 worker remedido dá o antes/depois do contexto regional:
+
+| 1 worker, sem cache | Sprint 8 (§11.3) | Sprint 10 |
+|---|---|---|
+| 250 VU: CPU da API por requisição | 8,2 ms | 8,3–8,5 ms |
+| 1.000 VU: vazão | 153 ± 13 req/s | 170 ± 7 req/s |
+
+**Sem efeito mensurável.** Benchmark sequencial direto, 300 pares intercalados
+com o mesmo CEP, sem cache: Home `default` (regional) p50 **9,3 ms** × Home
+genérica 9,5 ms. A UF e a tabela regional vivem em memória; a consulta da
+vitrine só troca de filtro. As diferenças de p50/p95 contra a Sprint 8 estão
+dentro da variação entre ensaios (p95 de 640, 1.100 e 880 ms nas três
+repetições de hoje).
+
 ---
 
-*§§1–7: Sprint 6. §§8–9: Sprint 7. §§10–11: Sprint 8. Suíte em `load/locustfile.py`; runner em `load/protocolo.py`; dados em `load/results/`.*
+*§§1–7: Sprint 6. §§8–9: Sprint 7. §§10–11: Sprint 8. §12: Sprint 10. Suíte em `load/locustfile.py`; runner em `load/protocolo.py`; dados em `load/results/`.*

@@ -1,0 +1,15 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+GET,GET /home (conscious_buyer),"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",23,2026-10-04T20:19:56Z,2026-10-04T20:25:20Z
+GET,"GET /home (default, sem selo)","ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",40,2026-10-04T20:19:53Z,2026-10-04T20:25:20Z
+GET,GET /home (busca),"ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",52,2026-10-04T20:19:51Z,2026-10-04T20:25:20Z
+GET,GET /products/{id},"ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",78,2026-10-04T20:19:33Z,2026-10-04T20:25:21Z
+GET,GET /home (conscious_buyer),"ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",62,2026-10-04T20:19:50Z,2026-10-04T20:25:19Z
+GET,GET /home (electronics_expert),"ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",66,2026-10-04T20:19:50Z,2026-10-04T20:25:22Z
+GET,GET /home (electronics_expert),"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",26,2026-10-04T20:21:05Z,2026-10-04T20:25:20Z
+GET,"GET /home (default, com selo)","ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",21,2026-10-04T20:19:56Z,2026-10-04T20:25:20Z
+GET,GET /home (busca),"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",20,2026-10-04T20:19:34Z,2026-10-04T20:25:19Z
+POST,POST /checkout/simulate,"ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",54,2026-10-04T20:19:51Z,2026-10-04T20:25:19Z
+GET,"GET /home (default, com selo)","ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",49,2026-10-04T20:19:51Z,2026-10-04T20:25:19Z
+GET,"GET /home (default, sem selo)","ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",101,2026-10-04T20:19:32Z,2026-10-04T20:25:20Z
+GET,GET /products/{id},"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",26,2026-10-04T20:19:53Z,2026-10-04T20:25:20Z
+POST,POST /checkout/simulate,"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",15,2026-10-04T20:21:02Z,2026-10-04T20:25:21Z

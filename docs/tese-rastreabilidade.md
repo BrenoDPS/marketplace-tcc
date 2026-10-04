@@ -5,17 +5,18 @@
 > em relação ao que estava estabelecido, com o motivo. Números de latência ficam
 > em `docs/performance.md`, não aqui — este arquivo aponta para eles.
 >
-> Atualizado em 2026-10-04 (Sprint 9). Regra: resultado sem comando não entra.
+> Atualizado em 2026-10-04 (Sprint 10). Regra: resultado sem comando não entra.
 
 ## 1. Estado das suítes
 
 | Suíte | Comando | Último resultado | Data |
 |---|---|---|---|
-| Backend (unitários + integração por `dependency_overrides`) | `pytest -q` (sem Redis: `tests/conftest.py`) | **182 passed** | 2026-10-04 |
+| Backend (unitários + integração por `dependency_overrides`) | `pytest -q` (sem Redis: `tests/conftest.py`) | **183 passed** | 2026-10-04 |
 | Frontend (executor de `actions`, `ScreenRenderer`, carrinho, envelope malformado) | `cd web && npm test` | **35 passed** | 2026-10-04 |
 | E2E — jornada da defesa | `cd web && npm run e2e` (exige pilha e `data/raw/`) | **passed** — com o Redis ligado e a Home regional (Sprint 9) | 2026-10-04 |
 | E2E — mutação de contrato SDUI | idem, `web/e2e/contract-mutation.spec.ts` | **passed** — 5 mutações (4ª nova: envelope sem `actions`); capturas da Sprint 7 em `docs/evidencia/` | 2026-10-04 |
 | Carga — protocolo da §3.3 | `python -m load.protocolo`; consolidação `python -m load.resumo "load/results/protocolo/r1-*" load/results/protocolo-rep23` | **concluído**: 27 ensaios válidos, n = 3 por célula — `docs/performance.md` §11 | 2026-10-04 |
+| Carga — Redis × escala horizontal (complementar, Sprint 10) | `python -m load.protocolo --cargas 250 1000 --condicoes off --workers 1 4`; consolidação `python -m load.resumo load/results/s10-workers load/results/s10-workers-reexecucao load/results/s10-workers-reexecucao-w1` | **concluído**: 12 ensaios válidos (4 invalidados e refeitos) — `docs/performance.md` §12 | 2026-10-04 |
 
 O CI (`.github/workflows/ci.yml`) roda `pytest -q`, lint, typecheck, `npm test` e
 build a cada push. E2E e carga ficam fora por dependerem de `data/raw/`
@@ -46,6 +47,17 @@ Situação item a item em `docs/performance.md` §10.7 (runner × texto). Resumo
   SDUI na meta (p95 190–200 ms). O cache desloca o ponto de inflexão em ~2,6×.
   Previsões: 2 confirmadas, 2 parcialmente refutadas — `docs/performance.md` §11.6.
 - **Conclusão sobre o Redis:** `docs/performance.md` §11.7.
+- **Redis × mais workers** (Sprint 10, fora dos 27): sem cache, 4 workers dão
+  1,7× de vazão a 1.000 VU usando ~3 núcleos; o cache dá 2,6× com um. A 250 VU,
+  4 workers tiram o p50 da fila (203 → 18 ms), mas o p95 é instável (58 a
+  1.500 ms). **Nesta máquina, mais workers não substituem o cache** —
+  `docs/performance.md` §12.
+- **Volume consolidado no PostgreSQL** (catálogo de metadados da §3.3): o ETL
+  imprime o funil por filtro e as linhas persistidas por tabela. Amostra
+  completada: 60.636 itens; descartados 17 (produto sem peso), 144 (vendedor
+  sem CEP geolocalizado) e 183 (cliente sem CEP geolocalizado) — 0,57%;
+  persistidos 60.292 itens, 53.114 pedidos, 7.356 ofertas, 12.933 centroides.
+  `python -m scripts.etl_load_sample`; `tests/test_amostragem.py::test_funil_registra_quanto_cada_filtro_descarta`.
 - **Gráficos de dispersão e evolução temporal** (prometidos na §3.3):
   `docs/graficos/`, gerados por `python -m load.graficos` — `docs/performance.md` §11.10.
 
@@ -202,8 +214,9 @@ limiares, só categoria da amostra), `tests/test_home_contextual.py`
 histórico individual. 15 UFs (todas as do Norte e boa parte do Nordeste) ficam sem sinal por
 volume. O hero diz por que a categoria foi escolhida ("Compradores de CE levam
 1,7x mais…"). Sem teste de significância estatística — o limiar de 100 itens
-é o corte contra ruído. Não foi medido o efeito sobre a latência (a consulta da
-vitrine passa a filtrar por categoria; nenhuma consulta nova).
+é o corte contra ruído. **Latência: sem efeito mensurável** — Home regional p50
+9,3 ms × genérica 9,5 ms em 300 pares sequenciais; CPU por requisição igual à da
+Sprint 8 no controle de carga (`docs/performance.md` §12.5).
 
 ## 6. Registro de mudanças em relação ao estabelecido
 
@@ -232,6 +245,8 @@ quê. Cada linha aponta a evidência.
 | 18 | CO₂ = distância em linha reta × massa × **0,102** kg/(t·km) (GHG Protocol), um fator para tudo | **Cadeia de transporte (ISO 14083/GLEC):** estrada = linha reta × 1,345; últimos 15 km de **van** (680 g CO₂e/t·km), o resto de **caminhão pesado** (92); sem corte rígido por distância | o objetivo (b) promete metodologia baseada em atividade; o fator único era o de caminhão pesado aplicado também à última milha, que vai de van. **Efeito:** toda emissão sobe; a compra local passa de ~22× para **~5,5×** mais limpa que a mediana (432 km) — a conclusão se mantém, a magnitude cai | `src/features/green_logistics/co2.py` (fontes por constante); `tests/test_co2.py`; pesquisa em `docs/sprint9-handoff.md` | 9 |
 | 19 | Detalhe do produto: "comprar do mais próximo evita X" = emissão da **diferença** de distâncias | **Diferença das emissões** das duas origens | com fator único as duas contas coincidiam; com o motor de cadeia, não — a antiga ignorava a última milha das duas entregas | `src/features/product_detail/composer.py`; `tests/test_product_detail.py` | 9 |
 | 20 | Contexto da Home vindo **só do query param**, mapeado por um dicionário escrito à mão (2 entradas) | Sem contexto escolhido, **derivado do CEP**: UF do prefixo → categoria de maior lift na UF (dataset completo); o query param continua como override; contrato SDUI inalterado | a banca pergunta como o contexto é determinado; "escrito à mão" não sustenta os objetivos (a) e (c) | §4c acima; `scripts/etl_load_sample.py` (`build_regional_categories`); `src/features/home_contextual/` | 9 |
+| 21 | §11.8: Redis × mais workers **não medido** (o protocolo fixou 1 worker) | **Medido** em ensaio complementar: 1 × 4 workers sem cache, controle de 1 worker remedido | pergunta previsível da banca; a Home `default` mudou na Sprint 9, então o controle antigo não servia | `docs/performance.md` §12; `load/results/s10-workers*/` | 10 |
+| 22 | ETL descartava linhas em silêncio | Funil por filtro e linhas persistidas por tabela no stdout | a §3.3 promete registrar o volume consolidado no PostgreSQL | `scripts/etl_load_sample.py`; `tests/test_amostragem.py` | 10 |
 
 ## 7. Pontos a confirmar contra o texto da monografia
 
@@ -243,3 +258,23 @@ Itens que o repositório não decide sozinho:
 - O `orchestrator` (versionamento de blocos) está como **stub**: o campo
   `version` existe, mas todo bloco vale 1. Conferir se o texto promete
   roteamento entre versões.
+
+## 8. Trabalhos futuros — o que ficou fora, e por quê (rascunho do cap. 6)
+
+Cada item: o que é, por que não entrou, e o que exigiria. Ordem: do que mais
+afeta as conclusões para o que menos afeta.
+
+| Item | Por que ficou fora | O que exigiria |
+|---|---|---|
+| **Personalização por pessoa** (login/JWT, histórico de compras) | decisão do autor (04/10): sem usuários reais, histórico seria sintético; o Olist não liga compras de um mesmo comprador de forma útil (só 0,7% dos pedidos têm mais de uma categoria) | autenticação, pedidos persistidos e separação entre base de referência (Olist) e base da aplicação; o contexto regional (§4c) viraria o *prior* para quem não tem histórico |
+| **Medir o efeito da recomendação em usuários** | o CO₂ evitado (§4b) é contrafactual — supõe que todos seguem a recomendação | teste A/B com usuários reais ou estudo de preferência declarada |
+| **Significância estatística do contexto regional** | o corte de 100 itens por categoria protege contra ruído, mas não dá intervalo de confiança | teste de proporções (ou *bootstrap*) por UF × categoria; reavaliar os limiares |
+| **Roteamento rodoviário real** | a circuidade de 1,345 é média nacional (Gonçalves et al., 2014); a ISO 14083 aceita linha reta | API de rotas ou OSRM com malha do OpenStreetMap; custo alto para 12.933 prefixos |
+| **Fatores de emissão brasileiros** | os do GLEC v2 são de "Europa e América do Sul"; não há tabela oficial brasileira por tipo de veículo com o mesmo recorte | inventário nacional por veículo (diesel B, frota brasileira) |
+| **Escala horizontal com cache** | o experimento da Sprint 10 compara workers **sem** cache; a combinação não foi medida | os mesmos ensaios com `--workers 4` nas condições frio/aquecido |
+| **Gerador de carga em outra máquina** | API, banco e gerador dividiram 4 núcleos; a 1.000 VU o gerador saturou uma vez | segunda máquina na mesma rede; a §5.1 já declara o *loopback* |
+| **Versionamento de blocos SDUI** (`orchestrator`) | o campo `version` existe, mas não há uma segunda versão viva para rotear entre elas | duas versões de um bloco em produção e um cliente antigo para validar a negociação |
+| **PostGIS** | o cálculo de distância não toca o banco (centroides em memória); PostGIS moveria a conta de volta | só se pagaria com consulta espacial real ("vendedores num raio de X km") |
+| **ETag / `If-None-Match`** | economiza banda, não CPU; o gargalo medido foi CPU | complementar ao Redis, se o público for móvel |
+| **Proveniência da carga** (tabela `etl_runs`) e ETL com menos memória | o funil do ETL (Sprint 10) e o `meta.json` do protocolo cobrem o que a §3.3 pede | gravar commit, parâmetros e contagens a cada carga |
+| **Lado do vendedor** (persona Microempreendedor do PRD) | o eixo da tese é o comprador; nenhuma tela de vendedor foi feita | painel com a pegada das próprias entregas e sugestão de onde abrir estoque |

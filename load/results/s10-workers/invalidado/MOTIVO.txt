@@ -1,0 +1,14 @@
+Ensaios invalidados (Sprint 10), refeitos com o mesmo nome e semente em
+load/results/s10-workers-reexecucao/.
+
+r1-u250-off-w4 (16:39:58-16:50:30): um script de analise (pandas, dataset
+completo, 1 nucleo) esqueceu de ser encerrado e rodou ate 16:49:48 — o
+ensaio inteiro disputou CPU com ele. CPU media do sistema 71,7% contra 64,7%
+do controle seguinte.
+
+r1-u1000-off-w4 (17:17:11): um dos 4 workers do uvicorn morreu ao subir
+(OSError WinError 10022 no listen do socket compartilhado, Windows; ver
+execucao-erros.log da pasta-mae, "Process SpawnProcess-4"). O amostrador de
+CPU parou junto (NoSuchProcess) e o ensaio ficou sem CPU e sem registro de
+energia. Corrigido no runner: so mede com os N workers vivos e grava
+workers_vivos por segundo.

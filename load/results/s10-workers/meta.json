@@ -1,0 +1,132 @@
+{
+  "commit": "f760996131492ef5a0c74c1b2e057e2c1ac0c8c1",
+  "imagens_docker": [
+    "/olist-postgres postgres:16 sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5",
+    "/olist-redis redis:7-alpine sha256:520775a41a63e77e06c73e35d2fd9cc15921a609516818796b4ecbb813078bc7"
+  ],
+  "postgres": "PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "redis": "7.4.11",
+  "linhas_por_tabela": {
+    "cep_centroids": 12933,
+    "offers": 7356,
+    "olist_customers": 53114,
+    "olist_order_items": 60292,
+    "olist_orders": 53114,
+    "olist_products": 6583,
+    "olist_sellers": 1708,
+    "regional_categories": 12
+  },
+  "locustfile_sha256": "5d18d742cd963b5b490ae2336bc25b628dfad035a12f9673aa146035949316f0",
+  "python": "3.13.7",
+  "locust": "2.46.5",
+  "bibliotecas": {
+    "fastapi": "0.141.1",
+    "uvicorn": "0.52.4",
+    "sqlalchemy": "2.0.52",
+    "asyncpg": "0.31.0",
+    "redis": "8.1.0",
+    "pydantic": "2.13.5"
+  },
+  "maquina": {
+    "plataforma": "Windows-11-10.0.26200-SP0",
+    "nucleos_logicos": 8,
+    "memoria_gb": 7.9
+  },
+  "parametros": {
+    "cenarios": {
+      "250": {
+        "spawn_rate": 10,
+        "plateau_s": 600
+      },
+      "1000": {
+        "spawn_rate": 25,
+        "plateau_s": 900
+      }
+    },
+    "condicoes": [
+      "off"
+    ],
+    "reps": 3,
+    "cache_ttl_s": 3600,
+    "workers_api": [
+      1,
+      4
+    ]
+  },
+  "inicio": "2026-10-04T16:39:58",
+  "ensaios": [
+    {
+      "nome": "r1-u250-off-w4",
+      "inicio": "2026-10-04T16:39:58",
+      "gerador_saturou": false,
+      "em_bateria": false
+    },
+    {
+      "nome": "r1-u250-off",
+      "inicio": "2026-10-04T16:50:35",
+      "gerador_saturou": false,
+      "em_bateria": false
+    },
+    {
+      "nome": "r1-u1000-off",
+      "inicio": "2026-10-04T17:01:14",
+      "gerador_saturou": false,
+      "em_bateria": false
+    },
+    {
+      "nome": "r1-u1000-off-w4",
+      "inicio": "2026-10-04T17:17:11",
+      "gerador_saturou": false,
+      "em_bateria": false
+    },
+    {
+      "nome": "r2-u250-off",
+      "inicio": "2026-10-04T17:33:08",
+      "gerador_saturou": false,
+      "em_bateria": false
+    },
+    {
+      "nome": "r2-u250-off-w4",
+      "inicio": "2026-10-04T17:43:46",
+      "gerador_saturou": false,
+      "em_bateria": false
+    },
+    {
+      "nome": "r2-u1000-off-w4",
+      "inicio": "2026-10-04T17:54:28",
+      "gerador_saturou": false,
+      "em_bateria": false
+    },
+    {
+      "nome": "r2-u1000-off",
+      "inicio": "2026-10-04T18:10:23",
+      "gerador_saturou": false,
+      "em_bateria": false
+    },
+    {
+      "nome": "r3-u250-off-w4",
+      "inicio": "2026-10-04T18:26:15",
+      "gerador_saturou": false,
+      "em_bateria": false
+    },
+    {
+      "nome": "r3-u250-off",
+      "inicio": "2026-10-04T18:36:52",
+      "gerador_saturou": false,
+      "em_bateria": false
+    },
+    {
+      "nome": "r3-u1000-off-w4",
+      "inicio": "2026-10-04T18:47:28",
+      "gerador_saturou": false,
+      "em_bateria": false
+    },
+    {
+      "nome": "r3-u1000-off",
+      "inicio": "2026-10-04T19:03:22",
+      "gerador_saturou": false,
+      "em_bateria": false
+    }
+  ],
+  "fim": "2026-10-04T19:19:12"
+}

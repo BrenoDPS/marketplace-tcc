@@ -119,3 +119,36 @@ def test_nao_duplica_order_item():
 
     chaves = list(zip(amostra["order_id"], amostra["order_item_id"], strict=False))
     assert len(chaves) == len(set(chaves))
+
+
+def test_funil_registra_quanto_cada_filtro_descarta():
+    """Sprint 10: a §3.3 pede o volume consolidado; o ETL descartava em silencio.
+
+    Quatro itens, um barrado por etapa: o funil tem de contar 4 -> 3 -> 2 -> 1
+    e o ultimo numero tem de ser o tamanho do `order_items` devolvido.
+    """
+    from scripts.etl_load_sample import filter_valid
+
+    def dims(n):
+        return {"product_length_cm": [10.0] * n, "product_height_cm": [10.0] * n, "product_width_cm": [10.0] * n}
+
+    frames = {
+        "products": pd.DataFrame({"product_id": ["ok", "sem_peso"], "product_weight_g": [100.0, 0.0], **dims(2)}),
+        "geolocation": pd.DataFrame({"geolocation_zip_code_prefix": ["01000"]}),
+        "customers": pd.DataFrame({"customer_id": ["c_ok", "c_sem_geo"], "customer_zip_code_prefix": ["01000", "99999"]}),
+        "sellers": pd.DataFrame({"seller_id": ["s_ok", "s_sem_geo"], "seller_zip_code_prefix": ["01000", "99999"]}),
+        "orders": pd.DataFrame({"order_id": ["o1", "o2", "o3", "o4"], "customer_id": ["c_ok", "c_ok", "c_ok", "c_sem_geo"]}),
+    }
+    itens = pd.DataFrame(
+        {
+            "order_id": ["o1", "o2", "o3", "o4"],
+            "product_id": ["ok", "sem_peso", "ok", "ok"],
+            "seller_id": ["s_ok", "s_ok", "s_sem_geo", "s_ok"],
+        }
+    )
+
+    funil: list[tuple[str, int]] = []
+    subset = filter_valid(frames, itens, funil)
+
+    assert [n for _, n in funil] == [4, 3, 2, 1]
+    assert funil[-1][1] == len(subset["order_items"])

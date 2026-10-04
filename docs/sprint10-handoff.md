@@ -51,11 +51,11 @@ nova no produto:
 
 ## Critérios de aceite
 
-- [ ] **Workers:** tabela 1 × 4 workers sem cache (p50/p95/p99, vazão, falhas, CPU) e leitura contra o cache de 1 worker → `python -m load.resumo load/results/s10-workers`; `docs/performance.md` §12
-- [ ] **Funil do ETL:** entrada → saída por filtro no stdout, e os totais batem com `count(*)` no Postgres → `python -m scripts.etl_load_sample`; teste do funil em `pytest -q`
-- [ ] **Trabalhos futuros:** cada item com o motivo do corte → `docs/tese-rastreabilidade.md` §8
-- [ ] `docs/tese-rastreabilidade.md` em dia (§1 suítes, §6 mudanças)
-- [ ] Suítes verdes no fim → `pytest -q`; `cd web && npm test && npm run lint && npm run typecheck`; `cd web && npm run e2e`
+- [x] **Workers:** tabela 1 × 4 workers sem cache (p50/p95/p99, vazão, falhas, CPU) e leitura contra o cache de 1 worker → `python -m load.resumo load/results/s10-workers load/results/s10-workers-reexecucao load/results/s10-workers-reexecucao-w1`; `docs/performance.md` §12 — **não substituem o cache nesta máquina**: 1,7× de vazão com ~3 núcleos contra 2,6× do cache com 1
+- [x] **Funil do ETL:** entrada → saída por filtro no stdout, e os totais batem com `count(*)` no Postgres → `python -m scripts.etl_load_sample`; teste do funil em `pytest -q` — 60.636 → 60.292 itens (−0,57%); totais conferidos contra o banco
+- [x] **Trabalhos futuros:** cada item com o motivo do corte → `docs/tese-rastreabilidade.md` §8
+- [x] `docs/tese-rastreabilidade.md` em dia (§1 suítes, §3, §4c, §6 linhas 21–22)
+- [x] Suítes verdes no fim → `pytest -q` 183; `cd web && npm test` 35, lint e typecheck limpos; `cd web && npm run e2e` 2 (2026-10-04)
 
 ## Fora de escopo
 
@@ -68,3 +68,5 @@ máquina.
 | Falha | Virou |
 |---|---|
 | `terminate` no Windows só derruba o lançador do venv: com `--workers`, os workers órfãos ficariam na porta 8000 | `derrubar()` em `load/protocolo.py` mata a árvore; o runner já recusava subir com a porta ocupada |
+| Um worker do uvicorn morreu ao subir (`WinError 10022`) e o amostrador de CPU parou junto: ensaio com 3 de 4 workers, sem CPU e sem registro de energia, sem aviso | `subir_api` só devolve com os N workers vivos (3 tentativas); `_cpu.csv` grava `workers_vivos`; ensaio sem amostra conta como inválido |
+| Script de análise esquecido em segundo plano disputou CPU com um ensaio inteiro | detectado pela CPU do sistema no `_cpu.csv`; ensaio invalidado e refeito **em par** com o seu controle (`load/results/s10-workers/invalidado/MOTIVO.txt`) |

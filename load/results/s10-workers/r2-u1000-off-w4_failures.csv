@@ -1,0 +1,11 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+GET,GET /home (busca),"ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",3,2026-10-04T21:02:04Z,2026-10-04T21:02:04Z
+GET,GET /products/{id},"ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",4,2026-10-04T21:02:03Z,2026-10-04T21:02:04Z
+GET,GET /home (conscious_buyer),"ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",3,2026-10-04T21:02:04Z,2026-10-04T21:02:07Z
+GET,GET /home (electronics_expert),"ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",5,2026-10-04T21:02:03Z,2026-10-04T21:02:04Z
+GET,"GET /home (default, com selo)","ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",1,2026-10-04T21:02:04Z,2026-10-04T21:02:04Z
+POST,POST /checkout/simulate,"ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",1,2026-10-04T21:02:07Z,2026-10-04T21:02:07Z
+GET,"GET /home (default, com selo)","ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",1,2026-10-04T21:02:04Z,2026-10-04T21:02:04Z
+GET,"GET /home (default, sem selo)","ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",3,2026-10-04T20:58:23Z,2026-10-04T21:02:07Z
+GET,GET /products/{id},"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",1,2026-10-04T21:02:05Z,2026-10-04T21:02:05Z
+POST,POST /checkout/simulate,"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",1,2026-10-04T21:02:05Z,2026-10-04T21:02:05Z
