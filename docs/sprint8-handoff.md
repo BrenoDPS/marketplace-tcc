@@ -3,6 +3,9 @@
 > **Para agentes sem contexto:** leia `AGENTS.md` primeiro, depois este arquivo.
 > Sprints 1–7 **já estão implementadas**.
 
+> **Sprint concluída em 2026-10-04.** Fechamento e escopo efetivo no fim deste
+> arquivo.
+
 ## Objetivo
 
 Executar os **27 ensaios** do protocolo da §3.3 da metodologia (3 condições de
@@ -85,3 +88,25 @@ como não realizável no `scripts/snapshot_api.py` em vez de gerá-lo.
 | Notebook saiu da tomada no meio do protocolo: 13 ensaios em bateria, CPU por requisição 3,5× maior | o runner não começa ensaio fora da tomada, grava `na_tomada` a cada segundo e marca `em_bateria` no `meta.json` |
 | Um ensaio com aviso de CPU do Locust não podia ser refeito isoladamente | `--rep` no runner: reexecuta com o mesmo nome e semente, em pasta própria |
 | `load.resumo` quebrava lendo `_failures.csv` (cp1252, mensagem de socket traduzida) | leitura tolerante ao encoding |
+
+## Fechamento (2026-10-04)
+
+Todos os critérios de aceite estão marcados. O objetivo previa *"nada de feature
+nova no produto"*; três mudanças no produto entraram mesmo assim, cada uma
+decidida pelo autor durante a sprint e registrada em
+`docs/tese-rastreabilidade.md` §6:
+
+| Mudança no produto | Por quê | Prova |
+|---|---|---|
+| Redis ligado por padrão, TTL de 1 h, pool bloqueante | resultado do próprio protocolo (§11.7) | A/B do pool em `docs/performance.md` §11.9; E2E passando com o cache ligado |
+| Bloco sem `actions` degrada em vez de derrubar a tela | card de robustez do Trello; argumento central do objetivo (d) | `web/tests/sdui.test.tsx` (3 casos) e mutação 4 do E2E |
+| `tests/conftest.py` desliga o cache na suíte | o CI não tem Redis | `pytest -q` com Redis inacessível: 167 passed |
+
+**Estado final das suítes:** `pytest -q` 167 passed · `cd web && npm test` 35
+passed · `npm run lint` e `npm run typecheck` limpos · `cd web && npm run e2e`
+2 passed (jornada + mutação de contrato com 5 mutações).
+
+**Fora do escopo, registrado para depois:** Redis × mais workers (não medido);
+ensaio de calibração no runner (`docs/performance.md` §11.9); custo da primeira
+requisição com 12.933 centroides; `DEBUG=True` como padrão.
+

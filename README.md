@@ -19,7 +19,7 @@ pip install -r requirements.txt
 | [AGENTS.md](AGENTS.md) | Mapa e regras de implementacao para agentes (Cursor, Claude Code via `CLAUDE.md`) |
 | [docs/PROJECT_BOOTSTRAP.md](docs/PROJECT_BOOTSTRAP.md) | Visao geral para agentes/conversas novas |
 | [docs/tese-rastreabilidade.md](docs/tese-rastreabilidade.md) | **Defesa:** o que a metodologia promete, o teste que prova e o que mudou em relacao ao estabelecido |
-| [docs/sprint8-handoff.md](docs/sprint8-handoff.md) | **Sprint 8 (atual):** protocolo de carga da §3.3 |
+| [docs/sprint8-handoff.md](docs/sprint8-handoff.md) | Sprint 8 (historico): protocolo de carga da §3.3 |
 | [docs/sprint5-handoff.md](docs/sprint5-handoff.md) | Sprint 5 (historico) — sprints 6 e 7 nao tem handoff; ver secoes abaixo |
 | [docs/sprint4-handoff.md](docs/sprint4-handoff.md) | Sprint 4 (historico) |
 | [docs/sprint3-handoff.md](docs/sprint3-handoff.md) | Sprint 3 (historico) |
@@ -541,6 +541,18 @@ Fidelidade dos dados e validade da medicao. Sem handoff; detalhes nas secoes cit
 - **Prazo medido** (`ETA_BANDS`) substitui o arbitrado; **peso cubado** entra no CO2 (ver [Logistica Verde](#logistica-verde))
 - Locust com **CEPs reais** e think time da metodologia; `echo` do SQLAlchemy descoberto como confundidor de todas as medicoes anteriores
 - **Redis volta como variavel de experimento** (`CACHE_ENABLED=false`) — ver [Redis](#redis--ligado-por-padrao-desde-a-sprint-8)
+
+## Sprint 8 (concluida)
+
+Escopo em [docs/sprint8-handoff.md](docs/sprint8-handoff.md). Defesa:
+[docs/tese-rastreabilidade.md](docs/tese-rastreabilidade.md).
+
+- **Harness para agentes:** `AGENTS.md` na raiz (mapa + regras), `CLAUDE.md`, sensores `tests/test_docs.py` (caminho citado tem de existir) e de espelho do contrato SDUI (`type` iguais em `sdui.py`, `sdui.ts` e `REGISTRY`)
+- **Protocolo de carga da §3.3:** 27 ensaios validos, n = 3 (`load/protocolo.py`, `load/resumo.py`); tres defeitos de validade corrigidos antes de medir (TTL, CEP sem semente, `echo`); 13 ensaios em bateria descartados e refeitos — o runner agora nao mede fora da tomada. Resultado em [docs/performance.md](docs/performance.md) §11
+- **Redis ligado por padrao**, decisao medida: dispensavel em carga nominal, decisivo a 250 VU, mantem a Home na meta a 1.000 VU; pool bloqueante validado por A/B
+- **Bloco sem `actions` degrada em vez de derrubar a tela** (`parseScreen`), com 4a mutacao no E2E
+- **Graficos do capitulo 5** (`python -m load.graficos`, `docs/graficos/`)
+- Testes: pytest 167, vitest 35, os dois E2E passando com o cache ligado
 
 ## Roadmap (proximas sprints)
 

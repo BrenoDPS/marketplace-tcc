@@ -22,7 +22,7 @@ A tarefa atual é o que foi pedido na conversa. Se existir sprint ativa com
 handoff, ela está em `docs/PROJECT_BOOTSTRAP.md` → "Sprint ativa".
 
 **Não leia por padrão** (histórico): `docs/frontend-sprint1.md`,
-`docs/frontend-sprint2.md`, `docs/sprint2-handoff.md` a `docs/sprint5-handoff.md`,
+`docs/frontend-sprint2.md`, `docs/sprint2-handoff.md` a `docs/sprint8-handoff.md`,
 `docs/revisao-harness.md`, `docs/devolutiva-harness.md`.
 
 ## Comandos

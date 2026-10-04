@@ -27,12 +27,13 @@ Eixos do TCC: **personalização contextual** + **logística verde** (distância
 | **5** | Busca (`q`) e filtro por categoria com `category_grid`; carrinho multi-item com `shipment_breakdown`; Vitest e CI |
 | **6** | Remessas por emissão + `alternatives`; carrinho em `localStorage`; modo de inspeção SDUI; `product_detail` server-driven; E2E Playwright; Locust e correção do N+1 (63 → 2 queries). Commits até `f6c052d` |
 | **7** | Tabela `offers`; mesmo produto em vendedor mais próximo; selo sem "0 km"; E2E de mutação de contrato; prazo medido (`ETA_BANDS`); peso cubado no CO₂; Locust com CEPs reais; Redis como variável de experimento. Commits `7697552` → `d9b966b` |
+| **8** | Harness (`AGENTS.md`, sensores de docs e de contrato); protocolo de carga da §3.3 (27 ensaios, n = 3); **Redis ligado por padrão** por medição; bloco sem `actions` degrada em vez de quebrar; gráficos do capítulo 5; rastreabilidade da tese. Handoff: `docs/sprint8-handoff.md` |
 
 Sprints 6 e 7 **não têm handoff**: o registro está no `README.md` (seções "Sprint 6" e "Sprint 7") e em `docs/performance.md` §§6–9.
 
 ## Sprint ativa
 
-Ver **`docs/sprint8-handoff.md`**: os 27 ensaios do protocolo de carga (§3.3) e a decisão sobre o Redis. Há decisões a fechar **antes** do primeiro ensaio.
+**Nenhuma.** A Sprint 8 foi concluída em 2026-10-04. Candidatas à Sprint 9 estão no Trello (ReferenceBase/AppBase, login, pedido persistido com CO₂ evitado) e dependem do prazo da entrega.
 
 Sprint nova começa escrevendo `docs/sprint<N>-handoff.md` no formato dos anteriores, com duas exigências: cada critério de aceite nomeia o **comando** que o prova; falha recorrente termina num **teste** ou numa **regra** do `AGENTS.md`.
 
@@ -66,7 +67,7 @@ web/                 # Frontend Next.js (App Router) que consome o SDUI
 | Arquivo | Uso |
 |---------|-----|
 | `AGENTS.md` | Mapa + regras de implementação (carregado em toda sessão) |
-| `docs/sprint8-handoff.md` | Spec da sprint atual |
+| `docs/sprint8-handoff.md` | Spec Sprint 8 (histórico) |
 | `docs/tese-rastreabilidade.md` | Metodologia × testes × desvios — base da defesa |
 | `docs/sprint5-handoff.md` | Spec Sprint 5 (histórico) |
 | `docs/sprint4-handoff.md` | Spec Sprint 4 (histórico) |

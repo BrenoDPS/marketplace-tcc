@@ -11,10 +11,10 @@
 
 | Suíte | Comando | Último resultado | Data |
 |---|---|---|---|
-| Backend (unitários + integração por `dependency_overrides`) | `pytest -q` | **167 passed** | 2026-10-03 |
-| Frontend (executor de `actions`, `ScreenRenderer`, carrinho) | `cd web && npm test` | **32 passed** | 2026-10-03 |
-| E2E — jornada da defesa | `cd web && npm run e2e` (exige pilha e `data/raw/`) | não reexecutado nesta sprint | — |
-| E2E — mutação de contrato SDUI | idem, `web/e2e/contract-mutation.spec.ts` | evidência em `docs/evidencia/` (Sprint 7) | — |
+| Backend (unitários + integração por `dependency_overrides`) | `pytest -q` (sem Redis: `tests/conftest.py`) | **167 passed** | 2026-10-04 |
+| Frontend (executor de `actions`, `ScreenRenderer`, carrinho, envelope malformado) | `cd web && npm test` | **35 passed** | 2026-10-04 |
+| E2E — jornada da defesa | `cd web && npm run e2e` (exige pilha e `data/raw/`) | **passed** — com o Redis ligado por padrão | 2026-10-04 |
+| E2E — mutação de contrato SDUI | idem, `web/e2e/contract-mutation.spec.ts` | **passed** — 5 mutações (4ª nova: envelope sem `actions`); capturas da Sprint 7 em `docs/evidencia/` | 2026-10-04 |
 | Carga — protocolo da §3.3 | `python -m load.protocolo`; consolidação `python -m load.resumo "load/results/protocolo/r1-*" load/results/protocolo-rep23` | **concluído**: 27 ensaios válidos, n = 3 por célula — `docs/performance.md` §11 | 2026-10-04 |
 
 O CI (`.github/workflows/ci.yml`) roda `pytest -q`, lint, typecheck, `npm test` e
@@ -54,6 +54,7 @@ Situação item a item em `docs/performance.md` §10.7 (runner × texto). Resumo
 | Promessa | Evidência | Limite declarado |
 |---|---|---|
 | Reordenar blocos, injetar selo e inserir componente novo **sem alterar o cliente** e **sem rebuild** | `web/e2e/contract-mutation.spec.ts` — muta a resposta real do BFF e confere que a página não recarrega (marcador no `window` sobrevive); capturas em `docs/evidencia/` | prova que o **cliente** aceita árvores novas em runtime; **não** prova que o servidor as produza sem deploy (as mutações são injetadas no tráfego) |
+| Envelope **malformado** (bloco sem `actions`) não derruba a tela | `parseScreen` em `web/lib/sdui.ts` normaliza na entrada; `web/tests/sdui.test.tsx` (3 casos) e a mutação 4 do E2E | antes da Sprint 8 a tela inteira ficava em branco |
 | Contrato servidor ↔ cliente consistente | `tests/test_schemas.py::TestEspelhoDoContratoNoFront` — os `type` de blocos e ações são iguais em `src/schemas/sdui.py`, `web/lib/sdui.ts` e no `REGISTRY` | compara `type`, não `props` |
 
 ## 5. Ajustes ao texto da §3.3 (fechados em 2026-10-03)
