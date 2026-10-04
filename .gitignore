@@ -25,6 +25,9 @@ load/results/**/*_failures.csv
 !load/results/protocolo*/**/*_stats_history.csv
 !load/results/protocolo*/**/*_failures.csv
 !load/results/protocolo*/**/*.log
+!load/results/s10-workers/*_stats_history.csv
+!load/results/s10-workers/*_failures.csv
 # stderr bruto da API: um traceback por timeout (351 MB na 1a execucao). Resumo versionado.
 load/results/protocolo*/**/execucao-erros.log
 load/results/s8-pool-*/**/execucao-erros.log
+load/results/s10-*/**/execucao-erros.log

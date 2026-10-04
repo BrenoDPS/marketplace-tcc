@@ -122,3 +122,26 @@ caronas) · remedir o protocolo de carga (o motor de CO₂ não muda latência).
 | Corte rígido em 100 km no motor de CO₂ faria 99 km emitir ~4× 101 km | composição contínua; `test_sem_salto_no_limite_da_ultima_milha` |
 | "CO₂ evitado" do detalhe calculava a emissão da diferença de distâncias — errado com qualquer motor não linear | diferença das emissões; teste que falha sem o conserto |
 | Categoria regional sem produto na amostra anunciaria o que não existe | o ETL só deixa concorrer categoria da amostra; o composer cai para a Home geral e larga o hero regional se a vitrine vier vazia |
+
+## Fechamento da parte do repositório (2026-10-04)
+
+Itens 0–4 entregues **antes** da janela prevista; os critérios de aceite do
+repositório estão marcados. Seguem com o autor até 14/10, fora do repositório:
+números de CO₂ no texto e nos slides (item 5 — o motor novo mudou todos),
+capítulo 5, ajustes da §3.3 com o orientador e a conferência do 1,345 no
+original de Gonçalves et al. (2014). O trabalho de repositório passa para
+`docs/sprint10-handoff.md`, que puxa os itens 6–12 da tabela acima.
+
+| Mudança no produto | Prova |
+|---|---|
+| Motor de CO₂ por cadeia de transporte (substitui o fator único) | `tests/test_co2.py`; `docs/tese-rastreabilidade.md` §6, linha 18 |
+| "CO₂ evitado" do detalhe = diferença das emissões | `tests/test_product_detail.py`; §6, linha 19 |
+| Home sem contexto escolhido segue a UF do CEP | `tests/test_home_contextual.py`, `tests/test_contexto_regional.py`; §4c e §6, linha 20 |
+
+**Estado final das suítes:** `pytest -q` 182 passed · `cd web && npm test` 35
+passed · lint e typecheck limpos · `cd web && npm run e2e` 2 passed.
+
+**Efeito colateral para a Sprint 10:** a Home `default` (13 de 38 no peso das
+tarefas do Locust) passou a filtrar pela categoria regional. Os números do
+protocolo da Sprint 8 são de antes disso — comparação com eles precisa de
+controle remedido.

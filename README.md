@@ -19,7 +19,8 @@ pip install -r requirements.txt
 | [AGENTS.md](AGENTS.md) | Mapa e regras de implementacao para agentes (Cursor, Claude Code via `CLAUDE.md`) |
 | [docs/PROJECT_BOOTSTRAP.md](docs/PROJECT_BOOTSTRAP.md) | Visao geral para agentes/conversas novas |
 | [docs/tese-rastreabilidade.md](docs/tese-rastreabilidade.md) | **Defesa:** o que a metodologia promete, o teste que prova e o que mudou em relacao ao estabelecido |
-| [docs/sprint9-handoff.md](docs/sprint9-handoff.md) | **Sprint 9 (atual):** resultados dos dois eixos da tese, ate 14/10 |
+| [docs/sprint10-handoff.md](docs/sprint10-handoff.md) | **Sprint 10 (atual):** perguntas da banca, ate 20/11 |
+| [docs/sprint9-handoff.md](docs/sprint9-handoff.md) | Sprint 9 (historico): resultados dos dois eixos da tese |
 | [docs/sprint8-handoff.md](docs/sprint8-handoff.md) | Sprint 8 (historico): protocolo de carga da §3.3 |
 | [docs/sprint5-handoff.md](docs/sprint5-handoff.md) | Sprint 5 (historico) — sprints 6 e 7 nao tem handoff; ver secoes abaixo |
 | [docs/sprint4-handoff.md](docs/sprint4-handoff.md) | Sprint 4 (historico) |
@@ -556,6 +557,17 @@ Escopo em [docs/sprint8-handoff.md](docs/sprint8-handoff.md). Defesa:
 - **Bloco sem `actions` degrada em vez de derrubar a tela** (`parseScreen`), com 4a mutacao no E2E
 - **Graficos do capitulo 5** (`python -m load.graficos`, `docs/graficos/`)
 - Testes: pytest 167, vitest 35, os dois E2E passando com o cache ligado
+
+## Sprint 9 (concluida)
+
+Escopo em [docs/sprint9-handoff.md](docs/sprint9-handoff.md). Numeros em
+[docs/tese-rastreabilidade.md](docs/tese-rastreabilidade.md) §4b e §4c.
+
+- **Concentracao regional:** 36,3% das compras de vendedor da mesma UF; 94,7% dos compradores tem vendedor a < 100 km, so 18,7% compram perto (`python -m scripts.concentracao_regional`)
+- **Motor de CO2 por cadeia de transporte** (ISO 14083/GLEC): circuidade 1,345, ultima milha de van; compra local ~5,5x mais limpa que a mediana (antes ~22x)
+- **CO2 evitado** sobre compras reais: 254 kg, 9,8% onde ha alternativa, a R$ 0,01 de diferenca mediana (`python -m scripts.co2_evitado`)
+- **Home com contexto derivado do CEP:** categoria de maior lift na UF; `context` explicito e override
+- Testes: pytest 182, vitest 35, os dois E2E passando
 
 ## Roadmap (proximas sprints)
 

@@ -28,12 +28,13 @@ Eixos do TCC: **personalização contextual** + **logística verde** (distância
 | **6** | Remessas por emissão + `alternatives`; carrinho em `localStorage`; modo de inspeção SDUI; `product_detail` server-driven; E2E Playwright; Locust e correção do N+1 (63 → 2 queries). Commits até `f6c052d` |
 | **7** | Tabela `offers`; mesmo produto em vendedor mais próximo; selo sem "0 km"; E2E de mutação de contrato; prazo medido (`ETA_BANDS`); peso cubado no CO₂; Locust com CEPs reais; Redis como variável de experimento. Commits `7697552` → `d9b966b` |
 | **8** | Harness (`AGENTS.md`, sensores de docs e de contrato); protocolo de carga da §3.3 (27 ensaios, n = 3); **Redis ligado por padrão** por medição; bloco sem `actions` degrada em vez de quebrar; gráficos do capítulo 5; rastreabilidade da tese. Handoff: `docs/sprint8-handoff.md` |
+| **9** | Concentração logística regional; motor de CO₂ por cadeia de transporte (ISO 14083/GLEC); CO₂ evitado sobre compras reais; Home com contexto derivado do CEP. Handoff: `docs/sprint9-handoff.md` |
 
 Sprints 6 e 7 **não têm handoff**: o registro está no `README.md` (seções "Sprint 6" e "Sprint 7") e em `docs/performance.md` §§6–9.
 
 ## Sprint ativa
 
-Ver **`docs/sprint9-handoff.md`** (05/10 → 14/10, entrega dos resultados): concentração logística regional, motor de CO₂ baseado em atividade, CO₂ evitado e contexto regional. A tabela de prioridades completa (Sprints 9 e 10) está no handoff.
+Ver **`docs/sprint10-handoff.md`** (→ 20/11, versão final): experimento Redis × mais workers, log de funil do ETL, trabalhos futuros. Até 14/10 o autor fecha o capítulo de resultados (pendências de texto da Sprint 9).
 
 Sprint nova começa escrevendo `docs/sprint<N>-handoff.md` no formato dos anteriores, com duas exigências: cada critério de aceite nomeia o **comando** que o prova; falha recorrente termina num **teste** ou numa **regra** do `AGENTS.md`.
 
@@ -67,7 +68,8 @@ web/                 # Frontend Next.js (App Router) que consome o SDUI
 | Arquivo | Uso |
 |---------|-----|
 | `AGENTS.md` | Mapa + regras de implementação (carregado em toda sessão) |
-| `docs/sprint9-handoff.md` | Spec da sprint atual (prioridades até 20/11) |
+| `docs/sprint10-handoff.md` | Spec da sprint atual (até 20/11) |
+| `docs/sprint9-handoff.md` | Spec Sprint 9 (histórico; pendências de texto do autor até 14/10) |
 | `docs/sprint8-handoff.md` | Spec Sprint 8 (histórico) |
 | `docs/tese-rastreabilidade.md` | Metodologia × testes × desvios — base da defesa |
 | `docs/sprint5-handoff.md` | Spec Sprint 5 (histórico) |
