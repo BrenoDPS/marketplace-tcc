@@ -14,7 +14,7 @@ import {
   readStoredCart,
   useSdui,
 } from "@/components/sdui-context";
-import { co2Label, decimal, findCheckoutAction } from "@/lib/sdui";
+import { co2Label, decimal, findCheckoutAction, parseScreen } from "@/lib/sdui";
 import type { ProductCardBlock, ScreenResponse, UIComponent } from "@/lib/sdui";
 
 // jsdom nao implementa a API de `<dialog>`; o `Modal` usa `showModal`/`close`
@@ -136,6 +136,45 @@ describe("ScreenRenderer", () => {
     // O bloco conhecido continua na tela: a degradacao e parcial, nao total.
     expect(screen.getByText("sobrevivi")).toBeTruthy();
     expect(screen.queryByText(/widget_do_futuro/)).toBeNull();
+  });
+});
+
+// --- envelope malformado ----------------------------------------------------
+
+/** Card como chegaria da rede sem o campo `actions` — o contrato nunca emite isto. */
+const cardSemActions = () => {
+  const bloco: Partial<ProductCardBlock> = card("sem-actions");
+  delete bloco.actions;
+  return bloco;
+};
+
+describe("parseScreen (envelope malformado)", () => {
+  test("bloco sem `actions` vira bloco com `actions: []`", () => {
+    const tela = parseScreen({ ...screenOf([]), components: [cardSemActions()] });
+    expect(tela.components[0].actions).toEqual([]);
+  });
+
+  test("a tela desenha o bloco malformado em vez de quebrar inteira", () => {
+    const tela = parseScreen({
+      ...screenOf([]),
+      components: [cardSemActions(), hero("sobrevivi")],
+    });
+    expect(() =>
+      render(
+        <SduiProvider customerZipPrefix="05311">
+          <ScreenRenderer screen={tela} />
+        </SduiProvider>,
+      ),
+    ).not.toThrow();
+    // Degrada como o bloco de tipo desconhecido: o resto da tela continua, e o
+    // proprio card aparece — so sem comportamento.
+    expect(screen.getByText("sobrevivi")).toBeTruthy();
+    expect(screen.getByText("Produto sem-actions")).toBeTruthy();
+  });
+
+  test("findCheckoutAction atravessa a tela normalizada sem estourar", () => {
+    const tela = parseScreen({ ...screenOf([]), components: [cardSemActions(), card("p1")] });
+    expect(findCheckoutAction(tela)?.type).toBe("api_call");
   });
 });
 

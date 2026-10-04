@@ -9,6 +9,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { parseScreen } from "@/lib/sdui";
 import type { ProductCardBlock, ScreenResponse, UIAction } from "@/lib/sdui";
 
 /**
@@ -234,7 +235,7 @@ export function SduiProvider({
                     typeof d === "string" ? d : `Erro HTTP ${res.status}`,
                   );
                 }
-                setDetail(body as ScreenResponse);
+                setDetail(parseScreen(body));
               })
               .catch((err: Error) => {
                 setError(err.message);
@@ -268,7 +269,7 @@ export function SduiProvider({
                 );
               }
               // A resposta e outra ScreenResponse: o MESMO renderer desenha.
-              setCheckout(body as ScreenResponse);
+              setCheckout(parseScreen(body));
               setDetailOpen(false);
               setCartOpen(false);
             })

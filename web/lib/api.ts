@@ -1,6 +1,6 @@
 /** Acesso ao FastAPI. Usado apenas em Server Components / rotas do servidor. */
 
-import type { ScreenResponse } from "./sdui";
+import { parseScreen, type ScreenResponse } from "./sdui";
 
 const API_BASE = process.env.API_BASE_URL ?? "http://127.0.0.1:8000";
 
@@ -29,7 +29,7 @@ async function readScreen(res: Response): Promise<ScreenResult> {
       detail: readDetail(body, `Erro HTTP ${res.status}`),
     };
   }
-  return { ok: true, screen: body as ScreenResponse };
+  return { ok: true, screen: parseScreen(body) };
 }
 
 export async function fetchHome(

@@ -211,6 +211,27 @@ export const DEMO_ZIPS = [
 ] as const;
 
 /**
+ * Fronteira de entrada de toda tela: o JSON vem da rede e o tipo e so promessa.
+ *
+ * O contrato garante `actions` em todo bloco (Pydantic: `default_factory=list`),
+ * mas um bloco que chegasse sem ele derrubava a arvore React INTEIRA — cinco
+ * pontos de `blocks.tsx`, a etiqueta de inspecao e `findCheckoutAction` leem
+ * `block.actions` direto. Normalizar aqui, uma vez, em vez de espalhar guarda:
+ * o bloco aparece, so sem comportamento. E a mesma politica do bloco de TIPO
+ * desconhecido (degrada, nao quebra), agora estendida ao envelope malformado.
+ */
+export function parseScreen(body: unknown): ScreenResponse {
+  const screen = body as ScreenResponse;
+  return {
+    ...screen,
+    components: (screen.components ?? []).map((block) => ({
+      ...block,
+      actions: block.actions ?? [],
+    })),
+  };
+}
+
+/**
  * Acha a `api_call` de checkout em qualquer bloco da tela.
  *
  * Existe para o carrinho restaurado do `localStorage` poder fechar a compra

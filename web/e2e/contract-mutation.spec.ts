@@ -63,10 +63,10 @@ type Bloco = {
   type: string;
   version: number;
   props: Record<string, unknown>;
-  // O envelope do contrato SEMPRE tem `actions` (Pydantic usa
-  // `default_factory=list`). Omitir aqui produziria uma arvore que o backend
-  // nao consegue emitir — e o cliente quebra nela, ver o card de robustez.
-  actions: unknown[];
+  // O backend SEMPRE emite `actions` (Pydantic: `default_factory=list`).
+  // Opcional aqui so para a mutacao 4 poder tira-lo: `parseScreen`, na
+  // fronteira do cliente, normaliza o envelope malformado para `[]`.
+  actions?: unknown[];
 };
 
 type Tela = { components: Bloco[] };
@@ -242,6 +242,20 @@ test("mutacao de contrato: o cliente obedece a arvore, sem rebuild", async ({
     // evidencia mostraria o topo do modal e nao o que se quer provar.
     await modal(page).getByText("não tem componente no").scrollIntoViewIfNeeded();
     await registrar(page, "3b-bloco-desconhecido");
+  });
+
+  await test.step("mutacao 4: envelope SEM `actions` degrada, nao quebra", async () => {
+    // Antes da Sprint 8 isto deixava a tela inteira em branco: o cliente lia
+    // `block.actions` sem guarda em cinco pontos. `parseScreen` normaliza na
+    // entrada; o bloco aparece, so sem comportamento.
+    await mutarContrato(page, (tela) => {
+      for (const bloco of tela.components) delete bloco.actions;
+    });
+    await reabrirDetalhe(page);
+
+    await expect(arvore(page)).toHaveText("product_detail → impact_banner");
+    await expect(modal(page).getByRole("heading").first()).toBeVisible();
+    await registrar(page, "4-envelope-sem-actions");
   });
 
   await test.step("nada disso recarregou a pagina nem reconstruiu o bundle", async () => {
