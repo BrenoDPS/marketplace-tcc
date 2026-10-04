@@ -16,16 +16,19 @@ import pytest
 from src.features.green_logistics import repository
 from src.features.green_logistics.repository import (
     get_centroid,
+    get_uf,
     list_known_prefixes,
     reset_centroid_cache,
 )
 
 CENTROIDS = {"01000": (-23.5, -46.6), "60000": (-3.7, -38.5)}
+UFS = {"01000": "SP", "60000": "CE"}
 
 
 class _Row:
     def __init__(self, zip_prefix: str, lat: float, lng: float) -> None:
         self.zip_prefix, self.lat, self.lng = zip_prefix, lat, lng
+        self.uf = UFS.get(zip_prefix)
 
 
 class _Result:
@@ -152,3 +155,17 @@ async def test_o_cache_e_do_processo_e_nao_da_sessao():
 def test_o_cache_comeca_vazio():
     """Guarda o `reset` do fixture: se ele parasse de rodar, isto denuncia."""
     assert repository._centroids is None
+
+
+@pytest.mark.asyncio
+async def test_uf_vem_na_mesma_carga_dos_centroides():
+    """Sprint 9: o contexto regional pergunta a UF a cada Home. Uma consulta
+    a mais por requisicao desfaria a Sprint 6."""
+    session = FakeSession({"01000": (-23.5, -46.6), "70000": (-15.8, -47.9)})
+
+    assert await get_centroid(session, "01000") == (-23.5, -46.6)
+    assert await get_uf(session, "01000") == "SP"
+    assert await get_uf(session, "70000") is None, "prefixo sem UF no CSV"
+    assert await get_uf(session, "99999") is None
+
+    assert session.loads == 1

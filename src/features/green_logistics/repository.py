@@ -28,6 +28,9 @@ from src.core.models import CepCentroid
 # em runtime virar rotina, chamar `reset_centroid_cache()` no fim do script ou
 # expor uma rota administrativa que faca isso.
 _centroids: dict[str, tuple[float, float]] | None = None
+# UF por prefixo (Sprint 9), carregada junto, na MESMA consulta: o contexto
+# regional da Home pergunta "de que estado e este CEP?" a cada requisicao.
+_ufs: dict[str, str] = {}
 # So protege a PRIMEIRA carga: sem ele, N requisicoes concorrentes num processo
 # frio disparariam N vezes o mesmo SELECT de 6403 linhas.
 _loading = asyncio.Lock()
@@ -40,7 +43,7 @@ async def _load(session: AsyncSession) -> dict[str, tuple[float, float]]:
     Postgres estar de pe, que e como ela se comporta hoje. O custo da carga
     (~15 ms) e pago uma vez, pela primeira requisicao.
     """
-    global _centroids
+    global _centroids, _ufs
     # Caminho quente primeiro: depois da carga, nem toca no lock.
     if _centroids is not None:
         return _centroids
@@ -48,8 +51,12 @@ async def _load(session: AsyncSession) -> dict[str, tuple[float, float]]:
     async with _loading:
         # Outra corrotina pode ter carregado enquanto esta esperava o lock.
         if _centroids is None:
-            stmt = select(CepCentroid.zip_prefix, CepCentroid.lat, CepCentroid.lng)
+            stmt = select(
+                CepCentroid.zip_prefix, CepCentroid.lat, CepCentroid.lng, CepCentroid.uf
+            )
             rows = (await session.execute(stmt)).all()
+            # `_ufs` antes de `_centroids`: o caminho quente olha so o segundo.
+            _ufs = {row.zip_prefix: row.uf for row in rows if row.uf}
             _centroids = {
                 row.zip_prefix: (float(row.lat), float(row.lng)) for row in rows
             }
@@ -61,8 +68,9 @@ def reset_centroid_cache() -> None:
 
     Existe para os testes e para quem recarregar o ETL com a API no ar.
     """
-    global _centroids
+    global _centroids, _ufs
     _centroids = None
+    _ufs = {}
 
 
 async def get_centroid(
@@ -86,3 +94,9 @@ async def list_known_prefixes(session: AsyncSession) -> KeysView[str]:
     routers consultam e descartam.
     """
     return (await _load(session)).keys()
+
+
+async def get_uf(session: AsyncSession, zip_prefix: str) -> str | None:
+    """UF do prefixo de CEP; `None` se desconhecido ou sem estado no CSV."""
+    await _load(session)
+    return _ufs.get(zip_prefix)

@@ -5,15 +5,15 @@
 > em relação ao que estava estabelecido, com o motivo. Números de latência ficam
 > em `docs/performance.md`, não aqui — este arquivo aponta para eles.
 >
-> Atualizado em 2026-10-03 (Sprint 8). Regra: resultado sem comando não entra.
+> Atualizado em 2026-10-04 (Sprint 9). Regra: resultado sem comando não entra.
 
 ## 1. Estado das suítes
 
 | Suíte | Comando | Último resultado | Data |
 |---|---|---|---|
-| Backend (unitários + integração por `dependency_overrides`) | `pytest -q` (sem Redis: `tests/conftest.py`) | **167 passed** | 2026-10-04 |
+| Backend (unitários + integração por `dependency_overrides`) | `pytest -q` (sem Redis: `tests/conftest.py`) | **182 passed** | 2026-10-04 |
 | Frontend (executor de `actions`, `ScreenRenderer`, carrinho, envelope malformado) | `cd web && npm test` | **35 passed** | 2026-10-04 |
-| E2E — jornada da defesa | `cd web && npm run e2e` (exige pilha e `data/raw/`) | **passed** — com o Redis ligado por padrão | 2026-10-04 |
+| E2E — jornada da defesa | `cd web && npm run e2e` (exige pilha e `data/raw/`) | **passed** — com o Redis ligado e a Home regional (Sprint 9) | 2026-10-04 |
 | E2E — mutação de contrato SDUI | idem, `web/e2e/contract-mutation.spec.ts` | **passed** — 5 mutações (4ª nova: envelope sem `actions`); capturas da Sprint 7 em `docs/evidencia/` | 2026-10-04 |
 | Carga — protocolo da §3.3 | `python -m load.protocolo`; consolidação `python -m load.resumo "load/results/protocolo/r1-*" load/results/protocolo-rep23` | **concluído**: 27 ensaios válidos, n = 3 por célula — `docs/performance.md` §11 | 2026-10-04 |
 
@@ -160,6 +160,51 @@ primeiro estado:
 > o regime permanente (plateau); a série temporal completa, incluindo a rampa,
 > é preservada para a análise da penalidade de *cache misses* no estado frio.
 
+## 4c. Personalização contextual — contexto derivado do CEP (Sprint 9)
+
+**Como o contexto é determinado.** Sem contexto escolhido (`context=default`, o
+que o front manda), a Home usa a **UF do CEP** do comprador e mostra a categoria
+que aquela UF compra **acima da média nacional**. Escolher um contexto
+(`electronics_expert`, `beauty_lover`, `conscious_buyer`) ou filtrar
+(`q`/`category`) vence a derivação. O contrato SDUI não mudou.
+
+- **UF do prefixo:** a mais frequente entre os pontos de geolocalização do
+  prefixo (`cep_centroids.uf`), carregada em memória junto com os centroides —
+  zero consulta a mais por requisição.
+- **Categoria da UF:** a de maior **lift** = (share da categoria na UF) ÷ (share
+  no Brasil), sobre o dataset **completo** (decisão D). Lift e não "mais
+  vendida": a mais vendida é quase sempre a mesma em todo lugar e não diria nada
+  sobre a região.
+- **Limiares** (abaixo deles a UF fica sem personalização, Home geral): UF com
+  ≥ 1.000 itens; categoria com ≥ 100 itens na UF; lift ≥ 1,2; categoria presente
+  na amostra carregada.
+
+| UF | Categoria | Lift | Itens | | UF | Categoria | Lift | Itens |
+|---|---|---|---|---|---|---|---|---|
+| RJ | moveis_sala | 1,80× | 117 | | PR | eletronicos | 1,30× | 183 |
+| PE | telefonia | 1,77× | 129 | | ES | relogios_presentes | 1,26× | 152 |
+| CE | relogios_presentes | 1,73× | 136 | | RS | cool_stuff | 1,25× | 262 |
+| BA | telefonia | 1,63× | 250 | | DF | automotivo | 1,22× | 110 |
+| MG | malas_acessorios | 1,44× | 183 | | SC | eletronicos | 1,22× | 125 |
+| SP | alimentos | 1,33× | 285 | | GO | ferramentas_jardim | 1,32× | 118 |
+
+Comando: `python -m scripts.etl_load_sample` (linhas `[etl] contexto regional`);
+12 de 27 UFs personalizadas. Testes: `tests/test_contexto_regional.py` (lift,
+limiares, só categoria da amostra), `tests/test_home_contextual.py`
+(`test_sem_contexto_escolhido_a_home_segue_a_regiao_do_cep`,
+`test_contexto_escolhido_vence_a_regiao`, `test_filtro_explicito_vence_a_regiao`,
+`test_categoria_regional_sem_produto_cai_para_a_vitrine_geral`),
+`tests/test_centroid_cache.py::test_uf_vem_na_mesma_carga_dos_centroides`.
+
+**Leitura e limites.** O sinal regional existe, mas é **moderado**: lifts de
+1,2× a 1,8×, sobre categorias que são de 0,6% (SP) a 9,3% (CE) das compras da UF. É personalização
+**por região**, não por pessoa — sem login (decisão 1 da Sprint 9) não há
+histórico individual. 15 UFs (todas as do Norte e boa parte do Nordeste) ficam sem sinal por
+volume. O hero diz por que a categoria foi escolhida ("Compradores de CE levam
+1,7x mais…"). Sem teste de significância estatística — o limiar de 100 itens
+é o corte contra ruído. Não foi medido o efeito sobre a latência (a consulta da
+vitrine passa a filtrar por categoria; nenhuma consulta nova).
+
 ## 6. Registro de mudanças em relação ao estabelecido
 
 O que estava definido (no PRD, na metodologia ou num handoff), o que mudou e por
@@ -186,6 +231,7 @@ quê. Cada linha aponta a evidência.
 | 17 | Redis: variável de experimento, desligado por padrão (Sprint 7) | **Ligado por padrão**, TTL 3.600 s, pool bloqueante (100 conexões, espera de 5 s) | protocolo da §3.3: decisivo a partir de 250 VU com 1 worker; o pool padrão do redis-py virava 500 a 1.000 VU | `docs/performance.md` §11.7 e §11.9 (A/B do pool: mesma latência, 0 erros do Redis); `src/core/config.py`, `src/core/cache.py` | 8 |
 | 18 | CO₂ = distância em linha reta × massa × **0,102** kg/(t·km) (GHG Protocol), um fator para tudo | **Cadeia de transporte (ISO 14083/GLEC):** estrada = linha reta × 1,345; últimos 15 km de **van** (680 g CO₂e/t·km), o resto de **caminhão pesado** (92); sem corte rígido por distância | o objetivo (b) promete metodologia baseada em atividade; o fator único era o de caminhão pesado aplicado também à última milha, que vai de van. **Efeito:** toda emissão sobe; a compra local passa de ~22× para **~5,5×** mais limpa que a mediana (432 km) — a conclusão se mantém, a magnitude cai | `src/features/green_logistics/co2.py` (fontes por constante); `tests/test_co2.py`; pesquisa em `docs/sprint9-handoff.md` | 9 |
 | 19 | Detalhe do produto: "comprar do mais próximo evita X" = emissão da **diferença** de distâncias | **Diferença das emissões** das duas origens | com fator único as duas contas coincidiam; com o motor de cadeia, não — a antiga ignorava a última milha das duas entregas | `src/features/product_detail/composer.py`; `tests/test_product_detail.py` | 9 |
+| 20 | Contexto da Home vindo **só do query param**, mapeado por um dicionário escrito à mão (2 entradas) | Sem contexto escolhido, **derivado do CEP**: UF do prefixo → categoria de maior lift na UF (dataset completo); o query param continua como override; contrato SDUI inalterado | a banca pergunta como o contexto é determinado; "escrito à mão" não sustenta os objetivos (a) e (c) | §4c acima; `scripts/etl_load_sample.py` (`build_regional_categories`); `src/features/home_contextual/` | 9 |
 
 ## 7. Pontos a confirmar contra o texto da monografia
 

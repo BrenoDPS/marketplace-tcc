@@ -8,7 +8,8 @@ Fluxo:
 3. Filtra rows com product_weight_g valido e CEPs presentes nos lookups.
 4. Deriva subset de orders/customers/sellers/products e geolocation por prefixo.
 5. Deriva `offers` (produto, vendedor) a partir de order_items.
-6. Calcula centroides via mediana de lat/lng por prefixo.
+6. Calcula centroides via mediana de lat/lng por prefixo, com a UF mais frequente,
+   e a categoria de maior lift por UF sobre o dataset COMPLETO (contexto regional).
 7. Carrega tudo no Postgres (drop+create do schema, sem migrations nesta sprint).
 8. Imprime um par (customer_prefix, seller_prefix) com distancia Haversine < 100 km
    e o melhor caso multi-vendedor, para servirem de demo no README.
@@ -239,7 +240,70 @@ def build_cep_centroids(geolocation: pd.DataFrame, prefixes: set[str]) -> pd.Dat
         .reset_index()
         .rename(columns={"geolocation_zip_code_prefix": "zip_prefix"})
     )
+    # UF = a mais frequente entre os pontos do prefixo: prefixo de fronteira pode
+    # ter ponto nos dois estados. Empate desempata pela sigla, para ser estavel.
+    uf = (
+        geo.groupby(["geolocation_zip_code_prefix", "geolocation_state"])
+        .size()
+        .reset_index(name="n")
+        .sort_values(["n", "geolocation_state"], ascending=[False, True])
+        .drop_duplicates("geolocation_zip_code_prefix")
+        .set_index("geolocation_zip_code_prefix")["geolocation_state"]
+    )
+    centroids["uf"] = centroids["zip_prefix"].map(uf)
     return centroids
+
+
+# Limiares do contexto regional (Sprint 9). Abaixo deles a "preferencia" de uma
+# UF e ruido de amostra pequena, e personalizar com ruido e pior que nao
+# personalizar: a UF fica sem linha e a Home dela continua a geral.
+MIN_ITENS_UF = 1000  # mesmo corte de `scripts.concentracao_regional`
+MIN_ITENS_CATEGORIA_UF = 100
+MIN_LIFT = 1.2
+
+
+def build_regional_categories(
+    frames: dict[str, pd.DataFrame], categorias_na_amostra: set[str]
+) -> pd.DataFrame:
+    """A categoria de MAIOR lift em cada UF do comprador, sobre o dataset completo.
+
+    lift = (share da categoria nos itens da UF) / (share dela no Brasil). Mede o
+    quanto a UF compra aquilo ACIMA do normal; a categoria mais vendida seria
+    quase sempre a mesma (cama_mesa_banho) e nao diria nada sobre a regiao.
+
+    So concorrem categorias presentes na amostra carregada: recomendar uma
+    categoria sem produto na vitrine seria anunciar o que nao existe.
+    """
+    itens = (
+        frames["order_items"][["order_id", "product_id"]]
+        .merge(frames["orders"][["order_id", "customer_id"]], on="order_id")
+        .merge(frames["customers"][["customer_id", "customer_state"]], on="customer_id")
+        .merge(frames["products"][["product_id", "product_category_name"]], on="product_id")
+        .dropna(subset=["customer_state", "product_category_name"])
+    )
+    share_br = itens["product_category_name"].value_counts(normalize=True)
+    t = (
+        itens.groupby(["customer_state", "product_category_name"])
+        .size()
+        .rename("itens")
+        .reset_index()
+    )
+    t["itens_uf"] = t.groupby("customer_state")["itens"].transform("sum")
+    t["lift"] = t["itens"] / t["itens_uf"] / t["product_category_name"].map(share_br)
+    t = t[
+        (t["itens_uf"] >= MIN_ITENS_UF)
+        & (t["itens"] >= MIN_ITENS_CATEGORIA_UF)
+        & (t["lift"] >= MIN_LIFT)
+        & t["product_category_name"].isin(categorias_na_amostra)
+    ]
+    melhor = t.sort_values(["lift", "product_category_name"], ascending=[False, True])
+    melhor = melhor.drop_duplicates("customer_state")
+    return (
+        melhor.rename(columns={"customer_state": "uf", "product_category_name": "category"})
+        [["uf", "category", "lift", "itens", "itens_uf"]]
+        .sort_values("uf")
+        .reset_index(drop=True)
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -262,7 +326,10 @@ def reset_schema(engine: Engine) -> None:
 
 
 def load_tables(
-    engine: Engine, subset: dict[str, pd.DataFrame], centroids: pd.DataFrame
+    engine: Engine,
+    subset: dict[str, pd.DataFrame],
+    centroids: pd.DataFrame,
+    regional: pd.DataFrame,
 ) -> None:
     pipeline: list[tuple[str, pd.DataFrame, list[str]]] = [
         (
@@ -305,8 +372,9 @@ def load_tables(
         (
             "cep_centroids",
             centroids,
-            ["zip_prefix", "lat", "lng"],
+            ["zip_prefix", "lat", "lng", "uf"],
         ),
+        ("regional_categories", regional, ["uf", "category", "lift"]),
     ]
     for table, df, cols in pipeline:
         payload = df[cols].drop_duplicates()
@@ -529,9 +597,19 @@ def main() -> int:
     centroids = build_cep_centroids(subset["geolocation"], prefixes)
     print(f"[etl] centroides calculados: {len(centroids)} prefixos")
 
+    regional = build_regional_categories(
+        frames, set(subset["products"]["product_category_name"].dropna())
+    )
+    print(
+        f"[etl] contexto regional (dataset completo): {len(regional)} UFs com "
+        f"categoria acima da media nacional"
+    )
+    for row in regional.itertuples(index=False):
+        print(f"[etl]   {row.uf}: {row.category} ({row.lift:.2f}x, {row.itens} itens)")
+
     engine = create_engine(_sync_database_url(), future=True)
     reset_schema(engine)
-    load_tables(engine, subset, centroids)
+    load_tables(engine, subset, centroids, regional)
     print("[etl] tabelas carregadas no Postgres")
 
     demo = pick_demo_pair(

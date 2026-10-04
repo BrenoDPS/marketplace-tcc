@@ -42,6 +42,9 @@ handoff, ela está em `docs/PROJECT_BOOTSTRAP.md` → "Sprint ativa".
   `src/features/` — `home_contextual` (composição da Home), `green_logistics`
   (CEP, distância, CO₂, selo, modalidades), `checkout`, `product_detail`,
   `orchestrator` (stub).
+- **Contexto da Home:** sem `context` escolhido, vem da UF do CEP (categoria de
+  maior lift, tabela `regional_categories` derivada no ETL); `context`, `q` e
+  `category` explícitos vencem. UF e tabela vivem em memória — sem consulta nova.
 - **SDUI:** todo bloco segue o envelope `{ type, version, props, actions }`;
   `props` só dado/apresentação, `actions` é união discriminada. Pydantic v2 com
   discriminated unions; não troque props tipados por `dict` genérico.

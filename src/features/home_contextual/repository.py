@@ -15,7 +15,8 @@ from dataclasses import dataclass
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.models import Offer, Product, Seller
+from src.core.models import Offer, Product, RegionalCategory, Seller
+from src.features.green_logistics.repository import get_uf
 
 
 @dataclass(frozen=True, slots=True)
@@ -55,7 +56,8 @@ def normalize_search(term: str) -> str:
     return " ".join(folded.replace("_", " ").lower().split())
 
 
-# Heuristica context -> categoria Olist. Pode ser refinada na Sprint 3.
+# Contextos ESCOLHIDOS (query param). Sao o override: quem pede um deles recebe
+# ele. Sem pedido (`default`), o contexto vem do CEP — `regional_pick`.
 _CONTEXT_TO_CATEGORY: dict[str, str] = {
     "electronics_expert": "informatica_acessorios",
     "beauty_lover": "beleza_saude",
@@ -64,6 +66,38 @@ _CONTEXT_TO_CATEGORY: dict[str, str] = {
 
 def category_for_context(context: str) -> str | None:
     return _CONTEXT_TO_CATEGORY.get(context)
+
+
+@dataclass(frozen=True, slots=True)
+class RegionalPick:
+    uf: str
+    category: str
+    lift: float
+
+
+# ponytail: snapshot de processo, como os centroides — recarregou o ETL com a
+# API no ar, reinicie a API. Sem lock: sao <= 27 linhas e carregar duas vezes
+# na partida fria e inofensivo.
+_regional: dict[str, RegionalPick] | None = None
+
+
+async def regional_pick(
+    session: AsyncSession, customer_zip_prefix: str
+) -> RegionalPick | None:
+    """A categoria que a UF do comprador compra acima da media nacional.
+
+    Derivada no ETL sobre o dataset completo (`build_regional_categories`).
+    `None` quando a UF nao tem sinal regional suficiente — a Home fica a geral.
+    Zero consulta no caminho quente: UF e tabela vivem em memoria.
+    """
+    global _regional
+    uf = await get_uf(session, customer_zip_prefix)
+    if uf is None:
+        return None
+    if _regional is None:
+        rows = (await session.execute(select(RegionalCategory))).scalars().all()
+        _regional = {r.uf: RegionalPick(r.uf, r.category, float(r.lift)) for r in rows}
+    return _regional.get(uf)
 
 
 async def fetch_products_for_home(

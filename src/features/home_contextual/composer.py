@@ -18,9 +18,11 @@ from src.features.green_logistics.service import (
 from src.features.home_contextual.repository import (
     CategoryRow,
     ProductRow,
+    RegionalPick,
     category_for_context,
     fetch_products_for_home,
     list_categories,
+    regional_pick,
 )
 from src.schemas.sdui import (
     ApiCallAction,
@@ -39,6 +41,9 @@ from src.schemas.sdui import (
 )
 
 CONSCIOUS_BUYER_CONTEXT = "conscious_buyer"
+# Sem contexto escolhido, o contexto vem do CEP (Sprint 9). Qualquer outro valor
+# do query param e escolha explicita e vence a derivacao.
+DEFAULT_CONTEXT = "default"
 _DEFAULT_LIMIT = 6
 _CONSCIOUS_POOL_LIMIT = 24
 # 70 categorias na amostra; a grade mostra as maiores e o resto fica a um clique
@@ -118,6 +123,28 @@ def _hero_for(
             cta_label="Ver tudo",
         ),
         actions=[clear],
+    )
+
+
+def _regional_hero(pick: RegionalPick, customer_zip_prefix: str) -> HeroBannerBlock:
+    """Diz POR QUE a vitrine mostra esta categoria: personalizacao que o
+    comprador nao consegue explicar parece arbitraria."""
+    path = "/?" + urlencode(
+        {
+            "customer_zip_prefix": customer_zip_prefix,
+            "context": DEFAULT_CONTEXT,
+            "category": pick.category,
+        }
+    )
+    vezes = f"{pick.lift:.1f}".replace(".", ",")
+    return HeroBannerBlock(
+        props=HeroBannerProps(
+            title=f"Em alta em {pick.uf}: {_humanize(pick.category)}",
+            subtitle=f"Compradores de {pick.uf} levam {vezes}x mais desta categoria que a media do Brasil",
+            image_url="https://placeholders.dev/800x400?text=Em+alta+na+regiao",
+            cta_label="Ver a categoria",
+        ),
+        actions=[NavigateAction(payload=NavigatePayload(path=path))],
     )
 
 
@@ -246,9 +273,19 @@ async def compose_home(
 
     `conscious_buyer` continua ordenando por proximidade — agora **dentro** do
     filtro, o que da "produtos de beleza mais proximos de mim".
+
+    Sem contexto escolhido (`default`) e sem filtro, a categoria vem da UF do
+    CEP (Sprint 9, `regional_pick`); o query param e o override.
     """
     explicit_filter = bool(search or category)
     effective_category = category if category else category_for_context(context)
+    # Contexto derivado do CEP: so quando ninguem escolheu nada — nem contexto
+    # (override pelo query param) nem filtro.
+    regional = None
+    if context == DEFAULT_CONTEXT and not explicit_filter:
+        regional = await regional_pick(session, customer_zip_prefix)
+        if regional is not None:
+            effective_category = regional.category
 
     if context == CONSCIOUS_BUYER_CONTEXT:
         pool = await fetch_products_for_home(
@@ -278,6 +315,8 @@ async def compose_home(
         # que o usuario pediu nao cai — resultado vazio e a resposta honesta.
         if not offers and effective_category and not explicit_filter:
             offers = await fetch_products_for_home(session, limit=_DEFAULT_LIMIT)
+            # O hero regional anunciaria uma categoria que nao esta na tela.
+            regional = None
         products = [
             offer
             for _, offer in await _nearest_offer_per_product(
@@ -288,7 +327,9 @@ async def compose_home(
     categories = await list_categories(session, limit=_CATEGORY_GRID_LIMIT)
 
     components: list[UIComponent] = [
-        _hero_for(
+        _regional_hero(regional, customer_zip_prefix)
+        if regional is not None
+        else _hero_for(
             context,
             search,
             category,

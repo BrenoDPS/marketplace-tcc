@@ -13,7 +13,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 from src.core.database import get_db
-from src.features.home_contextual.repository import CategoryRow, ProductRow
+from src.features.home_contextual.repository import CategoryRow, ProductRow, RegionalPick
 from src.main import app
 from src.schemas.sdui import SustainabilityProps
 
@@ -72,6 +72,19 @@ CATEGORIES_FIXTURE = [
     CategoryRow(slug="informatica_acessorios", product_count=2),
     CategoryRow(slug="beleza_saude", product_count=1),
 ]
+
+
+# Contexto regional (Sprint 9). `01000` fica SEM sinal regional de proposito:
+# os testes anteriores a Sprint 9 usam a Home `default` dele e continuam valendo.
+# `20000` aponta para uma categoria sem produto: exercita a queda para a geral.
+_REGIONAL = {
+    "60000": RegionalPick(uf="CE", category="relogios_presentes", lift=1.73),
+    "20000": RegionalPick(uf="RJ", category="categoria_sem_produto", lift=1.5),
+}
+
+
+async def _fake_regional_pick(_session: object, customer_zip_prefix: str) -> RegionalPick | None:
+    return _REGIONAL.get(customer_zip_prefix)
 
 
 async def _override_get_db() -> AsyncIterator[None]:
@@ -167,6 +180,10 @@ def patch_home_dependencies(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         "src.features.home_contextual.composer.compute_distance_km",
         _fake_compute_distance,
+    )
+    monkeypatch.setattr(
+        "src.features.home_contextual.composer.regional_pick",
+        _fake_regional_pick,
     )
     yield
     app.dependency_overrides.clear()
@@ -494,3 +511,57 @@ async def test_produto_com_varias_ofertas_conta_como_um_no_limite() -> None:
 
     ids = _cards(body)
     assert len(ids) == len(set(ids))
+
+
+# ---------------------------------------------------------------------------
+# Sprint 9: contexto derivado do CEP, query param como override
+# ---------------------------------------------------------------------------
+
+async def test_sem_contexto_escolhido_a_home_segue_a_regiao_do_cep() -> None:
+    _, body = await _get("/api/v1/home?customer_zip_prefix=60000")
+    assert isinstance(body, dict)
+
+    hero = _hero(body)
+    assert hero["props"]["title"] == "Em alta em CE: Relogios Presentes"
+    assert "1,7x" in hero["props"]["subtitle"], "o hero precisa dizer POR QUE"
+    assert _cards(body) == ["prod_dois_vendedores"]
+    # O contrato nao muda: o contexto da resposta e o pedido.
+    assert body["context"] == "default"
+
+
+async def test_hero_regional_leva_a_categoria_inteira() -> None:
+    _, body = await _get("/api/v1/home?customer_zip_prefix=60000")
+    assert isinstance(body, dict)
+
+    path = _hero(body)["actions"][0]["payload"]["path"]
+    assert "category=relogios_presentes" in path
+    assert "customer_zip_prefix=60000" in path
+
+
+async def test_contexto_escolhido_vence_a_regiao() -> None:
+    """O query param e o override: quem escolhe `beauty_lover` recebe beleza,
+    more onde morar."""
+    _, body = await _get("/api/v1/home?customer_zip_prefix=60000&context=beauty_lover")
+    assert isinstance(body, dict)
+
+    assert _hero(body)["props"]["title"] == "Semana da Beleza"
+    assert _cards(body) == ["prod_beauty"]
+
+
+async def test_filtro_explicito_vence_a_regiao() -> None:
+    _, body = await _get(
+        "/api/v1/home?customer_zip_prefix=60000&category=informatica_acessorios"
+    )
+    assert isinstance(body, dict)
+
+    assert _hero(body)["props"]["title"] == "Informatica Acessorios"
+    assert set(_cards(body)) == {"prod_real_1", "prod_real_2"}
+
+
+async def test_categoria_regional_sem_produto_cai_para_a_vitrine_geral() -> None:
+    """E sem o hero regional: ele anunciaria uma categoria que nao esta na tela."""
+    _, body = await _get("/api/v1/home?customer_zip_prefix=20000")
+    assert isinstance(body, dict)
+
+    assert _hero(body)["props"]["title"] == "Olist Marketplace"
+    assert _cards(body)

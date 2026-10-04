@@ -77,7 +77,9 @@ Esse caso so existe porque o ETL **completa as ofertas** dos produtos sorteados.
 #   "Entrega local (~13 km · ~2,63 g CO₂)"   (Sprint 9, motor de cadeia)
 curl "http://localhost:8000/api/v1/home?customer_zip_prefix=05311&context=electronics_expert"
 
-# Badge null em todos os cards (cliente em Fortaleza/CE, sellers da amostra em SP/SE)
+# Badge null em todos os cards (cliente em Fortaleza/CE, sellers da amostra em SP/SE).
+# Sem contexto escolhido, a Home segue a REGIAO do CEP (Sprint 9): hero
+# "Em alta em CE: Relogios Presentes" — CE compra 1,7x mais relogios que o Brasil
 curl "http://localhost:8000/api/v1/home?customer_zip_prefix=60165&context=default"
 
 # 422 quando o prefixo nao existe na amostra

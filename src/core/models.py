@@ -1,7 +1,8 @@
 """Modelos SQLAlchemy 2.0 para a amostra Olist carregada pelo ETL.
 
 Tabelas espelham um subconjunto do dataset Olist filtrado pelo `scripts/etl_load_sample.py`.
-A tabela `cep_centroids` e derivada (mediana de lat/lng por prefixo).
+A tabela `cep_centroids` e derivada (mediana de lat/lng por prefixo; UF mais frequente).
+`regional_categories` e derivada do dataset COMPLETO (lift categoria x UF), Sprint 9.
 """
 
 from __future__ import annotations
@@ -120,3 +121,22 @@ class CepCentroid(Base):
     zip_prefix: Mapped[str] = mapped_column(String(5), primary_key=True)
     lat: Mapped[float] = mapped_column(Float, nullable=False)
     lng: Mapped[float] = mapped_column(Float, nullable=False)
+    # UF mais frequente entre os pontos de geolocalizacao do prefixo (Sprint 9).
+    # Nulo so se o prefixo nao tiver estado no CSV; o contexto regional some.
+    uf: Mapped[str | None] = mapped_column(String(2))
+
+
+class RegionalCategory(Base):
+    """A categoria que cada UF compra acima da media nacional (Sprint 9).
+
+    Uma linha por UF, so as que passaram nos limiares do ETL
+    (`scripts.etl_load_sample.build_regional_categories`). UF ausente = sinal
+    regional fraco demais para personalizar; a Home fica a geral.
+    """
+
+    __tablename__ = "regional_categories"
+
+    uf: Mapped[str] = mapped_column(String(2), primary_key=True)
+    category: Mapped[str] = mapped_column(String(120), nullable=False)
+    # share da categoria na UF / share dela no Brasil
+    lift: Mapped[float] = mapped_column(Float, nullable=False)

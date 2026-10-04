@@ -104,10 +104,10 @@ do texto e do selo.
 - [x] **Concentração regional:** tabela por UF (itens com vendedor no mesmo estado; compradores sem vendedor a < 100 km) → `python -m scripts.concentracao_regional`; `docs/resultados/concentracao-regional.md`; leitura em `docs/tese-rastreabilidade.md` §4b
 - [x] **Motor de CO₂:** fator de desvio e FE por faixa com fonte no código; testes de valor conhecido atualizados → `pytest -q tests/test_co2.py`; antes/depois registrado em `docs/`
 - [x] **CO₂ evitado:** número citável ("em N compras simuladas, a recomendação evitaria X kg, Y%") → `python -m scripts.co2_evitado`; `docs/resultados/co2-evitado.md` (254 kg, 9,8%)
-- [ ] **Contexto regional** (meta): contexto derivado do CEP, query param como override, contrato SDUI inalterado → `pytest -q`; `cd web && npm run e2e`
+- [x] **Contexto regional** (meta): contexto derivado do CEP, query param como override, contrato SDUI inalterado → `pytest -q`; `cd web && npm run e2e` — 12 UFs personalizadas; leitura em `docs/tese-rastreabilidade.md` §4c
 - [ ] **Números do texto conferidos** depois do motor novo: README, `docs/` e a lista para o capítulo 5
-- [ ] `docs/tese-rastreabilidade.md` atualizado: mudanças em §6, novos números com comando
-- [ ] Suítes verdes no fim → `pytest -q`; `cd web && npm test && npm run lint && npm run typecheck`
+- [x] `docs/tese-rastreabilidade.md` atualizado: mudanças em §6 (linhas 18–20), novos números com comando (§4b, §4c)
+- [x] Suítes verdes no fim → `pytest -q` 182; `cd web && npm test` 35, lint e typecheck limpos; E2E 2 passando (2026-10-04)
 
 ## Fora de escopo
 
@@ -119,3 +119,6 @@ caronas) · remedir o protocolo de carga (o motor de CO₂ não muda latência).
 
 | Falha | Virou |
 |---|---|
+| Corte rígido em 100 km no motor de CO₂ faria 99 km emitir ~4× 101 km | composição contínua; `test_sem_salto_no_limite_da_ultima_milha` |
+| "CO₂ evitado" do detalhe calculava a emissão da diferença de distâncias — errado com qualquer motor não linear | diferença das emissões; teste que falha sem o conserto |
+| Categoria regional sem produto na amostra anunciaria o que não existe | o ETL só deixa concorrer categoria da amostra; o composer cai para a Home geral e larga o hero regional se a vitrine vier vazia |
