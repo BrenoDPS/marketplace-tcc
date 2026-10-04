@@ -87,7 +87,11 @@ def _mensagem_comparativa(
     if not perto.weight_g:
         return base
 
-    evitado = calculate_co2_kg(longe_km - perto_km, perto.weight_g, perto.volume_cm3)
+    # Diferenca das EMISSOES, nao emissao da diferenca: o motor nao e linear
+    # na distancia (ultima milha de van, transferencia de caminhao).
+    evitado = calculate_co2_kg(longe_km, perto.weight_g, perto.volume_cm3) - calculate_co2_kg(
+        perto_km, perto.weight_g, perto.volume_cm3
+    )
     return f"{base} Comprar do mais próximo evita ~{format_co2(evitado)} de CO₂."
 
 

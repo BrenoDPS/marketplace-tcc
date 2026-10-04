@@ -14,7 +14,7 @@ Eixos do TCC: **personalização contextual** + **logística verde** (distância
 - **Dados:** PostgreSQL 16 (Docker, porta **5433** no host)
 - **ETL offline:** `scripts/etl_load_sample.py` (pandas + psycopg), amostra ~10000 `order_items`, seed 42
 - **Distância:** Haversine em Python sobre centroides de CEP (mediana lat/lng)
-- **FE CO₂:** 0,102 kg CO₂/(t·km) — `src/features/green_logistics/co2.py`
+- **CO₂ (Sprint 9):** cadeia de transporte — estrada = linha reta × 1,345; últimos 15 km de van (680 g CO₂e/t·km), o resto de caminhão pesado (92). Fontes em `src/features/green_logistics/co2.py`
 
 ## Sprints concluídas
 

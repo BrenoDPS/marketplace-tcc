@@ -9,7 +9,7 @@ sao um CENARIO DECLARADO sobre uma linha de base MEDIDA. O que e real:
 - `distance_km`: Haversine sobre centroides de CEP da amostra
 - massa cobravel: `max(product_weight_g, peso cubado das dimensoes)` — as
   duas colunas sao do dataset; ver `co2.chargeable_weight_g`
-- emissao base: FE = 0,102 kg CO2/(t.km) do GHG Protocol (`co2.py`)
+- emissao base: cadeia de transporte de `co2.py` (Sprint 9; fatores do GLEC v2)
 - `standard`: usa o `freight_value` real da amostra, sem fator
 - **prazo da linha de base: medido em 95.921 entregas reais** — ver `ETA_BANDS`
 

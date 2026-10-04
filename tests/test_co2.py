@@ -3,24 +3,59 @@ import math
 import pytest
 
 from src.features.green_logistics.co2 import (
-    EMISSION_FACTOR_KG_PER_T_KM,
+    CIRCUITY_FACTOR,
+    FE_LAST_MILE_KG_PER_T_KM,
+    FE_LINE_HAUL_KG_PER_T_KM,
+    LAST_MILE_KM,
     calculate_co2_kg,
     chargeable_weight_g,
+    road_distance_km,
 )
 
 
-def test_emission_factor_value() -> None:
-    assert EMISSION_FACTOR_KG_PER_T_KM == 0.102
+def test_constantes_sao_as_das_fontes_citadas() -> None:
+    """Mudar um destes numeros exige mudar a fonte citada em co2.py."""
+    assert CIRCUITY_FACTOR == 1.345  # Goncalves et al. (2014)
+    assert LAST_MILE_KM == 15.0  # WEF (2024), limite inferior de 15-20 km
+    assert FE_LINE_HAUL_KG_PER_T_KM == 0.092  # GLEC v2, HGV > 20 t, WTW
+    assert FE_LAST_MILE_KG_PER_T_KM == 0.680  # GLEC v2, van < 3,5 t, WTW
 
 
-def test_100km_1000g() -> None:
-    # 100 km * (1000 g -> 0.001 t) * 0.102 = 0.0102 kg
-    assert math.isclose(calculate_co2_kg(100, 1000), 0.0102, rel_tol=1e-9)
+def test_linha_reta_vira_estrada_pela_circuidade() -> None:
+    assert road_distance_km(100.0) == pytest.approx(134.5)
 
 
-def test_50km_2500g() -> None:
-    # 50 * (2500/1_000_000) * 0.102 = 0.01275 kg
-    assert math.isclose(calculate_co2_kg(50, 2500), 0.01275, rel_tol=1e-9)
+def test_100km_1000g_transferencia_mais_ultima_milha() -> None:
+    # estrada 134,5 km: 119,5 km de caminhao + 15 km de van, 0,001 t
+    # (119,5 * 0,092 + 15 * 0,680) * 0,001 = (10,994 + 10,2) / 1000
+    assert math.isclose(calculate_co2_kg(100, 1000), 0.021194, rel_tol=1e-9)
+
+
+def test_entrega_curta_vai_inteira_de_van() -> None:
+    # 10 km de linha reta -> 13,45 km de estrada < 15: tudo de van
+    # 13,45 * 0,680 * 0,0025 t = 0,0228650
+    assert math.isclose(calculate_co2_kg(10, 2500), 0.022865, rel_tol=1e-9)
+
+
+def test_sem_salto_no_limite_da_ultima_milha() -> None:
+    """Um corte rigido faria a entrega a 99 km emitir ~4x a de 101 km."""
+    limite = LAST_MILE_KM / CIRCUITY_FACTOR
+    antes = calculate_co2_kg(limite - 1e-6, 1000)
+    depois = calculate_co2_kg(limite + 1e-6, 1000)
+    assert depois == pytest.approx(antes, rel=1e-5)
+
+
+def test_emissao_cresce_com_a_distancia() -> None:
+    distancias = [1, 5, 11, 12, 50, 99, 101, 432, 2483]
+    emissoes = [calculate_co2_kg(d, 1000) for d in distancias]
+    assert emissoes == sorted(emissoes)
+    assert len(set(emissoes)) == len(emissoes)
+
+
+def test_compra_local_continua_mais_limpa_mas_nao_22x() -> None:
+    """O numero que mudou a tese (Sprint 9): mediana real 432 km x local 20 km."""
+    razao = calculate_co2_kg(432, 1000) / calculate_co2_kg(20, 1000)
+    assert 5 < razao < 6  # era 21,6x com o fator unico de caminhao pesado
 
 
 def test_zero_weight_is_zero() -> None:

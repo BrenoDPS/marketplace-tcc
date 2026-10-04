@@ -209,8 +209,9 @@ async def test_badge_and_impact_reflect_the_customer_distance() -> None:
     assert _block(body, "product_detail")["props"]["badge"] is not None
     banner = _block(body, "impact_banner")["props"]
     assert banner["distance_km"] == pytest.approx(27.0)
-    # 27 km * (2500 g -> 0.0025 t) * 0.102
-    assert banner["co2_kg"] == pytest.approx(27.0 * (2500.0 / 1_000_000) * 0.102)
+    # 27 km de linha reta -> 36,315 km de estrada: 21,315 de caminhao + 15 de van
+    # (21,315 * 0,092 + 15 * 0,680) * 0,0025 t = 0,03040245 kg
+    assert banner["co2_kg"] == pytest.approx(0.03040245)
     assert "27 km" in banner["message"]
     assert "sao paulo" in banner["message"]
 
@@ -347,3 +348,22 @@ async def test_mesma_regiao_e_diferente_de_distancia_desconhecida() -> None:
     assert "Não foi possível estimar" in m_desconhecido
     assert _block(perto, "product_detail")["props"]["badge"] is not None
     assert _block(desconhecido, "product_detail")["props"]["badge"] is None
+
+
+def test_co2_evitado_e_a_diferenca_das_emissoes_nao_a_emissao_da_diferenca() -> None:
+    """Com o motor de cadeia (Sprint 9) as duas contas divergem.
+
+    A emissao da DIFERENCA de distancias ignorava a ultima milha das duas
+    entregas; o que a escolha evita e a diferenca entre as duas emissoes.
+    """
+    from src.features.green_logistics.co2 import calculate_co2_kg, format_co2
+    from src.features.product_detail.composer import _mensagem_comparativa
+
+    perto_km, longe_km = 20.0, 2483.0
+    texto = _mensagem_comparativa(
+        (perto_km, PRODUCT_MULTI_PERTO), [(longe_km, PRODUCT_MULTI_LONGE)]
+    )
+    certo = calculate_co2_kg(longe_km, 1000.0) - calculate_co2_kg(perto_km, 1000.0)
+    errado = calculate_co2_kg(longe_km - perto_km, 1000.0)
+    assert format_co2(certo) != format_co2(errado)
+    assert f"evita ~{format_co2(certo)} de CO₂" in texto

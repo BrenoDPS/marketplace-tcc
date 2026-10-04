@@ -1,7 +1,7 @@
 """Fatia VSA: Green Logistics (ODS 12).
 
-Sprint 2 MVP: distancia geodesica via Haversine sobre centroides de CEP
-(mediana de lat/lng por prefixo, derivados no ETL). Calculo de CO2 com
-FE = 0,102 kg CO2/(t.km) (GHG Protocol). Selo "verde" para entregas com
-d_km < 100.
+Distancia geodesica via Haversine sobre centroides de CEP (mediana de lat/lng
+por prefixo, derivados no ETL). CO2e por cadeia de transporte desde a Sprint 9
+(ver `co2.py`: circuidade, ultima milha de van, transferencia de caminhao, com
+as fontes). Selo "verde" para entregas com d_km < 100.
 """

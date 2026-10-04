@@ -48,7 +48,8 @@ handoff, ela está em `docs/PROJECT_BOOTSTRAP.md` → "Sprint ativa".
 - **Mudou o contrato?** Atualize `tests/test_schemas.py`, `web/lib/sdui.ts` e o
   `REGISTRY` juntos — `tests/test_schemas.py` falha se os `type` divergirem.
 - **Logística verde:** onde a resposta expuser produto, integrar distância/selo:
-  Haversine sobre centroides de CEP, selo < 100 km, FE 0,102 kg CO₂/(t·km) em
+  Haversine sobre centroides de CEP, selo < 100 km, CO₂ por cadeia de transporte
+  (estrada = linha reta × 1,345; última milha de van; fontes citadas) em
   `src/features/green_logistics/co2.py`.
 - **Performance:** todo I/O de banco é async. Meta TTFB < 200 ms. **Meça antes de
   otimizar** (`load/locustfile.py`). `cep_centroids` vive em memória

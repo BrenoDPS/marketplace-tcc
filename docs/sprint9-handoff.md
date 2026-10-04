@@ -70,7 +70,9 @@ abandonado por ter sido criado numa sprint que terminou.
 | C | Onde mora a **UF do comprador** para o contexto regional | ETL grava a UF por prefixo em `cep_centroids` (moda de `geolocation_state`); o contexto vira derivado do CEP, com o query param como override — o contrato da API não muda |
 | D | Lift categoria × UF: amostra ou **dataset completo** | dataset completo (o sinal regional precisa de volume; o card mediu com ele) |
 
-### Pesquisa das decisões A e B (2026-10-04) — aguardando o autor
+### Pesquisa das decisões A e B (2026-10-04) — decididas: cadeia de transporte + circuidade 1,345
+
+**Decisão do autor (04/10):** modelo de **cadeia de transporte** e **circuidade de 1,345**. Na implementação, a última milha ficou em **15 km** (WEF, 2024, p. 5: "the last 15–20 kilometres", limite inferior) e o corte por distância foi substituído por uma composição contínua — o corte rígido em 100 km faria uma entrega a 99 km emitir ~4× a de 101 km. Razão mediana ÷ local medida no motor implementado: **~5,5×** (não 3,5×, que era a ilustração com corte).
 
 **Fontes encontradas**
 
@@ -100,7 +102,7 @@ do texto e do selo.
 
 - [x] **Caronas:** o ETL termina avisando para reiniciar a API e esvaziar o cache → `python -m scripts.etl_load_sample` (fim da saída); `SQL_ECHO` próprio → `pytest -q`
 - [x] **Concentração regional:** tabela por UF (itens com vendedor no mesmo estado; compradores sem vendedor a < 100 km) → `python -m scripts.concentracao_regional`; `docs/resultados/concentracao-regional.md`; leitura em `docs/tese-rastreabilidade.md` §4b
-- [ ] **Motor de CO₂:** fator de desvio e FE por faixa com fonte no código; testes de valor conhecido atualizados → `pytest -q tests/test_co2.py`; antes/depois registrado em `docs/`
+- [x] **Motor de CO₂:** fator de desvio e FE por faixa com fonte no código; testes de valor conhecido atualizados → `pytest -q tests/test_co2.py`; antes/depois registrado em `docs/`
 - [ ] **CO₂ evitado:** número citável ("em N compras simuladas, a recomendação evitaria X kg, Y%") → `python -m scripts.<script>`
 - [ ] **Contexto regional** (meta): contexto derivado do CEP, query param como override, contrato SDUI inalterado → `pytest -q`; `cd web && npm run e2e`
 - [ ] **Números do texto conferidos** depois do motor novo: README, `docs/` e a lista para o capítulo 5

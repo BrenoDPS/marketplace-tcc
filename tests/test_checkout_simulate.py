@@ -232,8 +232,9 @@ async def test_impact_banner_has_coherent_co2() -> None:
     _, body = await _cart(("prod_real_1", 1))
     props = _block(body, "impact_banner")["props"]
     assert props["distance_km"] == pytest.approx(27.0)
-    # 27 km * (2500 g -> 0.0025 t) * 0.102 = 0.0068850 kg
-    assert props["co2_kg"] == pytest.approx(27.0 * (2500.0 / 1_000_000) * 0.102)
+    # 27 km de linha reta -> 36,315 km de estrada: 21,315 de caminhao + 15 de van
+    # (21,315 * 0,092 + 15 * 0,680) * 0,0025 t = 0,03040245 kg
+    assert props["co2_kg"] == pytest.approx(0.03040245)
     assert props["badge"] is not None
 
 
