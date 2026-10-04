@@ -145,7 +145,43 @@ def metadados(args: argparse.Namespace) -> dict:
     }
 
 
+def _workers_vivos(pid: int) -> list[psutil.Process]:
+    """Processos que servem requisicao. Com `--workers N` sao os filhos do
+    supervisor, lancados pelo `multiprocessing` (`--multiprocessing-fork` na
+    linha de comando); com 1 worker e o proprio interpretador."""
+    raiz = psutil.Process(pid)
+    filhos = raiz.children(recursive=True)
+    workers = []
+    for p in filhos:
+        try:
+            if "--multiprocessing-fork" in " ".join(p.cmdline()) and p.is_running():
+                workers.append(p)
+        except psutil.NoSuchProcess:
+            pass
+    return workers
+
+
 def subir_api(cache: bool, ttl: int, workers: int = 1) -> subprocess.Popen:
+    """Sobe a API e so devolve com os N workers vivos.
+
+    No Windows, um worker do uvicorn as vezes morre ao subir (`WinError 10022`
+    no `listen` do socket compartilhado) e o ensaio rodaria com N - 1 sem
+    ninguem notar — aconteceu na Sprint 10. Tenta de novo em vez de medir.
+    """
+    for tentativa in range(1, 4):
+        api = _subir_api(cache, ttl, workers)
+        if workers == 1:
+            return api
+        time.sleep(5)  # tempo para um worker que vai morrer morrer
+        vivos = len(_workers_vivos(api.pid))
+        if vivos == workers:
+            return api
+        print(f"  AVISO: {vivos}/{workers} workers vivos (tentativa {tentativa}) — subindo de novo", flush=True)
+        derrubar(api)
+    raise RuntimeError(f"a API nao subiu com {workers} workers em 3 tentativas")
+
+
+def _subir_api(cache: bool, ttl: int, workers: int) -> subprocess.Popen:
     if _api_responde():
         raise RuntimeError(f"ja ha algo respondendo em {API} — o ensaio mediria o processo errado")
     env = {
@@ -189,23 +225,35 @@ def _amostrar_cpu(pid: int, destino: Path, parar: threading.Event) -> None:
     """CPU do processo da API, em % de UM nucleo — o event loop satura em ~100%.
 
     No Windows o `python.exe` do venv e um lancador; o interpretador que serve a
-    API e filho dele. Por isso soma a arvore, nao o PID do Popen.
+    API e filho dele. Por isso soma a arvore, nao o PID do Popen. A arvore e
+    relida a cada segundo: um worker reiniciado pelo supervisor entra na conta,
+    e um que morreu sai dela sem derrubar a amostragem (Sprint 10: um processo
+    morto encerrava o amostrador e o ensaio ficava sem CPU e sem `na_tomada`).
     """
     raiz = psutil.Process(pid)
-    procs = [raiz, *raiz.children(recursive=True)]
-    for p in procs:
-        p.cpu_percent(None)
+    vistos: dict[int, psutil.Process] = {}
     psutil.cpu_percent(None)
     t0 = time.monotonic()
     with destino.open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["t_s", "api_cpu_pct_de_um_nucleo", "sistema_cpu_pct", "na_tomada"])
+        w.writerow(["t_s", "api_cpu_pct_de_um_nucleo", "sistema_cpu_pct", "na_tomada", "workers_vivos"])
         while not parar.wait(1):
             try:
-                api = sum(p.cpu_percent(None) for p in procs)
+                arvore = [raiz, *raiz.children(recursive=True)]
             except psutil.NoSuchProcess:
                 return
-            w.writerow([round(time.monotonic() - t0), round(api, 1), psutil.cpu_percent(None), int(_na_tomada())])
+            api = 0.0
+            for p in arvore:
+                try:
+                    if p.pid not in vistos:
+                        vistos[p.pid] = p
+                        p.cpu_percent(None)  # a 1a leitura so zera o contador
+                        continue
+                    api += vistos[p.pid].cpu_percent(None)
+                except psutil.NoSuchProcess:
+                    pass
+            w.writerow([round(time.monotonic() - t0), round(api, 1), psutil.cpu_percent(None),
+                        int(_na_tomada()), len(_workers_vivos(pid)) or 1])
 
 
 def ensaio(saida: Path, nome: str, usuarios: int, spawn: int, plateau: int, semente: str, api_pid: int) -> bool:
@@ -283,13 +331,19 @@ def main() -> None:
         if not ok:
             print(f"  AVISO: o Locust saturou a CPU em {nome} — ensaio invalido", flush=True)
         with (args.saida / f"{nome}_cpu.csv").open(encoding="utf-8") as f:
-            em_bateria = any(r["na_tomada"] == "0" for r in csv.DictReader(f))
+            amostras = list(csv.DictReader(f))
+        # Sem amostra nenhuma nao da para afirmar que rodou na tomada.
+        em_bateria = not amostras or any(r["na_tomada"] == "0" for r in amostras)
         if em_bateria:
-            print(f"  AVISO: {nome} rodou (em parte) em bateria — ensaio invalido", flush=True)
+            print(f"  AVISO: {nome} rodou (em parte) em bateria ou sem amostra de energia — ensaio invalido", flush=True)
+        workers_min = min((int(r.get("workers_vivos") or 1) for r in amostras), default=0)
+        if workers_min < workers:
+            print(f"  AVISO: {nome} teve so {workers_min}/{workers} workers vivos em algum momento", flush=True)
         # Taxa de acerto: keyspace_hits / (hits + misses). Inclui a rampa.
         stats = [l for l in _redis("INFO", "stats").splitlines() if l.startswith("keyspace_")]
         (args.saida / f"{nome}_redis.txt").write_text("\n".join(stats) + "\n", encoding="utf-8")
-        meta["ensaios"].append({"nome": nome, "inicio": inicio, "gerador_saturou": not ok, "em_bateria": em_bateria})
+        meta["ensaios"].append({"nome": nome, "inicio": inicio, "gerador_saturou": not ok, "em_bateria": em_bateria,
+                                "workers": workers, "workers_min": workers_min})
         meta["fim"] = time.strftime("%Y-%m-%dT%H:%M:%S")
         (args.saida / "meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
 
