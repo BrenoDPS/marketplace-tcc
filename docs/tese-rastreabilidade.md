@@ -143,7 +143,7 @@ quê. Cada linha aponta a evidência.
 | 14 | Premissa de trabalho: "com 25 usuários a API já bate o limite" | **Não vale mais**: capacidade de 1 worker ≈ 165–180 req/s sem cache; 50 VU com folga | a premissa veio de medições com `echo` ligado | `docs/performance.md` §10.8 | 8 |
 | 15 | Execução do protocolo em ambiente estável | 13 dos 27 ensaios da 1ª execução rodaram **em bateria** e foram descartados; repetições 2 e 3 refeitas na tomada em 2026-10-04 | em bateria o clock cai e a mesma requisição custa ~3,5× mais CPU | `load/results/protocolo/energia.txt`; `docs/performance.md` §11.2 | 8 |
 | 16 | Ordem intercalada dos ensaios | `r3-u1000-frio` reexecutado **fora da ordem**, após o bloco de 250 VU | o original teve aviso de CPU do Locust (gerador saturado) | `load/results/protocolo/invalidado/`; `docs/performance.md` §11.1 | 8 |
-| 17 | Redis: variável de experimento, desligado por padrão (Sprint 7) | **Ligado por padrão**, TTL 3.600 s, pool bloqueante (100 conexões, espera de 5 s) | protocolo da §3.3: decisivo a partir de 250 VU com 1 worker; o pool padrão do redis-py virava 500 a 1.000 VU | `docs/performance.md` §11.7; `src/core/config.py`, `src/core/cache.py` | 8 |
+| 17 | Redis: variável de experimento, desligado por padrão (Sprint 7) | **Ligado por padrão**, TTL 3.600 s, pool bloqueante (100 conexões, espera de 5 s) | protocolo da §3.3: decisivo a partir de 250 VU com 1 worker; o pool padrão do redis-py virava 500 a 1.000 VU | `docs/performance.md` §11.7 e §11.9 (A/B do pool: mesma latência, 0 erros do Redis); `src/core/config.py`, `src/core/cache.py` | 8 |
 
 ## 7. Pontos a confirmar contra o texto da monografia
 

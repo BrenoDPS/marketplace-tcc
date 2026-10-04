@@ -1,0 +1,2 @@
+Resumo de load/results/s8-pool-bloqueante/execucao-erros.log (fora do git).
+    256 sqlalchemy.exc.TimeoutError

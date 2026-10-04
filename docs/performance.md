@@ -840,7 +840,7 @@ justificado por medição para os cenários operacional e de pico.
 de 3.600 s (o do protocolo) e pool **bloqueante** de 100 conexões com espera de
 até 5 s, no lugar do pool padrão que falhava na hora. **Os números desta seção
 foram medidos com o pool padrão** — a troca do pool vale a partir daqui; a
-validação está na §11.9.
+validação está na §11.9: não piora latência nem vazão e elimina os erros do Redis.
 
 **Correção da nota da Sprint 6 no PRD.** A nota dizia que a premissa *"< 200 ms
 com auxílio de cache Redis em cenários de alta concorrência"* não se confirmou.
@@ -860,6 +860,39 @@ concorrência** e só é dispensável em carga nominal.
 
 Gráficos de evolução temporal e de dispersão RPS × percentis (§3.3): a fazer na
 escrita, a partir dos `_stats_history.csv`.
+
+### 11.9 Validação do pool bloqueante do Redis (2026-10-04)
+
+A troca do pool (§11.7) foi feita **depois** do protocolo. Antes de dar a
+configuração por boa: ela elimina os 500 do Redis sem piorar o resto?
+
+**Primeiro piloto — inconclusivo.** 1.000 VU, frio, 2 min, pool bloqueante:
+nenhum `MaxConnectionsError`, mas vazão de 204 req/s e p50 de 140 ms nos dois
+primeiros minutos do plateau, contra 299–374 req/s e 73–97 ms na mesma janela
+dos três ensaios do protocolo. O piloto rodou **minutos depois de o notebook
+voltar à tomada**, com a bateria carregando — o mesmo tipo de confundidor da
+§11.2, mais fraco. Uma comparação com o protocolo não separa pool de máquina.
+
+**A/B consecutivo — conclusivo.** Os dois pools, um logo depois do outro, nas
+mesmas condições (`load/results/s8-pool-ab/`; o braço A com mudança local não
+commitada, revertida em seguida):
+
+| 1.000 VU, frio, 2 min | p50 | p95 | p99 | req/s | falhas | `MaxConnectionsError` | timeouts do Postgres |
+|---|---|---|---|---|---|---|---|
+| A — pool padrão (100, sem fila) | 110 ms | 11 s | 21 s | 261 | 0,44% | **75** | 65 |
+| B — pool bloqueante (100, espera de 5 s) | 110 ms | 11 s | 20 s | 252 | **0,29%** | **0** | 102 |
+
+**O pool bloqueante não piora latência nem vazão** (diferenças dentro do ruído de
+um ensaio), **elimina os erros do Redis** e reduz as falhas. Parte das
+requisições que antes morriam no Redis segue até o Postgres e passa a disputar o
+pool dele (65 → 102 timeouts) — o próximo gargalo, nas rotas sem cache e nos
+misses.
+
+As duas pernas do A/B ficaram abaixo dos ensaios do protocolo na mesma janela
+(~255 contra ~335 req/s): a máquina ainda não tinha voltado ao estado dos
+ensaios. **Ponto de melhoria do runner:** um ensaio de calibração (CPU por
+requisição a 50 VU, que é 6–7 ms na máquina estável — §11.1) antes do protocolo
+detectaria esse estado em vez de depender do relatório de bateria.
 
 ---
 

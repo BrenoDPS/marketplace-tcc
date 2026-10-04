@@ -1,0 +1,4 @@
+Resumo de load/results/s8-pool-ab/a-padrao/execucao-erros.log (fora do git).
+     75 redis.exceptions.MaxConnectionsError
+     65 sqlalchemy.exc.TimeoutError
+      1 ConnectionResetError

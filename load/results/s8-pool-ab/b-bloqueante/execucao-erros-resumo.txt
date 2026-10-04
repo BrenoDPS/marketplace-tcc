@@ -1,0 +1,2 @@
+Resumo de load/results/s8-pool-ab/b-bloqueante/execucao-erros.log (fora do git).
+    102 sqlalchemy.exc.TimeoutError
