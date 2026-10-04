@@ -1,0 +1,19 @@
+Fonte de energia do notebook durante a 1a execucao do protocolo (2026-10-03).
+Extraido de `powercfg /batteryreport` (secao "Recent usage"); horario local.
+
+17:48:53  Active  AC        15%
+20:24:41  Active  Battery  100%   <- saiu da tomada
+22:57:31  Active  AC         2%   <- voltou a tomada (bateria quase esgotada)
+23:27:44  Active  Battery   28%   (42 s)
+23:28:26  Active  AC        28%
+
+Ensaios afetados (inicio entre 20:24:41 e 22:57:31, ou cruzando a janela):
+  r2-u50-aquecido (20:23:51; ~50 s na tomada, o resto em bateria)
+  r2-u1000-off, r2-u1000-frio, r2-u1000-aquecido
+  r2-u250-off, r2-u250-frio, r2-u250-aquecido
+  r3-u50-off, r3-u50-frio, r3-u50-aquecido
+  r3-u1000-off, r3-u1000-frio (original, ja invalido por CPU do Locust), r3-u1000-aquecido
+  r3-u250-off (22:55:51; rampa + ~75 s do plateau em bateria = ~13% do plateau)
+
+Na tomada do inicio ao fim: os 9 ensaios da repeticao 1, r2-u50-off, r2-u50-frio,
+r3-u250-frio, r3-u250-aquecido e a reexecucao de r3-u1000-frio (23:28:22).

@@ -1,0 +1,48 @@
+[2026-10-03 22:37:36,510] Suporte/INFO/locust.main: Starting Locust 2.46.5
+[2026-10-03 22:37:36,554] Suporte/INFO/locust.main: Run time limit set to 940 seconds
+[2026-10-03 22:37:36,558] Suporte/INFO/locust.runners: Ramping to 1000 users at a rate of 25.00 per second
+[2026-10-03 22:38:16,444] Suporte/INFO/locust.runners: All users spawned: {"JornadaUser": 1000} (1000 total users)
+[2026-10-03 22:38:16,445] Suporte/INFO/locust.runners: Resetting stats
+
+[2026-10-03 22:55:43,540] Suporte/INFO/locust.main: --run-time limit reached, shutting down
+[2026-10-03 22:55:47,517] Suporte/INFO/locust.main: Shutting down (exit code 1)
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /home (busca)                                                               2612     8(0.31%) |   3122      54  937570    340 |    2.49        0.01
+GET      GET /home (conscious_buyer)                                                     2625     1(0.04%) |   4024      50  937745    340 |    2.50        0.00
+GET      GET /home (default, com selo)                                                   2350     0(0.00%) |   2053      59  937583    340 |    2.24        0.00
+GET      GET /home (default, sem selo)                                                   4450     0(0.00%) |   3195      64  938535    340 |    4.24        0.00
+GET      GET /home (electronics_expert)                                                  2570     2(0.08%) |   3006      59  937605    340 |    2.45        0.00
+GET      GET /products/{id}                                                              2939  774(26.34%) |  15698      80  967683  17000 |    2.80        0.74
+POST     POST /checkout/simulate                                                         2062  580(28.13%) |  16676      52  967544  17000 |    1.96        0.55
+GET      [setup] home                                                                     141     0(0.00%) |   5399    4620    6359   5400 |    0.13        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                     19749  1365(6.91%) |   6419      50  967683    420 |   18.81        1.30
+
+Response time percentiles (approximated)
+Type     Name                                                                                  50%    66%    75%    80%    90%    95%    98%    99%  99.9% 99.99%   100% # reqs
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+GET      GET /home (busca)                                                                     340    450    530    600    880   1300   2300   4400 938000 938000 938000   2612
+GET      GET /home (conscious_buyer)                                                           340    450    530    600    880   1100   2000   2500 938000 938000 938000   2625
+GET      GET /home (default, com selo)                                                         340    440    530    610    880   1200   1700   2500 938000 938000 938000   2350
+GET      GET /home (default, sem selo)                                                         340    450    520    590    850   1200   2000   2600 938000 939000 939000   4450
+GET      GET /home (electronics_expert)                                                        340    450    520    590    870   1100   1900   2600 938000 938000 938000   2570
+GET      GET /products/{id}                                                                  17000  18000  30000  30000  31000  31000  31000  32000 967000 968000 968000   2939
+POST     POST /checkout/simulate                                                             17000  19000  30000  31000  31000  31000  31000  32000 967000 968000 968000   2062
+GET      [setup] home                                                                         5400   5500   5600   5700   5800   5900   6300   6300   6400   6400   6400    141
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+         Aggregated                                                                            420    620    920   1400  18000  31000  31000  31000 938000 968000 968000  19749
+
+Error report
+# occurrences      Error                                                                                               
+------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+774                GET GET /products/{id}: HTTPError('500 Server Error: Internal Server Error for url: GET /products/{id}')
+578                POST POST /checkout/simulate: HTTPError('500 Server Error: Internal Server Error for url: POST /checkout/simulate')
+7                  GET GET /home (busca): HTTPError('500 Server Error: Internal Server Error for url: GET /home (busca)')
+1                  GET GET /home (electronics_expert): ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)
+2                  POST POST /checkout/simulate: ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)
+1                  GET GET /home (conscious_buyer): ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)
+1                  GET GET /home (busca): ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)
+1                  GET GET /home (electronics_expert): ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)
+------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+

@@ -1,0 +1,15 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+GET,[setup] home,HTTPError('500 Server Error: Internal Server Error for url: [setup] home'),17,2026-10-03T23:30:05Z,2026-10-03T23:30:33Z
+GET,"GET /home (default, sem selo)","HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, sem selo)')",566,2026-10-03T23:30:09Z,2026-10-03T23:45:04Z
+GET,GET /home (conscious_buyer),"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",2,2026-10-03T23:30:05Z,2026-10-03T23:30:26Z
+GET,"GET /home (default, sem selo)","ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",4,2026-10-03T23:30:11Z,2026-10-03T23:30:25Z
+GET,GET /products/{id},HTTPError('500 Server Error: Internal Server Error for url: GET /products/{id}'),339,2026-10-03T23:30:08Z,2026-10-03T23:45:04Z
+GET,GET /home (conscious_buyer),RemoteDisconnected('Remote end closed connection without response'),1,2026-10-03T23:35:59Z,2026-10-03T23:35:59Z
+POST,POST /checkout/simulate,HTTPError('500 Server Error: Internal Server Error for url: POST /checkout/simulate'),235,2026-10-03T23:30:14Z,2026-10-03T23:45:04Z
+GET,GET /home (electronics_expert),HTTPError('500 Server Error: Internal Server Error for url: GET /home (electronics_expert)'),309,2026-10-03T23:30:17Z,2026-10-03T23:45:02Z
+GET,GET /home (conscious_buyer),HTTPError('500 Server Error: Internal Server Error for url: GET /home (conscious_buyer)'),309,2026-10-03T23:30:04Z,2026-10-03T23:45:04Z
+GET,"GET /home (default, sem selo)",RemoteDisconnected('Remote end closed connection without response'),1,2026-10-03T23:32:44Z,2026-10-03T23:32:44Z
+GET,GET /home (electronics_expert),"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",3,2026-10-03T23:30:07Z,2026-10-03T23:30:32Z
+GET,GET /home (busca),HTTPError('500 Server Error: Internal Server Error for url: GET /home (busca)'),309,2026-10-03T23:30:11Z,2026-10-03T23:45:04Z
+GET,GET /home (busca),"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",4,2026-10-03T23:30:14Z,2026-10-03T23:30:32Z
+GET,"GET /home (default, com selo)","HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, com selo)')",273,2026-10-03T23:30:06Z,2026-10-03T23:45:04Z

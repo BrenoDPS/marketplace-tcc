@@ -1,0 +1,65 @@
+[2026-10-03 22:05:37,229] Suporte/INFO/locust.main: Starting Locust 2.46.5
+[2026-10-03 22:05:37,290] Suporte/INFO/locust.main: Run time limit set to 940 seconds
+[2026-10-03 22:05:37,293] Suporte/INFO/locust.runners: Ramping to 1000 users at a rate of 25.00 per second
+[2026-10-03 22:06:16,959] Suporte/INFO/locust.runners: All users spawned: {"JornadaUser": 1000} (1000 total users)
+[2026-10-03 22:06:16,960] Suporte/INFO/locust.runners: Resetting stats
+
+[2026-10-03 22:21:17,298] Suporte/INFO/locust.main: --run-time limit reached, shutting down
+[2026-10-03 22:21:19,759] Suporte/INFO/locust.main: Shutting down (exit code 1)
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /home (busca)                                                               8836 6038(68.33%) |  11916      14   55333   2100 |    9.79        6.69
+GET      GET /home (conscious_buyer)                                                     8827 5987(67.83%) |  11817      18   55123   2100 |    9.78        6.63
+GET      GET /home (default, com selo)                                                   6206 4192(67.55%) |  12289      92   56228   2100 |    6.88        4.64
+GET      GET /home (default, sem selo)                                                  16536 11189(67.66%) |  11910       9   55553   2100 |   18.32       12.40
+GET      GET /home (electronics_expert)                                                  8683 5981(68.88%) |  11705      30   55171   2100 |    9.62        6.63
+GET      GET /products/{id}                                                              8399 5663(67.42%) |  12316      64   56024   2100 |    9.31        6.27
+POST     POST /checkout/simulate                                                         5693 3869(67.96%) |  12147     102   55666   2100 |    6.31        4.29
+GET      [setup] home                                                                     310  157(50.65%) |  24138     248   32923  30000 |    0.34        0.17
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                     63490 43076(67.85%) |  12041       9   56228   2100 |   70.34       47.72
+
+Response time percentiles (approximated)
+Type     Name                                                                                  50%    66%    75%    80%    90%    95%    98%    99%  99.9% 99.99%   100% # reqs
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+GET      GET /home (busca)                                                                    2100  15000  25000  30000  31000  37000  46000  49000  53000  55000  55000   8836
+GET      GET /home (conscious_buyer)                                                          2100  15000  24000  30000  31000  35000  45000  48000  53000  55000  55000   8827
+GET      GET /home (default, com selo)                                                        2100  16000  27000  30000  31000  39000  46000  48000  53000  56000  56000   6206
+GET      GET /home (default, sem selo)                                                        2100  15000  24000  30000  31000  39000  46000  48000  53000  54000  56000  16536
+GET      GET /home (electronics_expert)                                                       2100  15000  24000  30000  31000  34000  45000  48000  52000  55000  55000   8683
+GET      GET /products/{id}                                                                   2100  16000  26000  30000  31000  38000  46000  49000  53000  56000  56000   8399
+POST     POST /checkout/simulate                                                              2100  15000  25000  30000  31000  39000  46000  48000  53000  56000  56000   5693
+GET      [setup] home                                                                        30000  31000  31000  31000  32000  32000  33000  33000  33000  33000  33000    310
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+         Aggregated                                                                           2100  15000  25000  30000  31000  37000  46000  48000  53000  55000  56000  63490
+
+Error report
+# occurrences      Error                                                                                               
+------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+1170               GET GET /home (default, com selo): HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, com selo)')
+2951               GET GET /home (default, sem selo): HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, sem selo)')
+157                GET [setup] home: HTTPError('500 Server Error: Internal Server Error for url: [setup] home')        
+68                 GET GET /home (default, sem selo): ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)
+1600               GET GET /home (busca): HTTPError('500 Server Error: Internal Server Error for url: GET /home (busca)')
+21                 GET GET /home (conscious_buyer): ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)
+1072               POST POST /checkout/simulate: HTTPError('500 Server Error: Internal Server Error for url: POST /checkout/simulate')
+1583               GET GET /products/{id}: HTTPError('500 Server Error: Internal Server Error for url: GET /products/{id}')
+23                 GET GET /home (electronics_expert): ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)
+1574               GET GET /home (electronics_expert): HTTPError('500 Server Error: Internal Server Error for url: GET /home (electronics_expert)')
+1538               GET GET /home (conscious_buyer): HTTPError('500 Server Error: Internal Server Error for url: GET /home (conscious_buyer)')
+31                 GET GET /home (busca): ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)
+7                  GET GET /home (busca): RemoteDisconnected('Remote end closed connection without response')          
+2                  GET GET /home (electronics_expert): RemoteDisconnected('Remote end closed connection without response')
+9                  GET GET /home (default, sem selo): RemoteDisconnected('Remote end closed connection without response')
+8161               GET GET /home (default, sem selo): ConnectionRefusedError(10061, '[WinError 10061] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente.')
+2797               POST POST /checkout/simulate: ConnectionRefusedError(10061, '[WinError 10061] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente.')
+4426               GET GET /home (conscious_buyer): ConnectionRefusedError(10061, '[WinError 10061] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente.')
+4079               GET GET /products/{id}: ConnectionRefusedError(10061, '[WinError 10061] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente.')
+3021               GET GET /home (default, com selo): ConnectionRefusedError(10061, '[WinError 10061] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente.')
+4400               GET GET /home (busca): ConnectionRefusedError(10061, '[WinError 10061] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente.')
+4382               GET GET /home (electronics_expert): ConnectionRefusedError(10061, '[WinError 10061] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente.')
+1                  GET GET /home (default, com selo): ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)
+2                  GET GET /home (conscious_buyer): RemoteDisconnected('Remote end closed connection without response')
+1                  GET GET /products/{id}: ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)
+------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+

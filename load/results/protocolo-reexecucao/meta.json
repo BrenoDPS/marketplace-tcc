@@ -1,0 +1,49 @@
+{
+  "commit": "748090c7ec342a7b9ea2f7db4c2e8e1b87a2c062",
+  "imagens_docker": [
+    "/olist-postgres postgres:16 sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5",
+    "/olist-redis redis:7-alpine sha256:520775a41a63e77e06c73e35d2fd9cc15921a609516818796b4ecbb813078bc7"
+  ],
+  "postgres": "PostgreSQL 16.15 (Debian 16.15-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+  "redis": "7.4.11",
+  "linhas_por_tabela": {
+    "cep_centroids": 12933,
+    "offers": 7356,
+    "olist_customers": 53114,
+    "olist_order_items": 60292,
+    "olist_orders": 53114,
+    "olist_products": 6583,
+    "olist_sellers": 1708
+  },
+  "locustfile_sha256": "641ebff46ae7af89b9a3322bd11500828cb5314068419e9422e6514898f11671",
+  "python": "3.13.7",
+  "locust": "2.46.5",
+  "maquina": {
+    "plataforma": "Windows-11-10.0.26200-SP0",
+    "nucleos_logicos": 8,
+    "memoria_gb": 7.9
+  },
+  "parametros": {
+    "cenarios": {
+      "1000": {
+        "spawn_rate": 25,
+        "plateau_s": 900
+      }
+    },
+    "condicoes": [
+      "frio"
+    ],
+    "reps": 3,
+    "cache_ttl_s": 3600,
+    "workers_api": 1
+  },
+  "inicio": "2026-10-03T23:28:22",
+  "ensaios": [
+    {
+      "nome": "r3-u1000-frio",
+      "inicio": "2026-10-03T23:28:22",
+      "gerador_saturou": false
+    }
+  ],
+  "fim": "2026-10-03T23:44:15"
+}

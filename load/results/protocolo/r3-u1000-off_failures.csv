@@ -1,0 +1,26 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+GET,[setup] home,HTTPError('500 Server Error: Internal Server Error for url: [setup] home'),157,2026-10-04T01:06:17Z,2026-10-04T01:06:47Z
+GET,"GET /home (default, sem selo)","HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, sem selo)')",2950,2026-10-04T01:06:17Z,2026-10-04T01:21:18Z
+GET,GET /home (conscious_buyer),"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",21,2026-10-04T01:06:18Z,2026-10-04T01:13:27Z
+GET,"GET /home (default, sem selo)","ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",68,2026-10-04T01:06:17Z,2026-10-04T01:16:01Z
+GET,GET /products/{id},HTTPError('500 Server Error: Internal Server Error for url: GET /products/{id}'),1583,2026-10-04T01:06:20Z,2026-10-04T01:21:18Z
+GET,GET /home (conscious_buyer),RemoteDisconnected('Remote end closed connection without response'),2,2026-10-04T01:10:31Z,2026-10-04T01:20:01Z
+POST,POST /checkout/simulate,HTTPError('500 Server Error: Internal Server Error for url: POST /checkout/simulate'),1072,2026-10-04T01:06:20Z,2026-10-04T01:21:18Z
+GET,GET /home (electronics_expert),HTTPError('500 Server Error: Internal Server Error for url: GET /home (electronics_expert)'),1574,2026-10-04T01:06:23Z,2026-10-04T01:21:18Z
+GET,GET /home (conscious_buyer),HTTPError('500 Server Error: Internal Server Error for url: GET /home (conscious_buyer)'),1537,2026-10-04T01:06:23Z,2026-10-04T01:21:18Z
+GET,"GET /home (default, sem selo)",RemoteDisconnected('Remote end closed connection without response'),9,2026-10-04T01:08:38Z,2026-10-04T01:19:35Z
+GET,GET /products/{id},"ConnectionRefusedError(10061, '[WinError 10061] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente.')",4079,2026-10-04T01:09:30Z,2026-10-04T01:21:18Z
+GET,GET /home (electronics_expert),"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",23,2026-10-04T01:06:20Z,2026-10-04T01:12:40Z
+GET,GET /home (electronics_expert),"ConnectionRefusedError(10061, '[WinError 10061] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente.')",4381,2026-10-04T01:09:31Z,2026-10-04T01:21:18Z
+GET,"GET /home (default, com selo)","ConnectionRefusedError(10061, '[WinError 10061] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente.')",3021,2026-10-04T01:09:30Z,2026-10-04T01:21:18Z
+GET,GET /home (busca),"ConnectionRefusedError(10061, '[WinError 10061] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente.')",4400,2026-10-04T01:09:30Z,2026-10-04T01:21:18Z
+GET,"GET /home (default, com selo)","ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",1,2026-10-04T01:09:37Z,2026-10-04T01:09:37Z
+GET,GET /home (busca),RemoteDisconnected('Remote end closed connection without response'),7,2026-10-04T01:07:48Z,2026-10-04T01:17:25Z
+POST,POST /checkout/simulate,"ConnectionRefusedError(10061, '[WinError 10061] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente.')",2797,2026-10-04T01:09:30Z,2026-10-04T01:21:18Z
+GET,GET /home (busca),HTTPError('500 Server Error: Internal Server Error for url: GET /home (busca)'),1600,2026-10-04T01:06:18Z,2026-10-04T01:21:18Z
+GET,GET /home (busca),"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",31,2026-10-04T01:06:25Z,2026-10-04T01:11:42Z
+GET,GET /home (electronics_expert),RemoteDisconnected('Remote end closed connection without response'),2,2026-10-04T01:08:17Z,2026-10-04T01:11:01Z
+GET,GET /home (conscious_buyer),"ConnectionRefusedError(10061, '[WinError 10061] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente.')",4423,2026-10-04T01:09:30Z,2026-10-04T01:21:18Z
+GET,"GET /home (default, sem selo)","ConnectionRefusedError(10061, '[WinError 10061] Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente.')",8161,2026-10-04T01:09:30Z,2026-10-04T01:21:18Z
+GET,GET /products/{id},"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",1,2026-10-04T01:10:45Z,2026-10-04T01:10:45Z
+GET,"GET /home (default, com selo)","HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, com selo)')",1170,2026-10-04T01:06:16Z,2026-10-04T01:21:18Z

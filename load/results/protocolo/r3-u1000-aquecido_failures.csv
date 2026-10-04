@@ -1,0 +1,9 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+GET,GET /home (conscious_buyer),"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",1,2026-10-04T01:40:24Z,2026-10-04T01:40:24Z
+GET,GET /products/{id},HTTPError('500 Server Error: Internal Server Error for url: GET /products/{id}'),774,2026-10-04T01:38:27Z,2026-10-04T01:55:46Z
+POST,POST /checkout/simulate,HTTPError('500 Server Error: Internal Server Error for url: POST /checkout/simulate'),578,2026-10-04T01:38:28Z,2026-10-04T01:55:46Z
+GET,GET /home (electronics_expert),"ConnectionAbortedError(10053, 'Uma conexão estabelecida foi anulada pelo software no computador host', None, 10053, None)",1,2026-10-04T01:55:46Z,2026-10-04T01:55:46Z
+GET,GET /home (electronics_expert),"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",1,2026-10-04T01:40:24Z,2026-10-04T01:40:24Z
+GET,GET /home (busca),HTTPError('500 Server Error: Internal Server Error for url: GET /home (busca)'),7,2026-10-04T01:38:44Z,2026-10-04T01:40:08Z
+GET,GET /home (busca),"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",1,2026-10-04T01:40:25Z,2026-10-04T01:40:25Z
+POST,POST /checkout/simulate,"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",2,2026-10-04T01:40:24Z,2026-10-04T01:40:24Z

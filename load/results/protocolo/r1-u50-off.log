@@ -1,0 +1,35 @@
+[2026-10-03 18:38:01,113] Suporte/INFO/locust.main: Starting Locust 2.46.5
+[2026-10-03 18:38:01,116] Suporte/INFO/locust.main: Run time limit set to 310 seconds
+[2026-10-03 18:38:01,120] Suporte/INFO/locust.runners: Ramping to 50 users at a rate of 5.00 per second
+[2026-10-03 18:38:10,211] Suporte/INFO/locust.runners: All users spawned: {"JornadaUser": 50} (50 total users)
+[2026-10-03 18:38:10,211] Suporte/INFO/locust.runners: Resetting stats
+
+[2026-10-03 18:43:11,133] Suporte/INFO/locust.main: --run-time limit reached, shutting down
+[2026-10-03 18:43:12,181] Suporte/INFO/locust.main: Shutting down (exit code 0)
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /home (busca)                                                                982     0(0.00%) |     17       7     128     13 |    3.26        0.00
+GET      GET /home (conscious_buyer)                                                     1021     0(0.00%) |     18       8      99     15 |    3.39        0.00
+GET      GET /home (default, com selo)                                                    845     0(0.00%) |     17       7     118     13 |    2.81        0.00
+GET      GET /home (default, sem selo)                                                   1633     0(0.00%) |     17       7     121     13 |    5.43        0.00
+GET      GET /home (electronics_expert)                                                  1007     0(0.00%) |     17       8      97     13 |    3.35        0.00
+GET      GET /products/{id}                                                              1153     0(0.00%) |      9       3      87      7 |    3.83        0.00
+POST     POST /checkout/simulate                                                          800     0(0.00%) |     22       8      96     18 |    2.66        0.00
+GET      [setup] home                                                                       5     0(0.00%) |     32      28      36     35 |    0.02        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                      7446     0(0.00%) |     16       3     128     13 |   24.75        0.00
+
+Response time percentiles (approximated)
+Type     Name                                                                                  50%    66%    75%    80%    90%    95%    98%    99%  99.9% 99.99%   100% # reqs
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+GET      GET /home (busca)                                                                      13     17     21     24     33     40     51     62    130    130    130    982
+GET      GET /home (conscious_buyer)                                                            15     18     22     25     34     44     52     57     69     99     99   1021
+GET      GET /home (default, com selo)                                                          13     17     20     23     35     42     50     62    120    120    120    845
+GET      GET /home (default, sem selo)                                                          13     16     20     22     31     40     49     58     89    120    120   1633
+GET      GET /home (electronics_expert)                                                         13     17     20     23     31     41     47     55     68     97     97   1007
+GET      GET /products/{id}                                                                      7      9     11     13     18     23     31     37     54     88     88   1153
+POST     POST /checkout/simulate                                                                18     22     27     29     39     51     61     70     96     96     96    800
+GET      [setup] home                                                                           35     36     36     36     36     36     36     36     36     36     36      5
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+         Aggregated                                                                             13     17     20     23     32     41     50     59     89    130    130   7446
+

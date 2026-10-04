@@ -1,0 +1,7 @@
+Resumo de protocolo/execucao-erros.log (stderr da API; o log bruto tem 351M e fica fora do git).
+Contagem por tipo de excecao (ultima linha de cada traceback):
+
+  41176 sqlalchemy.exc.TimeoutError
+    926 redis.exceptions.MaxConnectionsError
+
+Linhas 'QueuePool limit' (timeout do pool de conexoes): 41176

@@ -14,6 +14,10 @@ defeitos de validade que este projeto ja pagou (`docs/performance.md` §10):
   `_stats_history.csv` — e nela que aparece a rajada de cache misses do frio.
 - API reiniciada a cada ensaio: nenhuma condicao herda processo de outra. O
   Redis NAO e reiniciado — so o FLUSHALL antes do frio o esvazia.
+- Notebook na tomada: em bateria o Windows baixa o clock e a MESMA requisicao
+  custa ate 3,5x mais CPU (§11 de `docs/performance.md`: 13 ensaios da 1a
+  execucao rodaram em bateria). Nao comeca ensaio fora da tomada, registra a
+  fonte de energia a cada segundo e marca o ensaio que perder a tomada.
 
 Por ensaio grava, alem dos CSVs do Locust: `_cpu.csv` (CPU do processo da API e
 do sistema, 1 amostra/s — "ponto de esgotamento da CPU"), `_redis.txt` (taxa de
@@ -72,6 +76,19 @@ def _redis(*args: str) -> str:
     return _sh("docker", "exec", "olist-redis", "redis-cli", *args)
 
 
+def _na_tomada() -> bool:
+    bateria = psutil.sensors_battery()
+    return bateria is None or bool(bateria.power_plugged)
+
+
+def _esperar_tomada() -> None:
+    if _na_tomada():
+        return
+    print("  AVISO: em bateria — esperando a tomada para comecar o ensaio", flush=True)
+    while not _na_tomada():
+        time.sleep(30)
+
+
 def _api_responde() -> bool:
     try:
         urllib.request.urlopen(API + "/openapi.json", timeout=1)
@@ -102,6 +119,8 @@ def metadados(args: argparse.Namespace) -> dict:
         "locustfile_sha256": hashlib.sha256(LOCUSTFILE.read_bytes()).hexdigest(),
         "python": sys.version.split()[0],
         "locust": version("locust"),
+        # O pool do redis-py 8 tem 100 conexoes e falha sem esperar: a versao muda o resultado.
+        "bibliotecas": {n: version(n) for n in ("fastapi", "uvicorn", "sqlalchemy", "asyncpg", "redis", "pydantic")},
         "maquina": {
             "plataforma": platform.platform(),
             "nucleos_logicos": os.cpu_count(),
@@ -158,13 +177,13 @@ def _amostrar_cpu(pid: int, destino: Path, parar: threading.Event) -> None:
     t0 = time.monotonic()
     with destino.open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["t_s", "api_cpu_pct_de_um_nucleo", "sistema_cpu_pct"])
+        w.writerow(["t_s", "api_cpu_pct_de_um_nucleo", "sistema_cpu_pct", "na_tomada"])
         while not parar.wait(1):
             try:
                 api = sum(p.cpu_percent(None) for p in procs)
             except psutil.NoSuchProcess:
                 return
-            w.writerow([round(time.monotonic() - t0), round(api, 1), psutil.cpu_percent(None)])
+            w.writerow([round(time.monotonic() - t0), round(api, 1), psutil.cpu_percent(None), int(_na_tomada())])
 
 
 def ensaio(saida: Path, nome: str, usuarios: int, spawn: int, plateau: int, semente: str, api_pid: int) -> bool:
@@ -225,6 +244,7 @@ def main() -> None:
         nome = f"r{rep}-u{usuarios}-{cond}"
         inicio = time.strftime("%Y-%m-%dT%H:%M:%S")
         print(f"[{n}/{len(plano)}] {nome} {inicio}", flush=True)
+        _esperar_tomada()
         if cond == "frio":
             _redis("FLUSHALL")
         _redis("CONFIG", "RESETSTAT")
@@ -236,10 +256,14 @@ def main() -> None:
             api.wait()
         if not ok:
             print(f"  AVISO: o Locust saturou a CPU em {nome} — ensaio invalido", flush=True)
+        with (args.saida / f"{nome}_cpu.csv").open(encoding="utf-8") as f:
+            em_bateria = any(r["na_tomada"] == "0" for r in csv.DictReader(f))
+        if em_bateria:
+            print(f"  AVISO: {nome} rodou (em parte) em bateria — ensaio invalido", flush=True)
         # Taxa de acerto: keyspace_hits / (hits + misses). Inclui a rampa.
         stats = [l for l in _redis("INFO", "stats").splitlines() if l.startswith("keyspace_")]
         (args.saida / f"{nome}_redis.txt").write_text("\n".join(stats) + "\n", encoding="utf-8")
-        meta["ensaios"].append({"nome": nome, "inicio": inicio, "gerador_saturou": not ok})
+        meta["ensaios"].append({"nome": nome, "inicio": inicio, "gerador_saturou": not ok, "em_bateria": em_bateria})
         meta["fim"] = time.strftime("%Y-%m-%dT%H:%M:%S")
         (args.saida / "meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
 

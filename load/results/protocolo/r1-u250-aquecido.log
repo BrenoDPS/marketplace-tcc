@@ -1,0 +1,45 @@
+[2026-10-03 20:02:45,554] Suporte/INFO/locust.main: Starting Locust 2.46.5
+[2026-10-03 20:02:45,567] Suporte/INFO/locust.main: Run time limit set to 625 seconds
+[2026-10-03 20:02:45,571] Suporte/INFO/locust.runners: Ramping to 250 users at a rate of 10.00 per second
+[2026-10-03 20:03:09,693] Suporte/INFO/locust.runners: All users spawned: {"JornadaUser": 250} (250 total users)
+[2026-10-03 20:03:09,693] Suporte/INFO/locust.runners: Resetting stats
+
+[2026-10-03 20:13:10,516] Suporte/INFO/locust.main: --run-time limit reached, shutting down
+[2026-10-03 20:13:11,432] Suporte/INFO/locust.main: Shutting down (exit code 1)
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /home (busca)                                                               9739     8(0.08%) |     16       2    3778      5 |   16.19        0.01
+GET      GET /home (conscious_buyer)                                                     9857    11(0.11%) |     15       2    3787      5 |   16.38        0.02
+GET      GET /home (default, com selo)                                                   8032     8(0.10%) |     15       2    3720      5 |   13.35        0.01
+GET      GET /home (default, sem selo)                                                  17511     7(0.04%) |     15       2    3763      5 |   29.10        0.01
+GET      GET /home (electronics_expert)                                                  9784     3(0.03%) |     16       2    3770      5 |   16.26        0.00
+GET      GET /products/{id}                                                             11762     0(0.00%) |     19       3    4146      7 |   19.55        0.00
+POST     POST /checkout/simulate                                                         7870     0(0.00%) |     31       8    4264     16 |   13.08        0.00
+GET      [setup] home                                                                      10     0(0.00%) |     30      26      38     28 |    0.02        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                     74565    37(0.05%) |     17       2    4264      6 |  123.92        0.06
+
+Response time percentiles (approximated)
+Type     Name                                                                                  50%    66%    75%    80%    90%    95%    98%    99%  99.9% 99.99%   100% # reqs
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+GET      GET /home (busca)                                                                       5      6      7      8     13     19     31     51   3500   3800   3800   9739
+GET      GET /home (conscious_buyer)                                                             5      6      7      8     12     19     32     56   3400   3800   3800   9857
+GET      GET /home (default, com selo)                                                           5      6      7      8     12     20     34     68   1800   3700   3700   8032
+GET      GET /home (default, sem selo)                                                           5      6      7      8     12     18     31     45   3500   3800   3800  17511
+GET      GET /home (electronics_expert)                                                          5      6      7      8     12     19     31     53   3600   3800   3800   9784
+GET      GET /products/{id}                                                                      7      9     10     11     17     26     40     65   3200   4100   4100  11762
+POST     POST /checkout/simulate                                                                16     18     21     22     31     44     65    110   3900   4300   4300   7870
+GET      [setup] home                                                                           30     32     36     37     38     38     38     38     38     38     38     10
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+         Aggregated                                                                              6      8     10     12     17     24     39     65   3400   4000   4300  74565
+
+Error report
+# occurrences      Error                                                                                               
+------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+8                  GET GET /home (busca): HTTPError('500 Server Error: Internal Server Error for url: GET /home (busca)')
+7                  GET GET /home (default, sem selo): HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, sem selo)')
+11                 GET GET /home (conscious_buyer): HTTPError('500 Server Error: Internal Server Error for url: GET /home (conscious_buyer)')
+3                  GET GET /home (electronics_expert): HTTPError('500 Server Error: Internal Server Error for url: GET /home (electronics_expert)')
+8                  GET GET /home (default, com selo): HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, com selo)')
+------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+
