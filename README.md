@@ -19,6 +19,7 @@ pip install -r requirements.txt
 | [AGENTS.md](AGENTS.md) | Mapa e regras de implementacao para agentes (Cursor, Claude Code via `CLAUDE.md`) |
 | [docs/PROJECT_BOOTSTRAP.md](docs/PROJECT_BOOTSTRAP.md) | Visao geral para agentes/conversas novas |
 | [docs/tese-rastreabilidade.md](docs/tese-rastreabilidade.md) | **Defesa:** o que a metodologia promete, o teste que prova e o que mudou em relacao ao estabelecido |
+| [docs/sprint9-handoff.md](docs/sprint9-handoff.md) | **Sprint 9 (atual):** resultados dos dois eixos da tese, ate 14/10 |
 | [docs/sprint8-handoff.md](docs/sprint8-handoff.md) | Sprint 8 (historico): protocolo de carga da §3.3 |
 | [docs/sprint5-handoff.md](docs/sprint5-handoff.md) | Sprint 5 (historico) — sprints 6 e 7 nao tem handoff; ver secoes abaixo |
 | [docs/sprint4-handoff.md](docs/sprint4-handoff.md) | Sprint 4 (historico) |

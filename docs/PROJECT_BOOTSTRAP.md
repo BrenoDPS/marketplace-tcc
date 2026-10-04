@@ -33,7 +33,7 @@ Sprints 6 e 7 **não têm handoff**: o registro está no `README.md` (seções "
 
 ## Sprint ativa
 
-**Nenhuma.** A Sprint 8 foi concluída em 2026-10-04. Candidatas à Sprint 9 estão no Trello (ReferenceBase/AppBase, login, pedido persistido com CO₂ evitado) e dependem do prazo da entrega.
+Ver **`docs/sprint9-handoff.md`** (05/10 → 14/10, entrega dos resultados): concentração logística regional, motor de CO₂ baseado em atividade, CO₂ evitado e contexto regional. A tabela de prioridades completa (Sprints 9 e 10) está no handoff.
 
 Sprint nova começa escrevendo `docs/sprint<N>-handoff.md` no formato dos anteriores, com duas exigências: cada critério de aceite nomeia o **comando** que o prova; falha recorrente termina num **teste** ou numa **regra** do `AGENTS.md`.
 
@@ -67,6 +67,7 @@ web/                 # Frontend Next.js (App Router) que consome o SDUI
 | Arquivo | Uso |
 |---------|-----|
 | `AGENTS.md` | Mapa + regras de implementação (carregado em toda sessão) |
+| `docs/sprint9-handoff.md` | Spec da sprint atual (prioridades até 20/11) |
 | `docs/sprint8-handoff.md` | Spec Sprint 8 (histórico) |
 | `docs/tese-rastreabilidade.md` | Metodologia × testes × desvios — base da defesa |
 | `docs/sprint5-handoff.md` | Spec Sprint 5 (histórico) |
