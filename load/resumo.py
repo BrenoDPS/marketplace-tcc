@@ -43,7 +43,9 @@ def ler_ensaio(stats: Path, rota: str) -> tuple[dict[str, float], Counter, int]:
     codigos: Counter = Counter()
     falhas = Path(base + "_failures.csv")
     if falhas.exists():
-        with falhas.open(encoding="utf-8") as f:
+        # O Locust grava este CSV no encoding do sistema (cp1252 no Windows), e
+        # as mensagens de erro de socket vem traduzidas ("conexao" com cedilha).
+        with falhas.open(encoding="utf-8", errors="replace") as f:
             for r in csv.DictReader(f):
                 if rota == "Aggregated" or r["Name"] == rota:
                     achado = CODIGO.search(r["Error"])

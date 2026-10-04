@@ -27,6 +27,8 @@ longo de horas vire diferenca entre condicoes.
     python -m load.protocolo                       # os 27 ensaios (~4 h 45 min)
     python -m load.protocolo --cargas 1000 --condicoes off --reps 1 --plateau 120 --saida load/results/piloto
     python -m load.resumo load/results/protocolo   # media e desvio padrao
+    # reexecutar UM ensaio invalido (mesmo nome e semente), em pasta propria
+    python -m load.protocolo --cargas 1000 --condicoes frio --rep 3 --saida load/results/protocolo-reexecucao
 
 Requer Postgres e Redis no ar (`docker compose up -d`) com o ETL carregado, a
 porta 8000 livre e a arvore sem mudanca nao commitada (o hash tem de descrever
@@ -192,6 +194,8 @@ def main() -> None:
     ap.add_argument("--cargas", type=int, nargs="+", choices=sorted(CENARIOS), default=sorted(CENARIOS))
     ap.add_argument("--condicoes", nargs="+", choices=ORDEM, default=list(ORDEM))
     ap.add_argument("--reps", type=int, default=3)
+    ap.add_argument("--rep", type=int, nargs="+",
+                    help="repeticoes especificas (ex.: --rep 3 para reexecutar um ensaio invalido com a mesma semente)")
     ap.add_argument("--plateau", type=int, help="sobrescreve o plateau da Tabela 1 (so para piloto/smoke)")
     ap.add_argument("--ttl", type=int, default=3600, help="CACHE_TTL_SECONDS durante o protocolo")
     ap.add_argument("--saida", type=Path, default=Path("load/results/protocolo"))
@@ -209,7 +213,7 @@ def main() -> None:
 
     plano = [
         (rep, u, cond)
-        for rep in range(1, args.reps + 1)
+        for rep in (args.rep or range(1, args.reps + 1))
         for u in random.Random(rep).sample(args.cargas, len(args.cargas))
         for cond in condicoes
     ]

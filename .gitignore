@@ -22,3 +22,6 @@ load/results/**/*_failures.csv
 !load/results/protocolo/*_stats_history.csv
 !load/results/protocolo/*_failures.csv
 !load/results/protocolo/*.log
+!load/results/protocolo*/**/*_stats_history.csv
+!load/results/protocolo*/**/*_failures.csv
+!load/results/protocolo*/**/*.log
