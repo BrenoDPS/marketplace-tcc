@@ -57,6 +57,24 @@ Situação item a item em `docs/performance.md` §10.7 (runner × texto). Resumo
 | Envelope **malformado** (bloco sem `actions`) não derruba a tela | `parseScreen` em `web/lib/sdui.ts` normaliza na entrada; `web/tests/sdui.test.tsx` (3 casos) e a mutação 4 do E2E | antes da Sprint 8 a tela inteira ficava em branco |
 | Contrato servidor ↔ cliente consistente | `tests/test_schemas.py::TestEspelhoDoContratoNoFront` — os `type` de blocos e ações são iguais em `src/schemas/sdui.py`, `web/lib/sdui.ts` e no `REGISTRY` | compara `type`, não `props` |
 
+## 4b. Logística verde — números para o capítulo 5 (Sprint 9)
+
+| Número | Valor | Comando | Fonte |
+|---|---|---|---|
+| Itens vendidos com vendedor **na mesma UF** do comprador | **36,3%** (SP 76,3%; BA 2,1%; PA 0,0%) | `python -m scripts.concentracao_regional` | `docs/resultados/concentracao-regional.md` |
+| Itens com vendedor a **menos de 100 km** (compra local efetiva) | **18,7%**; distância mediana da compra: 432 km | idem | idem |
+| Compradores com **algum** vendedor a menos de 100 km (oferta local disponível) | **94,7%** (BA 74,9%; MT 54,3%; PA 0,0%) | idem | idem |
+
+**Leitura.** O e-commerce do dataset é concentrado em SP — três em cada quatro
+compras paulistas são de vendedor paulista; fora de SP, quase nenhuma. Mas a
+falta de vendedor próximo **não** explica a compra distante: 94,7% dos
+compradores têm algum vendedor a menos de 100 km, e só 18,7% das compras são
+locais. O espaço entre os dois números é onde a recomendação de logística verde
+atua. **Ressalva:** "algum vendedor perto" não é "um vendedor com aquele
+produto" — a métrica de CO₂ evitado (Sprint 9, item 3) mede a escolha produto a
+produto. Dataset completo (112.096 itens, 95.828 compradores, 3.095 vendedores),
+distância em linha reta entre centroides de prefixo de CEP.
+
 ## 5. Ajustes ao texto da §3.3 (fechados em 2026-10-03)
 
 Quatro trechos do texto não descrevem o experimento executado com precisão. O ambiente foi

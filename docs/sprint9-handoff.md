@@ -73,7 +73,7 @@ abandonado por ter sido criado numa sprint que terminou.
 ## Critérios de aceite
 
 - [x] **Caronas:** o ETL termina avisando para reiniciar a API e esvaziar o cache → `python -m scripts.etl_load_sample` (fim da saída); `SQL_ECHO` próprio → `pytest -q`
-- [ ] **Concentração regional:** tabela por UF (itens com vendedor no mesmo estado; compradores sem vendedor a < 100 km) → `python -m scripts.<script>`; resultado em `docs/` com o commit
+- [x] **Concentração regional:** tabela por UF (itens com vendedor no mesmo estado; compradores sem vendedor a < 100 km) → `python -m scripts.concentracao_regional`; `docs/resultados/concentracao-regional.md`; leitura em `docs/tese-rastreabilidade.md` §4b
 - [ ] **Motor de CO₂:** fator de desvio e FE por faixa com fonte no código; testes de valor conhecido atualizados → `pytest -q tests/test_co2.py`; antes/depois registrado em `docs/`
 - [ ] **CO₂ evitado:** número citável ("em N compras simuladas, a recomendação evitaria X kg, Y%") → `python -m scripts.<script>`
 - [ ] **Contexto regional** (meta): contexto derivado do CEP, query param como override, contrato SDUI inalterado → `pytest -q`; `cd web && npm run e2e`
