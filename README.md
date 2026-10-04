@@ -283,7 +283,7 @@ Os testes de backend nao dependem de Postgres rodando (uso de `app.dependency_ov
 
 ```bash
 pip install locust==2.46.5
-DEBUG=false uvicorn src.main:app --port 8000   # SEM --reload (file-watcher) e SEM echo de SQL
+uvicorn src.main:app --port 8000   # SEM --reload (file-watcher); SQL_ECHO fica desligado (padrao)
 locust -f load/locustfile.py --headless -u 50 -r 10 -t 45s --host http://127.0.0.1:8000
 ```
 
@@ -332,7 +332,7 @@ metodologia promete tres condicoes de cache, entao ele entra como variavel:
 ```bash
 docker compose up -d redis
 docker exec olist-redis redis-cli FLUSHALL        # condicao "frio"
-DEBUG=false CACHE_ENABLED=true uvicorn src.main:app --port 8000
+CACHE_ENABLED=true uvicorn src.main:app --port 8000
 ```
 
 Frio e aquecido **nao sao modos de codigo** — sao procedimento de ensaio. Tres

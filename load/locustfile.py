@@ -4,13 +4,14 @@ Roda contra a PILHA REAL (Postgres + ETL + FastAPI), como o E2E do Playwright.
 Nao ha mock: a pergunta aqui e quanto custa uma consulta que realmente vai ao
 banco, e um mock responderia outra pergunta.
 
-    DEBUG=false uvicorn src.main:app --port 8000
+    uvicorn src.main:app --port 8000
 
-`DEBUG=false` nao e detalhe: `src/core/database.py` liga o `echo` do SQLAlchemy
-ao flag, e a API passa a imprimir cada SQL executado. Toda medicao ate a Sprint 7
-foi feita assim, e numa das sondagens o log bloqueou o event loop o bastante para
-o cliente Redis estourar o timeout. `--reload` tambem fica de fora: o
-file-watcher entra na medicao.
+O `echo` do SQLAlchemy (`SQL_ECHO`) tem de estar desligado — e o padrao desde a
+Sprint 9. Ate a Sprint 7 ele era atrelado ao `DEBUG` e ligado por padrao: toda
+medicao foi feita com a API imprimindo cada SQL, e numa das sondagens o log
+bloqueou o event loop o bastante para o cliente Redis estourar o timeout.
+`--reload` tambem fica de fora: o file-watcher entra na medicao. Para o
+protocolo da §3.3, use `python -m load.protocolo`, que cuida de tudo isso.
     locust -f load/locustfile.py --headless -u 50 -r 10 -t 60s --host http://127.0.0.1:8000
 
 Fora do CI pelo mesmo motivo do E2E: `data/raw/` e gitignored, entao o runner

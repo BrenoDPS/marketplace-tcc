@@ -10,6 +10,10 @@ class Settings(BaseSettings):
 
     APP_ENV: str = "development"
     DEBUG: bool = True
+    # Log de cada SQL executado. Separado do DEBUG de proposito: atrelado a ele,
+    # o echo contaminou TODAS as medicoes de carga ate a Sprint 7 sem ninguem
+    # notar (docs/performance.md §9). Ligue so para depurar consulta.
+    SQL_ECHO: bool = False
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5433/olist"
 
     # Cache de resposta SDUI. LIGADO por padrao desde a Sprint 8: o protocolo

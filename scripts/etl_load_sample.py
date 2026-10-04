@@ -585,6 +585,15 @@ def main() -> int:
     else:
         print("[etl] aviso: nenhum produto multi-vendedor com centroide nesta amostra")
 
+    # ETL e API sao processos separados: daqui nao se alcanca a memoria da API
+    # nem o cache dela. Com a API no ar, ela continua servindo a carga ANTERIOR
+    # — centroides no processo e telas no Redis (TTL de 1 h) — sem erro nenhum,
+    # so com selo e distancia errados.
+    print(
+        "[etl] AVISO: se a API estiver no ar, reinicie-a e esvazie o cache "
+        "(docker exec olist-redis redis-cli FLUSHALL) — senao ela serve a carga anterior"
+    )
+
     engine.dispose()
     return 0
 

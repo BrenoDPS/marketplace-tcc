@@ -3,8 +3,9 @@
 Existe para os 27 ensaios rodarem sem ninguem na maquina e sem repetir os
 defeitos de validade que este projeto ja pagou (`docs/performance.md` §10):
 
-- `DEBUG=false` sempre: o `echo` do SQLAlchemy estava em TODAS as medicoes ate
-  a §9, porque o padrao de `DEBUG` e `True`.
+- `SQL_ECHO=false` sempre: o `echo` do SQLAlchemy estava em TODAS as medicoes
+  ate a §9, quando ainda era atrelado ao `DEBUG` (padrao `True`). Hoje o padrao
+  ja e desligado; o runner forca mesmo assim, contra um `.env` que o ligue.
 - TTL maior que o protocolo: com o padrao de 60 s, "aquecido" vira "frio" um
   minuto depois de comecar, e "frio" vira estado estacionario.
 - `LOAD_SEED` igual nas tres condicoes de um cenario: comparacao pareada, e o
@@ -145,6 +146,7 @@ def subir_api(cache: bool, ttl: int) -> subprocess.Popen:
     env = {
         **os.environ,
         "DEBUG": "false",
+        "SQL_ECHO": "false",
         "CACHE_ENABLED": "true" if cache else "false",
         "CACHE_TTL_SECONDS": str(ttl),
     }
