@@ -12,14 +12,16 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5433/olist"
 
-    # Cache de resposta SDUI. Desligado por padrao: ele e VARIAVEL DE
-    # EXPERIMENTO (ver src/core/cache.py), e a aplicacao tem de continuar
-    # correta sem ele. Frio x aquecido se faz com FLUSHALL, nao com flag.
-    CACHE_ENABLED: bool = False
+    # Cache de resposta SDUI. LIGADO por padrao desde a Sprint 8: o protocolo
+    # da §3.3 mostrou que, com 1 worker, e ele que cumpre a meta de 200 ms a
+    # partir de 250 usuarios (docs/performance.md §11.7). A aplicacao continua
+    # correta com ele desligado — e assim que a suite de testes roda.
+    CACHE_ENABLED: bool = True
     REDIS_URL: str = "redis://localhost:6379/0"
-    # 60 s: um ensaio de plateau dura 5 a 15 min, entao o TTL nao expira no meio
-    # e nao mascara a condicao "aquecida".
-    CACHE_TTL_SECONDS: int = 60
+    # 1 h: o catalogo so muda quando o ETL roda. Depois de recarregar o ETL com a
+    # API no ar, esvaziar o cache (FLUSHALL) — senao a Home serve a amostra antiga
+    # ate a chave expirar. Foi o TTL usado no protocolo.
+    CACHE_TTL_SECONDS: int = 3600
 
 
 settings = Settings()

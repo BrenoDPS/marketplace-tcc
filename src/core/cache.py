@@ -1,4 +1,9 @@
-"""Cache de resposta SDUI — VARIAVEL DE EXPERIMENTO, nao decisao de arquitetura.
+"""Cache de resposta SDUI — ligado por padrao desde a Sprint 8.
+
+Comecou como VARIAVEL DE EXPERIMENTO e virou decisao medida: o protocolo da
+§3.3 (27 ensaios, `docs/performance.md` §11) mostrou que ele e dispensavel em
+carga nominal e e o que cumpre a meta de 200 ms a partir de 250 usuarios com 1
+worker. O historico abaixo continua valido para quem for remedir.
 
 `docs/performance.md` §7 concluiu que Redis nao era necessario **sem nunca ter
 rodado Redis**: a conclusao veio por inferencia sobre o gargalo medido (N+1 de
@@ -30,11 +35,18 @@ produziria um numero que parece valido e nao e — o mesmo defeito que o
 
 from __future__ import annotations
 
-from redis.asyncio import Redis
+from redis.asyncio import BlockingConnectionPool, Redis
 
 from src.core.config import settings
 
 _client: Redis | None = None
+
+# Pool BLOQUEANTE: esgotadas as conexoes, a requisicao espera ate 5 s por uma
+# livre em vez de falhar na hora. O pool padrao do redis-py 8 (100 conexoes,
+# sem fila) virou HTTP 500 a 1.000 usuarios no protocolo (§11.3). Passado o
+# tempo, a excecao sobe — continua sem fail-open.
+_MAX_CONEXOES = 100
+_ESPERA_POR_CONEXAO_S = 5
 
 
 def get_client() -> Redis | None:
@@ -43,7 +55,10 @@ def get_client() -> Redis | None:
     if not settings.CACHE_ENABLED:
         return None
     if _client is None:
-        _client = Redis.from_url(settings.REDIS_URL, decode_responses=False)
+        pool = BlockingConnectionPool.from_url(
+            settings.REDIS_URL, max_connections=_MAX_CONEXOES, timeout=_ESPERA_POR_CONEXAO_S
+        )
+        _client = Redis(connection_pool=pool)
     return _client
 
 

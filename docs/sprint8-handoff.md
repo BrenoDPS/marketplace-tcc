@@ -60,7 +60,7 @@ python -m load.resumo load/results/protocolo
 - [x] Série temporal do início do frio × aquecido (`_stats_history.csv`) — a penalidade dos *cache misses*
 - [x] `docs/tese-rastreabilidade.md` atualizado: §1 com os resultados, §3 com a conclusão, §6 com o que mudou na execução
 - [x] Conclusão medida sobre o Redis escrita no README, no `tech_spec.md`, no PRD e na regra "Redis" do `AGENTS.md` → `pytest -q`
-- [ ] Ligar o Redis por padrão (`CACHE_ENABLED=true`)? — **decisão do autor**, recomendação em `docs/performance.md` §11.7
+- [x] Redis ligado por padrão — decisão do autor em 2026-10-04 (`CACHE_ENABLED=true`, TTL 3.600 s, pool bloqueante); suíte sem Redis via `tests/conftest.py` → `pytest -q` com Redis inacessível
 
 ## Fora de escopo
 

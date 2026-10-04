@@ -80,7 +80,7 @@ web/                 # Frontend Next.js (App Router) que consome o SDUI
 ## O que não fazer sem pedido explícito
 
 - Pagamento real, PostGIS, dataset Olist completo
-- Redis como arquitetura: hoje é **variável de experimento**, desligado por padrão (`CACHE_ENABLED=false`); a decisão depende dos ensaios do protocolo (`docs/performance.md` §9)
+- Desligar ou remover o Redis: é **ligado por padrão** desde a Sprint 8, por medição (`docs/performance.md` §11.7)
 - Locust: **feito** — `load/locustfile.py`
 - Reimplementar Sprint 1–7 do zero
 - Apresentar os fatores de `delivery_options.py` como dado medido do Olist — são cenário declarado (ler o docstring do módulo)

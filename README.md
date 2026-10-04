@@ -26,7 +26,7 @@ pip install -r requirements.txt
 | [docs/sprint2-handoff.md](docs/sprint2-handoff.md) | Sprint 2 (historico) |
 | [docs/frontend-sprint2.md](docs/frontend-sprint2.md) | Guia de consumo da API (historico da Sprint 2, com notas do que mudou ate hoje) |
 | [docs/tech_spec.md](docs/tech_spec.md) | Contrato SDUI e logistica verde |
-| [docs/performance.md](docs/performance.md) | **Medicao de latencia:** numeros do Locust, causa da lentidao e por que nao comecar pelo Redis |
+| [docs/performance.md](docs/performance.md) | **Medicao de latencia:** o N+1, o protocolo de carga da §3.3 (27 ensaios) e por que o Redis ficou ligado |
 
 ## Fluxo completo (Sprint 2+)
 
@@ -39,6 +39,8 @@ docker compose up -d
 # 2. Carregar amostra (~10000 order_items, seed=42). Os CSVs do Olist
 #    devem estar em data/raw/ (nao versionados).
 python -m scripts.etl_load_sample
+#    Recarregou o ETL com a API no ar? Esvazie o cache (TTL de 1 h):
+#    docker exec olist-redis redis-cli FLUSHALL
 
 # 3. Subir a API
 uvicorn src.main:app --reload
@@ -316,9 +318,13 @@ cai de 940 ms para 58 ms. Numeros completos em
 > a distribuicao real de clientes a maioria dos compradores nao tem vendedor
 > proximo na amostra.
 
-### Redis — variavel de experimento, nao arquitetura
+### Redis — ligado por padrao desde a Sprint 8
 
-Desligado por padrao. `docs/performance.md` §7 concluiu contra o Redis **sem
+**Ligado por padrao** (`CACHE_ENABLED=true`, TTL de 1 h, pool bloqueante de 100
+conexoes com espera de 5 s). Para medir sem cache: `CACHE_ENABLED=false`. A
+historia de como se chegou aqui:
+
+Na Sprint 6, `docs/performance.md` §7 concluiu contra o Redis **sem
 nunca ter rodado Redis**, por inferencia sobre o gargalo medido. A secao 3.3 da
 metodologia promete tres condicoes de cache, entao ele entra como variavel:
 
@@ -417,7 +423,7 @@ src/
 scripts/
   etl_load_sample.py         # ETL offline: 10000 order_items + cep_centroids
 web/                         # Frontend Next.js (consome o SDUI) — ver secao acima
-docker-compose.yml           # Postgres 16 (sem PostGIS nesta sprint) + Redis (desligado por padrao)
+docker-compose.yml           # Postgres 16 (sem PostGIS nesta sprint) + Redis (cache ligado por padrao)
 ```
 
 ## Logistica Verde
@@ -534,7 +540,7 @@ Fidelidade dos dados e validade da medicao. Sem handoff; detalhes nas secoes cit
 - **E2E de mutacao de contrato** (`web/e2e/contract-mutation.spec.ts`) — objetivo (d), a parte "flexibilidade"; evidencia em `docs/evidencia/`
 - **Prazo medido** (`ETA_BANDS`) substitui o arbitrado; **peso cubado** entra no CO2 (ver [Logistica Verde](#logistica-verde))
 - Locust com **CEPs reais** e think time da metodologia; `echo` do SQLAlchemy descoberto como confundidor de todas as medicoes anteriores
-- **Redis volta como variavel de experimento** (`CACHE_ENABLED=false`) — ver [Redis](#redis--variavel-de-experimento-nao-arquitetura)
+- **Redis volta como variavel de experimento** (`CACHE_ENABLED=false`) — ver [Redis](#redis--ligado-por-padrao-desde-a-sprint-8)
 
 ## Roadmap (proximas sprints)
 
@@ -549,11 +555,11 @@ Fidelidade dos dados e validade da medicao. Sem handoff; detalhes nas secoes cit
 
 ### Descartado ou em aberto
 
-- **Cache Redis como arquitetura: justificado por medicao (Sprint 8); ligar por padrao e decisao pendente.** A Sprint 6 o descartou **por inferencia**: a
+- **Cache Redis: descartado por inferencia (Sprint 6), reinserido como experimento (Sprint 7), ligado por padrao por medicao (Sprint 8).** A Sprint 6 o descartou **por inferencia**: a
   lentidao era um N+1 (63 queries para montar 6 cards) e, depois dele, o worker unico — e o
   codigo do Redis foi removido. A Sprint 7 o reinseriu como **variavel de experimento**,
   desligado por padrao (`CACHE_ENABLED=false`, `src/core/cache.py`), para que a decisao vire
   medicao. O protocolo da §3.3 (27 ensaios) mostrou que ele e dispensavel em carga nominal e
-  decisivo a partir de 250 usuarios com 1 processo. Ver a secao [Redis](#redis--variavel-de-experimento-nao-arquitetura) acima e
+  decisivo a partir de 250 usuarios com 1 processo. Ver a secao [Redis](#redis--ligado-por-padrao-desde-a-sprint-8) acima e
   [docs/performance.md](docs/performance.md) §9.
 - **Locust / TTFB:** feito — suite em `load/locustfile.py`, numeros em `docs/performance.md`.

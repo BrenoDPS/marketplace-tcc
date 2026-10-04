@@ -54,10 +54,10 @@ handoff, ela está em `docs/PROJECT_BOOTSTRAP.md` → "Sprint ativa".
   otimizar** (`load/locustfile.py`). `cep_centroids` vive em memória
   (`src/features/green_logistics/repository.py`); não reintroduza consulta por CEP
   no caminho quente.
-- **Redis** (`src/core/cache.py`) é **justificado por medição** a partir de 250 VU
-  com 1 worker (`docs/performance.md` §11), mas segue desligado por padrão
-  (`CACHE_ENABLED=false`) até decisão do autor: não mude o padrão nem remova sem
-  pedido. O pool do redis-py 8 tem 100 conexões e falha sem fila.
+- **Redis** (`src/core/cache.py`) é o cache de resposta SDUI, **ligado por padrão**
+  desde a Sprint 8 — decisão medida (`docs/performance.md` §11.7). Não desligue nem
+  remova sem pedido. A suíte roda com ele desligado (`tests/conftest.py`): o CI não
+  tem Redis. Recarregou o ETL com a API no ar? `FLUSHALL` (TTL de 1 h).
 
 ## Fronteiras — não altere sem pedido explícito
 

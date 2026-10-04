@@ -834,9 +834,13 @@ A decisão deixou de ser inferência:
   workers exige outro ensaio.
 
 **Recomendação:** o Redis passa de variável de experimento a componente
-justificado por medição para os cenários operacional e de pico. Ligar por padrão
-(`CACHE_ENABLED=true`) é decisão do autor — o código continua com o padrão
-desligado até lá.
+justificado por medição para os cenários operacional e de pico.
+
+**Decisão do autor (2026-10-04): ligado por padrão.** `CACHE_ENABLED=true`, TTL
+de 3.600 s (o do protocolo) e pool **bloqueante** de 100 conexões com espera de
+até 5 s, no lugar do pool padrão que falhava na hora. **Os números desta seção
+foram medidos com o pool padrão** — a troca do pool vale a partir daqui; a
+validação está na §11.9.
 
 **Correção da nota da Sprint 6 no PRD.** A nota dizia que a premissa *"< 200 ms
 com auxílio de cache Redis em cenários de alta concorrência"* não se confirmou.
