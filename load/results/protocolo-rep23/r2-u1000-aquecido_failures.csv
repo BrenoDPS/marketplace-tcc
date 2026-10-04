@@ -1,0 +1,9 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+GET,"GET /home (default, sem selo)","HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, sem selo)')",1,2026-10-04T12:22:52Z,2026-10-04T12:22:52Z
+GET,"GET /home (default, sem selo)","ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",1,2026-10-04T12:12:19Z,2026-10-04T12:12:19Z
+GET,GET /products/{id},HTTPError('500 Server Error: Internal Server Error for url: GET /products/{id}'),1,2026-10-04T12:19:07Z,2026-10-04T12:19:07Z
+GET,GET /home (conscious_buyer),RemoteDisconnected('Remote end closed connection without response'),1,2026-10-04T12:17:37Z,2026-10-04T12:17:37Z
+POST,POST /checkout/simulate,HTTPError('500 Server Error: Internal Server Error for url: POST /checkout/simulate'),2,2026-10-04T12:19:07Z,2026-10-04T12:20:39Z
+GET,GET /home (electronics_expert),HTTPError('500 Server Error: Internal Server Error for url: GET /home (electronics_expert)'),1,2026-10-04T12:22:52Z,2026-10-04T12:22:52Z
+GET,"GET /home (default, sem selo)",RemoteDisconnected('Remote end closed connection without response'),2,2026-10-04T12:11:31Z,2026-10-04T12:15:26Z
+GET,"GET /home (default, com selo)","HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, com selo)')",1,2026-10-04T12:22:52Z,2026-10-04T12:22:52Z

@@ -1,0 +1,11 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+GET,[setup] home,HTTPError('500 Server Error: Internal Server Error for url: [setup] home'),1,2026-10-04T11:55:29Z,2026-10-04T11:55:29Z
+GET,"GET /home (default, sem selo)","HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, sem selo)')",19,2026-10-04T12:05:01Z,2026-10-04T12:07:13Z
+GET,GET /home (conscious_buyer),"ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",1,2026-10-04T11:55:29Z,2026-10-04T11:55:29Z
+GET,"GET /home (default, sem selo)","ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)",1,2026-10-04T12:06:43Z,2026-10-04T12:06:43Z
+GET,GET /products/{id},HTTPError('500 Server Error: Internal Server Error for url: GET /products/{id}'),12,2026-10-04T11:55:33Z,2026-10-04T12:09:18Z
+POST,POST /checkout/simulate,HTTPError('500 Server Error: Internal Server Error for url: POST /checkout/simulate'),6,2026-10-04T11:55:36Z,2026-10-04T12:00:49Z
+GET,GET /home (electronics_expert),HTTPError('500 Server Error: Internal Server Error for url: GET /home (electronics_expert)'),6,2026-10-04T11:55:38Z,2026-10-04T12:07:13Z
+GET,GET /home (conscious_buyer),HTTPError('500 Server Error: Internal Server Error for url: GET /home (conscious_buyer)'),11,2026-10-04T11:55:25Z,2026-10-04T12:07:13Z
+GET,GET /home (busca),HTTPError('500 Server Error: Internal Server Error for url: GET /home (busca)'),17,2026-10-04T11:55:32Z,2026-10-04T12:07:13Z
+GET,"GET /home (default, com selo)","HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, com selo)')",12,2026-10-04T12:05:01Z,2026-10-04T12:07:13Z

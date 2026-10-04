@@ -35,5 +35,12 @@ Latência: < 200ms (com auxílio de cache Redis) em cenários de alta concorrên
 > ~25 usuários simultâneos o limite passa a ser o número de processos da API, não o banco.
 > O requisito de latência permanece; o meio previsto para alcançá-lo foi revisto. Ver
 > `docs/performance.md`.
+>
+> **Nota da Sprint 8 (protocolo da §3.3, n = 3):** a nota acima vale **só para carga
+> nominal** (50 usuários). Com 250 usuários e 1 processo, a meta só é cumprida **com**
+> o cache Redis (p95 de 613 ms sem, 25–29 ms com); com 1.000 usuários, o cache mantém
+> o endpoint de orquestração SDUI dentro da meta (p95 de 190–200 ms) e multiplica a
+> vazão por 2,6. A premissa original se confirma para alta concorrência. Ver
+> `docs/performance.md` §11.
 
 Arquitetura: Vertical Slice Architecture (VSA) para isolamento de funcionalidades.

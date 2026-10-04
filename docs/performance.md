@@ -658,24 +658,46 @@ Substituem a previsão do §9, escrita sob TTL de 60 s.
 
 ---
 
-## 11. Primeira execução do protocolo (2026-10-03) — resultado parcial
+## 11. Protocolo da §3.3 — resultado final (n = 3)
 
-**Status: incompleto.** Os 27 ensaios rodaram, mas **13 deles rodaram em
-bateria** e não valem como medida. As conclusões abaixo usam só os 14 ensaios
-feitos na tomada; as repetições 2 e 3 precisam ser refeitas para fechar a
-triplicata. Dados brutos em `load/results/protocolo/`.
+**Status: concluído.** 27 ensaios válidos, todos na tomada e sem saturação do
+gerador: a repetição 1 da primeira execução (2026-10-03) e as repetições 2 e 3
+refeitas (2026-10-04), porque 13 ensaios da primeira execução rodaram em bateria
+(§11.2).
 
-### 11.1 Execução
+```bash
+python -m load.resumo "load/results/protocolo/r1-*" load/results/protocolo-rep23
+```
 
-| | |
-|---|---|
-| Início / fim | 18:37 / 23:27; reexecução de `r3-u1000-frio` 23:28–23:44 |
-| Commit medido | `f15f8a1` (`meta.json`); reexecução em `748090c` — só runner e resumo mudaram, aplicação e locustfile idênticos |
-| Dados no Postgres | 53.114 clientes, 7.356 ofertas, 12.933 centroides, 60.292 `order_items` |
-| Ambiente | Windows 11, 8 núcleos lógicos, 7,9 GB; Postgres 16.15 e Redis 7.4.11 em contêiner; API e Locust no host |
-| Ensaio invalidado pelo gerador | `r3-u1000-frio`: aviso de CPU do Locust no minuto ~14 de 15,7 (com o sistema em colapso, 10,3% de falhas). Reexecutado com a mesma semente; o original está em `protocolo/invalidado/` |
+Tabelas geradas em `load/results/protocolo-final/` (agregado e por rota).
 
-### 11.2 O confundidor: o notebook saiu da tomada
+### 11.1 Execuções
+
+| | 1ª execução | Repetições 2 e 3 refeitas |
+|---|---|---|
+| Quando | 2026-10-03, 18:37–23:27 | 2026-10-04, 08:22–11:32 |
+| Commit (`meta.json`) | `f15f8a1` | `30ebe97` — mudaram só runner, resumo e docs; aplicação e locustfile idênticos |
+| Usado no resultado | só a repetição 1 (9 ensaios, todos na tomada) | os 18 ensaios |
+| Descartado | 13 ensaios em bateria + `r3-u1000-frio` (gerador saturado) | nada |
+| Dados | `load/results/protocolo/` | `load/results/protocolo-rep23/` |
+
+Ambiente comum: Windows 11, 8 núcleos lógicos, 7,9 GB; Postgres 16.15 e Redis
+7.4.11 em contêiner; API (1 worker) e Locust no host; dados com 53.114 clientes,
+7.356 ofertas, 12.933 centroides. Bibliotecas: FastAPI 0.141.1, uvicorn 0.52.4,
+SQLAlchemy 2.0.52, asyncpg 0.31.0, redis-py 8.1.0, Pydantic 2.13.5.
+
+**A máquina ficou estável entre os dias.** CPU da API por requisição, mesma carga:
+
+| | r1 (03/10) | r2 (04/10) | r3 (04/10) | em bateria (03/10, descartado) |
+|---|---|---|---|---|
+| 50 VU, cache off | 7,0 ms | 6,2 ms | 5,9 ms | 23,5 ms |
+| 250 VU, aquecido | 2,4 ms | 2,8 ms | 2,1 ms | — |
+
+**A medição é coerente.** Pela Lei de Little (`N = X · (R + Z)`, Z = 2 s), o
+tempo de resposta implicado pela vazão bate com o medido: 250 VU off, 0,25 × 0,24
+s; 1.000 VU off, 4,24 × 4,24 s; 1.000 VU frio, 0,76 × 0,76 s.
+
+### 11.2 O confundidor da primeira execução: o notebook saiu da tomada
 
 `powercfg /batteryreport` (`load/results/protocolo/energia.txt`): o notebook
 saiu da tomada às **20:24:41** e só voltou às **22:57:31, com 2% de bateria** —
@@ -692,87 +714,148 @@ tempo de CPU de um processo; clock menor muda.
 | r2 — 20:13, tomada | 15% | ~6,0 ms | 12 ms |
 | **r3 — 21:48, bateria** | **54%** | **~23,5 ms** | **60 ms** |
 
-Todos os 13 ensaios da janela mostram o mesmo padrão; os de antes e de depois,
-não. **Correção de uma leitura feita durante a execução:** a "bimodalidade" do
+**Correção de uma leitura feita durante a execução:** a "bimodalidade" do
 cenário de 1.000 VU com cache — uma repetição sustentando 400 req/s, outra
-colapsando — era a bateria. Na tomada, as três execuções com cache a 1.000 VU dão
-p50 de 86, 97 e 100 ms e 380–411 req/s.
+colapsando — era a bateria. Com as repetições refeitas na tomada, o desvio padrão
+da vazão nessa célula caiu de ±192 para ±35 req/s.
 
-### 11.3 Resultados — só ensaios na tomada
+Virou regra no runner: não começa ensaio fora da tomada, grava `na_tomada` a cada
+segundo e marca `em_bateria` no `meta.json`.
 
-`python -m load.resumo` sobre os 14 ensaios na tomada
-(`load/results/protocolo/resumo-tomada.md`). Latências em ms; média ± desvio
-padrão quando n ≥ 2.
+### 11.3 Resultado agregado (todas as rotas)
 
-| VU | cache | n | p50 | p95 | p99 | req/s | falhas | acerto | CPU API |
-|---|---|---|---|---|---|---|---|---|---|
-| 50 | off | 2 | 12,5 ± 0,7 | 36,5 ± 6,4 | 52 ± 10 | 24,8 | 0% | — | 16% |
-| 50 | frio | 2 | 6,5 ± 0,7 | 23,5 ± 2,1 | 43 ± 7 | 24,9 | 0% | 93,9% | 10% |
-| 50 | aquecido | 1 | 6 | 20 | 34 | 24,9 | 0% | 100% | 9% |
-| 250 | off | 1 | **170** | **630** | 1.100 | **111** | 0% | — | **90%** |
-| 250 | frio | 2 | 5,5 ± 0,7 | 29,5 ± 7,8 | 165 ± 35 | 124 | 0% | 96,9% | 33% |
-| 250 | aquecido | 2 | 5,5 ± 0,7 | 24,5 ± 0,7 | 79 ± 21 | 124 | 0,02% | 100% | 29% |
-| 1.000 | off | 1 | **4.500** | 16.000 | 26.000 | **139** | 0,5% | — | 94% |
-| 1.000 | frio | 2 | **93 ± 10** | 3.050 ± 919 | 6.800 ± 1.697 | **396 ± 22** | 0,1% | 97,6% | 97% |
-| 1.000 | aquecido | 1 | 97 | 3.400 | 9.000 | 381 | 0,2% | 100% | 95% |
+Média ± desvio padrão das 3 repetições. Latências em ms.
 
-Falhas por código HTTP (1.000 VU): sem cache, 0,49% de 500 e 0,01% de conexão
-derrubada pelo servidor; com cache, 0,13–0,15% de 500. **Nenhum 503/504** — sem
-proxy na frente, a API não os emite (§10.7).
+| VU | cache | p50 | p95 | p99 | req/s | falhas | acerto | CPU API |
+|---|---|---|---|---|---|---|---|---|
+| 50 | off | 12,7 ± 0,6 | 34,0 ± 6,1 | 46 ± 11 | 24,8 | 0% | — | 15,8 ± 1,3% |
+| 50 | frio | 6,3 ± 0,6 | 23,7 ± 2,3 | 39 ± 8 | 24,9 | 0% | 93,9% | 9,6 ± 0,6% |
+| 50 | aquecido | 6,7 ± 0,6 | 22,0 ± 1,7 | 36 ± 2 | 24,9 | 0% | 100% | 9,1 ± 0,4% |
+| 250 | off | **173 ± 6** | **613 ± 29** | 1.030 ± 214 | 111 | 0% | — | **91,0 ± 1,7%** |
+| 250 | frio | 5,7 ± 0,6 | 28,7 ± 7,8 | 96 ± 83 | 124 | 0% | 96,9% | 33,5 ± 3,7% |
+| 250 | aquecido | 5,7 ± 0,6 | 24,7 ± 6,0 | 51 ± 17 | 124 | 0,02% | 100% | 30,2 ± 4,0% |
+| 1.000 | off | **4.100 ± 400** | 14.000 ± 1.732 | 22.000 ± 3.464 | **153 ± 13** | 0,21% | — | 96,0 ± 1,9% |
+| 1.000 | frio | **93 ± 15** | 2.900 ± 1.513 | 6.567 ± 3.066 | **401 ± 35** | 0,03% | 97,6% | 97,6 ± 0,6% |
+| 1.000 | aquecido | **95 ± 7** | 3.000 ± 1.058 | 7.167 ± 2.515 | **397 ± 27** | 0,07% | 100% | 96,3 ± 0,8% |
 
-**De onde vêm os 500** (`execucao-erros-resumo.txt`, stderr da API): sem cache,
-do **pool do Postgres** (`QueuePool limit of size 5 overflow 10`, 30 s); com
-cache, do **pool do cliente Redis** — na reexecução de `r3-u1000-frio`, 823
-`MaxConnectionsError` contra 6 timeouts do Postgres. O redis-py 8.1 limita o pool
-assíncrono a **100 conexões** e falha na hora, sem fila; o `cache.py` não tem
-fallback por desenho. É um segundo parâmetro de configuração do experimento,
-mantido no padrão como o do Postgres (decisão 4) e declarado no texto.
+Falhas por código HTTP: só **500**; erro de conexão abaixo de 0,01%; **nenhum
+503/504** (sem proxy na frente, a API não os emite). Origem dos 500 no stderr da
+API (`execucao-erros-resumo.txt`): sem cache, timeout do **pool do Postgres**
+(5 + 10 conexões, 30 s); com cache, sobretudo o **pool do cliente Redis**
+(redis-py 8.1: 100 conexões, falha sem fila) — 472 `MaxConnectionsError` contra
+295 timeouts do Postgres nas repetições 2 e 3.
 
-### 11.4 Leitura
+### 11.4 Por rota: o endpoint de orquestração SDUI × as rotas sem cache
+
+A §3.3 aponta a carga ao *"endpoint responsável pela orquestração da SDUI e pelo
+cálculo de pegada de carbono"*. As estatísticas por rota permitem isolá-lo
+(`GET /home (conscious_buyer)` — o contexto-bandeira, que ordena por proximidade):
+
+| 1.000 VU | cache | p50 | p95 | p99 |
+|---|---|---|---|---|
+| Home `conscious_buyer` (cacheada) | off | 4.100 | 14.000 | 22.000 |
+| | frio | **79 ± 8** | **190 ± 35** | 350 ± 89 |
+| | aquecido | **82 ± 6** | **200 ± 26** | 413 ± 224 |
+| `GET /products/{id}` (sem cache) | frio | 850 ± 498 | 5.567 ± 2.802 | 9.900 ± 4.564 |
+| `POST /checkout/simulate` (sem cache) | frio | 923 ± 520 | 5.633 ± 2.747 | 9.600 ± 3.940 |
+
+**A 1.000 VU, com cache, o endpoint de orquestração da Home cumpre a meta de
+200 ms no p95.** A cauda do agregado vem das rotas que não passam pelo cache, que
+disputam o event loop e o pool do Postgres.
+
+A 250 VU o efeito é o contrário, e indireto: o cache também derruba a latência
+das rotas **não** cacheadas — `/products` de 143 para 7 ms e `/checkout` de 210
+para 16 ms no p50 — porque tirar a Home (~74% das requisições) da CPU libera o
+event loop para o resto.
+
+### 11.5 Leitura
 
 **Cenário 1 (50 VU) — a meta de 200 ms é cumprida com folga nas três
-condições.** O cache corta o p50 pela metade (12,5 → 6 ms) e a CPU da API de 16%
-para ~9%. Em carga nominal, cache é otimização, não necessidade.
+condições.** O cache corta o p50 pela metade (12,7 → 6,5 ms) e a CPU da API de
+16% para 9%. Em carga nominal, cache é otimização, não necessidade.
 
-**Cenário 2 (250 VU) — onde o cache decide.** Sem cache, a API **já está
-saturada**: CPU em 90%, vazão de 111 req/s **abaixo** da demanda (~125 req/s —
-os usuários esperam na fila em vez de pedir), p95 de 630 ms, acima da meta. Com
-cache, o mesmo hardware atende toda a demanda (124 req/s) com p50 de 5,5 ms, p95
-de 25–30 ms e CPU em ~31%. É a maior diferença relativa do protocolo: **p50 ÷ 31,
-p95 ÷ 23, CPU ÷ 3**.
+**Cenário 2 (250 VU) — onde o cache decide.** Sem cache, a API opera em 91% de
+CPU: entra em fila (p50 173 ms, p95 613 ms — acima da meta) e a vazão (111 req/s)
+fica abaixo da demanda (~125 req/s), porque os usuários esperam em vez de pedir.
+Com cache, o mesmo hardware atende toda a demanda (124 req/s) com CPU em ~32%:
+**p50 ÷ 30, p95 ÷ 23, CPU ÷ 3**.
 
 **Cenário 3 (1.000 VU) — saturação nas três condições, mas não a mesma.** A CPU
-da API fica em 94–97% em todas. Sem cache, o sistema entra em fila: p50 de 4,5 s
-e 139 req/s. Com cache, a vazão **quase triplica** (380–411 req/s) e o p50 cai
-para ~95 ms — mas a cauda continua saturada (p95 de 3–3,4 s, p99 de 7–9 s). O
-cache não tira o sistema da saturação; **desloca o ponto de saturação**.
+da API fica em 96–98% em todas. Sem cache, o p50 é de 4,1 s. Com cache, a vazão é
+**2,6 vezes maior** (153 → ~400 req/s), o p50 cai para ~94 ms e o endpoint de
+orquestração cumpre a meta no p95; a cauda do agregado continua saturada pelas
+rotas sem cache.
+
+**Capacidade de 1 worker e ponto de inflexão.** A vazão saturada (1.000 VU) mede
+a capacidade: **~153 req/s sem cache e ~400 req/s com cache**. Confrontando vazão
+e percentis, o joelho sem cache fica entre 25 req/s (p95 34 ms) e 111 req/s (p95
+613 ms); com cache, entre 124 req/s (p95 25–29 ms) e ~400 req/s (p95 ~3 s). **O
+cache desloca o ponto de inflexão em ~2,6 vezes.**
 
 **Frio × aquecido — a penalidade dos misses é transitória.** No agregado do
-plateau os dois são indistinguíveis. A diferença está no começo, e aparece na
-série temporal (`r1-u250-*_stats_history.csv`):
+plateau os dois são indistinguíveis. A diferença está no início do ensaio, na
+série temporal (`_stats_history.csv`):
 
-| 250 VU, janela do Locust | t = 10 s | t = 30 s | t = 60 s | t = 120 s | t = 300 s |
+| 250 VU, p50 / p95 (ms) | t = 10 s | t = 30 s | t = 60 s | t = 120 s | t = 300 s |
 |---|---|---|---|---|---|
-| frio — p50 / p95 (ms) | 93 / 630 | 40 / 410 | 21 / 390 | 12 / 200 | 8 / 55 |
-| aquecido — p50 / p95 (ms) | 12 / 73 | 6 / 20 | 5 / 17 | 5 / 16 | 5 / 18 |
+| frio — r1 | 93 / 630 | 40 / 410 | 21 / 390 | 12 / 200 | 8 / 55 |
+| frio — r2 | 45 / 350 | 10 / 430 | 7 / 52 | 8 / 49 | 6 / 36 |
+| frio — r3 | 50 / 400 | 13 / 280 | 7 / 82 | 6 / 30 | 5 / 22 |
+| aquecido — r2 | 11 / 63 | 5 / 84 | 6 / 35 | 6 / 29 | 6 / 27 |
+| aquecido — r3 | 11 / 68 | 5 / 21 | 5 / 19 | 5 / 18 | 5 / 18 |
 
-O frio leva **2–3 minutos** para convergir; o aquecido já começa no regime.
+O frio leva **de 1 a 3 minutos** para convergir; o aquecido começa no regime. A
+rajada de misses custa ~4–9× no p50 e ~5–10× no p95 nos primeiros segundos.
 
-### 11.5 As previsões da §10.9, contra os dados na tomada
+### 11.6 As previsões da §10.9
 
-| # | Previsão | Resultado |
+| # | Previsão | Resultado final |
 |---|---|---|
-| 1 | Acerto frio ≥ ~93%, aquecido ≥ ~99% | **Confirmada** — frio 93,9 / 96,9 / 97,6%; aquecido 100 / 100 / 100% |
-| 2 | Frio ≈ aquecido no agregado; a penalidade está na série do 1º minuto | **Confirmada** — e dura 2–3 min, não 1 (§11.4) |
-| 3 | 250 VU sem cache: p95/p99 sobem muito mais que o p50 | **Parcialmente refutada** — a 250 VU o sistema já passou do joelho: o p50 também sobe (170 ms) e a vazão fica abaixo da demanda. A capacidade de 1 worker (estimada em 165–180 req/s na §10.8) é **menor**: ~111–139 req/s sob carga. A outra metade — "o cache faz a maior diferença relativa a 250 VU" — **confirmada** |
-| 4 | 1.000 VU: CPU ~100% nas três condições; o cache eleva o teto para 200–280 req/s, sem tirar da saturação | CPU e saturação da cauda: **confirmadas**. Teto: **refutado na magnitude** — 380–411 req/s, não 200–280. A estimativa veio de 20 s de smoke a 50 VU e superestimou o custo de CPU de um acerto de cache |
+| 1 | Acerto frio ≥ ~93%, aquecido ≥ ~99% | **Confirmada** — frio 93,9 / 96,9 / 97,6%; aquecido 100% nos três cenários |
+| 2 | Frio ≈ aquecido no agregado; penalidade na série temporal do 1º minuto | **Confirmada** — a penalidade dura de 1 a 3 minutos |
+| 3 | 250 VU sem cache: p95/p99 sobem muito mais que o p50 | **Parcialmente refutada** — o p50 também sobe (173 ms): a 250 VU o sistema já opera a ~80% da capacidade. A capacidade de 1 worker estimada na §10.8 (165–180 req/s) era otimista em ~10–15%: o medido é ~153 req/s. A outra metade — o cache faz a maior diferença relativa a 250 VU — **confirmada** |
+| 4 | 1.000 VU: CPU ~100% nas três condições; o cache eleva o teto para 200–280 req/s, sem tirar da saturação | CPU e saturação do agregado: **confirmadas**. Teto: **refutado na magnitude** — ~400 req/s; a estimativa veio de 20 s de smoke a 50 VU e superestimou o custo de CPU de um acerto. E não previsto: o endpoint cacheado sai da saturação (p95 190 ms) |
 
-### 11.6 O que falta
+### 11.7 Conclusão sobre o Redis
 
-- **Refazer as repetições 2 e 3 na tomada** (`python -m load.protocolo --rep 2 3`, ~3 h 15 min) para fechar n = 3 em todas as células. O runner agora recusa começar ensaio fora da tomada e invalida o que perder a tomada no meio.
-- **Decisão sobre o Redis**: depende das triplicatas. A leitura provisória (§11.4) é que o cache é desnecessário em carga nominal e decisivo a partir de ~250 VU com 1 worker.
-- Gráficos de evolução temporal e de dispersão RPS × percentis (§3.3) — a fazer na escrita, a partir dos `_stats_history.csv`.
-- O stderr bruto da API (351 MB, um traceback por timeout) fica fora do git; a contagem por tipo de exceção está em `execucao-erros-resumo.txt`. O `meta.json` passa a registrar as versões das bibliotecas (o limite de 100 conexões é do redis-py 8).
+A decisão deixou de ser inferência:
+
+- **Carga nominal (50 VU): o Redis não é necessário.** A meta é cumprida nas três
+  condições — e era isso que a Sprint 6 tinha visto.
+- **A partir da carga operacional (250 VU), com 1 worker, é o cache que cumpre a
+  meta.** Sem ele, p95 de 613 ms; com ele, 25–29 ms.
+- **No pico (1.000 VU), o cache não salva o sistema, mas salva o endpoint de
+  orquestração SDUI** (p95 de 190–200 ms) e multiplica a vazão por 2,6.
+- **Custo medido:** um modo de falha novo — o pool do cliente Redis esgota a
+  1.000 VU e vira 500 sem espera. Ajustável (`max_connections` ou pool
+  bloqueante), não ajustado para manter a configuração constante entre ensaios.
+- **O que estes dados não decidem:** se *mais workers* entregariam o mesmo ganho
+  sem Redis. O protocolo fixou 1 worker (decisão 3); a comparação Redis ×
+  workers exige outro ensaio.
+
+**Recomendação:** o Redis passa de variável de experimento a componente
+justificado por medição para os cenários operacional e de pico. Ligar por padrão
+(`CACHE_ENABLED=true`) é decisão do autor — o código continua com o padrão
+desligado até lá.
+
+**Correção da nota da Sprint 6 no PRD.** A nota dizia que a premissa *"< 200 ms
+com auxílio de cache Redis em cenários de alta concorrência"* não se confirmou.
+Com o protocolo, ela **se confirma para o endpoint de orquestração em alta
+concorrência** e só é dispensável em carga nominal.
+
+### 11.8 Limitações e pontos de melhoria
+
+| Limitação | Efeito | Tratamento |
+|---|---|---|
+| API, Postgres, Redis e Locust na mesma máquina (8 núcleos) | competem por CPU; a CPU total da máquina chegou a 100% em picos a 1.000 VU | declarado; nenhum aviso de CPU do Locust nos 27 ensaios válidos |
+| n = 3 | desvio padrão frágil, sobretudo na cauda a 1.000 VU (p95 ± 1–1,5 s) | valores individuais preservados nos CSVs |
+| 1 worker | o resultado vale para um processo; não compara cache × escala horizontal | declarado; ensaio complementar se o capítulo 5 precisar |
+| Pools no padrão das bibliotecas | parte das falhas a 1.000 VU é configuração, não limite da arquitetura | declarado (`docs/tese-rastreabilidade.md` §5.5) |
+| Repetição 1 e repetições 2–3 em dias diferentes | possível diferença de ambiente | CPU por requisição estável entre os dias (§11.1) |
+| Taxa de acerto inclui a rampa | acerto do frio levemente subestimado | efeito pequeno com plateau de 5–15 min |
+
+Gráficos de evolução temporal e de dispersão RPS × percentis (§3.3): a fazer na
+escrita, a partir dos `_stats_history.csv`.
 
 ---
 

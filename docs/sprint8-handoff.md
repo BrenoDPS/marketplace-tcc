@@ -53,13 +53,14 @@ python -m load.resumo load/results/protocolo
 - [x] Decisões 1–5 registradas → esta seção
 - [x] Decisão 6 registrada → esta seção; texto ajustado em `docs/tese-rastreabilidade.md` §5
 - [x] Previsões commitadas antes dos resultados → `git log --oneline -- docs/performance.md`
-- [ ] 27 ensaios **válidos** → `ls load/results/protocolo/*_stats.csv | wc -l` = 27 **e** nenhum com `"em_bateria": true` no `meta.json`. 1ª execução (2026-10-03): 27 rodados, 13 em bateria — refazer `--rep 2 3`
+- [x] 27 ensaios **válidos** → repetição 1 de `load/results/protocolo/` + `load/results/protocolo-rep23/` (18 ensaios, nenhum `em_bateria` no `meta.json`). A 1ª execução teve 13 ensaios em bateria, descartados
 - [x] Nenhum ensaio com o gerador saturado → `grep -l "CPU usage above" load/results/protocolo/*.log` vazio (o único, `r3-u1000-frio`, foi reexecutado; original em `protocolo/invalidado/`)
-- [ ] Metadados da execução → `load/results/protocolo/meta.json` com `commit` igual ao `git log -1` da medição
-- [ ] `docs/performance.md` §11: tabela de `python -m load.resumo` (média ± dp de p50/p95/p99, RPS, falhas por código, taxa de acerto, CPU) para o agregado **e** para `GET /home (conscious_buyer)`; cada previsão da §10.9 marcada como confirmada ou refutada
-- [ ] Série temporal do início do frio × aquecido (`_stats_history.csv`) — a penalidade dos *cache misses*
-- [ ] `docs/tese-rastreabilidade.md` atualizado: §1 com os resultados, §3 com a conclusão, §6 com o que mudou na execução
-- [ ] Decisão sobre o Redis escrita no README, no `tech_spec.md` e na regra "Redis" do `AGENTS.md` → `pytest -q`
+- [x] Metadados da execução → `load/results/protocolo/meta.json` com `commit` igual ao `git log -1` da medição
+- [x] `docs/performance.md` §11: tabela de `python -m load.resumo` (média ± dp de p50/p95/p99, RPS, falhas por código, taxa de acerto, CPU) para o agregado **e** para `GET /home (conscious_buyer)`; cada previsão da §10.9 marcada como confirmada ou refutada
+- [x] Série temporal do início do frio × aquecido (`_stats_history.csv`) — a penalidade dos *cache misses*
+- [x] `docs/tese-rastreabilidade.md` atualizado: §1 com os resultados, §3 com a conclusão, §6 com o que mudou na execução
+- [x] Conclusão medida sobre o Redis escrita no README, no `tech_spec.md`, no PRD e na regra "Redis" do `AGENTS.md` → `pytest -q`
+- [ ] Ligar o Redis por padrão (`CACHE_ENABLED=true`)? — **decisão do autor**, recomendação em `docs/performance.md` §11.7
 
 ## Fora de escopo
 

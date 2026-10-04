@@ -15,7 +15,7 @@
 | Frontend (executor de `actions`, `ScreenRenderer`, carrinho) | `cd web && npm test` | **32 passed** | 2026-10-03 |
 | E2E — jornada da defesa | `cd web && npm run e2e` (exige pilha e `data/raw/`) | não reexecutado nesta sprint | — |
 | E2E — mutação de contrato SDUI | idem, `web/e2e/contract-mutation.spec.ts` | evidência em `docs/evidencia/` (Sprint 7) | — |
-| Carga — protocolo da §3.3 | `python -m load.protocolo` | **parcial**: 27 rodados, 14 válidos (13 em bateria) — `docs/performance.md` §11 | 2026-10-03 |
+| Carga — protocolo da §3.3 | `python -m load.protocolo`; consolidação `python -m load.resumo "load/results/protocolo/r1-*" load/results/protocolo-rep23` | **concluído**: 27 ensaios válidos, n = 3 por célula — `docs/performance.md` §11 | 2026-10-04 |
 
 O CI (`.github/workflows/ci.yml`) roda `pytest -q`, lint, typecheck, `npm test` e
 build a cada push. E2E e carga ficam fora por dependerem de `data/raw/`
@@ -39,12 +39,13 @@ Situação item a item em `docs/performance.md` §10.7 (runner × texto). Resumo
   cache, p50/p95/p99, falhas por código HTTP, média e desvio padrão, catálogo de
   metadados (`meta.json`), CPU da API por segundo.
 - **Ajustado no texto** (§5 abaixo): rede, endpoint, pré-aquecimento.
-- **Resultado (parcial, só ensaios na tomada):** meta de 200 ms cumprida a 50 VU
-  nas três condições; a 250 VU, sem cache a API satura (p95 630 ms) e com cache
-  atende a demanda com p95 de ~27 ms; a 1.000 VU, saturação nas três condições,
-  com o cache triplicando a vazão (139 → 380–411 req/s). Previsões: 2 confirmadas,
-  2 parcialmente refutadas — `docs/performance.md` §11.5.
-- **Falta:** refazer as repetições 2 e 3 na tomada para n = 3 por célula.
+- **Resultado (n = 3):** meta de 200 ms cumprida a 50 VU nas três condições; a
+  250 VU, sem cache a API satura (p95 613 ms) e com cache atende a demanda (p95
+  25–29 ms, CPU ÷ 3); a 1.000 VU, saturação nas três condições, mas o cache
+  multiplica a vazão por 2,6 (153 → ~400 req/s) e mantém o endpoint de orquestração
+  SDUI na meta (p95 190–200 ms). O cache desloca o ponto de inflexão em ~2,6×.
+  Previsões: 2 confirmadas, 2 parcialmente refutadas — `docs/performance.md` §11.6.
+- **Conclusão sobre o Redis:** `docs/performance.md` §11.7.
 
 ## 4. §3.3 — mutação de contrato (flexibilidade da SDUI)
 
@@ -126,7 +127,7 @@ quê. Cada linha aponta a evidência.
 
 | # | Estava estabelecido | O que mudou | Por quê | Evidência | Sprint |
 |---|---|---|---|---|---|
-| 1 | PRD: latência < 200 ms **"com auxílio de cache Redis"** | A meta foi atingida sem Redis em carga nominal; o gargalo era um N+1 (63 queries por requisição) | medição, não inferência | `docs/performance.md` §§2–7; nota no `docs/prd.md` | 6 |
+| 1 | PRD: latência < 200 ms **"com auxílio de cache Redis"** | Sprint 6: meta atingida sem Redis em carga nominal (o gargalo era um N+1). **Sprint 8: a premissa se confirma em alta concorrência** — a 250 VU só com cache; a 1.000 VU o cache mantém a orquestração na meta | medição em duas cargas diferentes | `docs/performance.md` §§2–7 e §11; notas no `docs/prd.md` | 6 → 8 |
 | 2 | Redis descartado (Sprint 6) | Reinserido como **variável de experimento**, desligado por padrão | o descarte foi por inferência, sem nunca rodar Redis; a §3.3 promete três estados de cache | `src/core/cache.py`; `docs/performance.md` §9 | 7 |
 | 3 | Todas as medições das §§1–8 | **Valores absolutos invalidados** — o log de SQL (`echo`) estava ligado; comparações internas continuam válidas | o padrão de `DEBUG` é `True` | `docs/performance.md` §9 | 7 |
 | 4 | Teste de carga com 2 CEPs fixos e *think time* de 0,5–2 s | CEPs da distribuição real de clientes; *think time* de 1–3 s, como diz a §3.3 | com 2 chaves, qualquer cache teria ~100% de acerto por construção; código e texto divergiam | `load/locustfile.py`; `b3dc39c` | 7 |
@@ -140,7 +141,7 @@ quê. Cada linha aponta a evidência.
 | 12 | Previsão do §9: taxa de acerto **menor** com mais VUs | **Substituída** pela §10.9 | foi escrita sob TTL de 60 s | `docs/performance.md` §§9, 10.9 | 8 |
 | 13 | §3.3: contêineres em sub-rede *bridge*; carga sobre um endpoint; pré-aquecimento genérico; "cache desabilitado" sem definição | Texto ajustado (§5 acima) | ver §5 | `docs/sprint8-handoff.md`, decisão 6 | 8 |
 | 14 | Premissa de trabalho: "com 25 usuários a API já bate o limite" | **Não vale mais**: capacidade de 1 worker ≈ 165–180 req/s sem cache; 50 VU com folga | a premissa veio de medições com `echo` ligado | `docs/performance.md` §10.8 | 8 |
-| 15 | Execução do protocolo em ambiente estável | 13 dos 27 ensaios da 1ª execução rodaram **em bateria** e foram descartados; repetições 2 e 3 serão refeitas | em bateria o clock cai e a mesma requisição custa ~3,5× mais CPU | `load/results/protocolo/energia.txt`; `docs/performance.md` §11.2 | 8 |
+| 15 | Execução do protocolo em ambiente estável | 13 dos 27 ensaios da 1ª execução rodaram **em bateria** e foram descartados; repetições 2 e 3 refeitas na tomada em 2026-10-04 | em bateria o clock cai e a mesma requisição custa ~3,5× mais CPU | `load/results/protocolo/energia.txt`; `docs/performance.md` §11.2 | 8 |
 | 16 | Ordem intercalada dos ensaios | `r3-u1000-frio` reexecutado **fora da ordem**, após o bloco de 250 VU | o original teve aviso de CPU do Locust (gerador saturado) | `load/results/protocolo/invalidado/`; `docs/performance.md` §11.1 | 8 |
 
 ## 7. Pontos a confirmar contra o texto da monografia

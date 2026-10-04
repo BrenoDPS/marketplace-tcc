@@ -1,0 +1,8 @@
+Resumo de protocolo-rep23/execucao-erros.log (stderr da API; o log bruto tem 5.3M e fica fora do git).
+Contagem por tipo de excecao (ultima linha de cada traceback):
+
+    472 redis.exceptions.MaxConnectionsError
+    295 sqlalchemy.exc.TimeoutError
+      1 ConnectionResetError
+
+Linhas 'QueuePool limit' (timeout do pool de conexoes): 295

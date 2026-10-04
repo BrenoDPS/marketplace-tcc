@@ -14,7 +14,7 @@ sem pedido explícito.
 | Visão geral, sprints, o que não fazer | `docs/PROJECT_BOOTSTRAP.md` |
 | Contrato SDUI (fonte de verdade) | `src/schemas/sdui.py`; descrição em `docs/tech_spec.md` |
 | Espelho do contrato no front | `web/lib/sdui.ts` + `REGISTRY` em `web/components/sdui.tsx` |
-| Latência, N+1, Redis, protocolo | `docs/performance.md` §8–10 (as §§1–7 são histórico) |
+| Latência, N+1, Redis, protocolo | `docs/performance.md` §10–11 (as §§1–9 são histórico) |
 | Evidência já produzida | `docs/evidencia/`, `load/results/`, `docs/snapshots/` |
 | Defesa: promessa da metodologia × teste que prova × o que mudou | `docs/tese-rastreabilidade.md` — mantenha-o em dia a cada resultado ou desvio |
 
@@ -54,9 +54,10 @@ handoff, ela está em `docs/PROJECT_BOOTSTRAP.md` → "Sprint ativa".
   otimizar** (`load/locustfile.py`). `cep_centroids` vive em memória
   (`src/features/green_logistics/repository.py`); não reintroduza consulta por CEP
   no caminho quente.
-- **Redis** é **variável de experimento**, desligado por padrão
-  (`CACHE_ENABLED=false`, `src/core/cache.py`). Não é arquitetura: não ligue por
-  padrão nem remova sem pedido — a decisão depende dos ensaios do protocolo.
+- **Redis** (`src/core/cache.py`) é **justificado por medição** a partir de 250 VU
+  com 1 worker (`docs/performance.md` §11), mas segue desligado por padrão
+  (`CACHE_ENABLED=false`) até decisão do autor: não mude o padrão nem remova sem
+  pedido. O pool do redis-py 8 tem 100 conexões e falha sem fila.
 
 ## Fronteiras — não altere sem pedido explícito
 

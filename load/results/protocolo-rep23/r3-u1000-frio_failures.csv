@@ -1,0 +1,6 @@
+Method,Name,Error,Occurrences,First Seen,Last Seen
+GET,"GET /home (default, sem selo)","HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, sem selo)')",42,2026-10-04T13:39:56Z,2026-10-04T13:41:16Z
+GET,GET /home (electronics_expert),HTTPError('500 Server Error: Internal Server Error for url: GET /home (electronics_expert)'),25,2026-10-04T13:39:56Z,2026-10-04T13:41:16Z
+GET,GET /home (conscious_buyer),HTTPError('500 Server Error: Internal Server Error for url: GET /home (conscious_buyer)'),27,2026-10-04T13:39:56Z,2026-10-04T13:41:16Z
+GET,GET /home (busca),HTTPError('500 Server Error: Internal Server Error for url: GET /home (busca)'),36,2026-10-04T13:39:56Z,2026-10-04T13:41:16Z
+GET,"GET /home (default, com selo)","HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, com selo)')",33,2026-10-04T13:39:56Z,2026-10-04T13:41:16Z

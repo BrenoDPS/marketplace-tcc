@@ -1,0 +1,47 @@
+[2026-10-04 10:13:36,076] Suporte/INFO/locust.main: Starting Locust 2.46.5
+[2026-10-04 10:13:36,078] Suporte/INFO/locust.main: Run time limit set to 940 seconds
+[2026-10-04 10:13:36,080] Suporte/INFO/locust.runners: Ramping to 1000 users at a rate of 25.00 per second
+[2026-10-04 10:14:15,275] Suporte/INFO/locust.runners: All users spawned: {"JornadaUser": 1000} (1000 total users)
+[2026-10-04 10:14:15,276] Suporte/INFO/locust.runners: Resetting stats
+
+[2026-10-04 10:29:16,079] Suporte/INFO/locust.main: --run-time limit reached, shutting down
+[2026-10-04 10:29:17,488] Suporte/INFO/locust.main: Shutting down (exit code 1)
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /home (busca)                                                              18869    21(0.11%) |   4210      49   30369   3700 |   20.92        0.02
+GET      GET /home (conscious_buyer)                                                    19202    26(0.14%) |   4218      49   30291   3700 |   21.29        0.03
+GET      GET /home (default, com selo)                                                  17048    18(0.11%) |   4301      49   30440   3800 |   18.90        0.02
+GET      GET /home (default, sem selo)                                                  32921    42(0.13%) |   4212      50   30327   3800 |   36.49        0.05
+GET      GET /home (electronics_expert)                                                 18956    16(0.08%) |   4252      44   30219   3800 |   21.01        0.02
+GET      GET /products/{id}                                                             22835    29(0.13%) |   4153      33   30184   3700 |   25.31        0.03
+POST     POST /checkout/simulate                                                        15194    17(0.11%) |   4162      52   30200   3800 |   16.84        0.02
+GET      [setup] home                                                                     109     0(0.00%) |   7566     128   30344   7200 |    0.12        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                    145134   169(0.12%) |   4216      33   30440   3700 |  160.88        0.19
+
+Response time percentiles (approximated)
+Type     Name                                                                                  50%    66%    75%    80%    90%    95%    98%    99%  99.9% 99.99%   100% # reqs
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+GET      GET /home (busca)                                                                    3700   4600   5500   7100  10000  13000  17000  21000  30000  30000  30000  18869
+GET      GET /home (conscious_buyer)                                                          3700   4600   5600   7100  10000  13000  17000  21000  30000  30000  30000  19202
+GET      GET /home (default, com selo)                                                        3800   4600   5900   7200  10000  13000  17000  21000  30000  30000  30000  17048
+GET      GET /home (default, sem selo)                                                        3800   4600   5400   7000   9900  13000  17000  20000  30000  30000  30000  32921
+GET      GET /home (electronics_expert)                                                       3800   4600   6100   7200  10000  13000  17000  20000  30000  30000  30000  18956
+GET      GET /products/{id}                                                                   3700   4600   5400   7000  10000  13000  17000  20000  30000  30000  30000  22835
+POST     POST /checkout/simulate                                                              3800   4600   5400   6900   9900  13000  17000  20000  30000  30000  30000  15194
+GET      [setup] home                                                                         7200   7800  11000  11000  14000  19000  22000  22000  30000  30000  30000    109
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+         Aggregated                                                                           3700   4600   5500   7100  10000  13000  17000  20000  30000  30000  30000 145134
+
+Error report
+# occurrences      Error                                                                                               
+------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+17                 POST POST /checkout/simulate: HTTPError('500 Server Error: Internal Server Error for url: POST /checkout/simulate')
+26                 GET GET /home (conscious_buyer): HTTPError('500 Server Error: Internal Server Error for url: GET /home (conscious_buyer)')
+16                 GET GET /home (electronics_expert): HTTPError('500 Server Error: Internal Server Error for url: GET /home (electronics_expert)')
+18                 GET GET /home (default, com selo): HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, com selo)')
+42                 GET GET /home (default, sem selo): HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, sem selo)')
+29                 GET GET /products/{id}: HTTPError('500 Server Error: Internal Server Error for url: GET /products/{id}')
+21                 GET GET /home (busca): HTTPError('500 Server Error: Internal Server Error for url: GET /home (busca)')
+------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+

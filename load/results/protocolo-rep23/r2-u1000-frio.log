@@ -1,0 +1,50 @@
+[2026-10-04 08:54:29,772] Suporte/INFO/locust.main: Starting Locust 2.46.5
+[2026-10-04 08:54:29,863] Suporte/INFO/locust.main: Run time limit set to 940 seconds
+[2026-10-04 08:54:29,869] Suporte/INFO/locust.runners: Ramping to 1000 users at a rate of 25.00 per second
+[2026-10-04 08:55:09,156] Suporte/INFO/locust.runners: All users spawned: {"JornadaUser": 1000} (1000 total users)
+[2026-10-04 08:55:09,156] Suporte/INFO/locust.runners: Resetting stats
+
+[2026-10-04 09:10:09,867] Suporte/INFO/locust.main: --run-time limit reached, shutting down
+[2026-10-04 09:10:11,155] Suporte/INFO/locust.main: Shutting down (exit code 1)
+Type     Name                                                                          # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+GET      GET /home (busca)                                                              42902    17(0.04%) |    331      27   30265     93 |   47.57        0.02
+GET      GET /home (conscious_buyer)                                                    43055    12(0.03%) |    150      21   30233     88 |   47.74        0.01
+GET      GET /home (default, com selo)                                                  38198    12(0.03%) |    105      25    1408     87 |   42.35        0.01
+GET      GET /home (default, sem selo)                                                  73508    20(0.03%) |    105      15    4984     88 |   81.50        0.02
+GET      GET /home (electronics_expert)                                                 42854     6(0.01%) |    155      25   30171     89 |   47.52        0.01
+GET      GET /products/{id}                                                             51599    12(0.02%) |   2400      38   30600   1400 |   57.21        0.01
+POST     POST /checkout/simulate                                                        34548     6(0.02%) |   2435      71   30331   1500 |   38.31        0.01
+GET      [setup] home                                                                     119     1(0.84%) |   9144     192   30517   8200 |    0.13        0.00
+--------|----------------------------------------------------------------------------|-------|-------------|-------|-------|-------|-------|--------|-----------
+         Aggregated                                                                    326783    86(0.03%) |    759      15   30600    110 |  362.33        0.10
+
+Response time percentiles (approximated)
+Type     Name                                                                                  50%    66%    75%    80%    90%    95%    98%    99%  99.9% 99.99%   100% # reqs
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+GET      GET /home (busca)                                                                      93    120    140    150    210    340   4300   7500  19000  29000  30000  42902
+GET      GET /home (conscious_buyer)                                                            88    110    120    140    180    230    320    450  12000  21000  30000  43055
+GET      GET /home (default, com selo)                                                          87    110    120    130    170    210    290    360    620    780   1400  38198
+GET      GET /home (default, sem selo)                                                          88    110    120    130    170    210    290    360    640    790   5000  73508
+GET      GET /home (electronics_expert)                                                         89    110    130    140    180    230    330    480  12000  21000  30000  42854
+GET      GET /products/{id}                                                                   1400   2600   3600   4200   6500   8700  12000  15000  23000  30000  31000  51599
+POST     POST /checkout/simulate                                                              1500   2700   3600   4200   6600   8700  12000  14000  24000  30000  30000  34548
+GET      [setup] home                                                                         8200  11000  14000  15000  18000  20000  27000  28000  31000  31000  31000    119
+--------|--------------------------------------------------------------------------------|--------|------|------|------|------|------|------|------|------|------|------|------
+         Aggregated                                                                            110    140    180    220   2500   4600   7800  10000  19000  29000  31000 326783
+
+Error report
+# occurrences      Error                                                                                               
+------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+11                 GET GET /home (conscious_buyer): HTTPError('500 Server Error: Internal Server Error for url: GET /home (conscious_buyer)')
+1                  GET [setup] home: HTTPError('500 Server Error: Internal Server Error for url: [setup] home')        
+1                  GET GET /home (conscious_buyer): ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)
+17                 GET GET /home (busca): HTTPError('500 Server Error: Internal Server Error for url: GET /home (busca)')
+12                 GET GET /products/{id}: HTTPError('500 Server Error: Internal Server Error for url: GET /products/{id}')
+6                  POST POST /checkout/simulate: HTTPError('500 Server Error: Internal Server Error for url: POST /checkout/simulate')
+6                  GET GET /home (electronics_expert): HTTPError('500 Server Error: Internal Server Error for url: GET /home (electronics_expert)')
+19                 GET GET /home (default, sem selo): HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, sem selo)')
+12                 GET GET /home (default, com selo): HTTPError('500 Server Error: Internal Server Error for url: GET /home (default, com selo)')
+1                  GET GET /home (default, sem selo): ConnectionResetError(10054, 'Foi forçado o cancelamento de uma conexão existente pelo host remoto', None, 10054, None)
+------------------|---------------------------------------------------------------------------------------------------------------------------------------------
+

@@ -5,6 +5,8 @@ repeticoes. Com n = 3 o desvio padrao e fragil; os valores de cada repeticao
 continuam nos CSVs para quem quiser conferir.
 
     python -m load.resumo load/results/protocolo
+    # varias fontes: pastas ou globs (ex.: a repeticao 1 de uma execucao e as 2-3 de outra)
+    python -m load.resumo "load/results/protocolo/r1-*" load/results/protocolo-rep23
     python -m load.resumo load/results/protocolo --rota "GET /home (conscious_buyer)"
 
 Falhas saem segregadas por codigo HTTP; "conexao" e erro sem resposta (socket
@@ -79,7 +81,7 @@ def _fmt(valores: list[float]) -> str:
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("pasta", type=Path)
+    ap.add_argument("fontes", nargs="+", help="pastas de ensaios ou globs de arquivos _stats.csv")
     ap.add_argument("--rota", default="Aggregated", help='linha do Locust, ex.: "GET /products/{id}"')
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")  # "±" no console do Windows (cp1252)
@@ -87,10 +89,18 @@ def main() -> None:
     celulas: dict[tuple[int, str], list[dict[str, float]]] = defaultdict(list)
     codigos: dict[tuple[int, str], Counter] = defaultdict(Counter)
     total: Counter = Counter()
-    for stats in sorted(args.pasta.glob("*_stats.csv")):
+    arquivos = []
+    for fonte in args.fontes:
+        p = Path(fonte)
+        arquivos += sorted(p.glob("*_stats.csv") if p.is_dir() else Path().glob(fonte))
+    vistos: set[str] = set()
+    for stats in arquivos:
         casa = NOME.search(stats.name)
         if not casa:
             continue
+        if stats.name in vistos:
+            ap.error(f"{stats.name} aparece em mais de uma fonte — a mesma repeticao contaria duas vezes")
+        vistos.add(stats.name)
         chave = (int(casa.group(2)), casa.group(3))
         m, c, n = ler_ensaio(stats, args.rota)
         celulas[chave].append(m)

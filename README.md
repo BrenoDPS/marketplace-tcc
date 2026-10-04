@@ -349,6 +349,12 @@ moveram (8->7 e 20->18 ms) — a queda das rotas de Home e o cache, nao deriva.
 "off" deram p95 de 140 e 210 ms. A mediana e estavel entre execucoes, a cauda
 nao. A decisao sobre Redis fica pendente dos 27 ensaios do protocolo.
 
+**Protocolo executado (Sprint 8, 27 ensaios, n = 3):** em carga nominal (50 VU) a
+meta e cumprida com ou sem cache; a 250 VU, so com cache (p95 613 ms sem, 25-29 ms
+com); a 1.000 VU o sistema satura nas tres condicoes, mas o cache multiplica a vazao
+por 2,6 e mantem a Home dentro da meta (p95 190-200 ms). Ver
+[docs/performance.md](docs/performance.md) §11.
+
 Fora do CI pelo mesmo motivo do E2E: `data/raw/` e gitignored.
 
 ### E2E — o check de pre-defesa
@@ -543,11 +549,11 @@ Fidelidade dos dados e validade da medicao. Sem handoff; detalhes nas secoes cit
 
 ### Descartado ou em aberto
 
-- **Cache Redis como arquitetura: em aberto.** A Sprint 6 o descartou **por inferencia**: a
+- **Cache Redis como arquitetura: justificado por medicao (Sprint 8); ligar por padrao e decisao pendente.** A Sprint 6 o descartou **por inferencia**: a
   lentidao era um N+1 (63 queries para montar 6 cards) e, depois dele, o worker unico — e o
   codigo do Redis foi removido. A Sprint 7 o reinseriu como **variavel de experimento**,
   desligado por padrao (`CACHE_ENABLED=false`, `src/core/cache.py`), para que a decisao vire
-  medicao. A sondagem limpa favorece o cache na mediana; a decisao fica pendente dos 27 ensaios
-  do protocolo. Ver a secao [Redis](#redis--variavel-de-experimento-nao-arquitetura) acima e
+  medicao. O protocolo da §3.3 (27 ensaios) mostrou que ele e dispensavel em carga nominal e
+  decisivo a partir de 250 usuarios com 1 processo. Ver a secao [Redis](#redis--variavel-de-experimento-nao-arquitetura) acima e
   [docs/performance.md](docs/performance.md) §9.
 - **Locust / TTFB:** feito — suite em `load/locustfile.py`, numeros em `docs/performance.md`.
