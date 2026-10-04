@@ -23,7 +23,8 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-NOME = re.compile(r"r(\d+)-u(\d+)-(off|frio|aquecido)_stats\.csv$")
+# `-wN`: ensaio com N workers (Sprint 10); sem sufixo, 1 worker.
+NOME = re.compile(r"r(\d+)-u(\d+)-(off|frio|aquecido)(?:-w(\d+))?_stats\.csv$")
 CODIGO = re.compile(r"\b([1-5]\d\d) (?:Server|Client) Error")
 ORDEM = {"off": 0, "frio": 1, "aquecido": 2}
 COLUNAS = ["p50", "p95", "p99", "rps", "falhas_pct", "acerto_pct", "cpu_api_media", "cpu_api_max"]
@@ -86,8 +87,8 @@ def main() -> None:
     args = ap.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")  # "±" no console do Windows (cp1252)
 
-    celulas: dict[tuple[int, str], list[dict[str, float]]] = defaultdict(list)
-    codigos: dict[tuple[int, str], Counter] = defaultdict(Counter)
+    celulas: dict[tuple[int, str, int], list[dict[str, float]]] = defaultdict(list)
+    codigos: dict[tuple[int, str, int], Counter] = defaultdict(Counter)
     total: Counter = Counter()
     arquivos = []
     for fonte in args.fontes:
@@ -101,22 +102,22 @@ def main() -> None:
         if stats.name in vistos:
             ap.error(f"{stats.name} aparece em mais de uma fonte — a mesma repeticao contaria duas vezes")
         vistos.add(stats.name)
-        chave = (int(casa.group(2)), casa.group(3))
+        chave = (int(casa.group(2)), casa.group(3), int(casa.group(4) or 1))
         m, c, n = ler_ensaio(stats, args.rota)
         celulas[chave].append(m)
         codigos[chave] += c
         total[chave] += n
 
     print(f"Rota: {args.rota}. Latencias em ms; CPU da API em % de um nucleo.\n")
-    print("| VU | cache | n | " + " | ".join(COLUNAS) + " | falhas por codigo |")
-    print("|---" * (len(COLUNAS) + 4) + "|")
-    for chave in sorted(celulas, key=lambda k: (k[0], ORDEM[k[1]])):
+    print("| VU | cache | workers | n | " + " | ".join(COLUNAS) + " | falhas por codigo |")
+    print("|---" * (len(COLUNAS) + 5) + "|")
+    for chave in sorted(celulas, key=lambda k: (k[0], ORDEM[k[1]], k[2])):
         ms = celulas[chave]
         cols = [_fmt([m[c] for m in ms if c in m]) for c in COLUNAS]
         por_codigo = ", ".join(
             f"{cod}: {100 * q / total[chave]:.2f}%" for cod, q in sorted(codigos[chave].items())
         ) or "—"
-        print(f"| {chave[0]} | {chave[1]} | {len(ms)} | " + " | ".join(cols) + f" | {por_codigo} |")
+        print(f"| {chave[0]} | {chave[1]} | {chave[2]} | {len(ms)} | " + " | ".join(cols) + f" | {por_codigo} |")
 
 
 if __name__ == "__main__":

@@ -34,6 +34,11 @@ longo de horas vire diferenca entre condicoes.
     python -m load.resumo load/results/protocolo   # media e desvio padrao
     # reexecutar UM ensaio invalido (mesmo nome e semente), em pasta propria
     python -m load.protocolo --cargas 1000 --condicoes frio --rep 3 --saida load/results/protocolo-reexecucao
+    # Sprint 10: escala horizontal sem cache, 1 x 4 workers intercalados e pareados
+    python -m load.protocolo --cargas 250 1000 --condicoes off --workers 1 4 --saida load/results/s10-workers
+
+Com `--workers`, ensaio de N != 1 workers ganha o sufixo `-wN` no nome; a
+semente e a mesma do ensaio de 1 worker (comparacao pareada).
 
 Requer Postgres e Redis no ar (`docker compose up -d`) com o ETL carregado, a
 porta 8000 livre e a arvore sem mudanca nao commitada (o hash tem de descrever
@@ -133,14 +138,14 @@ def metadados(args: argparse.Namespace) -> dict:
             "condicoes": args.condicoes,
             "reps": args.reps,
             "cache_ttl_s": args.ttl,
-            "workers_api": 1,
+            "workers_api": args.workers,
         },
         "inicio": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "ensaios": [],
     }
 
 
-def subir_api(cache: bool, ttl: int) -> subprocess.Popen:
+def subir_api(cache: bool, ttl: int, workers: int = 1) -> subprocess.Popen:
     if _api_responde():
         raise RuntimeError(f"ja ha algo respondendo em {API} — o ensaio mediria o processo errado")
     env = {
@@ -152,7 +157,8 @@ def subir_api(cache: bool, ttl: int) -> subprocess.Popen:
     }
     # Sem --reload: o file-watcher entraria na medicao.
     api = subprocess.Popen(
-        [sys.executable, "-m", "uvicorn", "src.main:app", "--port", "8000", "--log-level", "warning"],
+        [sys.executable, "-m", "uvicorn", "src.main:app", "--port", "8000", "--log-level", "warning",
+         "--workers", str(workers)],
         env=env,
     )
     for _ in range(60):
@@ -161,8 +167,22 @@ def subir_api(cache: bool, ttl: int) -> subprocess.Popen:
         if _api_responde():
             return api
         time.sleep(1)
-    api.kill()
+    derrubar(api)
     raise RuntimeError("a API nao respondeu em 60 s")
+
+
+def derrubar(api: subprocess.Popen) -> None:
+    """Mata a ARVORE: no Windows o `terminate` so pega o lancador do venv, e os
+    workers orfaos seguiriam na porta 8000 servindo o ensaio seguinte."""
+    raiz = psutil.Process(api.pid)
+    procs = [*raiz.children(recursive=True), raiz]
+    for p in procs:
+        try:
+            p.kill()
+        except psutil.NoSuchProcess:
+            pass
+    psutil.wait_procs(procs, timeout=30)
+    api.wait()
 
 
 def _amostrar_cpu(pid: int, destino: Path, parar: threading.Event) -> None:
@@ -220,6 +240,8 @@ def main() -> None:
     ap.add_argument("--plateau", type=int, help="sobrescreve o plateau da Tabela 1 (so para piloto/smoke)")
     ap.add_argument("--ttl", type=int, default=3600, help="CACHE_TTL_SECONDS durante o protocolo")
     ap.add_argument("--saida", type=Path, default=Path("load/results/protocolo"))
+    ap.add_argument("--workers", type=int, nargs="+", default=[1],
+                    help="processos da API; varios valores = ensaios intercalados por cenario (Sprint 10)")
     ap.add_argument("--permitir-sujo", action="store_true", help="medir com mudanca nao commitada (nao auditavel)")
     args = ap.parse_args()
 
@@ -232,30 +254,32 @@ def main() -> None:
     meta = metadados(args)
     meta["parametros"]["condicoes"] = condicoes
 
+    # A ordem dos workers sorteia por (repeticao, cenario): nenhum dos dois
+    # roda sempre primeiro, depois de a maquina ficar parada.
     plano = [
-        (rep, u, cond)
+        (rep, u, cond, w)
         for rep in (args.rep or range(1, args.reps + 1))
         for u in random.Random(rep).sample(args.cargas, len(args.cargas))
         for cond in condicoes
+        for w in random.Random(f"{rep}-{u}").sample(args.workers, len(args.workers))
     ]
-    estimado = sum(-(-u // CENARIOS[u][0]) + (args.plateau or CENARIOS[u][1]) + 10 for _, u, _ in plano)
+    estimado = sum(-(-u // CENARIOS[u][0]) + (args.plateau or CENARIOS[u][1]) + 10 for _, u, _, _ in plano)
     print(f"{len(plano)} ensaios, ~{estimado // 60} min", flush=True)
 
-    for n, (rep, usuarios, cond) in enumerate(plano, 1):
+    for n, (rep, usuarios, cond, workers) in enumerate(plano, 1):
         spawn, plateau = CENARIOS[usuarios][0], args.plateau or CENARIOS[usuarios][1]
-        nome = f"r{rep}-u{usuarios}-{cond}"
+        nome = f"r{rep}-u{usuarios}-{cond}" + (f"-w{workers}" if workers != 1 else "")
         inicio = time.strftime("%Y-%m-%dT%H:%M:%S")
         print(f"[{n}/{len(plano)}] {nome} {inicio}", flush=True)
         _esperar_tomada()
         if cond == "frio":
             _redis("FLUSHALL")
         _redis("CONFIG", "RESETSTAT")
-        api = subir_api(cache=cond != "off", ttl=args.ttl)
+        api = subir_api(cache=cond != "off", ttl=args.ttl, workers=workers)
         try:
             ok = ensaio(args.saida, nome, usuarios, spawn, plateau, f"{rep}-{usuarios}", api.pid)
         finally:
-            api.terminate()
-            api.wait()
+            derrubar(api)
         if not ok:
             print(f"  AVISO: o Locust saturou a CPU em {nome} — ensaio invalido", flush=True)
         with (args.saida / f"{nome}_cpu.csv").open(encoding="utf-8") as f:
