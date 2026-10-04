@@ -70,6 +70,32 @@ abandonado por ter sido criado numa sprint que terminou.
 | C | Onde mora a **UF do comprador** para o contexto regional | ETL grava a UF por prefixo em `cep_centroids` (moda de `geolocation_state`); o contexto vira derivado do CEP, com o query param como override — o contrato da API não muda |
 | D | Lift categoria × UF: amostra ou **dataset completo** | dataset completo (o sinal regional precisa de volume; o card mediu com ele) |
 
+### Pesquisa das decisões A e B (2026-10-04) — aguardando o autor
+
+**Fontes encontradas**
+
+| O quê | Fonte | Valor |
+|---|---|---|
+| Distância de atividade aceita | GLEC/ISO 14083, *Application of ISO 14083:2023 and the GLEC Framework for the Post & Parcel and e-commerce sector* (Smart Freight Centre, 2026), §2.1 | SFD **ou** GCD (linha reta) — o cálculo atual é admissível pela norma |
+| Fator de circuidade rodoviária no Brasil | Gonçalves, D.N.S.; Gonçalves, C.D.M.; De Assis, T.F.; Silva, M.A. (2014). *Analysis of the difference between the euclidean distance and the actual road distance in Brazil*. Transportation Research Procedia 3, 876–885 | **1,345** para linha reta < 891 km (lido em citação de Lee & Chae, 2023; o original é de acesso aberto, mas bloqueou o download — **conferir no original**) |
+| Intensidade por veículo, região **Europa e América do Sul**, WTW, diesel B5 | GLEC Framework v2.0 (Smart Freight Centre, 2019, rev. 2022), Módulo 2, p. 104–106, Tabelas 41–42 | van < 3,5 t **680** · caminhão urbano 3,5–7,5 t **370** · médio 7,5–20 t **200** · pesado > 20 t **92** g CO₂e/t·km |
+| Aviso da própria norma | guia Post & Parcel (2026), §6 | fatores ponto a ponto **subestimam** rotas de coleta e entrega (última milha) |
+
+O FE atual (0,102 kg/t·km ≈ 102 g) é praticamente o do caminhão pesado aplicado a **toda** entrega, inclusive a local.
+
+**Impacto medido** (g CO₂e por kg de massa cobrável):
+
+| Linha reta | Atual | Por faixa (van < 100 km de estrada, médio < 500, pesado) | Cadeia (pesado + 15 km de van na última milha) |
+|---|---|---|---|
+| 20 km | 2,0 | 18,3 | 18,3 |
+| 432 km (mediana real) | 44,1 | 53,5 | 63,7 |
+| 2.483 km (par de demonstração) | 253,3 | 307,2 | 317,4 |
+| **mediana ÷ local** | **21,6×** | **2,9×** | **3,5×** |
+
+**A conclusão "comprar perto emite menos" se mantém; a magnitude cai uma ordem de
+grandeza.** Decisão do autor antes de implementar — muda todos os números de CO₂
+do texto e do selo.
+
 ## Critérios de aceite
 
 - [x] **Caronas:** o ETL termina avisando para reiniciar a API e esvaziar o cache → `python -m scripts.etl_load_sample` (fim da saída); `SQL_ECHO` próprio → `pytest -q`
