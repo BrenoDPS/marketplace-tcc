@@ -276,7 +276,8 @@ Sprint 8 no controle de carga (`docs/performance.md` §12.5).
 por faixa) e `.csv` (resposta do OSRM por par; serve de cache). Servidor público
 do OSRM, perfil `driving`, malha do OpenStreetMap, consultado em 2026-10-12, entre
 os mesmos centroides de prefixo de CEP que a aplicação usa. Semente 42, dataset
-completo.
+completo. Figura: `docs/graficos/fig-5-4-haversine-osrm.png` (`python -m scripts.haversine_osrm --grafico`,
+só do CSV) — (a) rota × linha reta com as retas 1 e 1,345; (b) rota ÷ linha reta por faixa.
 
 **A — precisão** (100 pares de compras reais, 20 por faixa: 1–100, 100–500,
 500–1.000, 1.000–2.000, ≥ 2.000 km de linha reta):

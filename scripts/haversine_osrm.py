@@ -15,6 +15,7 @@ Duas amostras do dataset Olist COMPLETO, semente fixa:
   e quanto custa em km de estrada quando nao e.
 
     python -m scripts.haversine_osrm            # grava docs/resultados/haversine-osrm.{md,csv}
+    python -m scripts.haversine_osrm --grafico  # docs/graficos/fig-5-4-haversine-osrm.png, so do CSV
 
 O CSV guarda a resposta do OSRM por par e serve de cache: rodar de novo nao
 consulta o servidor (a malha do OSM muda; o resultado publicado fica fixo).
@@ -228,6 +229,58 @@ def _markdown(a: pd.DataFrame, b: pd.DataFrame, sem_rota: int) -> str:
     return "\n".join(linhas) + "\n"
 
 
+def grafico(saida: Path = Path("docs/graficos/fig-5-4-haversine-osrm.png")) -> None:
+    """Figura do cap. 5, so do CSV (sem dataset, sem rede). Paleta e estilo de `load.graficos`."""
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    from load.graficos import TINTA_2, _estilo, _numero
+
+    a = pd.read_csv(CACHE, dtype={"origem": str, "destino": str}).query("parte == 'A'").dropna(subset=["osrm_km"])
+    a["circ"] = a["osrm_km"] / a["hav_km"]
+    faixas = list(dict.fromkeys(a.sort_values("hav_km")["faixa"]))
+    azul, laranja = "#2a78d6", "#eb6834"
+    _estilo()
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9, 3.9), gridspec_kw={"width_ratios": [1, 1.15]})
+
+    x = np.array([1.0, 6000.0])
+    ax1.plot(x, x * CIRCUITY_FACTOR, color=laranja, linewidth=2, label="motor: linha reta × 1,345")
+    ax1.plot(x, x, color=TINTA_2, linestyle="--", linewidth=1.2, label="rota = linha reta")
+    ax1.scatter(a["hav_km"], a["osrm_km"], s=22, color=azul, edgecolor="white", linewidth=0.6, zorder=3,
+                label="par origem-destino")
+    ax1.legend(loc="upper left", fontsize=8)
+    ax1.set(xscale="log", yscale="log", xlim=(5, 5000), ylim=(5, 5000),
+            xlabel="linha reta — Haversine (km)", ylabel="rota OSRM (km)")
+    for eixo in (ax1.xaxis, ax1.yaxis):
+        eixo.set_major_formatter(matplotlib.ticker.FuncFormatter(_numero))
+    ax1.set_title("(a) 100 pares de compras reais", loc="left")
+
+    rng = np.random.default_rng(SEMENTE)
+    for i, f in enumerate(faixas):
+        y = a.loc[a["faixa"] == f, "circ"]
+        ax2.scatter(i + rng.uniform(-0.18, 0.18, len(y)), y, s=18, color=azul, alpha=0.75,
+                    edgecolor="white", linewidth=0.5, zorder=3)
+        ax2.plot([i - 0.28, i + 0.28], [y.median()] * 2, color=TINTA_2, linewidth=2.2, zorder=4,
+                 label="mediana da faixa" if i == 0 else None)
+        ax2.annotate(f"{y.median():.2f}".replace(".", ","), (i + 0.3, y.median()), va="center",
+                     fontsize=8, color=TINTA_2)
+    ax2.axhline(CIRCUITY_FACTOR, color=laranja, linewidth=2, zorder=2, label="fator do motor: 1,345")
+    ax2.legend(loc="upper right", fontsize=8)
+    ax2.set_xticks(range(len(faixas)), ["1–100", "100–500", "500–1.000", "1.000–2.000", "≥ 2.000"][: len(faixas)])
+    ax2.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f"{v:.1f}".replace(".", ",")))
+    ax2.set(xlabel="faixa de linha reta (km)", ylabel="rota ÷ linha reta", ylim=(1.0, max(1.8, np.ceil(a["circ"].max() * 10) / 10 + 0.1)),
+            xlim=(-0.5, len(faixas) - 0.3))
+    ax2.grid(axis="x", visible=False)
+    ax2.set_title("(b) Rota ÷ linha reta, por faixa", loc="left")
+
+    fig.tight_layout()
+    saida.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(saida, dpi=200)
+    print(saida)
+
+
 def main(data_dir: Path = Path("data/raw")) -> None:
     pares = _com_rotas(_amostras(data_dir))
     SAIDA.parent.mkdir(parents=True, exist_ok=True)
@@ -242,4 +295,6 @@ def main(data_dir: Path = Path("data/raw")) -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    grafico() if "--grafico" in sys.argv else main()
