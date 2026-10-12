@@ -27,3 +27,22 @@ def test_haversine_vetorizado_das_analises_bate_com_o_escalar() -> None:
     vetor = _haversine(*map(np.array, zip(*pares)))
     for (a, b, c, d), v in zip(pares, vetor):
         assert abs(v - haversine_km(a, b, c, d)) < 1e-9
+
+
+def test_ordem_haversine_osrm_mede_a_escolha_e_o_custo_da_divergencia() -> None:
+    """`scripts.haversine_osrm`: a linha reta escolhe B (100 km), a estrada prefere A."""
+    import pandas as pd
+
+    from scripts.haversine_osrm import _ordem
+
+    b = pd.DataFrame({
+        "grupo": [0, 0, 1, 1],
+        "origem": ["A", "B", "C", "D"],
+        "hav_km": [100.5, 100.0, 10.0, 50.0],
+        "osrm_km": [120.0, 125.0, 0.0, 70.0],  # grupo 1: vendedor no prefixo do comprador
+    })
+    o = _ordem(b)
+    assert o["topo"] == 0.5
+    assert o["divergentes"] == 1 and o["custo_km_max"] == 5.0
+    assert o["empate_na_regra"] == 1  # 0,5 km de diferenca: dentro do piso de 1 km
+    assert o["concordantes"] == 0.5

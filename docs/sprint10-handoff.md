@@ -36,6 +36,7 @@ nova no produto:
 | 7 | Log de funil do ETL | Média |
 | 9 | Trabalhos futuros (cap. 6) — rascunho com motivos | Média |
 | 8 | Conferir monografia: persona Seller e versionamento | Média — **autor** |
+| 13 | Haversine × OSRM (validação prometida na §3) — **feito** | Alta — estava na metodologia e não tinha sido executada |
 | 10 | Desempate de ofertas por preço — **feito**, e com ele o bug do checkout (abaixo) | Baixa |
 | 11 | Observabilidade (contagem de queries) | Baixa |
 | 12 | Decidir sobre `docs/revisao-harness.md` | Baixa — autor da revisão |
@@ -55,6 +56,7 @@ nova no produto:
 - [x] **Funil do ETL:** entrada → saída por filtro no stdout, e os totais batem com `count(*)` no Postgres → `python -m scripts.etl_load_sample`; teste do funil em `pytest -q` — 60.636 → 60.292 itens (−0,57%); totais conferidos contra o banco
 - [x] **Trabalhos futuros:** cada item com o motivo do corte → `docs/tese-rastreabilidade.md` §8
 - [x] `docs/tese-rastreabilidade.md` em dia (§1 suítes, §3, §4c, §6 linhas 21–22)
+- [x] **Haversine × OSRM:** 100 pares por faixa + decisões reais de vitrine → `python -m scripts.haversine_osrm`; `docs/resultados/haversine-osrm.md`; leitura e texto da §3 ajustado em `docs/tese-rastreabilidade.md` §4d e §5.6 — MAPE 8,7% com o fator 1,345 (que superestima 5–10% acima de 100 km), Spearman 0,997, mesma escolha em 86,5% das decisões; `pytest -q` 194 (2026-10-12)
 - [x] Suítes verdes no fim → `pytest -q` 183; `cd web && npm test` 35, lint e typecheck limpos; `cd web && npm run e2e` 2 (2026-10-04)
 
 ## Fora de escopo

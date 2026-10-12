@@ -5,13 +5,13 @@
 > em relação ao que estava estabelecido, com o motivo. Números de latência ficam
 > em `docs/performance.md`, não aqui — este arquivo aponta para eles.
 >
-> Atualizado em 2026-10-04 (Sprint 10). Regra: resultado sem comando não entra.
+> Atualizado em 2026-10-12 (Sprint 10). Regra: resultado sem comando não entra.
 
 ## 1. Estado das suítes
 
 | Suíte | Comando | Último resultado | Data |
 |---|---|---|---|
-| Backend (unitários + integração por `dependency_overrides`) | `pytest -q` (sem Redis: `tests/conftest.py`) | **193 passed** | 2026-10-04 |
+| Backend (unitários + integração por `dependency_overrides`) | `pytest -q` (sem Redis: `tests/conftest.py`) | **194 passed** | 2026-10-12 |
 | Frontend (executor de `actions`, `ScreenRenderer`, carrinho, envelope malformado) | `cd web && npm test` | **35 passed** | 2026-10-04 |
 | E2E — jornada da defesa | `cd web && npm run e2e` (exige pilha e `data/raw/`) | **passed** — com o Redis ligado e a Home regional (Sprint 9) | 2026-10-04 |
 | E2E — mutação de contrato SDUI | idem, `web/e2e/contract-mutation.spec.ts` | **passed** — 5 mutações (4ª nova: envelope sem `actions`); capturas da Sprint 7 em `docs/evidencia/` | 2026-10-04 |
@@ -172,6 +172,58 @@ primeiro estado:
 > o regime permanente (plateau); a série temporal completa, incluindo a rampa,
 > é preservada para a análise da penalidade de *cache misses* no estado frio.
 
+**5.6 Haversine × OSRM** (2026-10-12) — o parágrafo da validação não dizia que o
+motor converte a linha reta em estrada (× 1,345), nem como a amostra e a
+"ordenação dos vendedores" seriam definidas. Executado conforme §4d. Redação
+proposta para os dois últimos parágrafos (o primeiro, sobre a natureza da
+aproximação e a ISO 14083, fica como está):
+
+> Para a estimativa de emissões, a distância de Haversine é convertida em
+> distância rodoviária pelo fator de circuidade de 1,345, média brasileira entre
+> a distância por rodovia e a distância euclidiana (GONÇALVES et al., 2014). Como
+> forma de avaliar a influência dessa simplificação, será selecionada uma amostra
+> de 100 pares de origem e destino extraídos de compras reais do conjunto de
+> dados, 20 em cada faixa de distância em linha reta (até 100 km, de 100 a 500 km,
+> de 500 a 1.000 km, de 1.000 a 2.000 km e acima de 2.000 km). Para cada par, a
+> distância de Haversine — crua e convertida pelo fator de circuidade — será
+> comparada com a distância da rota calculada pelo Open Source Routing Machine
+> (OSRM), serviço baseado na malha viária do OpenStreetMap, entre os mesmos
+> centroides de prefixo de CEP utilizados pelo sistema. A comparação será
+> realizada por meio do erro absoluto médio (MAE), do erro percentual absoluto
+> médio (MAPE) e do coeficiente de correlação de Spearman.
+>
+> Também será verificado se os dois métodos preservam a ordenação dos
+> vendedores em decisões reais de compra: para compradores de produtos ofertados
+> por vendedores em localidades distintas, será medido o percentual de casos em
+> que o vendedor mais próximo em linha reta é também o mais próximo pela rota, o
+> percentual de pares de vendedores ordenados da mesma forma pelos dois métodos
+> e, nos casos divergentes, a distância rodoviária adicional decorrente da
+> escolha por linha reta. A utilização dessas métricas permitirá verificar não
+> somente a diferença entre as distâncias calculadas, mas também se a
+> aproximação de Haversine é capaz de manter a finalidade principal do sistema:
+> identificar comparativamente as alternativas de menor impacto ambiental. Caso
+> sejam constatadas divergências relevantes, as limitações do método serão
+> apresentadas na análise dos resultados, e as distâncias fornecidas pelo
+> sistema serão classificadas explicitamente como estimativas comparativas.
+
+Rascunho para o capítulo de resultados:
+
+> Na amostra de 100 pares, a distância em linha reta subestimou a distância
+> rodoviária em 21,9% (MAPE); convertida pelo fator de circuidade, o erro caiu
+> para 8,7% (MAE de 83,2 km), com viés mediano de +6,2%. A razão entre rota e
+> linha reta foi de 1,34 até 100 km, próxima do fator adotado, e de 1,22 a 1,28
+> nas faixas superiores, nas quais o fator superestima a distância rodoviária —
+> e, portanto, a emissão — em 5% a 10%, resultado coerente com a faixa de
+> validade do fator (distâncias euclidianas inferiores a 891 km). A correlação de
+> Spearman entre os dois métodos foi de 0,997. Em 37 decisões reais de compra
+> (102 pares), o vendedor mais próximo em linha reta foi também o mais próximo
+> pela rota em 86,5% dos casos, e 91,0% dos pares de vendedores mantiveram a
+> mesma ordenação; nas cinco divergências, a escolha por linha reta implicou no
+> máximo 6,4 km (2,1%) a mais de rodovia, e em três delas a regra de desempate do
+> sistema já tratava as ofertas como equidistantes. A aproximação preserva,
+> portanto, a finalidade comparativa do sistema, e as distâncias exibidas são
+> tratadas como estimativas comparativas, não como o percurso efetivo.
+
 ## 4c. Personalização contextual — contexto derivado do CEP (Sprint 9)
 
 **Como o contexto é determinado.** Sem contexto escolhido (`context=default`, o
@@ -218,6 +270,61 @@ volume. O hero diz por que a categoria foi escolhida ("Compradores de CE levam
 9,3 ms × genérica 9,5 ms em 300 pares sequenciais; CPU por requisição igual à da
 Sprint 8 no controle de carga (`docs/performance.md` §12.5).
 
+## 4d. Haversine × rota real (OSRM) — a validação prometida na §3 (Sprint 10)
+
+`python -m scripts.haversine_osrm` → `docs/resultados/haversine-osrm.md` (tabela
+por faixa) e `.csv` (resposta do OSRM por par; serve de cache). Servidor público
+do OSRM, perfil `driving`, malha do OpenStreetMap, consultado em 2026-10-12, entre
+os mesmos centroides de prefixo de CEP que a aplicação usa. Semente 42, dataset
+completo.
+
+**A — precisão** (100 pares de compras reais, 20 por faixa: 1–100, 100–500,
+500–1.000, 1.000–2.000, ≥ 2.000 km de linha reta):
+
+| | Linha reta crua | Estimada pelo motor (× 1,345) |
+|---|---|---|
+| MAE | 248,9 km | **83,2 km** |
+| MAPE | 21,9% | **8,7%** (5,7% a 11,1% por faixa) |
+| Viés mediano | subestima sempre | **+6,2%** (superestima) |
+| Spearman (linha reta × rota) | **0,997** | — |
+| Rota ÷ linha reta, mediana (p10–p90) | 1,27 (1,16–1,41) | — |
+
+**B — ordem** (37 decisões reais da vitrine — um comprador de um produto vendido
+em CEPs distintos, com todas as ofertas —, 102 pares):
+
+| | Valor |
+|---|---|
+| O mais próximo em linha reta **é** o mais próximo pela estrada | **86,5%** das decisões (32 de 37) |
+| Pares de vendedores na mesma ordem | 91,0% de 111 comparações |
+| Nas 5 divergências | estrada a mais: mediana 2,0 km, pior caso 6,4 km (2,1% da rota); em 3 delas a regra `escolher_oferta` já trata as duas ofertas como equidistantes (≤ 1%, piso 1 km) e decide pelo preço |
+
+**Leitura.**
+1. A linha reta **crua** erra a estrada em ~22% — e o sistema nunca a usa crua
+   para CO₂: o motor multiplica por 1,345. Com o fator, o erro cai para 8,7%.
+2. **O fator 1,345 é conservador acima de 100 km.** Até 100 km a circuidade
+   medida bate com ele (1,34); acima, a estrada real é mais reta (1,22–1,28), e o
+   motor superestima a distância de estrada em 5–10%. Coerente com a fonte:
+   Gonçalves et al. (2014) estimaram o fator para linha reta < 891 km, e o
+   código já declara que o aplica também acima. Efeito no CO₂: as entregas
+   longas ficam superestimadas na mesma proporção, e o CO₂ evitado (§4b) pode
+   estar superestimado em até ~10% — a ordem de grandeza e a conclusão não mudam.
+   **O fator não foi trocado:** é a referência publicada; a rota do OSRM é a de
+   carro mais rápida, não a da transportadora; e 100 pares não sustentam um
+   fator nacional novo.
+3. **A finalidade do sistema se mantém:** Spearman de 0,997 e, nas decisões
+   reais, a mesma escolha de vendedor em 86,5% dos casos; quando diverge, são
+   quase empates (até 6,4 km de estrada). Dentro de uma mesma faixa o Spearman
+   cai (0,85–0,98) porque as distâncias ficam parecidas — é a mesma razão dos
+   empates.
+4. **Conclusão para o texto:** as distâncias exibidas são **estimativas
+   comparativas** — adequadas para ordenar vendedores e para a ordem de grandeza
+   do CO₂, não para o valor exato do percurso. É o desfecho que a §3 já previa.
+
+**Fora da comparação:** o erro de posição do centroide de CEP (igual nos dois
+métodos); o encaixe do ponto na via (mediana 14 m, máximo 150 m); o selo
+(< 100 km é definido sobre a linha reta, não sobre a estrada). Teste da lógica de ordem:
+`tests/test_distance.py::test_ordem_haversine_osrm_mede_a_escolha_e_o_custo_da_divergencia`.
+
 ## 6. Registro de mudanças em relação ao estabelecido
 
 O que estava definido (no PRD, na metodologia ou num handoff), o que mudou e por
@@ -249,6 +356,7 @@ quê. Cada linha aponta a evidência.
 | 22 | ETL descartava linhas em silêncio | Funil por filtro e linhas persistidas por tabela no stdout | a §3.3 promete registrar o volume consolidado no PostgreSQL | `scripts/etl_load_sample.py`; `tests/test_amostragem.py` | 10 |
 | 23 | Checkout simulava a entrega pela **oferta padrão** do ETL (`is_default`, o primeiro vendedor nos pedidos) | Checkout usa a **mesma oferta** que a vitrine e o detalhe mostraram (regra comum em `green_logistics/offers.py`) | **bug:** o detalhe dizia "sai de ~2 km; comprar do mais próximo evita ~0,10 kg" e o checkout entregava do vendedor a 2.485 km, emitindo esses 0,10 kg — contradizia o argumento central na própria demo | `src/features/checkout/router.py`; `tests/test_checkout_simulate.py::test_checkout_entrega_do_vendedor_mais_proximo_nao_da_oferta_default` (falha sem o conserto) | 10 |
 | 24 | Ofertas equidistantes desempatadas pela casa decimal da distância | Até 1% da menor distância (piso de 1 km), vence a **mais barata**; nunca perde o selo | entre ofertas praticamente equidistantes a diferença de CO₂ é menor que a incerteza do motor; recomendar a mais cara à mesma distância seria indefensável. O CO₂ evitado (§4b) segue calculado contra a mais próxima: nos empates a diferença é ≤ 1% da distância | `src/features/green_logistics/offers.py`; `tests/test_escolha_de_oferta.py` | 10 |
+| 25 | §3: Haversine × OSRM em 100 pares — **prometido e não executado**; o OSRM constava como trabalho futuro | **Executado**: 100 pares de compras reais por faixa + 37 decisões reais de vitrine; texto da §3 ajustado (§5.6) | a validação estava na metodologia; sem ela o fator 1,345 só se sustentava pela citação. **Achado:** acima de 100 km o fator superestima a estrada em 5–10% — declarado, não trocado | §4d; `scripts/haversine_osrm.py`; `docs/resultados/haversine-osrm.md` | 10 |
 
 ## 7. Pontos a confirmar contra o texto da monografia
 
@@ -271,7 +379,7 @@ afeta as conclusões para o que menos afeta.
 | **Personalização por pessoa** (login/JWT, histórico de compras) | decisão do autor (04/10): sem usuários reais, histórico seria sintético; o Olist não liga compras de um mesmo comprador de forma útil (só 0,7% dos pedidos têm mais de uma categoria) | autenticação, pedidos persistidos e separação entre base de referência (Olist) e base da aplicação; o contexto regional (§4c) viraria o *prior* para quem não tem histórico |
 | **Medir o efeito da recomendação em usuários** | o CO₂ evitado (§4b) é contrafactual — supõe que todos seguem a recomendação | teste A/B com usuários reais ou estudo de preferência declarada |
 | **Significância estatística do contexto regional** | o corte de 100 itens por categoria protege contra ruído, mas não dá intervalo de confiança | teste de proporções (ou *bootstrap*) por UF × categoria; reavaliar os limiares |
-| **Roteamento rodoviário real** | a circuidade de 1,345 é média nacional (Gonçalves et al., 2014); a ISO 14083 aceita linha reta | API de rotas ou OSRM com malha do OpenStreetMap; custo alto para 12.933 prefixos |
+| **Roteamento rodoviário real** | validado por amostra (§4d: MAPE 8,7% com o fator; mesma escolha de vendedor em 86,5% das decisões); rota por requisição custaria latência e uma dependência externa no caminho quente | matriz de distâncias pré-calculada (OSRM próprio) entre os prefixos de vendedores e de compradores, ou fator de circuidade por faixa de distância |
 | **Fatores de emissão brasileiros** | os do GLEC v2 são de "Europa e América do Sul"; não há tabela oficial brasileira por tipo de veículo com o mesmo recorte | inventário nacional por veículo (diesel B, frota brasileira) |
 | **Escala horizontal com cache** | o experimento da Sprint 10 compara workers **sem** cache; a combinação não foi medida | os mesmos ensaios com `--workers 4` nas condições frio/aquecido |
 | **Gerador de carga em outra máquina** | API, banco e gerador dividiram 4 núcleos; a 1.000 VU o gerador saturou uma vez | segunda máquina na mesma rede; a §5.1 já declara o *loopback* |
