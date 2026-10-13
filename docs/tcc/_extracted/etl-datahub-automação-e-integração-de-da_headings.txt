@@ -1,0 +1,80 @@
+p.2: 2024 GUSTAVO MOREIRA DE MELLO RAFAEL DE PROENÇA ROSSI
+p.2: conclus
+p.3: conclus
+p.3: conclus
+p.7: 20 minutos para a
+p.8: 20 minutes for
+p.9: 18 Figura 2
+p.9: 24 Figura 3
+p.9: 25 Figura 4
+p.9: 27 Figura 5
+p.9: 31 Figura 6
+p.9: 34 Figura 7
+p.9: 34 Figura 8
+p.9: 35 Figura 9
+p.9: 36 Figura 10
+p.9: 39 Figura 11
+p.9: 43 Figura 12
+p.9: 44 Figura 13
+p.9: 45 Figura 14
+p.9: 47 Figura 15
+p.9: 47 Figura 16
+p.9: 48 Figura 17
+p.9: 48 Figura 18
+p.9: 49 Figura 19
+p.9: 49 Figura 20
+p.9: 50 Figura 21
+p.10: Conclus
+p.11: 1 INTRODUÇÃO
+p.11: 8 2 REFERENCIAL TEÓRICO
+p.11: 22 3 METODOLOGIA
+p.11: DESENVOLVIMENTO
+p.11: desenvolvimento
+p.11: 26 4 ESPECIFICAÇÃO DO PROJETO
+p.12: 29 5 ARQUITETURA E TECNOLOGIAS APLICADAS
+p.12: 39 6 RESULTADOS
+p.12: RESULTADOS
+p.12: Resultados
+p.12: 56 7 CONSIDERAÇÕES FINAIS
+p.12: 57 REFERÊNCIAS
+p.13: 8 1 INTRODUÇÃO No universo da gestão da
+p.13: Conclus
+p.14: 9 os objetivos específicos são a automatização através de um sistema ETL
+p.14: desenvolvimento
+p.15: 10 usuário do sistema operacional
+p.15: capítulo 2
+p.15: desenvolvimento
+p.15: capítulo 3
+p.15: desenvolvimento
+p.15: capítulo 4
+p.15: capítulo 5
+p.15: resultados
+p.15: capítulo 6
+p.15: capítulo 7
+p.15: conclus
+p.15: resultados
+p.16: 11 2 REFERENCIAL TEÓRICO Este capítulo estabelece a base teórica para compreender
+p.17: 12 No contexto
+p.18: 13 conformidade com padrões e regulamentos protegem a segurança do voo e vidas
+p.18: desenvolvimento
+p.19: 14 No setor
+p.20: 15 Com ferramentas da qualidade como o diagrama de
+p.22: 17 conﬁrmar se estão de acordo com os padrões estabelecidos nas regras dos scripts
+p.22: 1 e detalhadas a
+p.23: 18 Figura 1
+p.23: 2024 Como ilustrado na Figura
+p.23: 1 Imagem adaptada
+p.24: 19 Para indústrias do setor
+p.27: 22 A operação Slice seleciona um subconjunto de dados e fixa um valor específico em
+p.27: resultados
+p.28: 23 3 METODOLOGIA Este capítulo define as premissas que guiam o desenvolvimento do
+p.28: desenvolvimento
+p.28: desenvolvimento
+p.28: desenvolvimento
+p.28: DESENVOLVIMENTO
+p.28: desenvolvimento
+p.28: desenvolvimento
+p.29: desenvolvimento
+p.29: desenvolvimento
+p.29: desenvolvimento
+p.29: desenvolvimento

@@ -1,0 +1,483 @@
+[0000] COORDENADORIA DE ENGENHARIA DE COMPUTAÇÃO
+
+[0001] BRENO DE PÁDUA SOARES
+
+[0002] GUILHERME CAMBI MAGAROTTI
+
+[0003] GUILHERME GROSSI DE ALMEIDA
+
+[0004] MARKETPLACE CONTEXTUAL ADAPTATIVO: UMA ENGINE DE SERVER-DRIVEN UI (SDUI) PARA INCENTIVO À LOGÍSTICA VERDE
+
+[0005] SOROCABA, SP
+
+[0006] 2026
+
+[0007] BRENO DE PÁDUA SOARES
+
+[0008] GUILHERME CAMBI MAGAROTTI
+
+[0009] GUILHERME GROSSI DE ALMEIDA
+
+[0010] MARKETPLACE CONTEXTUAL ADAPTATIVO: UMA ENGINE DE SERVER-DRIVEN UI (SDUI) PARA INCENTIVO À LOGÍSTICA VERDE
+
+[0011] Trabalho de conclusão de curso apresentado ao Centro Universitário Facens como exigência parcial para obtenção do diploma de graduação em Engenharia de Computação.
+
+[0012] Orientador (a): Marco Antonio Montebello Júnior.
+
+[0013] SOROCABA, SP
+
+[0014] 2026
+
+[0015] LISTA DE ILUSTRAÇÕES
+
+[0016] Figura 1 – Projeção de crescimento do comércio eletrônico no Brasil6
+
+[0017] Figura 2 – Gráfico comparando as emissões entre carro e caminhão7
+
+[0018] Figura 3 - Fluxograma geral da metodologia12
+
+[0019] Figura 4 - Arquitetura da solução proposta14
+
+[0020] LISTA DE SIGLAS
+
+[0021] API Application Programming Interface
+
+[0022] BFF Backend-for-Frontend
+
+[0023] ODSObjetivos de Desenvolvimento Sustentável
+
+[0024] SDUIServer-Driven UI
+
+[0025] JSON JavaScript Object Notation
+
+[0026] UI User Interface
+
+[0027] UX User Experience
+
+[0028] SUMÁRIO
+
+[0029] 1 INTRODUÇÃO4
+
+[0030] 2 CRESCIMENTO DO COMÉRCIO ELETRÔNICO NO BRASIL6
+
+[0031] 2.1 SUSTENTABILIDADE E LOGÍSTICA VERDE NO E-COMMERCE7
+
+[0032] 2.2 ARQUITETURAS MODERNAS PARA INTERFACES DINÂMICAS8
+
+[0033] 2.2.1 Server-Driven UI (SDUI)8
+
+[0034] 2.2.2 Backend-for-Frontend (BFF)9
+
+[0035] 2.2.3 Micro-frontends9
+
+[0036] 2.3 CÁLCULO DA PEGADA DE CARBONO NA LOGÍSTICA9
+
+[0037] 2.4 TECNOLOGIAS APLICADAS À PERSONALIZAÇÃO DE INTERFACES10
+
+[0038] 3 METODOLOGIA12
+
+[0039] 3.1 TRATAMENTO E EXPLORAÇÃO DO DATASET PÚBLICO DA OLIST13
+
+[0040] 3.2 MODELAGEM DA ARQUITETURA DE SOFTWARE E FLUXOS DE DADOS14
+
+[0041] 3.3 CONFIGURAÇÃO DOS TESTES E DAS MÉTRICAS DE DESEMPENHO18
+
+[0042] 4 DESENVOLVIMENTO23
+
+[0043] 4.1 ESPECIFICAÇÃO23
+
+[0044] 4.1.1 Requisitos funcionais23
+
+[0045] 4.1.2 Requisitos não funcionais, métricas e critérios de aceitação23
+
+[0046] 4.1.3 Delimitações do escopo23
+
+[0047] 4.2 PROJETO23
+
+[0048] 4.2.1 Organização em Vertical Slices23
+
+[0049] 4.2.2 Modelo de dados relacional (PostgreSQL)23
+
+[0050] 4.2.3 Contrato SDUI (esquema e tipos de componentes)23
+
+[0051] 4.3 IMPLEMENTAÇÃO23
+
+[0052] 4.3.1 Tratamento e carga do dataset Olist23
+
+[0053] 4.3.2 BFF em FastAPI: motor de cálculo logístico e cache (Redis)23
+
+[0054] 4.3.3 Engine SDUI no servidor e renderizador React23
+
+[0055] 4.3.4 Ambiente de execução (Docker Compose)23
+
+[0056] 5 RESULTADOS23
+
+[0057] 5.1 RESULTADOS QUANTITATIVOS23
+
+[0058] 5.1.1 Qualidade e cobertura dos dados23
+
+[0059] 5.1.2 Verificação funcional do motor de cálculo23
+
+[0060] 5.1.3 Acurácia da distância: Haversine × OSRM23
+
+[0061] 5.1.4 Potencial estimado de redução de emissões23
+
+[0062] 5.1.5 Desempenho sob carga e efeito do cache23
+
+[0063] 5.2 RESULTADOS QUALITATIVO-ESTRUTURAIS23
+
+[0064] 5.2.1 Desacoplamento por mutação de contrato23
+
+[0065] 5.2.2 Robustez do contrato: componentes desconhecidos e dados insuficientes23
+
+[0066] 6 DISCUSSÃO E CONSIDERAÇÕES FINAIS24
+
+[0067] 6.1 DISCUSSÃO24
+
+[0068] 6.1.1 Relação de compromisso no projeto24
+
+[0069] 6.1.2 Aderência aos objetivos e critérios de aceitação24
+
+[0070] 6.2 LIMITAÇÕES E AMEAÇAS À VALIDADE24
+
+[0071] 6.3 CONCLUSÃO24
+
+[0072] 6.4 TRABALHOS FUTUROS24
+
+[0073] REFERÊNCIAS25
+
+[0074] 1 INTRODUÇÃO
+
+[0075] Este estudo apresenta o cenário de crescimento acelerado do comércio eletrônico brasileiro e os desafios técnicos e ambientais que acompanham essa expansão. O aumento progressivo do consumo digital exige não apenas interfaces que se adaptem rapidamente a diferentes contextos, mas também a adoção de práticas sustentáveis na logística de entrega.
+
+[0076] Com a expansão do e-commerce, a manutenção das interfaces enfrenta gargalos provenientes da rigidez do código no lado do cliente, demandando ciclos frequentes de atualização e publicação. Paralelamente, surge a necessidade de uma logística verde como resposta aos impactos ambientais gerados pelo transporte de mercadorias, como as emissões de gases de efeito estufa.
+
+[0077] Com plataformas como a Olist democratizando o acesso ao mercado para pequenos comerciantes, surge a problemática central: projetar uma infraestrutura de software capaz de orquestrar interfaces de forma dinâmica, eliminando a dependência de atualizações no frontend e, simultaneamente, incentivando escolhas logísticas de menor impacto ambiental.
+
+[0078] O objetivo geral deste trabalho é desenvolver uma engine de Server-Driven UI (SDUI) que utilize o dataset real da Olist para fornecer personalização contextual da interface de forma automatizada e adaptativa. Para atingir este propósito, definiram-se os seguintes objetivos específicos:
+
+[0079] a) projetar uma arquitetura SDUI orientada a contexto, eliminando a dependência de atualizações constantes no front-end;
+
+[0080] b) implementar uma engine de cálculo de pegada de carbono logística, utilizando a metodologia baseada em atividade (Activity-Based);
+
+[0081] c) integrar a personalização da interface com dados logísticos, para identificar compras locais e destacar alternativas de menor impacto ambiental;
+
+[0082] d) avaliar o desempenho e a flexibilidade da solução proposta, validando a capacidade da infraestrutura em suportar a demanda exigida.
+
+[0083] Considerando que micro e pequenas empresas brasileiras enfrentam barreiras de competitividade, o tema mostrase não apenas atual, mas também altamente pertinente ao cenário tecnológico nacional. A justificativa fundamenta-se nos Objetivos de Desenvolvimento Sustentável (ODS) 8, 9 e 12 da ONU, promovendo a inovação industrial, o crescimento econômico e o incentivo ao consumo responsável. O setor de e-commerce e a sociedade precisam aliar inovação tecnológica com responsabilidade ambiental para a resolução desta questão.
+
+[0084] Para desenvolver o presente estudo, adotou-se a Vertical Slice Architecture e o padrão Backend-for-Frontend (BFF). O projeto utiliza o dataset público da Olist, composto por mais de 100 mil pedidos, que servirá como base de dados real para validação da engine e dos mecanismos de personalização. O back-end será implementado em FastAPI, enquanto o front-end em React atuará como um renderizador genérico. A validação técnica será realizada por meio de testes de carga com a ferramenta Locust, visando mensurar a latência e a vazão sob estresse, com o uso de cache em Redis.
+
+[0085] Além da aplicação prática, a metodologia inclui um levantamento bibliográfico embasado em fontes recentes (2022 a 2026). Autores de relevância na área de arquitetura de software, como Rocha (2022), com seus estudos sobre microsserviços orientados a eventos, e Rappl (2024), abordando a escalabilidade de interfaces dinâmicas e micro-frontends, ofereceram fundamentação teórica relevante para o desenvolvimento da engine. Essa pesquisa, aliada a publicações institucionais da ONU Brasil, visa à exposição de argumentos técnicos e sustentáveis que propiciam um bom entendimento de toda a infraestrutura proposta.
+
+[0086] 2 CRESCIMENTO DO COMÉRCIO ELETRÔNICO NO BRASIL
+
+[0087] Este capítulo apresenta o panorama do crescimento do comércio eletrônico no Brasil e suas implicações nas operações logísticas e nas arquiteturas de software. Inicialmente, aborda-se a expansão do e-commerce e a necessidade emergente de práticas de sustentabilidade por meio da logística verde. Em seguida, discutem-se arquiteturas modernas para interfaces dinâmicas, essenciais para suportar essa demanda. Por fim, detalha-se o cálculo da pegada de carbono na logística e as tecnologias aplicadas à personalização dessas plataformas.
+
+[0088] O crescimento exponencial do comércio eletrônico no Brasil exigiu que as empresas reavaliassem seus modelos de operação e a forma como interagem com os consumidores. Conforme ilustra a Figura 1, essa expansão não se limitou apenas ao volume de vendas, mas refletiu-se também em um aumento significativo da complexidade operacional. Para lidar com essa demanda, tornou-se necessária a adoção de plataformas de vendas que proporcionassem uma experiência de usuário mais fluida e personalizada (Oliveira, 2022).
+
+[0089] Figura 1 – Projeção de crescimento do comércio eletrônico no Brasil
+
+[0090] Fonte: Edrone. Disponível em: https://edrone.me. Acesso em: 14 abr. 2026
+
+[0091] A consolidação do comércio eletrônico como um pilar da economia moderna é impulsionada pela integração de tecnologias inteligentes e pela evolução das expectativas dos consumidores em relação à agilidade e confiança nos processos digitais (Zubaidah et al., 2024). No cenário nacional, essa maturidade reflete tendências que exigem das organizações uma adaptação constante às flutuações de mercado e à crescente competitividade no setor varejista (Oliveira, 2022). Essa complexidade operacional e o aumento expressivo no volume de acessos simultâneos demandam infraestruturas de software altamente escaláveis e robustas, capazes de oferecer respostas rápidas e garantir a estabilidade do sistema frente às constantes mudanças do mercado (Rocha, 2022).
+
+[0092] 2.1 SUSTENTABILIDADE E LOGÍSTICA VERDE NO E-COMMERCE
+
+[0093] Acompanhando o crescimento da economia digital brasileira e mundial, o impacto ambiental gerado pela logística de distribuição de produtos tornou-se uma das maiores preocupações nas discussões sobre o futuro do varejo. Uma resposta direta a esse problema é a adoção da logística verde, uma estratégia voltada para a mitigação dos efeitos negativos da distribuição, como a emissão de gases de efeito estufa (GEE) durante o transporte de mercadorias (Pereira, 2024).
+
+[0094] No Brasil, onde a matriz de transporte de cargas é predominantemente rodoviária, a otimização de rotas e dos modais de entrega ganha extrema importância. A Figura 2 demonstra que os veículos tradicionais utilizados para o transporte de cargas apresentam altos níveis de emissão de CO₂, evidenciando a urgência da implementação de práticas operacionais mais sustentáveis.
+
+[0095] Figura 2 – Gráfico comparando as emissões entre carro e caminhão
+
+[0096] Fonte: Elaborada pelo autor (2026) com base em Transvias (2025).
+
+[0097] A disponibilização de plataformas digitais voltadas ao monitoramento de indicadores de sustentabilidade assegura a transparência necessária para orientar o comportamento do usuário durante a jornada de compra (Simão; Salles; Fernandes, 2024). Sob essa ótica, a criação de infraestruturas de serviço inteligentes voltadas ao suporte da sociedade permite que a mensuração do impacto ecológico de cada remessa atue como o pilar inicial para o controle rigoroso das operações, resultando na mitigação das emissões e na consolidação de uma logística integrada e sustentável (Silva, 2023).
+
+[0098] 2.2 ARQUITETURAS MODERNAS PARA INTERFACES DINÂMICAS
+
+[0099] Considerando que as interfaces de e-commerce devem evoluir e permanecer flexíveis frente a demandas sazonais e ao comportamento variável dos usuários, o desenvolvimento de software passou a exigir arquiteturas conscientes do contexto (context-aware) que superem as restrições dos modelos tradicionais e inflexíveis de front-end (Nawaz et al., 2022).
+
+[0100] 2.2.1 Server-Driven UI (SDUI)
+
+[0101] No modelo tradicional, o cliente dita o visual e o comportamento da interface do usuário. A arquitetura Server-Driven UI (SDUI), por sua vez, propõe uma inversão de responsabilidades alinhada aos princípios de microsserviços no front-end, permitindo que o servidor controle a estrutura da interface (Perlin et al., 2023). Dessa forma, ao ajustar elementos em arquivos JSON, torna-se viável implementar alterações visuais e dinâmicas na aplicação sem a necessidade de submeter atualizações constantes nas lojas de aplicativos. Em sistemas de e-commerce, o uso de SDUI permite que vitrines e fluxos de finalização de compras sejam dinâmicos e customizáveis com base em regras de negócio. Ao separar a lógica de renderização da definição do componente, obtém-se maior agilidade operacional, permitindo que a equipe de back-end controle a experiência do usuário (UX) de forma centralizada e escalável.
+
+[0102] 2.2.2 Backend-for-Frontend (BFF)
+
+[0103] O padrão Backend-for-Frontend (BFF) atua como uma camada intermediária dedicada a atender as necessidades específicas da interface do usuário (Rattanukul et al., 2023). Para agregar e formatar dados relevantes, o front-end interage com um único ponto de entrada (o BFF), em vez de consumir diretamente múltiplos microsserviços genéricos. No contexto da integração entre o cálculo de carbono e a engine de interface, o BFF desempenha um papel fundamental, garantindo que as informações cheguem ao cliente de forma eficiente e com menor custo computacional. Essa arquitetura reduz o processamento no client-side e simplifica a manutenção, uma vez que as regras de composição da interface residem em um ambiente controlado no servidor.
+
+[0104] 2.2.3 Micro-frontends
+
+[0105] No ecossistema de desenvolvimento front-end, a abordagem de micro-frontends consiste em dividir a aplicação em áreas menores, que são construídas, mantidas e alocadas de forma independente (Rappl, 2024). Essa técnica evita que o sistema como um todo seja comprometido por falhas isoladas, além de facilitar a colaboração entre equipes e a evolução tecnológica de componentes específicos, lidando com os desafios de implementação em larga escala (Cheripurathu; Kulkarni, 2024). Integrados a uma estrutura de SDUI, os micro-frontends podem ser utilizados para hospedar componentes complexos, como calculadoras de impacto ambiental e mapas interativos de rotas. Isso garante um código limpo e eficaz, permitindo que sistemas robustos manipulem grandes bases de dados para aprimorar suas funcionalidades.
+
+[0106] 2.3 CÁLCULO DA PEGADA DE CARBONO NA LOGÍSTICA
+
+[0107] A quantidade de emissão de CO₂ na jornada de entrega é calculada tendo como base a distância aproximada entre o centro de distribuição e o destino final, além de considerar o peso da mercadoria e o fator de emissão médio do combustível utilizado. Este cálculo considera um modelo de otimização bi-objetivo com vertentes ambientais e econômicas (Mundim, 2024).
+
+[0108] A partir de modelos matemáticos específicos, cruza-se dados geográficos e operacionais para gerar estimativas e indicadores de impacto ambiental. Para mapear o fluxo de mercadorias no território nacional e aplicar fórmulas que estimem a eficiência ecológica de rotas alternativas, utiliza-se o Brazilian E-Commerce Public Dataset (Olist, 2024). Contudo, cabe ressaltar as limitações inerentes ao modelo proposto: por se tratar de uma projeção, o cálculo não contempla variáveis dinâmicas de roteamento, tais como condições de tráfego em tempo real, topografia das vias, perfil de condução do motorista ou particularidades mecânicas dos veículos. Além disso, a dependência de dados baseados em códigos postais (CEPs) restringe a granularidade exata do trajeto trecho a trecho.
+
+[0109] Apesar destas restrições, este motor de cálculo integrado cumpre seu propósito arquitetural ao permitir que o sistema identifique rotas viáveis e sinalize ao usuário aquelas com maior potencial ecológico. Dessa forma, contribui para a conscientização sobre o desperdício de recursos energéticos e para a redução da pegada de carbono, alinhando a logística a análises de sustentabilidade (Cano et al., 2022).
+
+[0110] Por fim, pode-se compreender que os modelos de cálculo da pegada de carbono possibilitam estimar o impacto ambiental das operações logísticas a partir de variáveis mensuráveis, embora apresentem limitações inerentes ao uso de fatores médios. Ainda assim, quando utilizados como estimativas informativas, esses modelos tornam-se relevantes para apoiar a tomada de decisão do usuário, especialmente quando integrados dinamicamente à interface por meio de uma engine orientada por dados, como a proposta neste trabalho.
+
+[0111] 2.4 TECNOLOGIAS APLICADAS À PERSONALIZAÇÃO DE INTERFACES
+
+[0112] Para sustentar uma infraestrutura baseada em SDUI com cálculos executados em tempo real, é imperativo o uso de um conjunto tecnológico de alto desempenho, voltado para a construção de arquiteturas altamente escaláveis e orientadas a eventos. Por essa razão, adota-se o padrão Backend-for-Frontend (BFF), que centraliza a agregação das regras de negócio e formata os dados conforme a necessidade da interface (RATTANUKUL et al., 2023). Nesse sentido, o framework FastAPI é utilizado no backend para combinar alta velocidade de execução, tipagem estrita com Pydantic e processamento assíncrono nativo (RAMÍREZ, 2024). No frontend, a biblioteca React oferece um vasto ecossistema para a criação de interfaces, facilitando a renderização guiada pelo servidor. O uso de banco de dados em memória, como o Redis, atua no processo de cache, isto é, de retenção transitória das definições de interface e dos resultados dos cálculos, assegurando escalabilidade e baixa latência, além de mitigar acessos repetitivos ao banco relacional (REDIS, 2024). Por fim, para evitar pontos de falha e atestar a estabilidade da plataforma sob estresse, o sistema é validado em simulações de picos de demanda por meio da ferramenta de testes de carga Locust.
+
+[0113] 3 METODOLOGIA
+
+[0114] Este capítulo descreve os procedimentos empregados na preparação dos dados, na modelagem da arquitetura de software e no planejamento da avaliação técnica da solução, de modo que será dedicado à fundamentação conceitual, etapa que apresenta como o projeto será executado, quais componentes serão utilizados e de que maneira os resultados serão obtidos e analisados. O percurso metodológico foi dividido em três etapas: tratamento e exploração do dataset público da Olist; modelagem da arquitetura e dos fluxos de dados; e configuração do ambiente de testes e das métricas de desempenho, como visto na Figura 3.
+
+[0115] Figura 3 - Fluxograma geral da metodologia
+
+[0116] Fonte: Elaborada pelo autor
+
+[0117] Quanto à natureza, o trabalho caracteriza-se como uma pesquisa aplicada, pois busca desenvolver uma solução computacional para integrar personalização dinâmica de interfaces e recomendações logísticas de menor impacto ambiental. A abordagem será predominantemente quantitativa, considerando o tratamento de registros de comércio eletrônico, o cálculo estimado de emissões e a análise de métricas de desempenho. Também serão empregadas observações qualitativas para verificar a flexibilidade da interface orientada pelo servidor.
+
+[0118] 3.1 TRATAMENTO E EXPLORAÇÃO DO DATASET PÚBLICO DA OLIST
+
+[0119] A base de dados utilizada será o Brazilian E-Commerce Public Dataset by Olist, disponibilizado publicamente na plataforma Kaggle. O conjunto contém informações anonimizadas sobre mais de cem mil pedidos realizados em diferentes marketplaces brasileiros e reúne dados de pedidos, itens, produtos, vendedores, clientes, pagamentos, avaliações e localização geográfica (OLIST, 2024). Para este trabalho, serão selecionadas somente as tabelas relacionadas ao cálculo logístico e à composição contextual da interface.
+
+[0120] Inicialmente, os arquivos no formato CSV serão importados em Python com a biblioteca Pandas. A exploração inicial compreenderá a identificação das dimensões de cada tabela, a inspeção dos tipos de dados, a análise das chaves de relacionamento, a contagem de valores ausentes e a identificação de registros duplicados. Essa etapa permitirá verificar se os campos necessários ao cálculo, como prefixos de CEP, latitude, longitude, peso do produto e identificação do vendedor, apresentam qualidade suficiente para utilização no motor de recomendações.
+
+[0121] A integração será realizada principalmente entre as tabelas de pedidos, itens de pedido, produtos, vendedores, clientes e geolocalização. A tabela de itens permitirá relacionar cada pedido ao vendedor e ao produto; a tabela de produtos fornecerá o peso da mercadoria; as tabelas de clientes e vendedores fornecerão os prefixos de CEP; e a tabela de geolocalização permitirá associar esses prefixos às respectivas coordenadas geográficas. Os relacionamentos serão executados por meio das chaves disponibilizadas no próprio conjunto, mantendo-se apenas os campos necessários às etapas seguintes.
+
+[0122] O processo de higienização incluirá a remoção de duplicidades, a padronização dos tipos de dados e o tratamento dos registros sem informações essenciais. Pedidos sem coordenadas válidas de origem ou destino e produtos sem peso utilizável não poderão alimentar o cálculo da emissão. Para prefixos de CEP associados a múltiplas coordenadas, será calculada uma coordenada representativa, preferencialmente pela mediana da latitude e da longitude, reduzindo a influência de valores discrepantes. Também serão verificadas coordenadas fora dos limites geográficos esperados para o território brasileiro e valores de peso iguais ou inferiores a zero.
+
+[0123] Os arquivos originais serão preservados sem alterações. Ao término da etapa de transformação, será gerado um conjunto derivado e reproduzível, contendo a identificação do pedido, vendedor e produto, os prefixos de CEP, as coordenadas de origem e destino, o peso padronizado e os campos necessários ao cálculo de distância e emissão. Esse conjunto será utilizado pelo serviço de recomendação e armazenado no PostgreSQL para consultas posteriores.
+
+[0124] 3.2 MODELAGEM DA ARQUITETURA DE SOFTWARE E FLUXOS DE DADOS
+
+[0125] A arquitetura proposta será composta por uma interface web em React, uma camada Backend-for-Frontend implementada em FastAPI, um banco relacional PostgreSQL e uma camada de cache em Redis. O React funcionará como renderizador genérico, enquanto o servidor será responsável por consultar os dados, executar as regras de negócio, calcular o impacto logístico e determinar a estrutura da interface enviada ao usuário. Essa divisão preserva o princípio da Server-Driven UI, no qual as decisões de composição permanecem centralizadas no servidor (PERLIN et al., 2023). A organização desses componentes e suas próprias interações é mostrado na Figura 4.
+
+[0126] Figura 4 - Arquitetura da solução proposta
+
+[0127] Fonte: Elaborada pelo autor
+
+[0128] O fluxo será iniciado quando o usuário acessar uma página de produto ou solicitar opções de vendedores. O front-end enviará ao BFF as informações de contexto necessárias, incluindo o produto selecionado e o destino da entrega. O BFF validará a requisição e consultará o PostgreSQL para recuperar os vendedores disponíveis, a localização de origem, o peso do produto e os demais campos logísticos. Antes de realizar um novo processamento, o serviço verificará se existe uma resposta válida no Redis para a combinação consultada.
+
+[0129] Quando não houver resposta armazenada em cache, o BFF acionará o motor de recomendações logísticas. A adoção dessa fórmula fundamenta-se na complexidade analítica constante () e na estabilidade numérica para representações em ponto flutuante, viabilizando o processamento dinâmico no servidor sem onerar o tempo de resposta da interface. As diretrizes internacionais de mensuração de emissões em transporte de carga estabelecem que, na ausência de rastreamento veicular contínuo, a distância ortodrômica calculada em linha reta pode ser utilizada como estimativa inicial de referência, desde que documentada como uma aproximação e auditada frente à malha viária real (SMART FREIGHT CENTRE, 2023; ISO, 2023).
+
+[0130] A distância será calculada pela Equação 1:
+
+[0131] Em que  representa a distância geodésica em quilômetros,  corresponde ao raio médio da Terra, considerado igual a 6.371 km,  e  representam as latitudes dos pontos de origem e destino, em radianos; e  e  correspondem às respectivas longitudes, também em radianos.
+
+[0132] É importante destacar que a distância obtida pela fórmula de Haversine não corresponde necessariamente ao percurso realizado pelas rodovias, pois não considera curvas, desvios, restrições viárias, pedágios ou condições de tráfego. Portanto, neste trabalho, o resultado será empregado como uma aproximação geográfica padronizada para comparar vendedores submetidos ao mesmo método de cálculo, e não como uma representação exata da distância efetivamente percorrida pelo veículo. Essa abordagem está alinhada a diretrizes internacionais de logística sustentável, que preveem o uso de distâncias geográficas de referência na ausência de rotas detalhadas (ISO, 2023).
+
+[0133] Como forma de avaliar a influência dessa simplificação, será selecionada uma amostra de 100 pares de origem e destino, distribuída entre diferentes faixas de distância. Para cada par, o resultado de Haversine será comparado com a distância de uma rota calculada pelo Open Source Routing Machine (OSRM), serviço baseado na malha viária do OpenStreetMap. A comparação será realizada por meio do erro absoluto médio (MAE), do erro percentual absoluto médio (MAPE) e do coeficiente de correlação de Spearman. Também será verificado o percentual de casos em que os dois métodos preservam a mesma ordenação dos vendedores.
+
+[0134] A utilização dessas métricas permitirá verificar não somente a diferença entre as distâncias calculadas, mas também se a aproximação de Haversine é capaz de manter a finalidade principal do sistema: identificar comparativamente as alternativas de menor impacto ambiental. Caso sejam constatadas divergências relevantes, as limitações do método serão apresentadas na análise dos resultados, e as distâncias fornecidas pelo sistema serão classificadas explicitamente como estimativas comparativas.
+
+[0135] Após a obtenção da distância, a pegada de carbono da entrega é calculada pela abordagem Activity-Based (baseada na atividade de transporte), expressa pela relação:
+
+[0136] Em que  representa a emissão estimada em ,  corresponde à distância estimada em quilômetros (),  representa a massa transportada convertida para toneladas (), e  corresponde ao fator de emissão do transporte rodoviário, expresso em . Em conformidade com a ferramenta oficial do Programa Brasileiro GHG Protocol (2026), adotou-se o fator , valor de referência para a frota rodoviária média brasileira de veículos de carga a diesel. Essa parametrização assegura a consistência dimensional da equação e fornece um indicador auditável para classificar os vendedores com menor impacto ambiental estimado.
+
+[0137] O fator de emissão representa a quantidade estimada de gases de efeito estufa liberada durante o transporte de uma tonelada de carga ao longo de um quilômetro. Sua utilização permite relacionar a distância percorrida e a massa transportada ao impacto ambiental estimado da entrega. Para garantir a consistência dimensional do cálculo, todas as grandezas serão convertidas para unidades compatíveis antes da aplicação da equação.
+
+[0138] A estimativa obtida não representa uma medição direta das emissões do veículo, mas um indicador calculado a partir de dados logísticos e de parâmetros representativos do transporte rodoviário. Dessa forma, o resultado será utilizado para comparar as alternativas disponíveis sob os mesmos critérios, permitindo identificar aquelas com menor impacto ambiental estimado.
+
+[0139] Após calcular as alternativas válidas, o motor ordenará os vendedores de acordo com o impacto estimado. A opção de menor emissão será utilizada como referência sustentável, e a redução relativa poderá ser apresentada em comparação com outra alternativa disponível.
+
+[0140] Com base no resultado logístico e nas regras de contexto, a engine SDUI montará um payload JSON contendo os componentes a serem renderizados. A resposta poderá incluir o tipo do componente, textos, valores de emissão, percentual estimado de redução, selo de recomendação e ações disponíveis. O React interpretará esse contrato e associará cada tipo recebido ao componente visual correspondente, sem executar as regras responsáveis pela recomendação.
+
+[0141] Para evitar falhas na interface, o contrato de comunicação deverá validar os campos obrigatórios e prever um componente padrão para tipos desconhecidos. Quando não houver informações suficientes para o cálculo, o servidor não exibirá uma recomendação ambiental, evitando a apresentação de resultados baseados em dados incompletos ou inconsistentes.
+
+[0142] Respostas reutilizáveis serão armazenadas temporariamente no Redis, diminuindo consultas repetitivas ao PostgreSQL e reprocessamentos do motor logístico. Dessa forma, requisições equivalentes poderão utilizar resultados previamente calculados, contribuindo para a redução do tempo de resposta da aplicação.
+
+[0143] 3.3 CONFIGURAÇÃO DOS TESTES E DAS MÉTRICAS DE DESEMPENHO
+
+[0144] O ambiente de desenvolvimento será organizado com Docker e Docker Compose, permitindo executar os serviços de forma isolada e reproduzível. A composição deverá incluir, conforme o estágio de implementação, os contêineres do back-end FastAPI, PostgreSQL, Redis e front-end React. O código-fonte será mantido em um repositório Git, e as dependências serão registradas em arquivos próprios de cada serviço, facilitando a reprodução do ambiente utilizado nos testes.
+
+[0145] Antes dos testes de desempenho, serão realizados testes funcionais com entradas controladas. Serão selecionados casos em que distância, massa e fator de emissão possuam valores previamente conhecidos, permitindo conferir a conversão das unidades e o resultado da equação. Também serão verificadas a ordenação das alternativas, a geração do payload, a ausência de recomendação quando os dados forem insuficientes e a renderização dos componentes esperados pelo React.
+
+[0146] Os testes de desempenho e estresse serão executados utilizando a ferramenta Locust, adotando-se o padrão de carga em degraus (step-load pattern) para simular o comportamento concorrente de usuários na interface web. A carga será aplicada de forma progressiva sobre o endpoint responsável pela orquestração da SDUI e pelo cálculo de pegada de carbono, intercalando requisições com um tempo de reflexão (think time) parametrizado entre um e três segundos, modelando a navegação humana no catálogo de produtos.
+
+[0147] Para determinar a capacidade do sistema e os limites de saturação, foram delineados três cenários de teste com dimensões e objetivos operacionais distintos:
+
+[0148] a) Cenário de Carga Nominal (Linha de Base): simulação com 50 usuários virtuais simultâneos (Virtual Users - VU), inicializados a uma taxa de 5 usuários por segundo (spawn rate = 5 VU/s), sustentados em regime permanente por 5 minutos, visando estabelecer o tempo de resposta e a vazão em condições normais de uso;
+
+[0149] b) Cenário de Carga Operacional Típica: aumento para 250 usuários simultâneos com taxa de inicialização de 10 usuários por segundo (spawn rate = 10 VU/s), mantidos por 10 minutos, com o objetivo de analisar a estabilidade do pool de conexões assíncronas do FastAPI e do PostgreSQL;
+
+[0150] c) Cenário de Estresse e Saturação (Pico): dimensionado com 1.000 usuários virtuais e taxa de injeção acelerada de 25 usuários por segundo (spawn rate = 25 VU/s), mantidos em pico por 15 minutos, para identificar o ponto de esgotamento da CPU, a formação de filas no servidor e a taxa de erros sob condições extremas.
+
+[0151] A Tabela 1 sintetiza o planejamento dimensional e a parametrização dos cenários de teste de carga.
+
+[0152] Tabela 1 – Parâmetros de dimensionamento dos cenários de teste no Locust
+
+[0153] Parâmetro
+
+[0154] Cenário 1 (Nominal)
+
+[0155] Cenário 2 (Operacional)
+
+[0156] Cenário 3 (Estresse)
+
+[0157] Usuários Virtuais Concorrentes (VU)
+
+[0158] 50
+
+[0159] 250
+
+[0160] 1.000
+
+[0161] Taxa de Inicialização (Spawn Rate)
+
+[0162] 5 VU/s
+
+[0163] 10 VU/s
+
+[0164] 25 VU/s
+
+[0165] Tempo de Ramp-up (subida)
+
+[0166] 10 s
+
+[0167] 25 s
+
+[0168] 40 s
+
+[0169] Duração em Regime (Plateau)
+
+[0170] 5 min
+
+[0171] 10 min
+
+[0172] 15 min
+
+[0173] Think Time do Usuário
+
+[0174] 1 a 3 s
+
+[0175] 1 a 3 s
+
+[0176] 1 a 3 s
+
+[0177] Repetições por Condição de Cache
+
+[0178] 3 vezes
+
+[0179] 3 vezes
+
+[0180] 3 vezes
+
+[0181] Fonte: Elaborada pelos autores (2026).
+
+[0182] O protocolo experimental adotará procedimentos rigorosos de isolamento de variáveis para neutralizar interferências transientes do sistema operacional e oscilações no agendamento de processos em segundo plano. Cada um dos cenários dimensionados será executado em triplicata (três ensaios independentes) sob três estados da camada de persistência transitória em Redis: cache desabilitado, cache frio (cold cache) e cache aquecido (warm cache). No primeiro estado (bypass integral), o sistema é forçado a percorrer todo o ciclo computacional síncrono e assíncrono, que compreende a consulta relacional no PostgreSQL, o cálculo trigonométrico geodésico de Haversine e a montagem dinâmica da árvore de nós da SDUI, sendo que irá fixar a linha de base (baseline) de esforço da CPU e de saturação de conexões. No estado de cache frio, a persistência em memória é inicializada vazia para mensurar a penalidade de processamento decorrente de rajadas simultâneas de falhas de localização de chaves (cache misses). Por fim, o cache aquecido é condicionado por meio de um ciclo prévio de requisições de carga (pre-warming), viabilizando avaliar a capacidade limite de vazão da camada BFF quando os contratos JSON já residem estruturados em memória rápida. Para suprimir ruídos decorrentes de atrasos dinâmicos de rede externa (jitter e perda de pacotes), os contêineres do motor de aplicação, da base de dados e dos nós de injeção de carga do Locust serão orquestrados sob uma mesma sub-rede virtualizada isolada em modo bridge, garantindo o controle estrito do ambiente e a reprodutibilidade dos ensaios.
+
+[0183] Quanto à avaliação do tempo de resposta, a metodologia descarta o emprego exclusivo da média aritmética como indicador primário de desempenho. Em plataformas baseadas em laço de eventos assíncronos e operações de I/O não bloqueantes, como o FastAPI, a distribuição dos tempos de resposta é tipicamente assimétrica; nesses cenários, a média mascara comportamentos patológicos que degradam a experiência de parcelas expressivas de usuários. Conforme apontam Perlin et al. (2023), a validação de arquiteturas assíncronas de baixa latência voltadas à orquestração de interfaces e serviços exige a inspeção da latência mediana () conjugada aos percentis de cauda ( e ), os quais representam o teto do tempo de espera suportado por 95% e 99% das chamadas atendidas, respectivamente. Esse acompanhamento em cauda longa é determinante para identificar gargalos provocados pela concorrência no event loop, pelo bloqueio transitório do pool de conexões e por contenções na desserialização de dados complexos. Em complemento, será traçada a correlação entre a vazão em requisições por segundo (RPS) e a curva de elevação dos percentis de latência, com a finalidade de mapear o ponto de inflexão (knee of the curve), que é o estágio operacional em que o enfileiramento de requisições passa a degradar os tempos de resposta antes da perda efetiva de pacotes.
+
+[0184] A estabilidade e a integridade da arquitetura serão quantificadas pela taxa percentual de requisições com falha, segregadas segundo a classificação dos códigos de resposta do protocolo HTTP. Diante de picos de concorrência que sobrecarreguem o intermediador BFF ou esgotem os descritores de arquivos e sockets do sistema operacional, o comportamento de degradação será auditado por meio do registro de respostas com erro de processamento interno (HTTP 500) e indisponibilidade ou tempo limite de comunicação esgotado (HTTP 503 e 504), conforme a especificação do motor de testes de carga distribuídos (LOCUST, 2024). Os dados brutos gerados pelas três iterações de cada cenário serão submetidos a tratamento estatístico descritivo, calculando-se a média e o respectivo desvio padrão para cada métrica monitorada. Essa consolidação quantitativa garantirá a solidez analítica das conclusões, permitindo mensurar com precisão a redução da latência e o ganho de escalabilidade proporcionados pelo desacoplamento via SDUI e pela retenção de respostas em cache distribuído.
+
+[0185] Os resultados quantitativos obtidos nos ensaios de estresse serão sintetizados em tabelas comparativas e gráficos de dispersão e evolução temporal, confrontando a vazão em requisições por segundo com a elevação das curvas de latência nos percentis ,  e . Para garantir a auditabilidade e a reprodutibilidade integral dos experimentos, cada conjunto de dados será catalogado com os metadados do ambiente de execução, compreendendo o hash do commit no repositório Git, as versões das imagens dos contêineres Docker, o volume consolidado de dados persistido no PostgreSQL e o arquivo de parametrização (locustfile) empregado nos testes.
+
+[0186] De forma complementar à dimensão quantitativa, a flexibilidade da arquitetura Server-Driven UI será avaliada por meio de uma verificação qualitativa-estrutural de desacoplamento. Esse procedimento consistirá na execução de testes de mutação de contrato no servidor BFF, alterando dinamicamente a hierarquia dos nós da árvore JSON, como a reordenação de blocos de conteúdo, a injeção condicional de selos ecológicos de logística verde e a inserção de novos componentes visuais sem alterações no código-fonte do cliente web. A validação do desacoplamento será atestada pela capacidade do renderizador genérico em React de interpretar e refletir as novas diretrizes visuais em tempo de execução (runtime), sem demandar recompilação de pacotes (build) ou intervenções estruturais na camada de apresentação.
+
+[0187] 4 DESENVOLVIMENTO
+
+[0188] 4.1 ESPECIFICAÇÃO
+
+[0189] 4.1.1 Requisitos funcionais
+
+[0190] 4.1.2 Requisitos não funcionais, métricas e critérios de aceitação
+
+[0191] 4.1.3 Delimitações do escopo
+
+[0192] 4.2 PROJETO
+
+[0193] 4.2.1 Organização em Vertical Slices
+
+[0194] 4.2.2 Modelo de dados relacional (PostgreSQL)
+
+[0195] 4.2.3 Contrato SDUI (esquema e tipos de componentes)
+
+[0196] 4.3 IMPLEMENTAÇÃO
+
+[0197] 4.3.1 Tratamento e carga do dataset Olist
+
+[0198] 4.3.2 BFF em FastAPI: motor de cálculo logístico e cache (Redis)
+
+[0199] 4.3.3 Engine SDUI no servidor e renderizador React
+
+[0200] 4.3.4 Ambiente de execução (Docker Compose)
+
+[0201] 5 RESULTADOS
+
+[0202] 5.1 RESULTADOS QUANTITATIVOS
+
+[0203] 5.1.1 Qualidade e cobertura dos dados
+
+[0204] 5.1.2 Verificação funcional do motor de cálculo
+
+[0205] 5.1.3 Acurácia da distância: Haversine × OSRM
+
+[0206] 5.1.4 Potencial estimado de redução de emissões
+
+[0207] 5.1.5 Desempenho sob carga e efeito do cache
+
+[0208] 5.2 RESULTADOS QUALITATIVO-ESTRUTURAIS
+
+[0209] 5.2.1 Desacoplamento por mutação de contrato
+
+[0210] 5.2.2 Robustez do contrato: componentes desconhecidos e dados insuficientes
+
+[0211] 6 DISCUSSÃO E CONSIDERAÇÕES FINAIS
+
+[0212] 6.1 DISCUSSÃO
+
+[0213] 6.1.1 Relação de compromisso no projeto
+
+[0214] 6.1.2 Aderência aos objetivos e critérios de aceitação
+
+[0215] 6.2 LIMITAÇÕES E AMEAÇAS À VALIDADE
+
+[0216] 6.3 CONCLUSÃO
+
+[0217] 6.4 TRABALHOS FUTUROS
+
+[0218] REFERÊNCIAS
+
+[0219] CANO, Jose Alejandro; LONDOÑO-PINEDA, Abraham; OVALLE RODAS, C. Sustainable Logistics for E-Commerce: A Literature Review and Bibliometric Analysis. Sustainability, v. 14, n. 19, art. 12247, 27 set. 2022. DOI: 10.3390/su141912247.
+
+[0220] CHERIPURATHU, Kurian George; KULKARNI, Sanjeev. Integrating Microservices and Microfrontends: A Comprehensive Literature Review on Architecture, Design Patterns, and Implementation Challenges. Journal of Scientific Research and Technology, p. 1-12, 2 jul. 2024. DOI: 10.61808/jsrt115.
+
+[0221] EDRONE. Dados do e-commerce no Brasil: estatísticas e tendências. [S. l.], [202-?]. Disponível em: https://edrone.me/br/blog/dados-ecommerce-brasil. Acesso em: 14 abr. 2026.
+
+[0222] ISO. ISO 14083:2023: Greenhouse gases — Quantification and reporting of greenhouse gas emissions arising from operations of transport chains. Geneva: International Organization for Standardization, 2023. 108 p.
+
+[0223] LOCUST. Locust: an open source load testing tool. Versão 2.31. [S. l.]: Locust.io, 2024. Disponível em: https://docs.locust.io. Acesso em: 9 set. 2026.
+
+[0224] MUNDIM, Arianne Alves da Silva. Roteamento de Estoque e Transporte de Carga Multimodal: Otimização Bi-objetivo com Considerações Ambientais e Econômicas. 2024. 114 p. Tese (Doutorado em Ciências de Computação e Matemática Computacional) – Universidade de São Paulo, São Paulo, 2024.
+
+[0225] NAWAZ, Asif et al. Context-aware Frameworks and Architectures — A Comprehensive Survey. In: INTERNATIONAL CONFERENCE ON ADVANCED SCIENCE AND ENGINEERING TECHNOLOGIES (ASET), 2022. Proceedings [...]. IEEE, 21 fev. 2022. DOI: 10.1109/ASET53988.2022.9735024.
+
+[0226] OLIST. Brazilian E-Commerce Public Dataset by Olist. Kaggle, 2024. Disponível em: https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce. Acesso em: 28 mar. 2026.
+
+[0227] OLIVEIRA, M. O panorama do e-commerce no Brasil: tendências e desafios. São Paulo: Varejo Digital, 2022. 41 p.
+
+[0228] ORGANIZAÇÃO DAS NAÇÕES UNIDAS NO BRASIL. As Nações Unidas no Brasil. Brasília: ONU Brasil, 2024. Disponível em: https://brasil.un.org/pt-br. Acesso em: 28 mar. 2026.
+
+[0229] PEREIRA, T. Logística verde e a economia de baixo carbono. Manaus: EcoLog, 2024. 29 p.
+
+[0230] PERLIN, Rodrigo et al. An Approach to Follow Microservices Principles in Frontend. In: IEEE INTERNATIONAL CONFERENCE ON ADVANCED INFORMATION TECHNOLOGIES (AICT), 2023. Proceedings [...]. IEEE, 18 out. 2023. DOI: 10.1109/aict59525.2023.10313208.
+
+[0231] PROGRAMA BRASILEIRO GHG PROTOCOL. Ferramenta de cálculo. São Paulo: FGVces, 2026. Disponível em: https://ghgprotocolbrasil.com.br/ferramentas. Acesso em: 17 maio 2026.
+
+[0232] RAMÍREZ, Sebastián. FastAPI: high performance web framework for building APIs with Python. Versão 0.111. [S. l.]: Tiangolo, 2024. Disponível em: https://fastapi.tiangolo.com. Acesso em: 9 set. 2026.
+
+[0233] RAPPL, Florian. The Art of Micro Frontends: Build websites using compositional UIs that grow naturally as your application scales. 2. ed. Birmingham: Packt Publishing, 2024. 356 p.
+
+[0234] RATTANUKUL, Pattarakrit et al. Microusity: A testing tool for Backends for Frontends (BFF) Microservice Systems. In: INTERNATIONAL CONFERENCE ON PROGRAM COMPREHENSION (ICPC), 2023. Proceedings [...]. IEEE, maio 2023. DOI: 10.1109/icpc58990.2023.00021.
+
+[0235] REDIS. Redis documentation: in-memory data store and caching strategies. [S. l.]: Redis Ltd., 2024. Disponível em: https://redis.io/docs. Acesso em: 9 set. 2026.
+
+[0236] ROCHA, Hugo Filipe Oliveira. Practical Event-Driven Microservices Architecture: Building Sustainable and Highly Scalable Event-Driven Microservices. New York: Apress, 2022. 469 p.
+
+[0237] SILVA, Sérgio Ferrigo da. Inovação sustentável integrando Internet das coisas à logística 5.0: armazéns inteligentes como infraestruturas de serviço de apoio à sociedade. 2023. 152 p. Tese (Doutorado em Administração) – Universidade de Caxias do Sul, Caxias do Sul, 2023.
+
+[0238] SIMÃO, Angelo Guimarães; SALLES, Dayane Martins; FERNANDES, Valdir. Plataformas digitais de indicadores dos ODS: origem, abrangência e transparência. Revista Tecnologia e Sociedade, v. 20, n. 59, 15 abr. 2024. DOI: 10.3895/rts.v20n59.17828.
+
+[0239] SMART FREIGHT CENTRE. Global Logistics Emissions Council Framework for Logistics Emissions Accounting and Reporting (GLEC Framework). Versão 3.0. Amsterdam: Smart Freight Centre, 2023. 164 p. Disponível em: https://www.smartfreightcentre.org/en/glec-framework/. Acesso em: 9 set. 2026.
+
+[0240] TRANSVIAS. Pegada de carbono no transporte de cargas: como reduzir impactos ambientais. [S. l.], 6 out. 2025. Disponível em: https://noticias.transvias.com.br/2025/10/06/pegada-carbono-transporte-cargas/. Acesso em: 16 abr. 2026.
+
+[0241] ZUBAIDAH, Tantri Risda et al. Sustainable Business of E-Commerce in the Smart Economy: A Systematic Review of Roles and Challenges for Future Research. In: INTERNATIONAL CONFERENCE ON INFORMATION SYSTEMS AND SOFTWARE ENGINEERING (ICISS), 2024. Proceedings [...]. IEEE, 2024. DOI: 10.1109/iciss62896.2024.10751282.
