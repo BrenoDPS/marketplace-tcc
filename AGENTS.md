@@ -17,6 +17,7 @@ sem pedido explícito.
 | Latência, N+1, Redis, protocolo, workers | `docs/performance.md` §10–12 (as §§1–9 são histórico) |
 | Evidência já produzida | `docs/evidencia/`, `load/results/`, `docs/snapshots/` |
 | Defesa: promessa da metodologia × teste que prova × o que mudou | `docs/tese-rastreabilidade.md` — mantenha-o em dia a cada resultado ou desvio |
+| Revisar a monografia como orientador | `docs/tcc/MANUAL-REVISAO-AGENTE.md` — leia antes de avaliar qualquer texto em `docs/tcc/` |
 
 A tarefa atual é o que foi pedido na conversa. Se existir sprint ativa com
 handoff, ela está em `docs/PROJECT_BOOTSTRAP.md` → "Sprint ativa".
