@@ -72,6 +72,7 @@ linha reta é convertida em distância rodoviária pelo fator de circuidade 1,34
 pesado. A massa considerada é a massa cobrável, isto é, o maior valor entre o
 peso real e o peso cubado, calculado à razão de 6.000 cm³ por quilograma.
 **[Pendente: fonte do fator de cubagem.]**
+**[Pendente: incluir as referências novas e alinhar a versão do GLEC.]**
 
 **Escolha da oferta.** Um mesmo produto pode ser vendido por mais de um
 vendedor. Para que vitrine, detalhe e checkout mostrem sempre a mesma oferta,
