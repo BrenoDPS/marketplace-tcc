@@ -189,9 +189,8 @@ function DetailScreen() {
   return (
     <>
       <div className="flex items-start justify-between gap-4">
-        <p className="text-[11px] uppercase tracking-wide text-muted">
-          {detail?.screen_id ?? "carregando"}
-        </p>
+        {/* O `screen_id` aparece so na inspecao, no `ScreenMeta`. */}
+        <p className="text-[11px] uppercase tracking-wide text-muted">Produto</p>
         <button
           type="button"
           onClick={closeDetail}
@@ -333,9 +332,7 @@ function CheckoutScreen() {
     <>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-muted">
-            {checkout.screen_id}
-          </p>
+          <p className="text-[11px] uppercase tracking-wide text-muted">Checkout</p>
           <h2 className="font-display text-2xl text-ink">Compra simulada</h2>
         </div>
         <button

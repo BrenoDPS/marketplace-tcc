@@ -403,11 +403,12 @@ export function ShipmentBreakdown({ block }: { block: ShipmentBreakdownBlock }) 
               )}
             </div>
 
-            {/* A barra e o que faz a remessa dominante saltar aos olhos. */}
+            {/* A barra e o que faz a remessa dominante saltar aos olhos. Neutra:
+                o verde e sinal de "bom" e aqui mede o quanto a remessa emite. */}
             {shipment.co2_share !== null && (
               <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-line">
                 <div
-                  className="h-full rounded-full bg-signal"
+                  className="h-full rounded-full bg-muted"
                   style={{ width: `${shipment.co2_share * 100}%` }}
                 />
               </div>
@@ -474,8 +475,10 @@ export function DeliveryOptions({ block }: { block: DeliveryOptionsBlock }) {
             {option.co2_kg !== null && (
               <div>
                 <div className="h-1 w-full overflow-hidden rounded-full bg-line">
+                  {/* Verde so na opcao de menor emissao: barra verde mais longa
+                      na Expressa premiava a que mais emite. */}
                   <div
-                    className="h-full rounded-full bg-signal"
+                    className={`h-full rounded-full ${option.recommended ? "bg-signal" : "bg-muted"}`}
                     style={{ width: `${maxCo2 > 0 ? (option.co2_kg / maxCo2) * 100 : 0}%` }}
                   />
                 </div>

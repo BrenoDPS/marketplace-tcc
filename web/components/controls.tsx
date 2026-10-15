@@ -100,107 +100,135 @@ export function Controls({
 }) {
   const router = useRouter();
   const { cart, openCart, inspecting, toggleInspecting } = useSdui();
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const filter = { search, category };
   const cartCount = cart.reduce((sum, entry) => sum + entry.quantity, 0);
 
+  // Mostra o JSON por tras de cada bloco: e a prova ao vivo de que a tela vem
+  // montada do servidor, e nao um mockup. No celular fica no painel recolhivel.
+  const sduiToggle = (className: string) => (
+    <button
+      type="button"
+      aria-pressed={inspecting}
+      onClick={toggleInspecting}
+      title="Contorna cada bloco e mostra o JSON que veio do servidor"
+      className={`${className} rounded-full px-3 py-1.5 font-mono text-xs transition ${
+        inspecting ? "bg-signal text-white" : "text-muted hover:bg-line/60 hover:text-ink"
+      }`}
+    >
+      SDUI
+    </button>
+  );
+
+  /*
+   * Duas zonas: marca + contexto + busca | CEP, SDUI, carrinho. Cabe numa linha
+   * a partir de 1280 px; abaixo disso contexto e busca descem para uma segunda
+   * linha e, no celular, para um painel recolhivel — o cabecalho fixo ocupava
+   * ~165 px antes do conteudo.
+   */
   return (
     <header className="sticky top-0 z-10 border-b border-line bg-paper/85 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-6 py-3">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:px-6">
         <Link href="/" className="font-display text-lg tracking-tight text-ink">
           Olist<span className="text-signal">.</span>
         </Link>
 
-        <nav className="flex flex-wrap gap-1" aria-label="Contexto da vitrine">
-          {CONTEXTS.map((item) => (
-            <button
-              key={item.value}
-              type="button"
-              aria-current={item.value === context}
-              onClick={() => router.push(hrefFor(customerZipPrefix, item.value, filter))}
-              className={`rounded-full px-3 py-1.5 text-sm transition ${
-                item.value === context
-                  ? "bg-ink text-paper"
-                  : "text-muted hover:bg-line/60 hover:text-ink"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-
-        {/* `next/form` com action string = GET nativo: os campos viram query
-            string, a navegacao e client-side e continua funcionando sem JS.
-            Os hidden preservam CEP e contexto; omitir `category` limpa o
-            filtro de categoria a cada nova busca. */}
-        <Form action="/" className="order-last flex w-full gap-2 sm:order-none sm:ml-auto sm:w-auto">
-          <input type="hidden" name="customer_zip_prefix" value={customerZipPrefix} />
-          <input type="hidden" name="context" value={context} />
-          <input
-            // `key` amarrado ao termo forca o remount: sem isso o input fica
-            // com o valor antigo depois de uma navegacao client-side (ex.: "Ver
-            // tudo" limpa a vitrine mas a caixa continuava escrita "bebes").
-            key={search ?? ""}
-            name="q"
-            type="search"
-            defaultValue={search ?? ""}
-            placeholder="Buscar categoria…"
-            aria-label="Buscar por categoria"
-            className="w-full rounded-full border border-line bg-surface px-4 py-1.5 text-sm text-ink placeholder:text-muted/60 sm:w-52"
-          />
-          <button
-            type="submit"
-            className="shrink-0 rounded-full border border-line px-3.5 py-1.5 text-sm text-muted transition hover:border-ink/30 hover:text-ink"
-          >
-            Buscar
-          </button>
-        </Form>
-
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-muted">CEP</span>
-          <select
-            value={customerZipPrefix}
-            onChange={(e) => router.push(hrefFor(e.target.value, context, filter))}
-            className="rounded-full border border-line bg-surface px-3 py-1.5 text-ink"
-          >
-            {DEMO_ZIPS.some((z) => z.value === customerZipPrefix) ? null : (
-              <option value={customerZipPrefix}>{customerZipPrefix}</option>
-            )}
-            {DEMO_ZIPS.map((demo) => (
-              <option key={demo.value} value={demo.value}>
-                {demo.value} · {demo.label}
-              </option>
+        <div
+          id="filtros"
+          className={`${filtersOpen ? "flex" : "hidden"} order-last w-full flex-col gap-3 sm:flex sm:flex-row sm:flex-wrap sm:items-center xl:order-none xl:w-auto xl:flex-1 xl:flex-nowrap`}
+        >
+          <nav className="flex flex-wrap gap-1" aria-label="Contexto da vitrine">
+            {CONTEXTS.map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                aria-current={item.value === context}
+                onClick={() => router.push(hrefFor(customerZipPrefix, item.value, filter))}
+                className={`rounded-full px-3 py-1.5 text-sm transition ${
+                  item.value === context
+                    ? "bg-ink text-paper"
+                    : "text-muted hover:bg-line/60 hover:text-ink"
+                }`}
+              >
+                {item.label}
+              </button>
             ))}
-          </select>
-        </label>
+          </nav>
 
-        {/* Mostra o JSON por tras de cada bloco: e a prova ao vivo de que a
-            tela vem montada do servidor, e nao um mockup. */}
-        <button
-          type="button"
-          aria-pressed={inspecting}
-          onClick={toggleInspecting}
-          title="Contorna cada bloco e mostra o JSON que veio do servidor"
-          className={`rounded-full px-3 py-1.5 font-mono text-xs transition ${
-            inspecting
-              ? "bg-signal text-white"
-              : "text-muted hover:bg-line/60 hover:text-ink"
-          }`}
-        >
-          SDUI
-        </button>
+          {/* `next/form` com action string = GET nativo: os campos viram query
+              string, a navegacao e client-side e continua funcionando sem JS.
+              Os hidden preservam CEP e contexto; omitir `category` limpa o
+              filtro de categoria a cada nova busca. */}
+          <Form action="/" className="flex w-full gap-2 sm:w-auto xl:ml-auto">
+            <input type="hidden" name="customer_zip_prefix" value={customerZipPrefix} />
+            <input type="hidden" name="context" value={context} />
+            <input
+              // `key` amarrado ao termo forca o remount: sem isso o input fica
+              // com o valor antigo depois de uma navegacao client-side (ex.: "Ver
+              // tudo" limpa a vitrine mas a caixa continuava escrita "bebes").
+              key={search ?? ""}
+              name="q"
+              type="search"
+              defaultValue={search ?? ""}
+              placeholder="Buscar categoria…"
+              aria-label="Buscar por categoria"
+              className="w-full rounded-full border border-line bg-surface px-4 py-1.5 text-sm text-ink placeholder:text-muted/60 sm:w-48"
+            />
+            <button
+              type="submit"
+              className="shrink-0 rounded-full border border-line px-3.5 py-1.5 text-sm text-muted transition hover:border-ink/30 hover:text-ink"
+            >
+              Buscar
+            </button>
+          </Form>
+          {sduiToggle("self-start sm:hidden")}
+        </div>
 
-        <button
-          type="button"
-          onClick={() => openCart(true)}
-          className="flex items-center gap-2 rounded-full border border-line px-3.5 py-1.5 text-sm text-ink transition hover:border-ink/30"
-        >
-          Carrinho
-          {cartCount > 0 && (
-            <span className="rounded-full bg-signal px-1.5 py-0.5 text-[11px] font-medium tabular-nums leading-none text-white">
-              {cartCount}
-            </span>
-          )}
-        </button>
+        <div className="ml-auto flex items-center gap-2">
+          <label className="flex items-center gap-2 text-sm">
+            <span className="sr-only text-muted sm:not-sr-only">CEP</span>
+            <select
+              value={customerZipPrefix}
+              onChange={(e) => router.push(hrefFor(e.target.value, context, filter))}
+              aria-label="CEP de entrega"
+              className="rounded-full border border-line bg-surface px-3 py-1.5 text-ink"
+            >
+              {DEMO_ZIPS.some((z) => z.value === customerZipPrefix) ? null : (
+                <option value={customerZipPrefix}>{customerZipPrefix}</option>
+              )}
+              {DEMO_ZIPS.map((demo) => (
+                <option key={demo.value} value={demo.value} title={demo.label}>
+                  {demo.value} · {demo.uf}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          {sduiToggle("hidden sm:inline-flex")}
+
+          <button
+            type="button"
+            onClick={() => openCart(true)}
+            className="flex items-center gap-2 rounded-full border border-line px-3.5 py-1.5 text-sm text-ink transition hover:border-ink/30"
+          >
+            Carrinho
+            {cartCount > 0 && (
+              <span className="rounded-full bg-signal px-1.5 py-0.5 text-[11px] font-medium tabular-nums leading-none text-white">
+                {cartCount}
+              </span>
+            )}
+          </button>
+
+          <button
+            type="button"
+            aria-expanded={filtersOpen}
+            aria-controls="filtros"
+            onClick={() => setFiltersOpen((open) => !open)}
+            className="rounded-full border border-line px-3 py-1.5 text-sm text-muted transition hover:border-ink/30 hover:text-ink sm:hidden"
+          >
+            Filtros
+          </button>
+        </div>
       </div>
     </header>
   );

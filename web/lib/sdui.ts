@@ -206,8 +206,8 @@ export const CONTEXTS = [
 
 /** Pares documentados no README: um perto dos sellers da amostra, outro longe. */
 export const DEMO_ZIPS = [
-  { value: "05311", label: "São Paulo · SP", hint: "vendedores próximos" },
-  { value: "60165", label: "Fortaleza · CE", hint: "vendedores distantes" },
+  { value: "05311", label: "São Paulo · SP", uf: "SP", hint: "vendedores próximos" },
+  { value: "60165", label: "Fortaleza · CE", uf: "CE", hint: "vendedores distantes" },
 ] as const;
 
 /**
