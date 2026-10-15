@@ -67,7 +67,7 @@ ambiental sem base numérica.
 atividade, compatível com a ISO 14083 e com os fatores do GLEC Framework. O
 modelo evoluiu em relação ao fator único descrito no Capítulo 3: a distância em
 linha reta é convertida em distância rodoviária pelo fator de circuidade 1,345
-(GONÇALVES et al., 2014), e o percurso é dividido em dois trechos. Os últimos
+(LEE; CHAE, 2023), e o percurso é dividido em dois trechos. Os últimos
 15 km são feitos por van (WORLD ECONOMIC FORUM, 2024) e o restante por caminhão
 pesado. A massa considerada é a massa cobrável, isto é, o maior valor entre o
 peso real e o peso cubado, calculado à razão de 6.000 cm³ por quilograma.
@@ -403,6 +403,6 @@ O capítulo seguinte apresenta os resultados obtidos com esse sistema.
 |---|---|---|
 | Fonte do fator de cubagem (6.000 cm³/kg) | Citar a fonte ou trocar o valor; a convenção rodoviária brasileira costuma ser 300 kg/m³ (a verificar) | Sprint 12 — fator de cubagem |
 | Fatores das modalidades expressa e verde | Justificar ou citar os fatores (expressa: preço 1,6, CO₂ 2,5, prazo 0,5; verde: 0,85, 0,6, 1,5) | Sprint 12 — modalidades |
-| Referências novas | Incluir nas Referências: GONÇALVES et al. (2014), *Transportation Research Procedia* 3, p. 876-885; WORLD ECONOMIC FORUM (2024), *Transforming Urban Logistics*. O código usa os fatores do GLEC v2.0 (2019, rev. 2022); as Referências citam a v3.0 (2023) — alinhar | Sprint 11 — ajustes menores |
+| Referências novas | Incluir nas Referências: LEE; CHAE (2023), *ISPRS International Journal of Geo-Information* 12(2), 57 (substitui Gonçalves et al., 2014, fora da janela de 5 anos); WORLD ECONOMIC FORUM (2024), *Transforming Urban Logistics*. O código usa os fatores do GLEC v2.0 (2019, rev. 2022); as Referências citam a v3.0 (2023) — alinhar | Sprint 11 — ajustes menores |
 | Capítulo 3 | O Cap. 3 ainda descreve o fator único de 0,102 kg/(t·km) do GHG Protocol; o Cap. 4 agora diz que o modelo evoluiu. Ajustar o Cap. 3 ou manter a menção à evolução | Sprint 11 |
 | Figura 4 (Cap. 3) | Mostra "React" e "E = d × m × f"; a Figura 6 mostra o sistema implementado | — |

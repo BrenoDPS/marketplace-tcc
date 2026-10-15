@@ -104,7 +104,7 @@ erro cai para 8,7%. A Figura 10 mostra por que o viés restante é positivo: at�
 100 km, a razão entre rota e linha reta (1,34) coincide com o fator adotado;
 acima disso, as estradas são mais retas (1,22 a 1,28), e o motor superestima a
 distância, e portanto a emissão, em 5% a 10%. O resultado é coerente com a
-fonte do fator, estimado para distâncias menores (GONÇALVES et al., 2014).
+fonte do fator, estimado para distâncias menores (LEE; CHAE, 2023).
 
 Figura 10 - Distância em linha reta e distância de rota
 
