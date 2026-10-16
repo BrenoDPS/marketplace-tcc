@@ -42,7 +42,7 @@ handoff, ela está em `docs/PROJECT_BOOTSTRAP.md` → "Sprint ativa".
 - **Vertical Slice:** lógica nova vai para a fatia da responsabilidade em
   `src/features/` — `home_contextual` (composição da Home), `green_logistics`
   (CEP, distância, CO₂, selo, modalidades), `checkout`, `product_detail`,
-  `orchestrator` (stub).
+  `orchestrator` (mutações de contrato do modo apresentação; roteamento por `version` ainda stub).
 - **Oferta de um produto:** vitrine, detalhe e checkout escolhem o vendedor pela
   MESMA regra — `escolher_oferta` em `src/features/green_logistics/offers.py`
   (mais próxima; entre as equidistantes até 1%, a mais barata; nunca perde o
