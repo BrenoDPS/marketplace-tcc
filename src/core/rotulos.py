@@ -1,4 +1,4 @@
-"""Rotulo pt-BR das categorias do Olist.
+"""Rotulos pt-BR do que o Olist grava como slug: categorias e cidades.
 
 O dataset traz so o slug sem acento (`moveis_decoracao`), e o `.title()` sobre
 ele chegava a tela como "Moveis Decoracao". Um mapa por slug, compartilhado
@@ -87,3 +87,18 @@ CATEGORIAS: dict[str, str] = {
 
 def rotulo_categoria(slug: str) -> str:
     return CATEGORIAS.get(slug) or slug.replace("_", " ").title()
+
+
+_CONECTIVOS = {"da", "das", "de", "do", "dos", "e"}
+
+
+def rotulo_cidade(cidade: str | None) -> str | None:
+    """O Olist grava a cidade em minusculas e sem acento ("sao jose do rio
+    preto"). Capitaliza e deixa conectivos minusculos; acento nao ha de onde
+    tirar sem uma base de municipios."""
+    if not cidade:
+        return cidade
+    palavras = cidade.split()
+    return " ".join(
+        w if i > 0 and w in _CONECTIVOS else w[:1].upper() + w[1:] for i, w in enumerate(palavras)
+    )

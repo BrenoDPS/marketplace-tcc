@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.categorias import rotulo_categoria
+from src.core.rotulos import rotulo_categoria, rotulo_cidade
 from src.features.green_logistics.badge import (
     RESOLUTION_FLOOR_KM,
     build_sustainability_props,
@@ -40,7 +40,7 @@ def _title_for(product: ProductDetailRow) -> str:
 
 
 def _origem(product: ProductDetailRow) -> str:
-    where = ", ".join(p for p in (product.seller_city, product.seller_state) if p)
+    where = ", ".join(p for p in (rotulo_cidade(product.seller_city), product.seller_state) if p)
     return f" ({where})" if where else ""
 
 
@@ -146,7 +146,7 @@ async def compose_product_detail(
                 category=product.category,
                 weight_g=product.weight_g,
                 seller_id=product.seller_id,
-                seller_city=product.seller_city,
+                seller_city=rotulo_cidade(product.seller_city),
                 seller_state=product.seller_state,
                 # Nota so aparece se houver pedido avaliado; nunca preenchida
                 # com um valor "plausivel".
@@ -170,7 +170,9 @@ async def compose_product_detail(
             props=ImpactBannerProps(
                 distance_km=distance_km,
                 co2_kg=co2_kg,
-                badge=badge,
+                # Um selo por tela (D6): ele ja esta no `product_detail`, ao
+                # lado do preco. O banner explica o numero, nao o repete.
+                badge=None,
                 message=mensagem,
             ),
         ),

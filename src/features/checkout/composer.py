@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.categorias import rotulo_categoria
+from src.core.rotulos import rotulo_categoria
 from src.features.checkout.alternatives import build_alternatives
 from src.features.checkout.repository import (
     CheckoutProductRow,

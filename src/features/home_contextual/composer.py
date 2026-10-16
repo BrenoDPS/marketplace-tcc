@@ -11,7 +11,7 @@ from urllib.parse import urlencode
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.categorias import rotulo_categoria
+from src.core.rotulos import rotulo_categoria, rotulo_cidade
 from src.features.green_logistics.badge import RESOLUTION_FLOOR_KM
 from src.features.green_logistics.co2 import calculate_co2_kg
 from src.features.green_logistics.offers import escolher_oferta
@@ -360,7 +360,7 @@ async def compose_home(
                     title=_title_for(product.product_id, product.category),
                     image_url=None,
                     badge=badge,
-                    seller_city=product.seller_city,
+                    seller_city=rotulo_cidade(product.seller_city),
                     seller_state=product.seller_state,
                     **_card_impact(distance, product),
                 ),

@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const API_BASE = process.env.API_BASE_URL ?? "http://127.0.0.1:8000";
 
 const nextConfig: NextConfig = {
+  // O botao "N" do `next dev` aparecia em toda captura e gravacao da demo (D13).
+  devIndicators: false,
   // As `actions` do tipo `api_call` trazem caminhos absolutos da API
   // (ex.: /api/v1/checkout/simulate). O proxy deixa o fetch do browser sair
   // da mesma origem, entao o CORS do backend nao entra no caminho.

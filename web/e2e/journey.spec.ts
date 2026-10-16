@@ -101,9 +101,9 @@ test("jornada da defesa: do CEP ao comparativo de entrega", async ({ page }) => 
     await green.click();
 
     await expect(modal(page).getByRole("button", { name: "Adicionar ao carrinho" })).toBeVisible();
-    // Dois selos na tela de detalhe: um no `product_detail`, outro no
-    // `impact_banner` que vem junto na mesma resposta.
-    await expect(modal(page).getByText("Entrega local").first()).toBeVisible();
+    // Um selo por tela (D6): o do `product_detail`; o `impact_banner` explica
+    // o numero sem repetir o selo.
+    await expect(modal(page).getByText("Entrega local")).toHaveCount(1);
   });
 
   await test.step("adiciona ao carrinho e simula a compra", async () => {

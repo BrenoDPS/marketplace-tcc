@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { brl, cityLabel, co2Label, decimal } from "@/lib/sdui";
+import { useEffect, useRef, useState } from "react";
+import { brl, co2Label, decimal } from "@/lib/sdui";
 import type {
   Alternative,
   CategoryGridBlock,
@@ -34,16 +34,47 @@ export function Badge({ badge }: { badge: SustainabilityProps | null }) {
 export function CategoryGrid({ block }: { block: CategoryGridBlock }) {
   const { title, categories } = block.props;
   const { run } = useSdui();
+  const scroller = useRef<HTMLDivElement>(null);
+  // Bordas com conteudo escondido: so elas ganham fade e seta (D9 — os chips
+  // eram cortados na borda sem nada dizer que havia mais).
+  const [edges, setEdges] = useState({ start: false, end: false });
+  const measure = () => {
+    const el = scroller.current;
+    if (!el) return;
+    setEdges({
+      start: el.scrollLeft > 4,
+      end: el.scrollLeft + el.clientWidth < el.scrollWidth - 4,
+    });
+  };
+  useEffect(() => {
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [categories.length]);
+  const page = (dir: 1 | -1) =>
+    scroller.current?.scrollBy({ left: dir * scroller.current.clientWidth * 0.8, behavior: "smooth" });
   if (categories.length === 0) return null;
+
+  const mask = `linear-gradient(to right, ${edges.start ? "transparent, black 3rem" : "black"}, ${
+    edges.end ? "black calc(100% - 3rem), transparent" : "black"
+  })`;
+  const arrow =
+    "absolute top-1/2 hidden size-8 -translate-y-1/2 items-center justify-center rounded-full border border-line bg-surface text-muted shadow-sm transition hover:text-ink sm:flex";
 
   return (
     <section>
       {title && (
         <h2 className="text-[11px] uppercase tracking-[0.2em] text-muted">{title}</h2>
       )}
-      {/* Rolagem horizontal no mobile: 12 chips nao cabem em 375px sem virar
-          quatro linhas de altura. */}
-      <div className="-mx-6 mt-3 overflow-x-auto px-6">
+      {/* Rolagem horizontal: 12 chips nao cabem em 375px sem virar quatro
+          linhas de altura. No desktop, setas; no toque, o fade basta. */}
+      <div className="relative mt-3">
+      <div
+        ref={scroller}
+        onScroll={measure}
+        className="overflow-x-auto"
+        style={{ maskImage: mask, WebkitMaskImage: mask }}
+      >
         <ul className="flex w-max gap-2 pb-1">
           {categories.map((item) => (
             <li key={item.slug}>
@@ -66,6 +97,17 @@ export function CategoryGrid({ block }: { block: CategoryGridBlock }) {
             </li>
           ))}
         </ul>
+      </div>
+      {edges.start && (
+        <button type="button" onClick={() => page(-1)} aria-label="Categorias anteriores" className={`${arrow} -left-3`}>
+          ‹
+        </button>
+      )}
+      {edges.end && (
+        <button type="button" onClick={() => page(1)} aria-label="Mais categorias" className={`${arrow} -right-3`}>
+          ›
+        </button>
+      )}
       </div>
     </section>
   );
@@ -138,7 +180,7 @@ export function ProductCard({ block }: { block: ProductCardBlock }) {
   const { product_id, price, title, image_url, badge, seller_city, seller_state, distance_km, co2_kg } =
     block.props;
   const { run } = useSdui();
-  const origin = [seller_city && cityLabel(seller_city), seller_state].filter(Boolean).join(" · ");
+  const origin = [seller_city, seller_state].filter(Boolean).join(" · ");
   // O card carrega duas `api_call`: o GET abre o detalhe, o POST e o checkout.
   // Distinguir pelo metodo evita depender da ordem em que vieram.
   const detail = block.actions.find(
@@ -197,7 +239,6 @@ export function ProductDetail({ block }: { block: ProductDetailBlock }) {
     product_id,
     title,
     price,
-    category,
     weight_g,
     seller_city,
     seller_state,
@@ -205,7 +246,7 @@ export function ProductDetail({ block }: { block: ProductDetailBlock }) {
     review_count,
     badge,
   } = block.props;
-  const { addToCart, openCart, closeDetail } = useSdui();
+  const { addToCart, openCart, closeDetail, inspecting } = useSdui();
   const [quantity, setQuantity] = useState(1);
   const checkout = block.actions.find((a) => a.type === "api_call") ?? null;
 
@@ -220,7 +261,6 @@ export function ProductDetail({ block }: { block: ProductDetailBlock }) {
       : null,
     local ? ["Vendedor", local, ""] : null,
     weight_g ? ["Peso", `${decimal(weight_g, 0)} g`, ""] : null,
-    category ? ["Categoria", category.replace(/_/g, " "), ""] : null,
   ].filter((f): f is string[] => f !== null);
 
   const add = (thenOpenCart: boolean) => {
@@ -232,7 +272,8 @@ export function ProductDetail({ block }: { block: ProductDetailBlock }) {
   return (
     <section className="rounded-xl border border-line bg-surface p-6">
       <h2 className="font-display text-2xl text-ink">{title ?? product_id}</h2>
-      <p className="mt-1 font-mono text-[11px] text-muted">{product_id}</p>
+      {/* O id e um hash de 32 caracteres: so interessa a quem inspeciona o JSON. */}
+      {inspecting && <p className="mt-1 font-mono text-[11px] text-muted">{product_id}</p>}
 
       <div className="mt-4">{badge ? <Badge badge={badge} /> : null}</div>
       <p className="mt-4 font-display text-3xl text-ink">{brl(price)}</p>

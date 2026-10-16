@@ -267,7 +267,7 @@ async def test_card_sem_selo_ainda_diz_de_onde_vem_e_quanto_emite() -> None:
         if c["type"] == "product_card" and c["props"]["product_id"] == "prod_real_2"
     )
     assert far["badge"] is None
-    assert (far["seller_city"], far["seller_state"]) == ("fortaleza", "CE")
+    assert (far["seller_city"], far["seller_state"]) == ("Fortaleza", "CE")
     assert far["distance_km"] == 500.0
     assert far["co2_kg"] == pytest.approx(calculate_co2_kg(500.0, 300.0))
 
@@ -601,11 +601,19 @@ async def test_categoria_regional_sem_produto_cai_para_a_vitrine_geral() -> None
 def test_toda_categoria_do_dataset_tem_rotulo_com_acento() -> None:
     """D7: o `.title()` sobre o slug mostrava "Moveis Decoracao". Categoria nova
     cai no titulo antigo em vez de quebrar; esta lista e a do dataset Olist."""
-    from src.core.categorias import CATEGORIAS, rotulo_categoria
+    from src.core.rotulos import CATEGORIAS, rotulo_categoria
 
     assert len(CATEGORIAS) == 73
     assert rotulo_categoria("moveis_decoracao") == "Móveis e decoração"
     assert rotulo_categoria("categoria_nova") == "Categoria Nova"
+
+
+def test_cidade_capitalizada_com_conectivos_minusculos() -> None:
+    from src.core.rotulos import rotulo_cidade
+
+    assert rotulo_cidade("sao jose do rio preto") == "Sao Jose do Rio Preto"
+    assert rotulo_cidade("embu das artes") == "Embu das Artes"
+    assert rotulo_cidade(None) is None
 
 
 async def test_hero_regional_escreve_media_com_acento() -> None:

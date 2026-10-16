@@ -184,7 +184,7 @@ async def test_detail_carries_real_dataset_fields() -> None:
     assert props["title"] == "Informática e acessórios"
     assert props["price"] == pytest.approx(199.90)
     assert props["weight_g"] == pytest.approx(2500.0)
-    assert props["seller_city"] == "sao paulo"
+    assert props["seller_city"] == "Sao Paulo"
     assert props["seller_state"] == "SP"
 
 
@@ -213,7 +213,9 @@ async def test_badge_and_impact_reflect_the_customer_distance() -> None:
     # (21,315 * 0,092 + 15 * 0,680) * 0,0025 t = 0,03040245 kg
     assert banner["co2_kg"] == pytest.approx(0.03040245)
     assert "27 km" in banner["message"]
-    assert "sao paulo" in banner["message"]
+    assert "Sao Paulo" in banner["message"]
+    # Um selo por tela (D6): o do `product_detail`.
+    assert banner["badge"] is None
 
 
 async def test_distant_seller_has_no_badge() -> None:
@@ -248,7 +250,7 @@ async def test_escolhe_o_vendedor_mais_proximo_do_comprador() -> None:
     props = _block(body, "product_detail")["props"]
 
     assert props["seller_id"] == "seller_recife"
-    assert props["seller_city"] == "recife"
+    assert props["seller_city"] == "Recife"
     assert _block(body, "impact_banner")["props"]["distance_km"] == pytest.approx(27.0)
 
 
@@ -275,11 +277,11 @@ async def test_a_tela_revela_que_havia_outra_origem() -> None:
 
     assert "outro vendedor" in mensagem
     assert "2000 km" in mensagem
-    assert "maringa" in mensagem
+    assert "Maringa" in mensagem
     assert "evita" in mensagem
     # A origem escolhida aparece UMA vez: a primeira frase ja a nomeou, e o
     # comparativo so descreve a alternativa.
-    assert mensagem.count("recife") == 1
+    assert mensagem.count("Recife") == 1
 
 
 async def test_produto_de_um_vendedor_so_nao_inventa_comparacao() -> None:

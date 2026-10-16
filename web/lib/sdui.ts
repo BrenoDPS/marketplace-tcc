@@ -270,11 +270,5 @@ export const decimal = (value: number, digits: number) =>
  * 1 kg (antes ate 10 g: "0,02 kg" ao lado de "8,48 g"); mesma regra de
  * `format_co2` no servidor, que escreve o selo.
  */
-/** O Olist grava a cidade em minusculas ("sao paulo"); conectivos ficam minusculos. */
-export const cityLabel = (city: string) =>
-  city.replace(/\S+/g, (w, i) =>
-    i > 0 && /^(d[aeo]s?|e)$/.test(w) ? w : w[0].toUpperCase() + w.slice(1),
-  );
-
 export const co2Label = (kg: number) =>
   kg >= 1 ? `${decimal(kg, 2)} kg` : `${decimal(kg * 1000, kg < 0.01 ? 2 : 1)} g`;

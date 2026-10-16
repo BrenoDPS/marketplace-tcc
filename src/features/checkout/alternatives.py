@@ -22,7 +22,7 @@ Nenhum coeficiente arbitrado entra aqui.
 
 from __future__ import annotations
 
-from src.core.categorias import rotulo_categoria
+from src.core.rotulos import rotulo_categoria
 from src.features.checkout.repository import AlternativeRow, CheckoutProductRow
 from src.features.green_logistics.co2 import calculate_co2_kg
 from src.features.green_logistics.distance import haversine_km
