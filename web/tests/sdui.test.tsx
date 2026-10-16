@@ -346,7 +346,7 @@ describe("modo de inspecao", () => {
 // --- executor de actions ----------------------------------------------------
 
 function Probe() {
-  const { run, cart, addToCart, swapInCart, checkoutAction, error } = useSdui();
+  const { run, cart, addToCart, swapInCart, checkoutAction, error, impacto } = useSdui();
   return (
     <div>
       <button onClick={() => run({ type: "navigate", payload: { path: "/x", replace: false } })}>
@@ -376,11 +376,7 @@ function Probe() {
       <button onClick={() => checkoutAction && run(checkoutAction)}>checkout</button>
       <button
         onClick={() => {
-          const updated = swapInCart("p1", {
-            productId: "p2",
-            title: "Alternativa",
-            price: 19,
-          });
+          const updated = swapInCart("p1", { productId: "p2", title: "Alternativa", price: 19 }, 0.0123);
           if (checkoutAction) run(checkoutAction, { cart: updated });
         }}
       >
@@ -389,6 +385,7 @@ function Probe() {
       <span data-testid="count">{cart.length}</span>
       <span data-testid="ids">{cart.map((e) => `${e.productId}x${e.quantity}`).join(",")}</span>
       <span data-testid="error">{error ?? ""}</span>
+      <span data-testid="impacto">{`${impacto.kg}/${impacto.trocas}`}</span>
     </div>
   );
 }
@@ -517,6 +514,20 @@ describe("carrinho", () => {
     fireEvent.click(screen.getByText("add")); // p1, quantidade 2
     fireEvent.click(screen.getByText("swap"));
     expect(screen.getByTestId("ids").textContent).toBe("p2x2");
+  });
+
+  test("seu impacto soma o co2_saved_kg de cada troca e sobrevive a recarga da aba (V6)", () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => screenOf([]) }));
+    sessionStorage.clear();
+    const { unmount } = renderProbe();
+    expect(screen.getByTestId("impacto").textContent).toBe("0/0");
+    fireEvent.click(screen.getByText("add"));
+    fireEvent.click(screen.getByText("swap"));
+    expect(screen.getByTestId("impacto").textContent).toBe("0.0123/1");
+    unmount();
+    renderProbe();
+    expect(screen.getByTestId("impacto").textContent).toBe("0.0123/1");
+    sessionStorage.clear();
   });
 
   test("re-simulacao apos a troca envia o carrinho NOVO", async () => {

@@ -514,11 +514,11 @@ function Alternatives({ items }: { items: Alternative[] }) {
                   if (!action) return;
                   // O carrinho novo vai explicito: `setCart` nao atualiza o
                   // valor que `run` capturou no closure.
-                  const updated = swapInCart(alt.replaces_product_id, {
-                    productId: alt.product_id,
-                    title: alt.title,
-                    price: alt.price,
-                  });
+                  const updated = swapInCart(
+                    alt.replaces_product_id,
+                    { productId: alt.product_id, title: alt.title, price: alt.price },
+                    alt.co2_saved_kg,
+                  );
                   run(action, { cart: updated });
                 }}
                 className="shrink-0 rounded-full border border-signal/40 px-3 py-1 text-xs font-medium text-signal-ink transition hover:bg-signal-soft disabled:opacity-50"
@@ -535,6 +535,7 @@ function Alternatives({ items }: { items: Alternative[] }) {
 
 export function ShipmentBreakdown({ block }: { block: ShipmentBreakdownBlock }) {
   const { title, shipments, note } = block.props;
+  const { impacto } = useSdui();
   if (shipments.length === 0) return null;
 
   return (
@@ -604,6 +605,17 @@ export function ShipmentBreakdown({ block }: { block: ShipmentBreakdownBlock }) 
           </li>
         ))}
       </ul>
+
+      {/* "Seu impacto" (V6): fecha o ciclo da sugestao "Mais perto de voce"
+          no mesmo lugar em que a troca foi feita. Soma do `co2_saved_kg` de
+          cada troca aceita na sessao. */}
+      {impacto.trocas > 0 && (
+        <p role="status" className="mt-4 rounded-lg bg-signal-soft px-4 py-3 text-sm text-signal-ink">
+          <span className="font-medium">Seu impacto nesta sessão:</span>{" "}
+          {co2Label(impacto.kg)} de CO₂ a menos em {impacto.trocas}{" "}
+          {impacto.trocas === 1 ? "troca" : "trocas"} por um vendedor mais perto.
+        </p>
+      )}
 
       {note && <p className="mt-5 text-xs leading-relaxed text-muted">{note}</p>}
     </section>

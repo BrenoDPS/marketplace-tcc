@@ -87,6 +87,24 @@ export function readStoredCart(): CartEntry[] {
   }
 }
 
+/**
+ * "Seu impacto" (V6): CO2 evitado pelas trocas aceitas nesta sessao. E a soma
+ * dos `co2_saved_kg` que o servidor calculou para cada troca, no momento dela;
+ * o cliente so acumula. `sessionStorage`: some ao fechar a aba, sobrevive a recarga.
+ */
+export type Impacto = { kg: number; trocas: number };
+export const IMPACTO_STORAGE_KEY = "olist-sdui:impacto";
+
+function readStoredImpacto(): Impacto {
+  try {
+    const v = JSON.parse(sessionStorage.getItem(IMPACTO_STORAGE_KEY) ?? "null") as Partial<Impacto> | null;
+    if (typeof v?.kg === "number" && typeof v.trocas === "number" && v.kg >= 0) return { kg: v.kg, trocas: v.trocas };
+  } catch {
+    // storage bloqueado ou adulterado: comeca do zero
+  }
+  return { kg: 0, trocas: 0 };
+}
+
 function writeStoredCart(cart: CartEntry[]): void {
   try {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
@@ -125,8 +143,17 @@ type SduiValue = {
   ) => void;
   setQuantity: (productId: string, quantity: number) => void;
   removeFromCart: (productId: string) => void;
-  /** Troca um item pelo substituto sugerido e devolve o carrinho ja novo. */
-  swapInCart: (replacesProductId: string, entry: Omit<CartEntry, "quantity">) => CartEntry[];
+  /**
+   * Troca um item pelo substituto sugerido e devolve o carrinho ja novo.
+   * `co2SavedKg` (o `co2_saved_kg` da sugestao) entra no "Seu impacto".
+   */
+  swapInCart: (
+    replacesProductId: string,
+    entry: Omit<CartEntry, "quantity">,
+    co2SavedKg?: number,
+  ) => CartEntry[];
+  /** CO2 evitado pelas trocas aceitas nesta sessao (V6). */
+  impacto: Impacto;
   openCart: (open: boolean) => void;
   closeCheckout: () => void;
   /** Modo de inspecao: contorna cada bloco e expoe o JSON que veio do servidor. */
@@ -178,6 +205,7 @@ export function SduiProvider({
     initialCheckoutAction,
   );
   const [hydrated, setHydrated] = useState(false);
+  const [impacto, setImpacto] = useState<Impacto>({ kg: 0, trocas: 0 });
   // Nao persiste de proposito: e um modo de demonstracao, e comecar a sessao
   // com a tela contornada seria confuso.
   const [inspecting, setInspecting] = useState(false);
@@ -195,6 +223,7 @@ export function SduiProvider({
     // regra mira efeitos que sincronizam estado derivado, nao este caso.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setCart(readStoredCart());
+    setImpacto(readStoredImpacto());
     setHydrated(true);
   }, []);
 
@@ -365,14 +394,24 @@ export function SduiProvider({
         ),
       removeFromCart: (productId) =>
         setCart((current) => current.filter((e) => e.productId !== productId)),
-      swapInCart: (replacesProductId, entry) => {
+      swapInCart: (replacesProductId, entry, co2SavedKg = 0) => {
         // A quantidade acompanha a troca: quem tinha 2 unidades continua com 2.
         const updated = cart.map((e) =>
           e.productId === replacesProductId ? { ...entry, quantity: e.quantity } : e,
         );
         setCart(updated);
+        if (co2SavedKg > 0) {
+          const proximo = { kg: impacto.kg + co2SavedKg, trocas: impacto.trocas + 1 };
+          setImpacto(proximo);
+          try {
+            sessionStorage.setItem(IMPACTO_STORAGE_KEY, JSON.stringify(proximo));
+          } catch {
+            // sem storage o contador segue em memoria
+          }
+        }
         return updated;
       },
+      impacto,
       openCart: (open) => {
         setError(null);
         setCartOpen(open);
@@ -401,6 +440,7 @@ export function SduiProvider({
       run,
       mutacao,
       detailAction,
+      impacto,
     ],
   );
 
