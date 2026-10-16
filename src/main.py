@@ -8,6 +8,7 @@ from src.core import cache
 from src.core.config import settings
 from src.core.database import close_db
 from src.features.checkout.router import router as checkout_router
+from src.features.green_logistics.router import router as green_logistics_router
 from src.features.home_contextual.router import router as home_router
 from src.features.product_detail.router import router as product_detail_router
 
@@ -51,3 +52,4 @@ if settings.APP_ENV == "development":
 app.include_router(home_router, prefix="/api/v1")
 app.include_router(product_detail_router, prefix="/api/v1")
 app.include_router(checkout_router, prefix="/api/v1")
+app.include_router(green_logistics_router, prefix="/api/v1")

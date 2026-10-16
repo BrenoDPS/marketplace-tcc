@@ -1,11 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { brl, co2Label, decimal } from "@/lib/sdui";
 import type {
   Alternative,
   CategoryGridBlock,
   CheckoutSummaryBlock,
+  ContentSectionBlock,
   DeliveryOptionsBlock,
   HeroBannerBlock,
   Co2Explanation,
@@ -25,6 +27,8 @@ import { useSdui } from "./sdui-context";
  * Os numeros vem do servidor; aqui so formatacao.
  */
 function Co2Explainer({ e }: { e: Co2Explanation }) {
+  // O CEP da sessao vai junto so para o "Voltar a vitrine" da metodologia.
+  const { customerZipPrefix } = useSdui();
   const cubado = e.chargeable_weight_g > e.weight_g;
   const passos: [string, string][] = [
     ["Linha reta entre os CEPs", `${decimal(e.straight_km, 1)} km`],
@@ -68,6 +72,14 @@ function Co2Explainer({ e }: { e: Co2Explanation }) {
           ))}
         </ul>
         <p className="mt-2">Estimativa comparativa: serve para comparar origens, não para inventário de emissões.</p>
+        {e.methodology_path && (
+          <Link
+            href={`${e.methodology_path}?${new URLSearchParams({ customer_zip_prefix: customerZipPrefix })}`}
+            className="mt-2 inline-block font-medium text-signal-ink underline underline-offset-2"
+          >
+            Ver metodologia completa
+          </Link>
+        )}
       </div>
     </details>
   );
@@ -877,6 +889,29 @@ export function OriginMap({ block }: { block: OriginMapBlock }) {
         )}
       </ul>
       {caption && <p className="mt-2 text-xs leading-relaxed text-muted">{caption}</p>}
+    </section>
+  );
+}
+
+/** Secao de texto vinda do servidor (V7). Sem markdown nem HTML: so texto. */
+export function ContentSection({ block }: { block: ContentSectionBlock }) {
+  const { title, paragraphs, items, note } = block.props;
+  return (
+    <section className="rounded-xl border border-line bg-surface p-6">
+      <h2 className="font-display text-xl text-ink">{title}</h2>
+      {paragraphs.map((texto) => (
+        <p key={texto} className="mt-3 max-w-prose text-sm leading-relaxed text-ink/85">
+          {texto}
+        </p>
+      ))}
+      {items.length > 0 && (
+        <ul className="mt-3 max-w-prose list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-ink/85">
+          {items.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+      )}
+      {note && <p className="mt-4 text-xs leading-relaxed text-muted">{note}</p>}
     </section>
   );
 }

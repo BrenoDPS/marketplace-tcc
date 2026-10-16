@@ -6,6 +6,7 @@ import type { ScreenResponse, UIComponent } from "@/lib/sdui";
 import {
   CategoryGrid,
   CheckoutSummary,
+  ContentSection,
   DeliveryOptions,
   HeroBanner,
   ImpactBanner,
@@ -33,6 +34,7 @@ const REGISTRY = {
   impact_banner: ImpactBanner,
   offer_comparison: OfferComparison,
   origin_map: OriginMap,
+  content_section: ContentSection,
 } as const;
 
 /**

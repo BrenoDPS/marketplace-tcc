@@ -46,6 +46,8 @@ export type Co2Explanation = {
   mode_factor: number;
   co2_kg: number;
   sources: string[];
+  /** Caminho da metodologia completa (V7), dito pelo servidor. */
+  methodology_path?: string | null;
 };
 
 export type SustainabilityProps = {
@@ -212,6 +214,12 @@ export type DeliveryOptionsBlock = Envelope<
   }
 >;
 
+/** Secao de texto (Sprint 16, V7): a metodologia e o primeiro uso. */
+export type ContentSectionBlock = Envelope<
+  "content_section",
+  { title: string; paragraphs: string[]; items: string[]; note: string | null }
+>;
+
 /** Ponto ja projetado nas coordenadas do SVG pelo servidor (Sprint 15, V3). */
 export type MapPoint = { x: number; y: number; label: string; chosen: boolean; local: boolean };
 
@@ -262,7 +270,8 @@ export type UIComponent =
   | ShipmentBreakdownBlock
   | ImpactBannerBlock
   | OfferComparisonBlock
-  | OriginMapBlock;
+  | OriginMapBlock
+  | ContentSectionBlock;
 
 export type ScreenResponse = {
   schema_version: number;

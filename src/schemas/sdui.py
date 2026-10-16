@@ -72,6 +72,8 @@ class Co2ExplanationProps(BaseModel):
     mode_factor: float = 1.0  # modalidade de entrega (checkout); 1 = padrao
     co2_kg: float
     sources: list[str] = Field(default_factory=list)
+    # Onde esta a metodologia completa (V7): o servidor diz o caminho.
+    methodology_path: str | None = None
 
 
 class SustainabilityProps(BaseModel):
@@ -317,6 +319,16 @@ class OriginMapProps(BaseModel):
     caption: str | None = None
 
 
+class ContentSectionProps(BaseModel):
+    """Secao de texto (Sprint 16, V7): titulo, paragrafos, lista e nota. A
+    metodologia e o primeiro uso; serve a qualquer tela explicativa."""
+
+    title: str
+    paragraphs: list[str] = Field(default_factory=list)
+    items: list[str] = Field(default_factory=list)
+    note: str | None = None
+
+
 class ImpactBannerProps(BaseModel):
     distance_km: float | None = None
     co2_kg: float | None = None
@@ -391,6 +403,13 @@ class OriginMapBlock(BaseModel):
     actions: list[UIAction] = Field(default_factory=list)
 
 
+class ContentSectionBlock(BaseModel):
+    type: Literal["content_section"] = "content_section"
+    version: int = 1
+    props: ContentSectionProps
+    actions: list[UIAction] = Field(default_factory=list)
+
+
 class ImpactBannerBlock(BaseModel):
     type: Literal["impact_banner"] = "impact_banner"
     version: int = 1
@@ -410,6 +429,7 @@ UIComponent = Annotated[
         ShipmentBreakdownBlock,
         OfferComparisonBlock,
         OriginMapBlock,
+        ContentSectionBlock,
     ],
     Field(discriminator="type"),
 ]

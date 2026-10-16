@@ -32,6 +32,17 @@ async function readScreen(res: Response): Promise<ScreenResult> {
   return { ok: true, screen: parseScreen(body) };
 }
 
+/** Tela de metodologia (V7). O CEP so monta o "Voltar a vitrine". */
+export async function fetchMethodology(customerZipPrefix?: string): Promise<ScreenResult> {
+  const query = customerZipPrefix ? `?${new URLSearchParams({ customer_zip_prefix: customerZipPrefix })}` : "";
+  try {
+    const res = await fetch(`${API_BASE}/api/v1/methodology${query}`, { cache: "no-store" });
+    return await readScreen(res);
+  } catch {
+    return { ok: false, status: 503, detail: "API indisponível." };
+  }
+}
+
 export async function fetchHome(
   customerZipPrefix: string,
   context: string,

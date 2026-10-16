@@ -22,6 +22,8 @@ from src.features.green_logistics.co2 import (
 from src.schemas.sdui import Co2ExplanationProps, SustainabilityProps
 
 DISTANCE_THRESHOLD_KM: float = 100.0
+# Tela que explica tudo isto (V7); o explicador de cada selo aponta para ela.
+METODOLOGIA_PATH = "/metodologia"
 
 # Piso de resolucao do modelo. O centroide e a MEDIANA dos enderecos do prefixo,
 # e um endereco real fica a 0,50 km dele na mediana — p90 de 1,56 km, medido
@@ -96,4 +98,5 @@ def explicar_co2(
         mode_factor=co2_factor,
         co2_kg=co2_kg,
         sources=list(FONTES),
+        methodology_path=METODOLOGIA_PATH,
     )
