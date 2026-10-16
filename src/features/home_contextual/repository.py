@@ -32,6 +32,9 @@ class ProductRow:
     # Volume do dataset; entra no CO2 como massa cubada quando ela supera
     # a real. Default `None` para quem so tem massa (fixtures, chamadas antigas).
     volume_cm3: float | None = None
+    # Vem do JOIN com o vendedor que a consulta ja fazia: custa zero consulta.
+    seller_city: str | None = None
+    seller_state: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -159,6 +162,8 @@ async def fetch_products_for_home(
             Product.product_weight_g,
             Product.product_category_name,
             Product.product_volume_cm3,
+            Seller.seller_city,
+            Seller.seller_state,
         )
         .join(Product, Product.product_id == Offer.product_id)
         .join(Seller, Seller.seller_id == Offer.seller_id)
@@ -178,8 +183,10 @@ async def fetch_products_for_home(
             weight_g=float(weight_g) if weight_g is not None else None,
             category=cat,
             volume_cm3=float(volume) if volume is not None else None,
+            seller_city=city,
+            seller_state=state,
         )
-        for product_id, seller_id, zip_prefix, price, weight_g, cat, volume in result
+        for product_id, seller_id, zip_prefix, price, weight_g, cat, volume, city, state in result
     ]
 
 

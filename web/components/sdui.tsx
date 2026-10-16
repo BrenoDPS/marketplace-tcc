@@ -128,7 +128,7 @@ export function ScreenRenderer({ screen }: { screen: ScreenResponse }) {
       {inspecting && <ScreenMeta screen={screen} />}
       {groups.map((group, i) =>
         group[0].type === "product_card" ? (
-          <div key={i} className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div key={i} className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3">
             {group.map((block, j) => (
               <Block key={j} block={block} />
             ))}

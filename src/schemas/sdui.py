@@ -68,6 +68,14 @@ class ProductCardProps(BaseModel):
     title: str | None = None
     image_url: str | None = None
     badge: SustainabilityProps | None = None
+    # Origem e impacto em TODO card, nao so no que ganhou selo: sem isso a
+    # vitrine so dizia de onde vinha o que estava perto (Sprint 13, D2).
+    seller_city: str | None = None
+    seller_state: str | None = None
+    # Mesma convencao do `impact_banner`: abaixo do piso de resolucao (mesma
+    # regiao) os dois vem nulos e o selo fala por eles.
+    distance_km: float | None = None
+    co2_kg: float | None = None
 
 
 class HeroBannerProps(BaseModel):

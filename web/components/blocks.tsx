@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { brl, co2Label, decimal } from "@/lib/sdui";
+import { brl, cityLabel, co2Label, decimal } from "@/lib/sdui";
 import type {
   Alternative,
   CategoryGridBlock,
@@ -20,9 +20,9 @@ import { useSdui } from "./sdui-context";
 export function Badge({ badge }: { badge: SustainabilityProps | null }) {
   if (!badge) return null;
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-signal-soft px-2.5 py-1 text-[11px] font-medium leading-none text-signal-ink ring-1 ring-signal/20">
+    <span className="inline-flex w-fit items-center gap-1.5 rounded-2xl bg-signal-soft px-2.5 py-1 text-[11px] font-medium leading-tight text-signal-ink ring-1 ring-signal/20">
       {badge.icon === "leaf" && (
-        <svg viewBox="0 0 16 16" aria-hidden className="size-3 fill-current">
+        <svg viewBox="0 0 16 16" aria-hidden className="size-3 shrink-0 fill-current">
           <path d="M13.5 2.5c0 6-3.6 9-7.2 9a4 4 0 0 1-2.6-.9c1.4-3.4 4-5.3 6.8-6.3-2.9.6-5.5 2.3-7.2 5.4a5.2 5.2 0 0 1-.8-2.8c0-3 2.6-4.6 5.4-4.8 1.9-.1 3.6-.4 5.6.4Z" />
         </svg>
       )}
@@ -117,9 +117,27 @@ function coverStyle(productId: string) {
   };
 }
 
+/** "Esporte Lazer" -> "EL": sem foto no Olist, a capa leva a categoria. */
+function monogram(title: string) {
+  return title
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("")
+    .toUpperCase();
+}
+
+/**
+ * Capa baixa + titulo + ORIGEM + impacto. Ate a Sprint 12 a capa ocupava ~65%
+ * do card e so o selo dizia de onde o produto vinha — e so para quem estava
+ * perto. Agora todo card diz cidade/UF; distancia e CO2 aparecem no selo
+ * (perto) ou numa linha neutra (longe), nunca nos dois.
+ */
 export function ProductCard({ block }: { block: ProductCardBlock }) {
-  const { product_id, price, title, image_url, badge } = block.props;
+  const { product_id, price, title, image_url, badge, seller_city, seller_state, distance_km, co2_kg } =
+    block.props;
   const { run } = useSdui();
+  const origin = [seller_city && cityLabel(seller_city), seller_state].filter(Boolean).join(" · ");
   // O card carrega duas `api_call`: o GET abre o detalhe, o POST e o checkout.
   // Distinguir pelo metodo evita depender da ordem em que vieram.
   const detail = block.actions.find(
@@ -134,17 +152,33 @@ export function ProductCard({ block }: { block: ProductCardBlock }) {
       className="group flex flex-col overflow-hidden rounded-xl border border-line bg-surface text-left transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-ink/5 disabled:cursor-default"
     >
       <div
-        className="aspect-4/3 w-full"
+        className="flex h-14 w-full items-end px-3 pb-1.5 sm:h-20 sm:px-4"
         style={
           image_url
             ? { backgroundImage: `url(${image_url})`, backgroundSize: "cover" }
             : coverStyle(product_id)
         }
-      />
-      <div className="flex flex-1 flex-col gap-3 p-4">
-        <div className="min-h-9">{badge ? <Badge badge={badge} /> : null}</div>
-        <h3 className="text-sm font-medium text-ink">{title ?? product_id}</h3>
-        <p className="mt-auto font-display text-xl text-ink">{brl(price)}</p>
+      >
+        {!image_url && (
+          <span aria-hidden className="font-display text-2xl leading-none text-black/30 sm:text-3xl">
+            {monogram(title ?? product_id)}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col gap-1.5 p-3 sm:gap-2 sm:p-4">
+        <h3 className="text-sm font-medium leading-snug text-ink">{title ?? product_id}</h3>
+        {origin && <p className="truncate text-xs text-muted">Sai de {origin}</p>}
+        {badge ? (
+          <Badge badge={badge} />
+        ) : (
+          distance_km != null && (
+            <p className="text-xs tabular-nums text-muted">
+              {decimal(distance_km, 0)} km
+              {co2_kg != null && ` · ${co2Label(co2_kg)} CO₂`}
+            </p>
+          )
+        )}
+        <p className="mt-auto pt-1 font-display text-lg text-ink sm:text-xl">{brl(price)}</p>
       </div>
     </button>
   );

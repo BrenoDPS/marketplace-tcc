@@ -11,6 +11,8 @@ from urllib.parse import urlencode
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.features.green_logistics.badge import RESOLUTION_FLOOR_KM
+from src.features.green_logistics.co2 import calculate_co2_kg
 from src.features.green_logistics.offers import escolher_oferta
 from src.features.green_logistics.service import (
     build_badge_for_pair,
@@ -147,6 +149,15 @@ def _regional_hero(pick: RegionalPick, customer_zip_prefix: str) -> HeroBannerBl
         ),
         actions=[NavigateAction(payload=NavigatePayload(path=path))],
     )
+
+
+def _card_impact(distance: float | None, product: ProductRow) -> dict[str, float | None]:
+    """Distancia e CO2 do card, com a regra do `impact_banner` do detalhe:
+    abaixo do piso de resolucao nao se afirma numero (o selo diz "mesma regiao")."""
+    if distance is None or distance < RESOLUTION_FLOOR_KM:
+        return {"distance_km": None, "co2_kg": None}
+    co2 = calculate_co2_kg(distance, product.weight_g, product.volume_cm3) if product.weight_g else None
+    return {"distance_km": distance, "co2_kg": co2}
 
 
 def _title_for(product_id: str, category: str | None) -> str:
@@ -337,7 +348,7 @@ async def compose_home(
         _category_grid(categories, customer_zip_prefix, context, selected=category),
     ]
     for product in products:
-        _, badge = await build_badge_for_pair(
+        distance, badge = await build_badge_for_pair(
             session,
             customer_zip_prefix=customer_zip_prefix,
             seller_zip_prefix=product.seller_zip_prefix,
@@ -352,6 +363,9 @@ async def compose_home(
                     title=_title_for(product.product_id, product.category),
                     image_url=None,
                     badge=badge,
+                    seller_city=product.seller_city,
+                    seller_state=product.seller_state,
+                    **_card_impact(distance, product),
                 ),
                 actions=[
                     _detail_action(product.product_id, customer_zip_prefix),

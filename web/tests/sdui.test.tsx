@@ -14,7 +14,7 @@ import {
   readStoredCart,
   useSdui,
 } from "@/components/sdui-context";
-import { co2Label, decimal, findCheckoutAction, parseScreen } from "@/lib/sdui";
+import { cityLabel, co2Label, decimal, findCheckoutAction, parseScreen } from "@/lib/sdui";
 import type { ProductCardBlock, ScreenResponse, UIComponent } from "@/lib/sdui";
 
 // jsdom nao implementa a API de `<dialog>`; o `Modal` usa `showModal`/`close`
@@ -112,6 +112,18 @@ describe("ScreenRenderer", () => {
     expect(container.querySelectorAll(".grid")).toHaveLength(1);
     expect(screen.getByText("Produto p1")).toBeTruthy();
     expect(screen.getByText("Produto p2")).toBeTruthy();
+  });
+
+  test("card sem selo diz de onde vem, a que distancia e quanto emite (D2)", () => {
+    const longe = card("p1");
+    longe.props = { ...longe.props, seller_city: "sao jose do rio preto", seller_state: "SP", distance_km: 403.2, co2_kg: 0.04 };
+    render(
+      <SduiProvider customerZipPrefix="05311">
+        <ScreenRenderer screen={screenOf([longe])} />
+      </SduiProvider>,
+    );
+    expect(screen.getByText("Sai de Sao Jose do Rio Preto · SP")).toBeTruthy();
+    expect(screen.getByText("403 km · 0,04 kg CO₂")).toBeTruthy();
   });
 
   test("bloco entre cards quebra a grade em duas", () => {
@@ -590,6 +602,11 @@ describe("formatacao de CO2", () => {
 
   test("nunca imprime um zero seco", () => {
     expect(co2Label(0.0004184)).not.toBe("0,00 kg");
+  });
+
+  test("cidade do Olist vem minuscula; conectivos continuam minusculos", () => {
+    expect(cityLabel("sao jose do rio preto")).toBe("Sao Jose do Rio Preto");
+    expect(cityLabel("embu das artes")).toBe("Embu das Artes");
   });
 
   test("decimal usa virgula pt-BR", () => {

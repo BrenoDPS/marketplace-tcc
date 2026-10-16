@@ -13,6 +13,8 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 from src.core.database import get_db
+from src.features.green_logistics.co2 import calculate_co2_kg
+from src.features.home_contextual.composer import _card_impact
 from src.features.home_contextual.repository import CategoryRow, ProductRow, RegionalPick
 from src.main import app
 from src.schemas.sdui import SustainabilityProps
@@ -36,6 +38,8 @@ PRODUCTS_FIXTURE = [
         price=89.50,
         weight_g=300.0,
         category="informatica_acessorios",
+        seller_city="fortaleza",
+        seller_state="CE",
     ),
     # Categoria diferente e seller sem centroide: exercita filtro e o
     # "sem distancia vai para o fim" da ordenacao do conscious_buyer.
@@ -249,6 +253,33 @@ async def test_badge_null_for_distant_seller() -> None:
     cards = [c for c in body["components"] if c["type"] == "product_card"]
     far_card = next(c for c in cards if c["props"]["product_id"] == "prod_real_2")
     assert far_card["props"]["badge"] is None
+
+
+async def test_card_sem_selo_ainda_diz_de_onde_vem_e_quanto_emite() -> None:
+    """D2: origem, distancia e CO2 em todo card — antes so o selo falava, e so
+    para quem estava perto."""
+    _, body = await _get(
+        "/api/v1/home?customer_zip_prefix=01000&context=electronics_expert"
+    )
+    assert isinstance(body, dict)
+    far = next(
+        c["props"] for c in body["components"]
+        if c["type"] == "product_card" and c["props"]["product_id"] == "prod_real_2"
+    )
+    assert far["badge"] is None
+    assert (far["seller_city"], far["seller_state"]) == ("fortaleza", "CE")
+    assert far["distance_km"] == 500.0
+    assert far["co2_kg"] == pytest.approx(calculate_co2_kg(500.0, 300.0))
+
+
+def test_card_na_mesma_regiao_nao_afirma_numero() -> None:
+    """Abaixo do piso de resolucao, a mesma regra do `impact_banner`: nulo."""
+    row = PRODUCTS_FIXTURE[0]
+    assert _card_impact(0.4, row) == {"distance_km": None, "co2_kg": None}
+    assert _card_impact(None, row) == {"distance_km": None, "co2_kg": None}
+    sem_peso = ProductRow(product_id="p", seller_id="s", seller_zip_prefix="01001",
+                          price=1.0, weight_g=None, category=None)
+    assert _card_impact(12.0, sem_peso) == {"distance_km": 12.0, "co2_kg": None}
 
 
 async def test_sdui_envelope_preserved() -> None:

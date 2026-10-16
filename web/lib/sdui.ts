@@ -79,6 +79,12 @@ export type ProductCardBlock = Envelope<
     title: string | null;
     image_url: string | null;
     badge: SustainabilityProps | null;
+    // Sprint 13 (D2). Opcionais: um servidor anterior nao os manda e o card
+    // so omite a linha. Distancia e CO2 nulos abaixo do piso de resolucao.
+    seller_city?: string | null;
+    seller_state?: string | null;
+    distance_km?: number | null;
+    co2_kg?: number | null;
   }
 >;
 
@@ -263,5 +269,11 @@ export const decimal = (value: number, digits: number) =>
  * e "0,00 kg" apagaria justamente o numero que sustenta o trabalho. Abaixo de
  * 10 g exibimos em gramas.
  */
+/** O Olist grava a cidade em minusculas ("sao paulo"); conectivos ficam minusculos. */
+export const cityLabel = (city: string) =>
+  city.replace(/\S+/g, (w, i) =>
+    i > 0 && /^(d[aeo]s?|e)$/.test(w) ? w : w[0].toUpperCase() + w.slice(1),
+  );
+
 export const co2Label = (kg: number) =>
   kg >= 0.01 ? `${decimal(kg, 2)} kg` : `${decimal(kg * 1000, 2)} g`;
