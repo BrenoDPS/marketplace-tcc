@@ -1,13 +1,14 @@
 """Acesso a `cep_centroids` — a tabela inteira vive em memoria.
 
-São 6403 linhas, 520 kB no Postgres e ~1,1 MB como `dict`. É dado de referência
+São 12.933 linhas (o ETL grava todos os prefixos do dataset), ~1,1 MB no
+Postgres e ~2,8 MB em memória, contando o `dict` de UF. É dado de referência
 **estático**: o ETL escreve uma vez, e nada em runtime altera. Manter a tabela
 no processo troca uma ida ao banco por uma busca em `dict`, e serve as duas
 perguntas que o resto do sistema faz — "onde fica este prefixo?" e "quais
 prefixos existem?".
 
 Antes disto, montar a Home do `conscious_buyer` custava 27 idas ao banco, e o
-`list_known_prefixes` sozinho — `SELECT` dos 6403 prefixos para validar **um** —
+`list_known_prefixes` sozinho — `SELECT` de todos os prefixos para validar **um** —
 era ~48% de uma Home `default`. Ver `docs/performance.md`.
 """
 
@@ -32,7 +33,7 @@ _centroids: dict[str, tuple[float, float]] | None = None
 # regional da Home pergunta "de que estado e este CEP?" a cada requisicao.
 _ufs: dict[str, str] = {}
 # So protege a PRIMEIRA carga: sem ele, N requisicoes concorrentes num processo
-# frio disparariam N vezes o mesmo SELECT de 6403 linhas.
+# frio disparariam N vezes o mesmo SELECT da tabela inteira.
 _loading = asyncio.Lock()
 
 

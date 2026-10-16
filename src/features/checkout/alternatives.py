@@ -7,17 +7,20 @@ de CO2 a troca economizaria.
 
 HONESTIDADE DOS DADOS — ler antes de citar isto no TCC:
 
-Nao e "o mesmo produto em outro vendedor". O Olist nao tem catalogo
-compartilhado entre sellers: cada `product_id` pertence a um vendedor. O mais
-proximo que da para afirmar com este dataset e "outro produto da MESMA
-CATEGORIA, de um vendedor mais perto de voce". Por isso a sugestao mostra
-preco e distancia do substituto — a troca nao e equivalente, e quem decide e o
-usuario.
+Nao e "o mesmo produto em outro vendedor". Esse caso existe — centenas de
+produtos da amostra tem mais de um vendedor (tabela `offers`) — mas ja e
+resolvido antes, na escolha da oferta (`green_logistics/offers.escolher_oferta`):
+o carrinho chega aqui com a origem mais proxima do proprio produto. O que este
+modulo sugere e "outro produto da MESMA CATEGORIA, de um vendedor mais perto de
+voce". Por isso a sugestao mostra preco e distancia do substituto — a troca
+nao e equivalente, e quem decide e o usuario.
 
-A economia e real e vem so de dados reais: distancia (Haversine sobre
-centroides de CEP), massa cobravel (`max` entre `product_weight_g` e o peso
-cubado das dimensoes, ver `co2.chargeable_weight_g`) e o FE do GHG Protocol.
-Nenhum coeficiente arbitrado entra aqui.
+A economia vem do motor de CO2 (`green_logistics/co2.py`, cadeia de transporte
+ISO 14083/GLEC): distancia (Haversine sobre centroides de CEP, convertida em
+estrada), massa cobravel (`max` entre `product_weight_g` e o peso cubado, ver
+`co2.chargeable_weight_g`) e os fatores GLEC por veiculo. O unico coeficiente
+arbitrado e o `co2_factor` da modalidade escolhida (cenario declarado em
+`delivery_options.py`), aplicado igualmente ao item e ao substituto.
 """
 
 from __future__ import annotations
