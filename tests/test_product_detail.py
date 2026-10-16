@@ -139,6 +139,15 @@ async def _fake_distance(
     return DISTANCE_BY_SELLER_ZIP.get(seller_zip_prefix)
 
 
+# Centroides (lat, lng) para o mapa de origem. `99999` fica de fora de proposito:
+# vendedor sem centroide nao entra no mapa.
+CENTROIDS = {"05311": (-23.50, -46.75), "08275": (-23.60, -46.45), "60000": (-3.73, -38.52)}
+
+
+async def _fake_centroid(_session: object, zip_prefix: str) -> tuple[float, float] | None:
+    return CENTROIDS.get(zip_prefix)
+
+
 @pytest.fixture(autouse=True)
 def patch_dependencies(monkeypatch: pytest.MonkeyPatch) -> None:
     app.dependency_overrides[get_db] = _override_get_db
@@ -152,6 +161,7 @@ def patch_dependencies(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(
         "src.features.product_detail.composer.compute_distance_km", _fake_distance
     )
+    monkeypatch.setattr("src.features.product_detail.composer.get_centroid", _fake_centroid)
     yield
     app.dependency_overrides.clear()
 
@@ -176,7 +186,7 @@ async def test_returns_a_screen_response() -> None:
     assert status == 200
     assert body["screen_id"] == "product_detail"
     assert body["context"] == "product"
-    assert [c["type"] for c in body["components"]] == ["product_detail", "impact_banner"]
+    assert [c["type"] for c in body["components"]] == ["product_detail", "impact_banner", "origin_map"]
 
 
 async def test_detail_carries_real_dataset_fields() -> None:
@@ -377,7 +387,7 @@ def test_co2_evitado_e_a_diferenca_das_emissoes_nao_a_emissao_da_diferenca() -> 
 async def test_comparador_lista_as_origens_da_mais_proxima_para_a_mais_distante() -> None:
     _, body = await _get("/api/v1/products/prod_dois_vendedores?customer_zip_prefix=05311")
     tipos = [c["type"] for c in body["components"]]
-    assert tipos == ["product_detail", "impact_banner", "offer_comparison"]
+    assert tipos == ["product_detail", "impact_banner", "origin_map", "offer_comparison"]
 
     ofertas = _block(body, "offer_comparison")["props"]["offers"]
     assert [o["seller_id"] for o in ofertas] == ["seller_recife", "seller_maringa"]
@@ -402,3 +412,25 @@ def test_motivo_do_desempate_por_preco() -> None:
     assert _motivo(27.0, 27.0) == "A mais próxima de você."
     assert "mais barata" in _motivo(27.2, 27.0)
     assert _motivo(INFINITY, INFINITY).startswith("Nenhuma origem")
+
+
+# --- origin_map (Sprint 15, V3) ----------------------------------------------
+
+async def test_mapa_traz_comprador_e_origens_ja_projetados() -> None:
+    from src.features.green_logistics import mapa
+
+    _, body = await _get("/api/v1/products/prod_dois_vendedores?customer_zip_prefix=05311")
+    props = _block(body, "origin_map")["props"]
+    assert (props["buyer"]["x"], props["buyer"]["y"]) == mapa.projetar(-23.50, -46.75)
+    # Da mais distante para a mais proxima: a escolhida e desenhada por ultimo, por cima.
+    assert [o["chosen"] for o in props["origins"]] == [False, True]
+    assert props["origins"][1]["label"] == "Recife, PE · 27 km"
+    assert props["radius_100km"] == mapa.raio(100.0)
+    # O recorte enquadra os pontos: Fortaleza (60000) esta longe, entao o quadro e grande.
+    _, _, largura, _ = map(float, props["viewbox"].split())
+    assert largura > 300
+
+
+async def test_sem_centroide_de_nenhuma_origem_nao_ha_mapa() -> None:
+    _, body = await _get("/api/v1/products/prod_sem_centroide?customer_zip_prefix=05311")
+    assert "origin_map" not in [c["type"] for c in body["components"]]

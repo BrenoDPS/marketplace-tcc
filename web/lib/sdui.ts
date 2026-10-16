@@ -212,6 +212,25 @@ export type DeliveryOptionsBlock = Envelope<
   }
 >;
 
+/** Ponto ja projetado nas coordenadas do SVG pelo servidor (Sprint 15, V3). */
+export type MapPoint = { x: number; y: number; label: string; chosen: boolean; local: boolean };
+
+export type OriginMapBlock = Envelope<
+  "origin_map",
+  {
+    title: string;
+    /** Recorte que enquadra os pontos; `width`/`height` sao do mapa inteiro. */
+    viewbox: string;
+    width: number;
+    height: number;
+    background_url: string | null;
+    buyer: MapPoint;
+    origins: MapPoint[];
+    radius_100km: number;
+    caption: string | null;
+  }
+>;
+
 /** Uma origem do mesmo produto (Sprint 15, V1). */
 export type OfferOption = {
   seller_id: string;
@@ -242,7 +261,8 @@ export type UIComponent =
   | DeliveryOptionsBlock
   | ShipmentBreakdownBlock
   | ImpactBannerBlock
-  | OfferComparisonBlock;
+  | OfferComparisonBlock
+  | OriginMapBlock;
 
 export type ScreenResponse = {
   schema_version: number;

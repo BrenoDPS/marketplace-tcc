@@ -180,6 +180,30 @@ describe("ScreenRenderer", () => {
     expect(screen.getByText("Circuidade 1,345: Lee e Chae (2023).")).toBeTruthy();
   });
 
+  test("mapa de origem desenha os pontos que o servidor projetou (V3)", () => {
+    const mapa: UIComponent = {
+      type: "origin_map",
+      version: 1,
+      props: {
+        title: "De onde sai", viewbox: "300 400 160 100", width: 776, height: 790, background_url: null,
+        buyer: { x: 380, y: 450, label: "Você", chosen: false, local: false },
+        origins: [
+          { x: 420, y: 470, label: "Recife, PE · 2100 km", chosen: false, local: false },
+          { x: 384, y: 452, label: "Osasco, SP · 12 km", chosen: true, local: true },
+        ],
+        radius_100km: 18, caption: null,
+      },
+      actions: [],
+    };
+    render(
+      <SduiProvider customerZipPrefix="05311">
+        <ScreenRenderer screen={screenOf([mapa])} />
+      </SduiProvider>,
+    );
+    expect(screen.getByRole("img", { name: "Você e 2 origens no mapa; escolhida: Osasco, SP · 12 km" })).toBeTruthy();
+    expect(screen.getByText("1 outra origem")).toBeTruthy();
+  });
+
   test("bloco entre cards quebra a grade em duas", () => {
     const { container } = render(
       <SduiProvider customerZipPrefix="05311">

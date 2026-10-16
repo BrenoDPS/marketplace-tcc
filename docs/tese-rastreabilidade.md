@@ -11,8 +11,8 @@
 
 | Suíte | Comando | Último resultado | Data |
 |---|---|---|---|
-| Backend (unitários + integração por `dependency_overrides`) | `pytest -q` (sem Redis: `tests/conftest.py`) | **214 passed** | 2026-10-15 |
-| Frontend (executor de `actions`, `ScreenRenderer`, carrinho, envelope malformado) | `cd web && npm test` | **39 passed** | 2026-10-15 |
+| Backend (unitários + integração por `dependency_overrides`) | `pytest -q` (sem Redis: `tests/conftest.py`) | **216 passed** | 2026-10-15 |
+| Frontend (executor de `actions`, `ScreenRenderer`, carrinho, envelope malformado) | `cd web && npm test` | **40 passed** | 2026-10-15 |
 | E2E — jornada da defesa | `cd web && npm run e2e` (exige pilha e `data/raw/`) | **passed** — com o Redis ligado e a Home regional (Sprint 9) | 2026-10-04 |
 | E2E — jornada só com teclado (D10) | `web/e2e/teclado.spec.ts` | **passed** — Tab/Enter/Espaço do produto ao checkout; anel de foco conferido | 2026-10-15 |
 | E2E — mutação de contrato SDUI | idem, `web/e2e/contract-mutation.spec.ts` | **passed** — 6 mutações (5ª nova, Sprint 15: `offer_comparison` injetado numa tela que não o tinha); capturas da Sprint 7 em `docs/evidencia/` | 2026-10-15 |

@@ -10,6 +10,7 @@ import {
   HeroBanner,
   ImpactBanner,
   OfferComparison,
+  OriginMap,
   ProductCard,
   ProductDetail,
   ShipmentBreakdown,
@@ -31,6 +32,7 @@ const REGISTRY = {
   shipment_breakdown: ShipmentBreakdown,
   impact_banner: ImpactBanner,
   offer_comparison: OfferComparison,
+  origin_map: OriginMap,
 } as const;
 
 /**

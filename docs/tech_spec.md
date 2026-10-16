@@ -94,6 +94,7 @@ Todos seguem o envelope e estão na união discriminada `UIComponent` (`version:
 | `delivery_options` | Checkout | `distance_km`, `selected_id`, `options[]` (`id`, `label`, `eta_days`, `price`, `co2_kg`, `recommended`, `selected`), `note` | S4 |
 | `shipment_breakdown` | Checkout | `title`, `shipments[]` (`seller_id`, `product_ids`, `total_quantity`, `weight_g`, `distance_km`, `freight`, `co2_kg`, `co2_share`, `badge`, `alternatives[]`), `note` | S5 (`alternatives` na S6) |
 | `impact_banner` | Checkout | `distance_km`, `co2_kg`, `badge`, `message` | S3 |
+| `origin_map` | Detalhe | `title`, `viewbox` (recorte), `width`/`height` (mapa inteiro), `background_url` (`/mapa-brasil.svg`, gerado por `scripts/mapa_base.py` a partir dos centroides), `buyer` e `origins[]` **já projetados** (`x`, `y`, `label`, `chosen`, `local`), `radius_100km`, `caption`. Projeção equiretangular em `green_logistics/mapa.py`; o cliente não faz conta geográfica. Sem biblioteca de mapas; zero consulta nova | S15 |
 | `offer_comparison` | Detalhe | `title`, `offers[]` (`seller_city`, `seller_state`, `price`, `distance_km`, `co2_kg`, `same_region`, `local`, `chosen`, `reason`), `note` — todas as origens do produto, da mais próxima para a mais distante; a escolhida por `escolher_oferta`, com o motivo. Só com 2+ vendedores; zero consulta nova | S15 |
 
 `SustainabilityProps` (`label`, `impact_level`, `icon` e, desde a S15, `explanation` opcional — a conta do CO₂ passo a passo com as fontes, pedida só pelo detalhe e pelo checkout) é o selo verde, reaproveitado por

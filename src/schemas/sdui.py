@@ -291,6 +291,32 @@ class OfferComparisonProps(BaseModel):
     note: str | None = None
 
 
+class MapPointProps(BaseModel):
+    """Ponto ja projetado nas coordenadas do SVG (`green_logistics.mapa`):
+    o cliente desenha, nao faz conta geografica."""
+
+    x: float
+    y: float
+    label: str
+    chosen: bool = False
+    local: bool = False
+
+
+class OriginMapProps(BaseModel):
+    """Mapa de origem (Sprint 15, V3): comprador, origens do produto e o raio
+    de 100 km do selo, sobre o Brasil desenhado pelos CEPs do dataset."""
+
+    title: str = "De onde sai"
+    viewbox: str  # recorte que enquadra os pontos
+    width: float  # tamanho do mapa inteiro, para posicionar o fundo
+    height: float
+    background_url: str | None = None
+    buyer: MapPointProps
+    origins: list[MapPointProps]
+    radius_100km: float
+    caption: str | None = None
+
+
 class ImpactBannerProps(BaseModel):
     distance_km: float | None = None
     co2_kg: float | None = None
@@ -358,6 +384,13 @@ class OfferComparisonBlock(BaseModel):
     actions: list[UIAction] = Field(default_factory=list)
 
 
+class OriginMapBlock(BaseModel):
+    type: Literal["origin_map"] = "origin_map"
+    version: int = 1
+    props: OriginMapProps
+    actions: list[UIAction] = Field(default_factory=list)
+
+
 class ImpactBannerBlock(BaseModel):
     type: Literal["impact_banner"] = "impact_banner"
     version: int = 1
@@ -376,6 +409,7 @@ UIComponent = Annotated[
         ImpactBannerBlock,
         ShipmentBreakdownBlock,
         OfferComparisonBlock,
+        OriginMapBlock,
     ],
     Field(discriminator="type"),
 ]

@@ -18,6 +18,8 @@ from src.features.green_logistics.badge import (
 )
 from src.features.green_logistics.co2 import calculate_co2_kg, format_co2
 from src.features.green_logistics.offers import escolher_oferta
+from src.features.green_logistics import mapa
+from src.features.green_logistics.repository import get_centroid
 from src.features.green_logistics.service import compute_distance_km
 from src.features.product_detail.repository import ProductDetailRow
 from src.schemas.sdui import (
@@ -28,6 +30,9 @@ from src.schemas.sdui import (
     OfferComparisonBlock,
     OfferComparisonProps,
     OfferOptionProps,
+    MapPointProps,
+    OriginMapBlock,
+    OriginMapProps,
     ProductDetailBlock,
     ProductDetailProps,
     ScreenResponse,
@@ -158,6 +163,54 @@ def _comparacao(
     )
 
 
+async def _mapa(
+    session: AsyncSession,
+    customer_zip_prefix: str,
+    medidas: list[tuple[float, ProductDetailRow]],
+    escolhida: tuple[float, ProductDetailRow],
+) -> OriginMapBlock | None:
+    """De onde sai, em imagem (V3). Sem centroide do comprador ou de nenhuma
+    origem nao ha o que desenhar. Zero consulta: centroides em memoria."""
+    comprador = await get_centroid(session, customer_zip_prefix)
+    if comprador is None:
+        return None
+    origens = []
+    for d, oferta in sorted(medidas, key=lambda par: par[0], reverse=True):
+        # Da mais distante para a mais proxima: a escolhida e desenhada por cima.
+        centro = await get_centroid(session, oferta.seller_zip_prefix)
+        if centro is None:
+            continue
+        x, y = mapa.projetar(*centro)
+        onde = ", ".join(p for p in (rotulo_cidade(oferta.seller_city), oferta.seller_state) if p)
+        origens.append(
+            MapPointProps(
+                x=x,
+                y=y,
+                label=f"{onde or 'Vendedor'} · {d:.0f} km" if d != INFINITY else onde or "Vendedor",
+                chosen=oferta is escolhida[1],
+                local=d < DISTANCE_THRESHOLD_KM,
+            )
+        )
+    if not origens:
+        return None
+    bx, by = mapa.projetar(*comprador)
+    return OriginMapBlock(
+        props=OriginMapProps(
+            viewbox=mapa.recorte([(bx, by), *[(o.x, o.y) for o in origens]]),
+            width=mapa.LARGURA,
+            height=mapa.ALTURA,
+            background_url="/mapa-brasil.svg",
+            buyer=MapPointProps(x=bx, y=by, label="Você"),
+            origins=origens,
+            radius_100km=mapa.raio(DISTANCE_THRESHOLD_KM),
+            caption=(
+                "Cada ponto cinza é uma região com CEP no dataset Olist. O círculo "
+                "marca 100 km de você: dentro dele, a entrega ganha o selo."
+            ),
+        )
+    )
+
+
 async def compose_product_detail(
     session: AsyncSession,
     offers: list[ProductDetailRow],
@@ -240,7 +293,11 @@ async def compose_product_detail(
             ),
         ),
     ]
-    # Depois do banner: ele diz de onde ESTE sai; o comparador mostra todas.
+    # Depois do banner: ele diz de onde ESTE sai; o mapa mostra onde fica, e o
+    # comparador lista todas as origens.
+    mapa_bloco = await _mapa(session, customer_zip_prefix, medidas, escolhida)
+    if mapa_bloco is not None:
+        components.append(mapa_bloco)
     comparacao = _comparacao(medidas, escolhida)
     if comparacao is not None:
         components.append(comparacao)

@@ -150,7 +150,7 @@ test("mutacao de contrato: o cliente obedece a arvore, sem rebuild", async ({
 
   await test.step("linha de base: a arvore que o backend produz de verdade", async () => {
     await reabrirDetalhe(page);
-    await expect(arvore(page)).toHaveText("product_detail → impact_banner");
+    await expect(arvore(page)).toHaveText("product_detail → impact_banner → origin_map");
     await registrar(page, "0-linha-de-base");
   });
 
@@ -158,15 +158,17 @@ test("mutacao de contrato: o cliente obedece a arvore, sem rebuild", async ({
     await mutarContrato(page, (tela) => tela.components.reverse());
     await reabrirDetalhe(page);
 
-    await expect(arvore(page)).toHaveText("impact_banner → product_detail");
+    await expect(arvore(page)).toHaveText("origin_map → impact_banner → product_detail");
 
     // A arvore inverteu no DOM tambem, nao so na etiqueta de inspecao: o
     // `<h2>` do detalhe agora vem DEPOIS do texto do banner de impacto.
-    const tipos = await modal(page)
-      .locator("details > summary")
-      .allInnerTexts();
-    expect(tipos[0]).toContain("impact_banner");
-    expect(tipos[1]).toContain("product_detail");
+    // So as etiquetas do inspetor ("tipo · vN"): o selo tambem tem um
+    // <details> ("Como calculamos?") desde a Sprint 15.
+    const tipos = (await modal(page).locator("details > summary").allInnerTexts()).filter((t) =>
+      /· v\d/.test(t),
+    );
+    expect(tipos[0]).toContain("origin_map");
+    expect(tipos.at(-1)).toContain("product_detail");
     await registrar(page, "1-reordenacao");
   });
 
@@ -212,7 +214,7 @@ test("mutacao de contrato: o cliente obedece a arvore, sem rebuild", async ({
     await reabrirDetalhe(page);
 
     await expect(arvore(page)).toHaveText(
-      "product_detail → impact_banner → product_card",
+      "product_detail → impact_banner → origin_map → product_card",
     );
     await expect(
       modal(page).getByRole("heading", { name: "Card que o detalhe nunca emitiu" }),
@@ -253,7 +255,7 @@ test("mutacao de contrato: o cliente obedece a arvore, sem rebuild", async ({
     });
     await reabrirDetalhe(page);
 
-    await expect(arvore(page)).toHaveText("product_detail → impact_banner");
+    await expect(arvore(page)).toHaveText("product_detail → impact_banner → origin_map");
     await expect(modal(page).getByRole("heading").first()).toBeVisible();
     await registrar(page, "4-envelope-sem-actions");
   });
@@ -281,7 +283,7 @@ test("mutacao de contrato: o cliente obedece a arvore, sem rebuild", async ({
     });
     await reabrirDetalhe(page);
 
-    await expect(arvore(page)).toHaveText("product_detail → impact_banner → offer_comparison");
+    await expect(arvore(page)).toHaveText("product_detail → impact_banner → origin_map → offer_comparison");
     await expect(modal(page).getByRole("heading", { name: "Origens injetadas pelo contrato" })).toBeVisible();
     await expect(modal(page).getByText("Escolhida: A mais próxima de você.")).toBeVisible();
     await registrar(page, "5-comparador-injetado");

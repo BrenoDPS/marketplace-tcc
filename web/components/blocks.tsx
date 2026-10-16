@@ -11,6 +11,7 @@ import type {
   Co2Explanation,
   ImpactBannerBlock,
   OfferComparisonBlock,
+  OriginMapBlock,
   ProductCardBlock,
   ProductDetailBlock,
   ShipmentBreakdownBlock,
@@ -775,6 +776,107 @@ export function OfferComparison({ block }: { block: OfferComparisonBlock }) {
         </details>
       )}
       {note && <p className="mt-4 text-xs leading-relaxed text-muted">{note}</p>}
+    </section>
+  );
+}
+
+/**
+ * Mapa de origem (V3): o "perto" vira imagem. Pontos e recorte chegam
+ * projetados do servidor (`green_logistics/mapa.py`); aqui so SVG. O fundo e o
+ * Brasil desenhado pelos CEPs do dataset (`scripts/mapa_base.py`), sem
+ * biblioteca de mapas. Tracos e raios escalam com o recorte, para o desenho ter
+ * o mesmo peso numa entrega de 4 km e numa de 2.000.
+ */
+export function OriginMap({ block }: { block: OriginMapBlock }) {
+  const { title, viewbox, width, height, background_url, buyer, origins, radius_100km, caption } =
+    block.props;
+  const u = Number(viewbox.split(" ")[2]) / 400;
+  const escolhida = origins.find((o) => o.chosen);
+  const outras = origins.length - (escolhida ? 1 : 0);
+  const resumo = [
+    `Você e ${origins.length} ${origins.length === 1 ? "origem" : "origens"} no mapa`,
+    escolhida && `escolhida: ${escolhida.label}`,
+  ]
+    .filter(Boolean)
+    .join("; ");
+
+  return (
+    <section className="rounded-xl border border-line bg-surface p-4 sm:p-6">
+      <h2 className="font-display text-xl text-ink">{title}</h2>
+      <svg
+        viewBox={viewbox}
+        role="img"
+        aria-label={resumo}
+        className="mt-4 aspect-16/10 w-full rounded-lg border border-line bg-paper"
+      >
+        {/* O fundo tem pontos de tamanho fixo: no recorte de perto eles crescem
+            e pesariam mais que a rota. Esmaecer com o zoom mantem a hierarquia. */}
+        {background_url && (
+          <image
+            href={background_url}
+            x={0}
+            y={0}
+            width={width}
+            height={height}
+            opacity={Math.min(1, Math.max(0.3, (u * 400) / width))}
+          />
+        )}
+        <circle
+          cx={buyer.x}
+          cy={buyer.y}
+          r={radius_100km}
+          className="fill-signal/10 stroke-signal"
+          strokeWidth={u}
+          strokeDasharray={`${4 * u} ${3 * u}`}
+        />
+        {origins.map((o, i) => (
+          <line
+            key={`l${i}`}
+            x1={o.x}
+            y1={o.y}
+            x2={buyer.x}
+            y2={buyer.y}
+            className={o.chosen ? "stroke-signal" : "stroke-muted"}
+            strokeWidth={u * (o.chosen ? 2 : 0.8)}
+            strokeOpacity={o.chosen ? 1 : 0.5}
+          />
+        ))}
+        {origins.map((o, i) => (
+          <circle
+            key={`p${i}`}
+            cx={o.x}
+            cy={o.y}
+            r={u * (o.chosen ? 5 : 3.5)}
+            className={o.chosen ? "fill-signal stroke-paper" : "fill-muted stroke-paper"}
+            strokeWidth={u}
+          >
+            <title>{o.label}</title>
+          </circle>
+        ))}
+        <circle cx={buyer.x} cy={buyer.y} r={u * 5} className="fill-ink stroke-paper" strokeWidth={u * 1.5}>
+          <title>{buyer.label}</title>
+        </circle>
+        <text x={buyer.x + u * 8} y={buyer.y - u * 8} fontSize={u * 13} className="fill-ink font-medium">
+          {buyer.label}
+        </text>
+      </svg>
+      <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-muted">
+        <li className="flex items-center gap-1.5">
+          <span aria-hidden className="size-2.5 rounded-full bg-ink" /> Você
+        </li>
+        {escolhida && (
+          <li className="flex items-center gap-1.5">
+            <span aria-hidden className="size-2.5 rounded-full bg-signal" /> Escolhida: {escolhida.label}
+          </li>
+        )}
+        {outras > 0 && (
+          <li className="flex items-center gap-1.5">
+            <span aria-hidden className="size-2.5 rounded-full bg-muted" /> {outras}{" "}
+            {outras === 1 ? "outra origem" : "outras origens"}
+          </li>
+        )}
+      </ul>
+      {caption && <p className="mt-2 text-xs leading-relaxed text-muted">{caption}</p>}
     </section>
   );
 }
