@@ -18,6 +18,7 @@ sem pedido explícito.
 | Evidência já produzida | `docs/evidencia/`, `load/results/`, `docs/snapshots/` |
 | Defesa: promessa da metodologia × teste que prova × o que mudou | `docs/tese-rastreabilidade.md` — mantenha-o em dia a cada resultado ou desvio |
 | Revisar a monografia como orientador | `docs/tcc/MANUAL-REVISAO-AGENTE.md` — leia antes de avaliar qualquer texto em `docs/tcc/` |
+| Demonstrar na banca | `docs/roteiro-banca.md`; ensaio `cd web && npx playwright test roteiro-banca` |
 
 A tarefa atual é o que foi pedido na conversa. Se existir sprint ativa com
 handoff, ela está em `docs/PROJECT_BOOTSTRAP.md` → "Sprint ativa".
