@@ -130,7 +130,7 @@ export function Controls({
    */
   return (
     <header className="sticky top-0 z-10 border-b border-line bg-paper/85 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-3 gap-y-3 px-4 py-3 sm:px-6">
         <Link href="/" className="font-display text-lg tracking-tight text-ink">
           Olist<span className="text-signal">.</span>
         </Link>
@@ -187,7 +187,7 @@ export function Controls({
               defaultValue={search ?? ""}
               placeholder="Buscar categoria…"
               aria-label="Buscar por categoria"
-              className="w-full rounded-full border border-line bg-surface px-4 py-1.5 text-sm text-ink placeholder:text-muted/60 sm:w-48"
+              className="w-full rounded-full border border-line bg-surface px-4 py-1.5 text-sm text-ink placeholder:text-muted/60 sm:w-48 xl:w-40"
             />
             <button
               type="submit"

@@ -301,7 +301,7 @@ export function ProductCard({ block }: { block: ProductCardBlock }) {
       type="button"
       disabled={!detail}
       onClick={() => detail && run(detail)}
-      className="group flex flex-col overflow-hidden rounded-xl border border-line bg-surface text-left transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-ink/5 disabled:cursor-default"
+      className="group flex w-full flex-col overflow-hidden rounded-xl border border-line bg-surface text-left transition hover:-translate-y-0.5 hover:shadow-lg hover:shadow-ink/5 disabled:cursor-default"
     >
       <div
         className="flex h-14 w-full items-end px-3 pb-1.5 sm:h-20 sm:px-4"
