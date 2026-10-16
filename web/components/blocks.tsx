@@ -8,6 +8,7 @@ import type {
   CategoryGridBlock,
   CheckoutSummaryBlock,
   ContentSectionBlock,
+  DataTableBlock,
   DeliveryOptionsBlock,
   HeroBannerBlock,
   Co2Explanation,
@@ -912,6 +913,52 @@ export function ContentSection({ block }: { block: ContentSectionBlock }) {
         </ul>
       )}
       {note && <p className="mt-4 text-xs leading-relaxed text-muted">{note}</p>}
+    </section>
+  );
+}
+
+/**
+ * Tabela de resultados (Sprint 16, V8). Celulas ja vem formatadas do servidor;
+ * no celular a tabela rola na horizontal dentro do cartao, nao a pagina.
+ */
+export function DataTable({ block }: { block: DataTableBlock }) {
+  const { title, caption, columns, rows } = block.props;
+  return (
+    <section className="rounded-xl border border-line bg-surface p-6">
+      {title && <h3 className="font-display text-lg text-ink">{title}</h3>}
+      {caption && <p className="mt-2 max-w-prose text-sm leading-relaxed text-muted">{caption}</p>}
+      <div className="-mx-6 mt-4 overflow-x-auto px-6">
+        {/* Largura minima por coluna: no celular a tabela larga rola; a de
+            duas colunas cabe. O texto longo quebra em vez de vazar. */}
+        <table className="w-full border-collapse text-sm" style={{ minWidth: `${columns.length * 6}rem` }}>
+          <thead>
+            <tr className="border-b border-line text-left text-xs text-muted">
+              {columns.map((coluna, i) => (
+                <th key={i} scope="col" className={`py-2 pr-4 font-medium ${i > 0 ? "text-right" : ""}`}>
+                  {coluna}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, r) => (
+              <tr key={r} className={`border-b border-line/60 ${row.emphasis ? "bg-line/30 font-medium text-ink" : "text-ink/85"}`}>
+                {row.cells.map((cell, i) =>
+                  i === 0 ? (
+                    <th key={i} scope="row" className="py-2 pr-4 text-left font-[inherit]">
+                      {cell}
+                    </th>
+                  ) : (
+                    <td key={i} className="py-2 pr-4 text-right tabular-nums">
+                      {cell}
+                    </td>
+                  ),
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }

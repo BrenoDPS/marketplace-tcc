@@ -7,6 +7,7 @@ import {
   CategoryGrid,
   CheckoutSummary,
   ContentSection,
+  DataTable,
   DeliveryOptions,
   HeroBanner,
   ImpactBanner,
@@ -35,6 +36,7 @@ const REGISTRY = {
   offer_comparison: OfferComparison,
   origin_map: OriginMap,
   content_section: ContentSection,
+  data_table: DataTable,
 } as const;
 
 /**

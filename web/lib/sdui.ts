@@ -220,6 +220,17 @@ export type ContentSectionBlock = Envelope<
   { title: string; paragraphs: string[]; items: string[]; note: string | null }
 >;
 
+/** Tabela de resultados (Sprint 16, V8): celulas ja formatadas pelo servidor. */
+export type DataTableBlock = Envelope<
+  "data_table",
+  {
+    title: string | null;
+    caption: string | null;
+    columns: string[];
+    rows: { cells: string[]; emphasis: boolean }[];
+  }
+>;
+
 /** Ponto ja projetado nas coordenadas do SVG pelo servidor (Sprint 15, V3). */
 export type MapPoint = { x: number; y: number; label: string; chosen: boolean; local: boolean };
 
@@ -271,7 +282,8 @@ export type UIComponent =
   | ImpactBannerBlock
   | OfferComparisonBlock
   | OriginMapBlock
-  | ContentSectionBlock;
+  | ContentSectionBlock
+  | DataTableBlock;
 
 export type ScreenResponse = {
   schema_version: number;

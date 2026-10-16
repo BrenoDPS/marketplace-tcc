@@ -43,7 +43,8 @@ def _secao(titulo: str, *paragrafos: str, itens: list[str] | None = None, nota: 
 
 
 def compose_metodologia(customer_zip_prefix: str | None = None) -> ScreenResponse:
-    volta = "/?" + urlencode({"customer_zip_prefix": customer_zip_prefix}) if customer_zip_prefix else "/"
+    cep = "?" + urlencode({"customer_zip_prefix": customer_zip_prefix}) if customer_zip_prefix else ""
+    volta = "/" + cep
     km = _n(DISTANCE_THRESHOLD_KM)
     modalidades = [
         f"{m.label}: preço × {_n(m.price_factor, 2)}, CO₂ × {_n(m.co2_factor, 1)}, prazo × {_n(m.eta_factor, 1)}."
@@ -62,8 +63,12 @@ def compose_metodologia(customer_zip_prefix: str | None = None) -> ScreenRespons
                     ),
                     image_url="",
                     cta_label="Voltar à vitrine",
+                    secondary_cta_label="Resultados da pesquisa",
                 ),
-                actions=[NavigateAction(payload=NavigatePayload(path=volta))],
+                actions=[
+                    NavigateAction(payload=NavigatePayload(path=volta)),
+                    NavigateAction(payload=NavigatePayload(path="/pesquisa" + cep)),
+                ],
             ),
             _secao(
                 "Distância",

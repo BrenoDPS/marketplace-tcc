@@ -33,7 +33,8 @@ roteiro **antes** da defesa, não durante.
 | 4:30 | (fala de fechamento, sem clique) | "Com 250 usuários e cache ligado, o p95 ficou em 19 ms; sem cache, entre 600 e 1.200 ms. Remedido no código atual, em 15/10." | (d) · `docs/performance.md` §13 |
 
 **Se o tempo apertar:** pular o passo 2:40–3:20 (checkout). **Se sobrar:** abrir
-*Ver metodologia completa* no explicador do selo.
+*Ver metodologia completa* no explicador do selo e, dela, *Resultados da pesquisa*
+(`/pesquisa`): as tabelas do Cap. 5 dentro do app, lidas de `docs/resultados/`.
 
 ## Plano B
 

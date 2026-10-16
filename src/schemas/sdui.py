@@ -329,6 +329,20 @@ class ContentSectionProps(BaseModel):
     note: str | None = None
 
 
+class DataTableRowProps(BaseModel):
+    cells: list[str]
+    emphasis: bool = False  # linha de total/destaque (ex.: "Brasil")
+
+
+class DataTableProps(BaseModel):
+    """Tabela de resultados (Sprint 16, V8): celulas ja formatadas pelo servidor."""
+
+    title: str | None = None
+    caption: str | None = None
+    columns: list[str]
+    rows: list[DataTableRowProps]
+
+
 class ImpactBannerProps(BaseModel):
     distance_km: float | None = None
     co2_kg: float | None = None
@@ -410,6 +424,13 @@ class ContentSectionBlock(BaseModel):
     actions: list[UIAction] = Field(default_factory=list)
 
 
+class DataTableBlock(BaseModel):
+    type: Literal["data_table"] = "data_table"
+    version: int = 1
+    props: DataTableProps
+    actions: list[UIAction] = Field(default_factory=list)
+
+
 class ImpactBannerBlock(BaseModel):
     type: Literal["impact_banner"] = "impact_banner"
     version: int = 1
@@ -430,6 +451,7 @@ UIComponent = Annotated[
         OfferComparisonBlock,
         OriginMapBlock,
         ContentSectionBlock,
+        DataTableBlock,
     ],
     Field(discriminator="type"),
 ]
