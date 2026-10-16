@@ -73,7 +73,7 @@ def test_label_includes_co2_when_weight_provided() -> None:
     assert badge is not None
     assert "km" in badge.label
     assert "CO₂" in badge.label
-    assert "kg" in badge.label
+    assert "37,5 g" in badge.label  # gramas ate 1 kg (Sprint 13)
 
 
 def test_label_only_km_when_weight_absent() -> None:

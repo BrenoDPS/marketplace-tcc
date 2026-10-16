@@ -74,7 +74,7 @@ Esse caso so existe porque o ETL **completa as ofertas** dos produtos sorteados.
 ```bash
 # Badge presente em pelo menos um ProductCard (vendedor proximo)
 # O label inclui o CO2 estimado quando o produto tem peso. A unidade e
-# escolhida por `format_co2` (g abaixo de 10 g, kg acima):
+# escolhida por `format_co2` (g ate 1 kg, kg acima):
 #   "Entrega local (~13 km · ~2,63 g CO₂)"   (Sprint 9, motor de cadeia)
 curl "http://localhost:8000/api/v1/home?customer_zip_prefix=05311&context=electronics_expert"
 
@@ -435,14 +435,14 @@ docker-compose.yml           # Postgres 16 (sem PostGIS nesta sprint) + Redis (c
 - **Distancia:** Haversine puro em Python sobre centroides por prefixo de CEP (mediana de lat/lng por `geolocation_zip_code_prefix`).
 - **Selo:** `SustainabilityProps` no `ProductCard` quando `distance_km < 100`; senao `badge: null`.
 - **CO2 (Sprint 9, baseado em atividade):** cadeia de transporte (ISO 14083/GLEC): estrada = linha reta × 1,345 (Gonçalves et al., 2014); ultimos 15 km de van (680 g CO2e/t.km, GLEC v2), o resto de caminhao pesado (92); fontes citadas em `green_logistics/co2.py`. Ate a Sprint 8 era um fator unico de 0,102 kg/t.km sobre a linha reta, que subestimava a ultima milha: a compra local passou de ~22x para ~5,5x mais limpa que a mediana. A emissao acompanha a **massa embarcada**: `quantity` unidades pesam `quantity` vezes mais.
-- **Exibicao do CO2:** `format_co2` escolhe a unidade (g abaixo de 10 g, kg acima). Com a amostra de 10k as distancias caem para poucos km e um `.2f` em kg imprimia `0,00 kg` em todo selo — apagando o numero que sustenta o trabalho.
+- **Exibicao do CO2:** `format_co2` escolhe a unidade (g ate 1 kg, kg acima; ate a Sprint 12 a troca era em 10 g e 21 g virava "0,02 kg" ao lado de "8,48 g"). Com a amostra de 10k as distancias caem para poucos km e um `.2f` em kg imprimia `0,00 kg` em todo selo — apagando o numero que sustenta o trabalho.
 - **Modalidades:** `green_logistics/delivery_options.py`. **Leia o docstring do modulo antes de citar esses numeros no TCC.** Distancia, massa e o FE base sao reais; `standard` usa o frete real da amostra sem fator e o **prazo medido em 95.921 entregas do Olist** (`ETA_BANDS`). Os fatores de preco/emissao/prazo de `express` e `green` sao um **cenario declarado** sobre essa linha de base, nao dado do Olist — o dataset nao tem modalidade nem transportadora. A ressalva viaja no proprio JSON (campo `note`) e e exibida na tela.
 
 ### Peso cubado: o que a carga OCUPA, nao o que ela pesa
 
 Ate a Sprint 7 o CO2 saia so da massa (`product_weight_g`). Mas as tres dimensoes do produto estao preenchidas em **100%** dos produtos do Olist e nunca tinham sido usadas — e um veiculo enche por volume antes de atingir o limite de peso quando a carga e leve.
 
-Com o fator de cubagem rodoviario (6.000 cm³ = 1 kg), na amostra carregada:
+Com o divisor do peso cubico de encomendas dos Correios (6.000 cm³ = 1 kg; Olist, 2022), na amostra carregada:
 
 | | |
 |---|---|

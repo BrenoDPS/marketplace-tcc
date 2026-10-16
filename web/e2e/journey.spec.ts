@@ -18,7 +18,7 @@ const TERM = "cama mesa banho";
 /** "R$ 1.234,56" -> 1234.56 */
 const brl = (text: string) => Number(text.replace(/[^\d,]/g, "").replace(",", "."));
 
-/** `co2Label` alterna entre "8,00 g" e "0,02 kg" conforme a ordem de grandeza. */
+/** `co2Label` exibe gramas ate 1 kg ("8,48 g", "21,2 g") e kg acima ("1,50 kg"). */
 const co2 = (text: string) => {
   const value = Number(text.replace(/[^\d,]/g, "").replace(",", "."));
   return text.includes("kg") ? value : value / 1000;
@@ -72,7 +72,7 @@ test("jornada da defesa: do CEP ao comparativo de entrega", async ({ page }) => 
     // aparece, a busca chegou ao backend e voltou como tela.
     await expect(page.getByRole("heading", { name: `Busca: ${TERM}` })).toBeVisible();
     // Todo card visivel pertence a categoria buscada.
-    await expect(page.locator("main h3").first()).toHaveText(/Cama Mesa Banho/i);
+    await expect(page.locator("main h3").first()).toHaveText(/Cama, mesa e banho/i);
   });
 
   await test.step("chip de categoria marca a selecao", async () => {

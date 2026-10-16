@@ -266,8 +266,9 @@ export const decimal = (value: number, digits: number) =>
 
 /**
  * A amostra Olist tem pesos baixos: a 7 km a emissao fica na ordem de 0,0004 kg
- * e "0,00 kg" apagaria justamente o numero que sustenta o trabalho. Abaixo de
- * 10 g exibimos em gramas.
+ * e "0,00 kg" apagaria justamente o numero que sustenta o trabalho. Gramas ate
+ * 1 kg (antes ate 10 g: "0,02 kg" ao lado de "8,48 g"); mesma regra de
+ * `format_co2` no servidor, que escreve o selo.
  */
 /** O Olist grava a cidade em minusculas ("sao paulo"); conectivos ficam minusculos. */
 export const cityLabel = (city: string) =>
@@ -276,4 +277,4 @@ export const cityLabel = (city: string) =>
   );
 
 export const co2Label = (kg: number) =>
-  kg >= 0.01 ? `${decimal(kg, 2)} kg` : `${decimal(kg * 1000, 2)} g`;
+  kg >= 1 ? `${decimal(kg, 2)} kg` : `${decimal(kg * 1000, kg < 0.01 ? 2 : 1)} g`;

@@ -123,7 +123,7 @@ describe("ScreenRenderer", () => {
       </SduiProvider>,
     );
     expect(screen.getByText("Sai de Sao Jose do Rio Preto · SP")).toBeTruthy();
-    expect(screen.getByText("403 km · 0,04 kg CO₂")).toBeTruthy();
+    expect(screen.getByText("403 km · 40,0 g CO₂")).toBeTruthy();
   });
 
   test("bloco entre cards quebra a grade em duas", () => {
@@ -596,8 +596,13 @@ describe("formatacao de CO2", () => {
     expect(co2Label(0.0004184)).toBe("0,42 g");
   });
 
-  test("acima de 10 g exibe em kg", () => {
+  test("a partir de 1 kg exibe em kg", () => {
     expect(co2Label(1.5)).toBe("1,50 kg");
+  });
+
+  test("ate 1 kg fica em gramas: mesma unidade lado a lado (Sprint 13)", () => {
+    expect(co2Label(0.0212)).toBe("21,2 g");
+    expect(co2Label(0.00848)).toBe("8,48 g");
   });
 
   test("nunca imprime um zero seco", () => {

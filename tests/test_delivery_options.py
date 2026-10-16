@@ -160,8 +160,15 @@ def test_format_co2_uses_grams_below_ten_grams() -> None:
     assert format_co2(0.0004184) == "0,42 g"
 
 
-def test_format_co2_uses_kg_above_ten_grams() -> None:
+def test_format_co2_uses_kg_from_one_kg() -> None:
     assert format_co2(1.5) == "1,50 kg"
+
+
+def test_format_co2_keeps_grams_up_to_one_kg() -> None:
+    """21,2 g virava "0,02 kg" ao lado de "8,48 g" (Sprint 13)."""
+    assert format_co2(0.0212) == "21,2 g"
+    assert format_co2(0.00848) == "8,48 g"
+    assert format_co2(0.4145) == "414,5 g"
 
 
 def test_format_co2_never_renders_a_bare_zero() -> None:

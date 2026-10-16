@@ -110,9 +110,14 @@ def format_co2(kg: float) -> str:
     A amostra Olist tem pesos baixos e, com a densidade de CEPs da amostra de
     10k, as distancias caem para poucos km: a emissao fica na ordem de
     0,0004 kg e um `.2f` em kg imprimiria "0,00 kg" — apagando justamente o
-    numero que sustenta o argumento de logistica verde. Abaixo de 10 g,
-    exibimos em gramas.
+    numero que sustenta o argumento de logistica verde.
+
+    Gramas ate 1 kg (Sprint 13): com a troca em 10 g, 21,2 g virava "0,02 kg"
+    ao lado de "8,48 g" no comparativo de modalidades — mesma grandeza em duas
+    unidades, e precisao perdida. Duas casas abaixo de 10 g, uma acima.
+    Espelho no cliente: `co2Label` em `web/lib/sdui.ts`.
     """
-    if kg >= 0.01:
+    if kg >= 1:
         return f"{kg:.2f} kg".replace(".", ",")
-    return f"{kg * 1000:.2f} g".replace(".", ",")
+    g = kg * 1000
+    return f"{g:.2f} g".replace(".", ",") if g < 10 else f"{g:.1f} g".replace(".", ",")
