@@ -31,7 +31,7 @@ test("do selo do detalhe para a metodologia e de volta a vitrine", async ({ page
   await page.getByRole("button", { name: "Resultados da pesquisa" }).click();
   await expect(page).toHaveURL(new RegExp(`/pesquisa\\?customer_zip_prefix=${CEP}`));
   await expect(page.getByRole("heading", { name: "O que a pesquisa encontrou" })).toBeVisible();
-  await expect(page.getByRole("row", { name: /CO₂ evitado/ })).toContainText("254,2 kg CO₂e (9,8%)");
+  await expect(page.getByRole("row", { name: /^CO₂ evitado \d/ })).toContainText("254,2 kg CO₂e (9,8%)");
   await expect(page.getByRole("row", { name: /^Brasil/ })).toContainText("94,7%");
 
   await page.getByRole("button", { name: "Voltar à vitrine" }).click();
