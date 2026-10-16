@@ -13,13 +13,13 @@
 |---|---|---|---|
 | Backend (unitários + integração por `dependency_overrides`) | `pytest -q` (sem Redis: `tests/conftest.py`) | **227 passed** | 2026-10-16 |
 | Frontend (executor de `actions`, `ScreenRenderer`, carrinho, envelope malformado) | `cd web && npm test` | **41 passed** | 2026-10-16 |
-| E2E — jornada da defesa | `cd web && npm run e2e` (exige pilha e `data/raw/`) | **passed** — com o Redis ligado e a Home regional (Sprint 9) | 2026-10-04 |
+| E2E — jornada da defesa | `cd web && npm run e2e` (exige pilha e `data/raw/`) | **passed** — com o Redis ligado, no HEAD da Sprint 16 (checkout em página, ordenação, comparador) | 2026-10-16 |
 | E2E — jornada só com teclado (D10) | `web/e2e/teclado.spec.ts` | **passed** — Tab/Enter/Espaço do produto ao checkout; anel de foco conferido | 2026-10-15 |
 | E2E — selo → metodologia → painel da pesquisa → vitrine (V7, V8) | `web/e2e/metodologia.spec.ts` | **passed** — o painel mostra as tabelas de `docs/resultados/`; `tests/test_pesquisa.py` confere célula a célula | 2026-10-16 |
 | E2E — "Seu impacto": troca no checkout (V6) | `web/e2e/impacto.spec.ts` | **passed** — o contador soma o `co2_saved_kg` que o servidor mandou na sugestão e sobrevive à recarga | 2026-10-16 |
 | E2E — modo apresentação: mutações no BFF (V9) | `web/e2e/apresentacao.spec.ts` | **passed** — 5 mutações aplicadas pelo próprio servidor (`X-SDUI-Mutacao`), sem recarregar a página | 2026-10-15 |
 | E2E — ensaio do roteiro da banca | `cd web && npx playwright test roteiro-banca` (`GRAVAR=1` grava o vídeo de contingência) | **passed** — os cliques e números de `docs/roteiro-banca.md` | 2026-10-15 |
-| E2E — mutação de contrato SDUI | idem, `web/e2e/contract-mutation.spec.ts` | **passed** — 6 mutações (5ª nova, Sprint 15: `offer_comparison` injetado numa tela que não o tinha); capturas da Sprint 7 em `docs/evidencia/` | 2026-10-15 |
+| E2E — mutação de contrato SDUI | idem, `web/e2e/contract-mutation.spec.ts` | **passed** — 6 mutações (5ª nova, Sprint 15: `offer_comparison` injetado numa tela que não o tinha); capturas da Sprint 7 em `docs/evidencia/` | 2026-10-16 |
 | Carga — protocolo da §3.3 | `python -m load.protocolo`; consolidação `python -m load.resumo "load/results/protocolo/r1-*" load/results/protocolo-rep23` | **concluído**: 27 ensaios válidos, n = 3 por célula — `docs/performance.md` §11 | 2026-10-04 |
 | Carga — Redis × escala horizontal (complementar, Sprint 10) | `python -m load.protocolo --cargas 250 1000 --condicoes off --workers 1 4`; consolidação `python -m load.resumo load/results/s10-workers load/results/s10-workers-reexecucao load/results/s10-workers-reexecucao-w1` | **concluído**: 12 ensaios válidos (4 invalidados e refeitos) — `docs/performance.md` §12 | 2026-10-04 |
 | Carga — controle no HEAD (Sprint 12) | `python -m load.protocolo --cargas 250 --saida load/results/s12-controle-head`; consolidação `python -m load.resumo load/results/s12-controle-head` | **concluído**: 9 ensaios válidos no `2950c02`; custo por requisição igual, cache igual ou melhor — `docs/performance.md` §13 | 2026-10-15 |
