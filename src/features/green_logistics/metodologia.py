@@ -47,7 +47,8 @@ def compose_metodologia(customer_zip_prefix: str | None = None) -> ScreenRespons
     volta = "/" + cep
     km = _n(DISTANCE_THRESHOLD_KM)
     modalidades = [
-        f"{m.label}: preço × {_n(m.price_factor, 2)}, CO₂ × {_n(m.co2_factor, 1)}, prazo × {_n(m.eta_factor, 1)}."
+        f"{m.label}: preço × {_n(m.price_factor, 2)}, CO₂ × {_n(m.co2_factor, 1)}, prazo × {_n(m.eta_factor, 1)}. "
+        f"{m.rationale}"
         for m in MODES
     ]
     return ScreenResponse(

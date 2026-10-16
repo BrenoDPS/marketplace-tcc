@@ -17,6 +17,16 @@ O que e arbitrado: os fatores de preco, emissao e prazo de `express` e `green`
 EM RELACAO a essa linha de base. Sao coeficientes fixos, escolhidos para
 representar carga fracionada prioritaria (mais rapida, mais cara, mais
 emissiva) e carga consolidada (mais lenta, mais barata, menos emissiva).
+A justificativa de cada um esta em `rationale` (M15 do parecer) e aparece na
+metodologia. O que a literatura sustenta e a DIRECAO, nao o valor:
+
+- WEF (2024, p. 19): entrega consolidada (white-label) reduz em 30% o numero
+  de viagens; pontos de retirada, em ate 15%. A Verde usa 0,6 (-40%): MAIS
+  otimista que a fonte — decisao do grupo no card [Decisao] do Trello.
+- WEF (2024, p. 13): consolidar alonga o prazo, e o cliente e compensado com
+  desconto — a direcao de `eta_factor` 1,5 e `price_factor` 0,85.
+- Expressa (CO2 x2,5, preco x1,6, prazo x0,5): sem fonte quantitativa; 2,5
+  equivale a um veiculo que sai com 40% da ocupacao da entrega padrao.
 
 Sem esse recorte nao ha como comparar escolhas de entrega a partir do Olist —
 com ele, a comparacao existe e a origem de cada numero fica declarada.
@@ -78,6 +88,8 @@ class DeliveryMode:
     # Multiplicador sobre o prazo medido. `standard` e 1.0 porque a linha de
     # base E a entrega real do Olist; os outros dois sao declarados.
     eta_factor: float
+    # Por que estes fatores (M15): texto da metodologia, com a fonte quando ha.
+    rationale: str
 
 
 MODES: tuple[DeliveryMode, ...] = (
@@ -88,6 +100,10 @@ MODES: tuple[DeliveryMode, ...] = (
         price_factor=1.6,
         co2_factor=2.5,
         eta_factor=0.5,
+        rationale=(
+            "Cenário sem fonte quantitativa: o veículo sai antes de completar a carga. "
+            "CO₂ × 2,5 equivale a viajar com 40% da ocupação da entrega padrão."
+        ),
     ),
     DeliveryMode(
         id="standard",
@@ -96,6 +112,7 @@ MODES: tuple[DeliveryMode, ...] = (
         price_factor=1.0,
         co2_factor=1.0,
         eta_factor=1.0,
+        rationale="Linha de base medida: frete da amostra e prazo mediano de 95.921 entregas reais.",
     ),
     DeliveryMode(
         id="green",
@@ -104,6 +121,11 @@ MODES: tuple[DeliveryMode, ...] = (
         price_factor=0.85,
         co2_factor=0.6,
         eta_factor=1.5,
+        rationale=(
+            "Consolidar pedidos reduz viagens — 30% a menos na entrega consolidada, segundo o "
+            "World Economic Forum (2024); o fator de 0,6 supõe 40%, mais otimista. Esperar a "
+            "consolidação alonga o prazo, e o desconto compensa o comprador, como no mesmo relatório."
+        ),
     ),
 )
 

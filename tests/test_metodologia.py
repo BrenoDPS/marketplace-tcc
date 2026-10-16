@@ -48,3 +48,13 @@ def test_explicador_do_selo_aponta_para_a_metodologia() -> None:
     badge = build_sustainability_props(50.0, weight_g=1000.0, explain=True)
     assert badge is not None and badge.explanation is not None
     assert badge.explanation.methodology_path == "/metodologia"
+
+
+async def test_cada_modalidade_traz_a_justificativa_dos_fatores() -> None:
+    """M15: fator de cenario sem justificativa na tela parecia estimativa."""
+    from src.features.green_logistics.delivery_options import MODES
+
+    _, body = await _get("/api/v1/methodology")
+    texto = _texto(body)
+    for m in MODES:
+        assert m.rationale and m.rationale in texto

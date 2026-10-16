@@ -2,7 +2,7 @@
 
 > **Versão 2 (13/10/2026).** Base: o Cap. 4 do `Report 6 - Resultados.docx` de
 > 13/10, reescrito para legibilidade. Numeração de figuras e tabelas segue a do
-> `.docx` (Figura 5 em diante; Tabela 2). Figuras prontas em `docs/tcc/figuras/`,
+> `.docx` (Figura 5 em diante; Tabelas 2 e 3 — a Tabela 3 é nova e desloca as do Cap. 5 para 4, 5 e 6). Figuras prontas em `docs/tcc/figuras/`,
 > geradas por `python -m scripts.figuras_tcc` (a Figura 5 é captura de tela).
 > Trechos marcados **[Pendente]** dependem de decisão do grupo — ver o fim do arquivo.
 
@@ -106,8 +106,24 @@ distância próprios, e a decisão fica com o usuário.
 prazos medidos em entregas reais, agrupadas por faixa de distância. As
 modalidades expressa e verde são cenários declarados sobre essa linha de base,
 pois a Olist não informa transportadora, modal nem emissão por modalidade. A
-própria tela avisa o usuário sobre essa distinção. **[Pendente: justificativa
-dos fatores de preço, prazo e emissão de cada cenário.]**
+própria tela avisa o usuário sobre essa distinção, e a página de metodologia
+apresenta os fatores com a justificativa de cada um (Tabela 3).
+
+Tabela 3 – Fatores das modalidades de entrega em relação à linha de base
+
+| Modalidade | Preço | Prazo | CO₂ | Justificativa |
+|---|---:|---:|---:|---|
+| Padrão | × 1,0 | × 1,0 | × 1,0 | Linha de base medida: frete da amostra e prazo mediano de 95.921 entregas reais, por faixa de distância |
+| Expressa | × 1,6 | × 0,5 | × 2,5 | Cenário sem fonte quantitativa: o veículo parte antes de completar a carga; o fator de CO₂ equivale a viajar com 40% da ocupação da entrega padrão |
+| Verde | × 0,85 | × 1,5 | × 0,6 | Consolidar pedidos reduz em 30% o número de viagens (WORLD ECONOMIC FORUM, 2024); o fator supõe 40%, mais otimista. Esperar a consolidação alonga o prazo, e um desconto compensa o comprador (WORLD ECONOMIC FORUM, 2024) |
+
+Fonte: Elaborada pelos autores (2026).
+
+A literatura sustenta a direção dos fatores, não os valores: entregas mais
+rápidas reduzem a consolidação e aumentam as viagens, e entregas consolidadas
+fazem o contrário. Por isso, os números das modalidades expressa e verde são
+apresentados como cenário de comparação, e não entram nos resultados de
+emissão do Capítulo 5, que usam apenas a linha de base.
 
 **Ações dirigidas pelo servidor.** Navegação, chamadas à API e abertura de
 modais são variantes do contrato de ações. O fluxo implementado usa navegação e
@@ -410,7 +426,7 @@ O capítulo seguinte apresenta os resultados obtidos com esse sistema.
 | Item | O que falta | Card no Trello |
 |---|---|---|
 | Fonte do fator de cubagem (6.000 cm³/kg) | **Resolvido no texto:** citar OLIST (2022) no §4.1.1 do .docx (onde está o comentário do Word) e incluir nas Referências: OLIST. *Como calcular o frete dos produtos para envio pelos Correios?* São Paulo: Olist, 20 set. 2022. Disponível em: https://olist.com/blog/pt/gestao-empresarial/operacao-e-logistica/como-calcular-o-frete-dos-produtos-na-loja-virtual/ | Sprint 12 — fator de cubagem |
-| Fatores das modalidades expressa e verde | Justificar ou citar os fatores (expressa: preço 1,6, CO₂ 2,5, prazo 0,5; verde: 0,85, 0,6, 1,5) | Sprint 12 — modalidades |
+| Fatores das modalidades expressa e verde | **Resolvido no texto:** Tabela 3 nova no §4.1 (renumera as tabelas do Cap. 5 para 4, 5 e 6). **Decisão do grupo:** manter a Verde em CO₂ × 0,6 (declarado como otimista) ou alinhar a × 0,7 (os 30% do WEF, 2024, p. 19); a Expressa (× 2,5) não tem fonte quantitativa | Sprint 12 — modalidades; [Decisão] fatores das modalidades |
 | Referências novas | Incluir nas Referências: LEE; CHAE (2023), *ISPRS International Journal of Geo-Information* 12(2), 57 (substitui Gonçalves et al., 2014, fora da janela de 5 anos); WORLD ECONOMIC FORUM (2024), *Transforming Urban Logistics*. O código usa os fatores do GLEC v2.0 (2019, rev. 2022); as Referências citam a v3.0 (2023) — alinhar | Sprint 11 — ajustes menores |
 | Capítulo 3 | O Cap. 3 ainda descreve o fator único de 0,102 kg/(t·km) do GHG Protocol; o Cap. 4 agora diz que o modelo evoluiu. Ajustar o Cap. 3 ou manter a menção à evolução | Sprint 11 |
 | Figura 4 (Cap. 3) | Mostra "React" e "E = d × m × f"; a Figura 6 mostra o sistema implementado | — |

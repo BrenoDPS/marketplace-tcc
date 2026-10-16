@@ -95,10 +95,10 @@ ocupação e consumo, que a Olist não fornece.
 
 A metodologia previu comparar a distância em linha reta com a distância de rota
 calculada pelo OSRM. Foram usados 100 pares de compras reais, 20 em cada faixa
-de distância, entre os mesmos centroides usados pela aplicação. A Tabela 3
+de distância, entre os mesmos centroides usados pela aplicação. A Tabela 4
 resume a comparação.
 
-Tabela 3 – Erro da distância estimada em relação à rota do OSRM
+Tabela 4 – Erro da distância estimada em relação à rota do OSRM
 
 | Medida | Linha reta | Linha reta × 1,345 (motor) |
 |---|---:|---:|
@@ -138,9 +138,9 @@ mais rápida de carro, não a rota da transportadora.
 
 Esta seção usa o conjunto completo da Olist para responder a duas perguntas:
 existe oferta próxima para os compradores, e quanto CO₂ seria evitado se o
-vendedor mais próximo fosse escolhido? A Tabela 4 reúne os resultados.
+vendedor mais próximo fosse escolhido? A Tabela 5 reúne os resultados.
 
-Tabela 4 – Proximidade e potencial de redução de emissões
+Tabela 5 – Proximidade e potencial de redução de emissões
 
 | Indicador | Resultado |
 |---|---:|
@@ -235,10 +235,10 @@ O desempenho foi medido sobre a jornada completa, e não sobre uma chamada
 isolada. A jornada inclui a página inicial em quatro variações de contexto, o
 detalhe do produto e o checkout. O protocolo seguiu a metodologia: três níveis de
 carga (50, 250 e 1.000 usuários virtuais), três estados do cache de respostas
-em Redis e três repetições, totalizando 27 ensaios válidos. A Tabela 5 apresenta
+em Redis e três repetições, totalizando 27 ensaios válidos. A Tabela 6 apresenta
 as médias.
 
-Tabela 5 – Desempenho da jornada por nível de carga e estado do cache
+Tabela 6 – Desempenho da jornada por nível de carga e estado do cache
 
 | Usuários virtuais | Cache | p50 | p95 | Vazão | Falhas |
 |---:|---|---:|---:|---:|---:|
@@ -414,10 +414,10 @@ objetivos (a)–(d) e com o que o Cap. 3 prometeu medir:
 
 | Prioridade | Resultado | Por quê | Forma final |
 |---|---|---|---|
-| 1 | Desempenho sob carga | Objetivo (d); maior promessa da §3.3 | Tabela 5 + Figura 12 |
-| 2 | Redução de emissões | Objetivos (b) e (c); núcleo da logística verde | Tabela 4 |
+| 1 | Desempenho sob carga | Objetivo (d); maior promessa da §3.3 | Tabela 6 + Figura 12 |
+| 2 | Redução de emissões | Objetivos (b) e (c); núcleo da logística verde | Tabela 5 |
 | 3 | Mutação do contrato | Objetivos (a) e (d); promessa da §3.3 | Figura 13 |
-| 4 | Haversine × OSRM | Promessa da §3.2 | Tabela 3 + Figura 10 |
+| 4 | Haversine × OSRM | Promessa da §3.2 | Tabela 4 + Figura 10 |
 | 5 | Personalização regional | Objetivo (c) e título do trabalho; faltava no capítulo | Figura 11 (seção nova 5.1.5) |
 | 6 | Cobertura dos dados | §3.1; base para ler o resto | Figura 9 |
 | 7 | Testes do motor | §3.3, mas é verificação interna | Texto, sem tabela |
@@ -427,14 +427,14 @@ objetivos (a)–(d) e com o que o Cap. 3 prometeu medir:
 
 - Tabela 5.1 (funil) e Tabela 5.6 (reconciliação): unificadas na Figura 9.
 - Tabela 5.2 (casos de teste) e Figura 5.2 (diagrama de testes): viraram um exemplo no texto.
-- Tabela 5.5 (comparação histórica × recomendação): unificada com a 5.4 na Tabela 4.
+- Tabela 5.5 (comparação histórica × recomendação): unificada com a 5.4 na Tabela 5.
 - Figura 5.4 (três distribuições): exigiria nova análise; o texto já dá o trade-off de preço.
 - Tabela 5.8 (workers): virou um parágrafo.
 - Tabela 5.9 (mutações): a Figura 13 mostra o mesmo.
 - Tabela 5.10 e Figura 5.7 (dados insuficientes): viraram um parágrafo.
 
 **Corrigido junto (achados do parecer):** fatores de emissão na ordem certa
-(van 0,680; caminhão 0,092); cubagem explicada corretamente; Tabela 5 completa,
+(van 0,680; caminhão 0,092); cubagem explicada corretamente; Tabela 6 completa,
 com as falhas registradas; meta de 200 ms descrita sem exagero; base do 1,7×
 (170 req/s); definição de cache frio; motivo real dos descartes; viés acima de
 100 km; denominadores e intervalo de confiança; amostra ponderada por
