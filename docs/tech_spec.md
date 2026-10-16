@@ -89,7 +89,7 @@ Todos seguem o envelope e estão na união discriminada `UIComponent` (`version:
 | `hero_banner` | Home | `title`, `subtitle`, `image_url`, `cta_label`, `secondary_cta_label` (2ª action; o hero regional usa para "Ver vitrine geral" → `context=geral`) | S1 (`cta_label` na S5, `secondary_cta_label` na S14) |
 | `product_card` | Home | `product_id`, `price`, `title`, `image_url`, `badge`; S13: `seller_city`, `seller_state`, `distance_km`, `co2_kg` (nulos na mesma região) | S1, S13 |
 | `product_detail` | Detalhe | `product_id`, `title`, `price`, `category`, `weight_g`, `seller_id`, `seller_city`, `seller_state`, `rating`, `review_count`, `badge` | S6 |
-| `category_grid` | Home | `title`, `categories[]` — cada item com `slug`, `label`, `product_count`, `selected` e **`actions` próprias** | S5 |
+| `category_grid` | Home | `title`, `categories[]` — cada item com `slug`, `label`, `product_count`, `selected` e **`actions` próprias**; `sort_options[]` (`value`, `label`, `selected`, `actions` com `navigate`) — ordenação da vitrine pelo parâmetro `sort` da Home (`proximo`, `co2`, `preco`) | S5 (`sort_options` na S15) |
 | `checkout_summary` | Checkout | `items[]` (`product_id`, `title`, `quantity`, `unit_price`, `line_total`), `subtotal`, `freight`, `total` | S3 (virou carrinho na S5) |
 | `delivery_options` | Checkout | `distance_km`, `selected_id`, `options[]` (`id`, `label`, `eta_days`, `price`, `co2_kg`, `recommended`, `selected`), `note` | S4 |
 | `shipment_breakdown` | Checkout | `title`, `shipments[]` (`seller_id`, `product_ids`, `total_quantity`, `weight_g`, `distance_km`, `freight`, `co2_kg`, `co2_share`, `badge`, `alternatives[]`), `note` | S5 (`alternatives` na S6) |

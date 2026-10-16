@@ -221,9 +221,21 @@ class CategoryItemProps(BaseModel):
     actions: list[UIAction] = Field(default_factory=list)
 
 
+class SortOptionProps(BaseModel):
+    """Uma ordenacao da vitrine (Sprint 15, V4). Mesmo desenho do item de
+    categoria: rotulo, se esta em vigor e a `navigate` que a aplica."""
+
+    value: str
+    label: str
+    selected: bool = False
+    actions: list[UIAction] = Field(default_factory=list)
+
+
 class CategoryGridProps(BaseModel):
     title: str | None = None
     categories: list[CategoryItemProps]
+    # Ordenar e filtrar moram juntos: e a barra de controle da vitrine.
+    sort_options: list[SortOptionProps] = Field(default_factory=list)
 
 
 class DeliveryOptionProps(BaseModel):

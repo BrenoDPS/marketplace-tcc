@@ -37,6 +37,7 @@ export async function fetchHome(
   context: string,
   search?: string,
   category?: string,
+  sort?: string,
 ): Promise<ScreenResult> {
   const query = new URLSearchParams({
     customer_zip_prefix: customerZipPrefix,
@@ -44,6 +45,7 @@ export async function fetchHome(
   });
   if (search) query.set("q", search);
   if (category) query.set("category", category);
+  if (sort) query.set("sort", sort);
   try {
     // Dados dependem do CEP e mudam com o ETL: sem cache entre requisicoes.
     const res = await fetch(`${API_BASE}/api/v1/home?${query}`, { cache: "no-store" });

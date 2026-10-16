@@ -97,7 +97,7 @@ export function Badge({ badge, explain = false }: { badge: SustainabilityProps |
 }
 
 export function CategoryGrid({ block }: { block: CategoryGridBlock }) {
-  const { title, categories } = block.props;
+  const { title, categories, sort_options = [] } = block.props;
   const { run } = useSdui();
   const scroller = useRef<HTMLDivElement>(null);
   // Bordas com conteudo escondido: so elas ganham fade e seta (D9 — os chips
@@ -128,9 +128,31 @@ export function CategoryGrid({ block }: { block: CategoryGridBlock }) {
 
   return (
     <section>
-      {title && (
-        <h2 className="text-xs uppercase tracking-[0.2em] text-muted">{title}</h2>
-      )}
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
+        {title && (
+          <h2 className="text-xs uppercase tracking-[0.2em] text-muted">{title}</h2>
+        )}
+        {/* Ordenar (V4): opcoes, rotulos e caminhos vem do servidor. */}
+        {sort_options.length > 0 && (
+          <nav aria-label="Ordenar a vitrine" className="flex items-center gap-1 text-xs sm:text-sm">
+            <span aria-hidden className="mr-1 text-xs text-muted">Ordenar</span>
+            {sort_options.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                aria-current={opt.selected || undefined}
+                disabled={opt.actions.length === 0}
+                onClick={() => opt.actions[0] && run(opt.actions[0])}
+                className={`whitespace-nowrap rounded-full px-2.5 py-1 transition sm:px-3 ${
+                  opt.selected ? "bg-ink text-paper" : "text-muted hover:bg-line/60 hover:text-ink"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </nav>
+        )}
+      </div>
       {/* Rolagem horizontal: 12 chips nao cabem em 375px sem virar quatro
           linhas de altura. No desktop, setas; no toque, o fade basta. */}
       <div className="relative mt-3">

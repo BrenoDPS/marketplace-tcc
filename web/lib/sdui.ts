@@ -86,9 +86,17 @@ export type CategoryItem = {
   actions: UIAction[];
 };
 
+/** Ordenacao da vitrine (Sprint 15, V4): o servidor manda rotulo e caminho. */
+export type SortOption = {
+  value: string;
+  label: string;
+  selected: boolean;
+  actions: UIAction[];
+};
+
 export type CategoryGridBlock = Envelope<
   "category_grid",
-  { title: string | null; categories: CategoryItem[] }
+  { title: string | null; categories: CategoryItem[]; sort_options?: SortOption[] }
 >;
 
 export type ProductCardBlock = Envelope<

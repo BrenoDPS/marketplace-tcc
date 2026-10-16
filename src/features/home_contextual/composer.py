@@ -7,6 +7,7 @@ centroides de CEP). Sem mocks de product_id.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from urllib.parse import urlencode
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -38,6 +39,7 @@ from src.schemas.sdui import (
     HeroBannerProps,
     NavigateAction,
     NavigatePayload,
+    SortOptionProps,
     ProductCardBlock,
     ProductCardProps,
     ScreenResponse,
@@ -54,6 +56,10 @@ DEFAULT_CONTEXT = "default"
 GENERAL_CONTEXT = "geral"
 _DEFAULT_LIMIT = 6
 _CONSCIOUS_POOL_LIMIT = 24
+# Ordenacoes da vitrine (V4). Com uma em vigor a Home busca o pool maior e
+# ordena antes de cortar em 6 — ordenar so os 6 de sempre nao mudaria nada.
+# O `conscious_buyer` e a ordenacao por proximidade por padrao.
+SORTS: dict[str, str] = {"proximo": "Mais próximo", "co2": "Menor CO₂", "preco": "Menor preço"}
 # 70 categorias na amostra; a grade mostra as maiores e o resto fica a um clique
 # de distancia pela busca. Uma parede de 70 chips nao ajuda ninguem a navegar.
 _CATEGORY_GRID_LIMIT = 12
@@ -182,19 +188,32 @@ def _category_grid(
     customer_zip_prefix: str,
     context: str,
     selected: str | None,
+    search: str | None = None,
+    sort: str | None = None,
+    ordem: str | None = None,
 ) -> CategoryGridBlock:
     """O servidor monta o caminho de cada categoria ja com CEP e contexto: o
-    cliente navega para onde mandaram, sem inventar query string."""
+    cliente navega para onde mandaram, sem inventar query string.
+
+    `sort` e o que o usuario pediu (vai nos links, para a categoria nao
+    desfazer a ordenacao); `ordem` e a que esta em vigor (marca a selecionada —
+    no `conscious_buyer` ela existe sem ninguem ter pedido)."""
 
     def path_for(slug: str) -> str:
-        params = urlencode(
-            {
-                "customer_zip_prefix": customer_zip_prefix,
-                "context": context,
-                "category": slug,
-            }
-        )
-        return f"/?{params}"
+        params = {"customer_zip_prefix": customer_zip_prefix, "context": context, "category": slug}
+        if sort:
+            params["sort"] = sort
+        return f"/?{urlencode(params)}"
+
+    def path_sort(valor: str) -> str:
+        # Ordenar preserva o filtro em vigor: "beleza, do menor preco".
+        params = {"customer_zip_prefix": customer_zip_prefix, "context": context}
+        if search:
+            params["q"] = search
+        if selected:
+            params["category"] = selected
+        params["sort"] = valor
+        return f"/?{urlencode(params)}"
 
     return CategoryGridBlock(
         props=CategoryGridProps(
@@ -211,11 +230,38 @@ def _category_grid(
                 )
                 for row in categories
             ],
+            sort_options=[
+                SortOptionProps(
+                    value=valor,
+                    label=rotulo,
+                    selected=valor == ordem,
+                    actions=[NavigateAction(payload=NavigatePayload(path=path_sort(valor)))],
+                )
+                for valor, rotulo in SORTS.items()
+            ],
         ),
     )
 
 
 INFINITY = float("inf")
+
+
+def _chave_de_ordem(ordem: str) -> Callable[[tuple[float, ProductRow]], tuple[float, float]]:
+    """Chave de ordenacao de `(distancia, oferta)`. Desconhecido vai para o fim
+    — "nao sei a distancia" nao e "esta perto"; empate pelo segundo criterio."""
+
+    def co2(par: tuple[float, ProductRow]) -> float:
+        d, oferta = par
+        if d == INFINITY or not oferta.weight_g:
+            return INFINITY
+        return calculate_co2_kg(d, oferta.weight_g, oferta.volume_cm3)
+
+    chaves: dict[str, Callable[[tuple[float, ProductRow]], tuple[float, float]]] = {
+        "proximo": lambda par: (par[0], par[1].price),
+        "co2": lambda par: (co2(par), par[0]),
+        "preco": lambda par: (par[1].price, par[0]),
+    }
+    return chaves[ordem]
 
 
 async def _nearest_offer_per_product(
@@ -288,6 +334,7 @@ async def compose_home(
     customer_zip_prefix: str,
     search: str | None = None,
     category: str | None = None,
+    sort: str | None = None,
 ) -> ScreenResponse:
     """Filtro explicito (`search`/`category`) vence a categoria do contexto.
 
@@ -307,42 +354,26 @@ async def compose_home(
         if regional is not None:
             effective_category = regional.category
 
-    if context == CONSCIOUS_BUYER_CONTEXT:
-        pool = await fetch_products_for_home(
-            session,
-            category=category,
-            search=search,
-            limit=_CONSCIOUS_POOL_LIMIT,
-        )
-        escolhidas = await _nearest_offer_per_product(
-            session, pool, customer_zip_prefix
-        )
+    ordem = sort or ("proximo" if context == CONSCIOUS_BUYER_CONTEXT else None)
+    limite = _CONSCIOUS_POOL_LIMIT if ordem else _DEFAULT_LIMIT
+    offers = await fetch_products_for_home(
+        session, category=effective_category, search=search, limit=limite
+    )
+    # Categoria vinda do contexto e uma heuristica nossa: se nao rende
+    # produtos, cair para a vitrine geral (comportamento da Sprint 2). Filtro
+    # que o usuario pediu nao cai — resultado vazio e a resposta honesta.
+    if not offers and effective_category and not explicit_filter:
+        offers = await fetch_products_for_home(session, limit=limite)
+        # O hero regional anunciaria uma categoria que nao esta na tela.
+        regional = None
+    escolhidas = await _nearest_offer_per_product(session, offers, customer_zip_prefix)
+    if ordem:
         # Cada produto ja entra com a sua MELHOR origem; a ordenacao aqui e
         # entre produtos. Antes o ranking usava o vendedor arbitrario do
         # produto, entao um item podia cair no fim da lista por causa de uma
         # origem distante enquanto tinha outra ao lado do comprador.
-        escolhidas.sort(key=lambda par: par[0])
-        products = [offer for _, offer in escolhidas[:_DEFAULT_LIMIT]]
-    else:
-        offers = await fetch_products_for_home(
-            session,
-            category=effective_category,
-            search=search,
-            limit=_DEFAULT_LIMIT,
-        )
-        # Categoria vinda do contexto e uma heuristica nossa: se nao rende
-        # produtos, cair para a vitrine geral (comportamento da Sprint 2). Filtro
-        # que o usuario pediu nao cai — resultado vazio e a resposta honesta.
-        if not offers and effective_category and not explicit_filter:
-            offers = await fetch_products_for_home(session, limit=_DEFAULT_LIMIT)
-            # O hero regional anunciaria uma categoria que nao esta na tela.
-            regional = None
-        products = [
-            offer
-            for _, offer in await _nearest_offer_per_product(
-                session, offers, customer_zip_prefix
-            )
-        ]
+        escolhidas.sort(key=_chave_de_ordem(ordem))
+    products = [offer for _, offer in escolhidas[:_DEFAULT_LIMIT]]
 
     categories = await list_categories(session, limit=_CATEGORY_GRID_LIMIT)
 
@@ -356,7 +387,15 @@ async def compose_home(
             found=len(products),
             customer_zip_prefix=customer_zip_prefix,
         ),
-        _category_grid(categories, customer_zip_prefix, context, selected=category),
+        _category_grid(
+            categories,
+            customer_zip_prefix,
+            context,
+            selected=category,
+            search=search,
+            sort=sort,
+            ordem=ordem,
+        ),
     ]
     for product in products:
         distance, badge = await build_badge_for_pair(

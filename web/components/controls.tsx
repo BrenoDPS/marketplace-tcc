@@ -15,11 +15,12 @@ import { useSdui } from "./sdui-context";
 function hrefFor(
   customerZipPrefix: string,
   context: string,
-  filter: { search?: string; category?: string } = {},
+  filter: { search?: string; category?: string; sort?: string } = {},
 ) {
   const params = new URLSearchParams({ customer_zip_prefix: customerZipPrefix, context });
   if (filter.search) params.set("q", filter.search);
   if (filter.category) params.set("category", filter.category);
+  if (filter.sort) params.set("sort", filter.sort);
   return `/?${params}`;
 }
 
@@ -92,15 +93,17 @@ export function Controls({
   context,
   search,
   category,
+  sort,
 }: {
   customerZipPrefix: string;
   context: string;
   search?: string;
   category?: string;
+  sort?: string;
 }) {
   const { cart, openCart, inspecting, toggleInspecting, navigate, navigating } = useSdui();
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const filter = { search, category };
+  const filter = { search, category, sort };
   const cartCount = cart.reduce((sum, entry) => sum + entry.quantity, 0);
 
   // Mostra o JSON por tras de cada bloco: e a prova ao vivo de que a tela vem
@@ -173,6 +176,7 @@ export function Controls({
           >
             <input type="hidden" name="customer_zip_prefix" value={customerZipPrefix} />
             <input type="hidden" name="context" value={context} />
+            {sort && <input type="hidden" name="sort" value={sort} />}
             <input
               // `key` amarrado ao termo forca o remount: sem isso o input fica
               // com o valor antigo depois de uma navegacao client-side (ex.: "Ver

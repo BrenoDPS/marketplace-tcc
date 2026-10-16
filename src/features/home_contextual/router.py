@@ -1,3 +1,5 @@
+from typing import Literal
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import Response
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -37,6 +39,13 @@ async def get_home(
         max_length=120,
         description="Filtro exato por `product_category_name` da amostra.",
     ),
+    sort: Literal["proximo", "co2", "preco"] | None = Query(
+        None,
+        description=(
+            "Ordenacao da vitrine (Sprint 15): mais proximo, menor CO2 ou menor "
+            "preco, entre os produtos do filtro em vigor."
+        ),
+    ),
     session: AsyncSession = Depends(get_db),
 ) -> ScreenResponse | Response:
     known = await list_known_prefixes(session)
@@ -62,7 +71,7 @@ async def get_home(
     # A validacao acima fica FORA do cache de proposito: um CEP invalido tem de
     # continuar dando 422 com o cache ligado. Ela nao vai ao banco no caminho
     # comum — os prefixos ja estao em memoria desde a Sprint 6.
-    chave = cache.key("home", customer_zip_prefix, context, search, category)
+    chave = cache.key("home", customer_zip_prefix, context, search, category, sort)
     cacheado = await cache.get(chave)
     if cacheado is not None:
         # Bytes direto: reconstruir o modelo so para o FastAPI re-serializa-lo
@@ -75,6 +84,7 @@ async def get_home(
         customer_zip_prefix=customer_zip_prefix,
         search=search,
         category=category,
+        sort=sort,
     )
     await cache.set(chave, tela.model_dump_json())
     return tela

@@ -637,3 +637,57 @@ async def test_hero_regional_explica_e_pode_ser_desfeito() -> None:
     _, body = await _get(f"/api/v1{geral.replace('/?', '/home?')}")
     assert isinstance(body, dict)
     assert _hero(body)["props"]["title"] == "Olist Marketplace"
+
+
+# --- ordenacao da vitrine (Sprint 15, V4) -------------------------------------
+
+def _ordem(body: dict) -> list[str]:
+    return [c["props"]["product_id"] for c in body["components"] if c["type"] == "product_card"]
+
+
+async def test_ordenar_por_preco_proximidade_e_co2() -> None:
+    base = "/api/v1/home?customer_zip_prefix=01000&context=default"
+    _, preco = await _get(f"{base}&sort=preco")
+    assert _ordem(preco) == ["prod_dois_vendedores", "prod_beauty", "prod_real_2", "prod_real_1"]
+
+    _, perto = await _get(f"{base}&sort=proximo")
+    # Distancia desconhecida vai para o fim: "nao sei" nao e "perto".
+    assert _ordem(perto) == ["prod_dois_vendedores", "prod_real_2", "prod_real_1", "prod_beauty"]
+
+    # Menor CO2 NAO e o mais proximo: 300 g a 20 km emite menos que 1 kg a 10 km.
+    _, co2 = await _get(f"{base}&sort=co2")
+    assert _ordem(co2) == ["prod_real_2", "prod_dois_vendedores", "prod_real_1", "prod_beauty"]
+
+
+async def test_ordenacao_desconhecida_e_422() -> None:
+    status, _ = await _get("/api/v1/home?customer_zip_prefix=01000&sort=aleatorio")
+    assert status == 422
+
+
+async def test_opcoes_de_ordenacao_vem_do_servidor_e_preservam_o_filtro() -> None:
+    _, body = await _get("/api/v1/home?customer_zip_prefix=01000&context=default&q=informatica&sort=preco")
+    grid = next(c for c in body["components"] if c["type"] == "category_grid")["props"]
+    opcoes = {o["value"]: o for o in grid["sort_options"]}
+    assert list(opcoes) == ["proximo", "co2", "preco"]
+    assert opcoes["preco"]["selected"] and not opcoes["co2"]["selected"]
+    caminho = opcoes["co2"]["actions"][0]["payload"]["path"]
+    assert "q=informatica" in caminho and "sort=co2" in caminho
+    # A categoria tambem nao desfaz a ordenacao escolhida.
+    assert "sort=preco" in grid["categories"][0]["actions"][0]["payload"]["path"]
+
+
+async def test_consciente_ja_vem_ordenado_por_proximidade() -> None:
+    _, body = await _get("/api/v1/home?customer_zip_prefix=01000&context=conscious_buyer")
+    grid = next(c for c in body["components"] if c["type"] == "category_grid")["props"]
+    assert [o["value"] for o in grid["sort_options"] if o["selected"]] == ["proximo"]
+
+
+async def test_ordenacao_entra_na_chave_do_cache(monkeypatch: pytest.MonkeyPatch) -> None:
+    chaves: list[str] = []
+    from src.core import cache
+
+    real = cache.key
+    monkeypatch.setattr(cache, "key", lambda *a: chaves.append(real(*a)) or chaves[-1])
+    await _get("/api/v1/home?customer_zip_prefix=01000&sort=co2")
+    await _get("/api/v1/home?customer_zip_prefix=01000&sort=preco")
+    assert len(set(chaves)) == 2 and chaves[0].endswith("|co2")

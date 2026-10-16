@@ -92,6 +92,16 @@ test("jornada da defesa: do CEP ao comparativo de entrega", async ({ page }) => 
     await expect(page).not.toHaveURL(/category=/);
   });
 
+  await test.step("ordena a vitrine por menor preco (opcao vinda do servidor)", async () => {
+    const ordenar = page.getByRole("navigation", { name: "Ordenar a vitrine" });
+    await ordenar.getByRole("button", { name: "Menor preço" }).click();
+    await expect(page).toHaveURL(/sort=preco/);
+    await expect(ordenar.getByRole("button", { name: "Menor preço" })).toHaveAttribute("aria-current", "true");
+    const precos = await page.locator("main button:has(h3) p.font-display").allInnerTexts();
+    const valores = precos.map(brl);
+    expect(valores).toEqual([...valores].sort((a, b) => a - b));
+  });
+
   await test.step("abre o detalhe de um produto com selo verde", async () => {
     // O detalhe vem de `GET /products/{id}`: e outra tela do servidor, nao um
     // remonte do card. Escolher um card COM selo garante < 100 km, e portanto
@@ -103,7 +113,9 @@ test("jornada da defesa: do CEP ao comparativo de entrega", async ({ page }) => 
     await expect(modal(page).getByRole("button", { name: "Adicionar ao carrinho" })).toBeVisible();
     // Um selo por tela (D6): o do `product_detail`; o `impact_banner` explica
     // o numero sem repetir o selo.
-    await expect(modal(page).getByText("Entrega local")).toHaveCount(1);
+    // O selo e "Entrega local (~N km ...)"; o comparador de origens tambem
+    // escreve "entrega local", mas como rotulo de linha, nao como selo.
+    await expect(modal(page).getByText(/^Entrega local \(/)).toHaveCount(1);
   });
 
   await test.step("adiciona ao carrinho e simula a compra", async () => {

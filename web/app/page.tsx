@@ -19,10 +19,11 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
   const context = first(params.context) ?? "default";
   const search = first(params.q);
   const category = first(params.category);
+  const sort = first(params.sort);
 
   if (!customerZipPrefix) return <EntryScreen />;
 
-  const result = await fetchHome(customerZipPrefix, context, search, category);
+  const result = await fetchHome(customerZipPrefix, context, search, category, sort);
 
   return (
     <SduiProvider
@@ -36,6 +37,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
         context={context}
         search={search}
         category={category}
+        sort={sort}
       />
       <main className="mx-auto w-full max-w-6xl px-6 py-10">
         {result.ok ? (
