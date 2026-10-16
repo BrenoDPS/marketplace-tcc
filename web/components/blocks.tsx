@@ -20,7 +20,7 @@ import { useSdui } from "./sdui-context";
 export function Badge({ badge }: { badge: SustainabilityProps | null }) {
   if (!badge) return null;
   return (
-    <span className="inline-flex w-fit items-center gap-1.5 rounded-2xl bg-signal-soft px-2.5 py-1 text-[11px] font-medium leading-tight text-signal-ink ring-1 ring-signal/20">
+    <span className="inline-flex w-fit items-center gap-1.5 rounded-2xl bg-signal-soft px-2.5 py-1 text-xs font-medium leading-tight text-signal-ink ring-1 ring-signal/20">
       {badge.icon === "leaf" && (
         <svg viewBox="0 0 16 16" aria-hidden className="size-3 shrink-0 fill-current">
           <path d="M13.5 2.5c0 6-3.6 9-7.2 9a4 4 0 0 1-2.6-.9c1.4-3.4 4-5.3 6.8-6.3-2.9.6-5.5 2.3-7.2 5.4a5.2 5.2 0 0 1-.8-2.8c0-3 2.6-4.6 5.4-4.8 1.9-.1 3.6-.4 5.6.4Z" />
@@ -64,7 +64,7 @@ export function CategoryGrid({ block }: { block: CategoryGridBlock }) {
   return (
     <section>
       {title && (
-        <h2 className="text-[11px] uppercase tracking-[0.2em] text-muted">{title}</h2>
+        <h2 className="text-xs uppercase tracking-[0.2em] text-muted">{title}</h2>
       )}
       {/* Rolagem horizontal: 12 chips nao cabem em 375px sem virar quatro
           linhas de altura. No desktop, setas; no toque, o fade basta. */}
@@ -90,7 +90,7 @@ export function CategoryGrid({ block }: { block: CategoryGridBlock }) {
                 }`}
               >
                 {item.label}
-                <span className="text-[11px] tabular-nums opacity-60">
+                <span className="text-xs tabular-nums opacity-60">
                   {item.product_count}
                 </span>
               </button>
@@ -114,36 +114,45 @@ export function CategoryGrid({ block }: { block: CategoryGridBlock }) {
 }
 
 export function HeroBanner({ block }: { block: HeroBannerBlock }) {
-  const { title, subtitle, image_url, cta_label } = block.props;
+  const { title, subtitle, cta_label, secondary_cta_label } = block.props;
   const { run } = useSdui();
-  const action = block.actions[0];
+  const [action, secondary] = block.actions;
 
+  /*
+   * Compacto (D8): ate a Sprint 13 eram ~400 px de veu sobre um placeholder
+   * cinza antes do primeiro produto. A `image_url` da amostra e so placeholder,
+   * entao o hero fica tipografico e o espaco vai para a vitrine.
+   */
   return (
-    <section
-      className="relative overflow-hidden rounded-2xl border border-line bg-surface px-6 py-14 sm:px-12 sm:py-20"
-      style={{
-        backgroundImage: `url(${image_url})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
-      {/* A amostra so traz placeholders cinza: o veu deixa a tipografia liderar. */}
-      <div className="absolute inset-0 bg-paper/92" />
-      <div className="relative max-w-2xl">
-        <h1 className="font-display text-4xl leading-[1.05] tracking-tight text-ink sm:text-6xl">
+    <section className="flex flex-col gap-4 rounded-2xl border border-line bg-surface px-5 py-5 sm:flex-row sm:items-end sm:justify-between sm:px-8 sm:py-7">
+      <div className="max-w-2xl">
+        <h1 className="font-display text-2xl leading-tight tracking-tight text-ink sm:text-4xl">
           {title}
         </h1>
-        {subtitle && <p className="mt-4 text-base text-muted sm:text-lg">{subtitle}</p>}
-        {action && (
-          <button
-            type="button"
-            onClick={() => run(action)}
-            className="mt-8 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-paper transition hover:opacity-90"
-          >
-            {cta_label ?? "Explorar"}
-          </button>
-        )}
+        {subtitle && <p className="mt-2 text-sm text-muted sm:text-base">{subtitle}</p>}
       </div>
+      {(action || secondary) && (
+        <div className="flex shrink-0 flex-wrap gap-2">
+          {action && (
+            <button
+              type="button"
+              onClick={() => run(action)}
+              className="rounded-full bg-ink px-4 py-2 text-sm font-medium text-paper transition hover:opacity-90 sm:px-5 sm:py-2.5"
+            >
+              {cta_label ?? "Explorar"}
+            </button>
+          )}
+          {secondary && (
+            <button
+              type="button"
+              onClick={() => run(secondary)}
+              className="rounded-full border border-line px-4 py-2 text-sm text-ink transition hover:border-ink/30 sm:px-5 sm:py-2.5"
+            >
+              {secondary_cta_label ?? "Ver mais"}
+            </button>
+          )}
+        </div>
+      )}
     </section>
   );
 }
@@ -273,7 +282,7 @@ export function ProductDetail({ block }: { block: ProductDetailBlock }) {
     <section className="rounded-xl border border-line bg-surface p-6">
       <h2 className="font-display text-2xl text-ink">{title ?? product_id}</h2>
       {/* O id e um hash de 32 caracteres: so interessa a quem inspeciona o JSON. */}
-      {inspecting && <p className="mt-1 font-mono text-[11px] text-muted">{product_id}</p>}
+      {inspecting && <p className="mt-1 font-mono text-xs text-muted">{product_id}</p>}
 
       <div className="mt-4">{badge ? <Badge badge={badge} /> : null}</div>
       <p className="mt-4 font-display text-3xl text-ink">{brl(price)}</p>
@@ -282,7 +291,7 @@ export function ProductDetail({ block }: { block: ProductDetailBlock }) {
         <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
           {facts.map(([label, value, hint]) => (
             <div key={label}>
-              <dt className="text-[11px] uppercase tracking-wide text-muted">{label}</dt>
+              <dt className="text-xs uppercase tracking-wide text-muted">{label}</dt>
               <dd className="mt-0.5 text-ink">
                 {value}
                 {hint && <span className="ml-1.5 text-xs text-muted">({hint})</span>}
@@ -317,12 +326,12 @@ export function ProductDetail({ block }: { block: ProductDetailBlock }) {
         <button
           type="button"
           onClick={() => add(true)}
-          className="flex-1 rounded-full bg-signal px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
+          className="flex-1 rounded-full bg-signal px-5 py-3 text-sm font-medium text-on-signal transition hover:opacity-90"
         >
           Ir para o carrinho
         </button>
       </div>
-      <p className="mt-3 text-center text-[11px] text-muted">
+      <p className="mt-3 text-center text-xs text-muted">
         Simulação acadêmica — nenhum pagamento é processado.
       </p>
     </section>
@@ -371,7 +380,7 @@ function Alternatives({ items }: { items: Alternative[] }) {
 
   return (
     <div className="mt-4 border-t border-line pt-4">
-      <p className="text-[11px] uppercase tracking-wide text-muted">
+      <p className="text-xs uppercase tracking-wide text-muted">
         Mais perto de você
       </p>
       <ul className="mt-2 space-y-2">
@@ -458,7 +467,7 @@ export function ShipmentBreakdown({ block }: { block: ShipmentBreakdownBlock }) 
                     ? `${decimal(shipment.distance_km, 0)} km`
                     : "distância indisponível"}
                 </p>
-                <p className="mt-0.5 font-mono text-[11px] text-muted">
+                <p className="mt-0.5 font-mono text-xs text-muted">
                   {shipment.seller_id.slice(0, 12)}…
                 </p>
               </div>
@@ -495,7 +504,7 @@ export function ShipmentBreakdown({ block }: { block: ShipmentBreakdownBlock }) 
         ))}
       </ul>
 
-      {note && <p className="mt-5 text-[11px] leading-relaxed text-muted">{note}</p>}
+      {note && <p className="mt-5 text-xs leading-relaxed text-muted">{note}</p>}
     </section>
   );
 }
@@ -536,7 +545,7 @@ export function DeliveryOptions({ block }: { block: DeliveryOptionsBlock }) {
             <div className="flex items-start justify-between gap-2">
               <span className="text-sm font-medium text-ink">{option.label}</span>
               {option.recommended && (
-                <span className="shrink-0 rounded-full bg-signal-soft px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-signal-ink ring-1 ring-signal/20">
+                <span className="shrink-0 rounded-full bg-signal-soft px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-signal-ink ring-1 ring-signal/20">
                   Menor emissão
                 </span>
               )}
@@ -565,14 +574,14 @@ export function DeliveryOptions({ block }: { block: DeliveryOptionsBlock }) {
             )}
 
             {option.description && (
-              <p className="text-[11px] leading-relaxed text-muted">{option.description}</p>
+              <p className="text-xs leading-relaxed text-muted">{option.description}</p>
             )}
           </button>
         ))}
       </div>
 
       {/* Sem esta nota os fatores viram "dado do Olist" na leitura de quem ve. */}
-      {note && <p className="mt-5 text-[11px] leading-relaxed text-muted">{note}</p>}
+      {note && <p className="mt-5 text-xs leading-relaxed text-muted">{note}</p>}
     </section>
   );
 }
@@ -594,7 +603,7 @@ export function ImpactBanner({ block }: { block: ImpactBannerBlock }) {
         <dl className="mt-6 grid grid-cols-2 gap-4">
           {stats.map(([label, value]) => (
             <div key={label} className="rounded-lg border border-line px-4 py-3">
-              <dt className="text-[11px] uppercase tracking-wide text-muted">{label}</dt>
+              <dt className="text-xs uppercase tracking-wide text-muted">{label}</dt>
               <dd className="mt-1 font-display text-2xl tabular-nums text-ink">{value}</dd>
             </div>
           ))}

@@ -15,6 +15,9 @@
   --signal: #12704a;
   --signal-soft: #e9f3ed;
   --signal-ink: #0b4a31;
+  /* Texto SOBRE o verde: branco no claro (6,1:1); no escuro o verde e claro e
+     o branco dava 1,95:1 — reprovado no AA. */
+  --on-signal: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -27,6 +30,7 @@
     --signal: #52d08a;
     --signal-soft: #122c1f;
     --signal-ink: #9be8be;
+    --on-signal: #100e0d;
   }
 }
 
@@ -39,6 +43,7 @@
   --color-signal: var(--signal);
   --color-signal-soft: var(--signal-soft);
   --color-signal-ink: var(--signal-ink);
+  --color-on-signal: var(--on-signal);
 
   /* Fontes self-hosted (ver app/layout.tsx): fonts.googleapis.com esta
      bloqueado nesta rede, entao nao usamos `next/font/google`. */
@@ -49,4 +54,11 @@
 body {
   background: var(--paper);
   color: var(--ink);
+}
+
+/* Foco visivel para quem navega por teclado (D10): um anel so, em todo
+   controle. `:focus-visible` nao aparece no clique do mouse. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
 }

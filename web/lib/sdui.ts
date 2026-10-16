@@ -55,6 +55,8 @@ export type HeroBannerBlock = Envelope<
     image_url: string;
     /** Rotulo do botao da primeira action. O servidor decide o texto. */
     cta_label: string | null;
+    /** Rotulo do botao da segunda action (desfazer a regional). Opcional. */
+    secondary_cta_label?: string | null;
   }
 >;
 
@@ -203,11 +205,12 @@ export type ScreenResponse = {
 
 // --- Constantes de demo ----------------------------------------------------
 
+/** `hint`: o que cada perfil muda na vitrine (D12) — parecia aba de categoria. */
 export const CONTEXTS = [
-  { value: "default", label: "Padrão" },
-  { value: "electronics_expert", label: "Eletrônicos" },
-  { value: "beauty_lover", label: "Beleza" },
-  { value: "conscious_buyer", label: "Consciente" },
+  { value: "default", label: "Padrão", hint: "Vitrine da sua região: a categoria que a sua UF mais compra" },
+  { value: "electronics_expert", label: "Eletrônicos", hint: "Perfil de quem compra tecnologia" },
+  { value: "beauty_lover", label: "Beleza", hint: "Perfil de quem compra beleza e saúde" },
+  { value: "conscious_buyer", label: "Consciente", hint: "Vendedores mais próximos primeiro: menos CO₂ na entrega" },
 ] as const;
 
 /** Pares documentados no README: um perto dos sellers da amostra, outro longe. */

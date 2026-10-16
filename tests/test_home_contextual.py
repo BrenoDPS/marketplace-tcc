@@ -554,7 +554,7 @@ async def test_sem_contexto_escolhido_a_home_segue_a_regiao_do_cep() -> None:
 
     hero = _hero(body)
     assert hero["props"]["title"] == "Em alta em CE: Relógios e presentes"
-    assert "1,7x" in hero["props"]["subtitle"], "o hero precisa dizer POR QUE"
+    assert "1,7×" in hero["props"]["subtitle"], "o hero precisa dizer POR QUE"
     assert _cards(body) == ["prod_dois_vendedores"]
     # O contrato nao muda: o contexto da resposta e o pedido.
     assert body["context"] == "default"
@@ -620,3 +620,19 @@ async def test_hero_regional_escreve_media_com_acento() -> None:
     _, body = await _get("/api/v1/home?customer_zip_prefix=60000")
     assert isinstance(body, dict)
     assert "média do Brasil" in _hero(body)["props"]["subtitle"]
+
+
+async def test_hero_regional_explica_e_pode_ser_desfeito() -> None:
+    """V5: o porque aparece e ha como voltar a vitrine sem a regiao."""
+    _, body = await _get("/api/v1/home?customer_zip_prefix=60000")
+    assert isinstance(body, dict)
+    hero = _hero(body)
+    assert hero["props"]["subtitle"].startswith("Por que esta vitrine?")
+    assert hero["props"]["secondary_cta_label"] == "Ver vitrine geral"
+    geral = hero["actions"][1]["payload"]["path"]
+    assert "context=geral" in geral
+
+    # Seguir o "desfazer" devolve a vitrine geral: sem hero regional.
+    _, body = await _get(f"/api/v1{geral.replace('/?', '/home?')}")
+    assert isinstance(body, dict)
+    assert _hero(body)["props"]["title"] == "Olist Marketplace"

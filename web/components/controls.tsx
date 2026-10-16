@@ -30,7 +30,7 @@ export function EntryScreen() {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col justify-center px-6 py-16">
-      <p className="text-[11px] uppercase tracking-[0.2em] text-muted">
+      <p className="text-xs uppercase tracking-[0.2em] text-muted">
         Olist SDUI Marketplace
       </p>
       <h1 className="mt-4 font-display text-4xl leading-tight tracking-tight text-ink sm:text-5xl">
@@ -66,7 +66,7 @@ export function EntryScreen() {
       </form>
 
       <div className="mt-10 border-t border-line pt-6">
-        <p className="text-[11px] uppercase tracking-wide text-muted">Atalhos de demonstração</p>
+        <p className="text-xs uppercase tracking-wide text-muted">Atalhos de demonstração</p>
         <div className="mt-3 flex flex-col gap-2 sm:flex-row">
           {DEMO_ZIPS.map((demo) => (
             <button
@@ -77,7 +77,7 @@ export function EntryScreen() {
             >
               <span className="font-medium text-ink">{demo.value}</span>
               <span className="ml-2 text-sm text-muted">{demo.label}</span>
-              <span className="mt-0.5 block text-[11px] text-muted">{demo.hint}</span>
+              <span className="mt-0.5 block text-xs text-muted">{demo.hint}</span>
             </button>
           ))}
         </div>
@@ -98,8 +98,7 @@ export function Controls({
   search?: string;
   category?: string;
 }) {
-  const router = useRouter();
-  const { cart, openCart, inspecting, toggleInspecting } = useSdui();
+  const { cart, openCart, inspecting, toggleInspecting, navigate, navigating } = useSdui();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const filter = { search, category };
   const cartCount = cart.reduce((sum, entry) => sum + entry.quantity, 0);
@@ -113,7 +112,7 @@ export function Controls({
       onClick={toggleInspecting}
       title="Contorna cada bloco e mostra o JSON que veio do servidor"
       className={`${className} rounded-full px-3 py-1.5 font-mono text-xs transition ${
-        inspecting ? "bg-signal text-white" : "text-muted hover:bg-line/60 hover:text-ink"
+        inspecting ? "bg-signal text-on-signal" : "text-muted hover:bg-line/60 hover:text-ink"
       }`}
     >
       SDUI
@@ -137,13 +136,15 @@ export function Controls({
           id="filtros"
           className={`${filtersOpen ? "flex" : "hidden"} order-last w-full flex-col gap-3 sm:flex sm:flex-row sm:flex-wrap sm:items-center xl:order-none xl:w-auto xl:flex-1 xl:flex-nowrap`}
         >
-          <nav className="flex flex-wrap gap-1" aria-label="Contexto da vitrine">
+          <nav className="flex flex-wrap items-center gap-1" aria-label="Ver a vitrine como">
+            <span aria-hidden className="mr-1 text-xs text-muted">Ver como</span>
             {CONTEXTS.map((item) => (
               <button
                 key={item.value}
                 type="button"
                 aria-current={item.value === context}
-                onClick={() => router.push(hrefFor(customerZipPrefix, item.value, filter))}
+                title={item.hint}
+                onClick={() => navigate(hrefFor(customerZipPrefix, item.value, filter))}
                 className={`rounded-full px-3 py-1.5 text-sm transition ${
                   item.value === context
                     ? "bg-ink text-paper"
@@ -159,7 +160,17 @@ export function Controls({
               string, a navegacao e client-side e continua funcionando sem JS.
               Os hidden preservam CEP e contexto; omitir `category` limpa o
               filtro de categoria a cada nova busca. */}
-          <Form action="/" className="flex w-full gap-2 sm:w-auto xl:ml-auto">
+          {/* Com JS a busca vai pela transicao (indicador de carregamento); sem
+              JS o `Form` continua sendo um GET nativo. */}
+          <Form
+            action="/"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const dados = new FormData(e.currentTarget);
+              navigate(`/?${new URLSearchParams(dados as unknown as Record<string, string>)}`);
+            }}
+            className="flex w-full gap-2 sm:w-auto xl:ml-auto"
+          >
             <input type="hidden" name="customer_zip_prefix" value={customerZipPrefix} />
             <input type="hidden" name="context" value={context} />
             <input
@@ -189,7 +200,7 @@ export function Controls({
             <span className="sr-only text-muted sm:not-sr-only">CEP</span>
             <select
               value={customerZipPrefix}
-              onChange={(e) => router.push(hrefFor(e.target.value, context, filter))}
+              onChange={(e) => navigate(hrefFor(e.target.value, context, filter))}
               aria-label="CEP de entrega"
               className="rounded-full border border-line bg-surface px-3 py-1.5 text-ink"
             >
@@ -220,7 +231,7 @@ export function Controls({
             </svg>
             <span className="hidden sm:inline">Carrinho</span>
             {cartCount > 0 && (
-              <span className="rounded-full bg-signal px-1.5 py-0.5 text-[11px] font-medium tabular-nums leading-none text-white">
+              <span className="rounded-full bg-signal px-1.5 py-0.5 text-[11px] font-medium tabular-nums leading-none text-on-signal">
                 {cartCount}
               </span>
             )}
@@ -237,6 +248,16 @@ export function Controls({
           </button>
         </div>
       </div>
+      {/* Servidor recompondo a vitrine: barra fina e anuncio para leitor de tela. */}
+      <div
+        aria-hidden
+        className={`absolute inset-x-0 -bottom-px h-0.5 origin-left bg-signal transition-opacity ${
+          navigating ? "animate-pulse opacity-100" : "opacity-0"
+        }`}
+      />
+      <span role="status" className="sr-only">
+        {navigating ? "Atualizando a vitrine…" : ""}
+      </span>
     </header>
   );
 }

@@ -86,7 +86,7 @@ Todos seguem o envelope e estão na união discriminada `UIComponent` (`version:
 
 | `type` | Tela | Props principais | Desde |
 |--------|------|------------------|-------|
-| `hero_banner` | Home | `title`, `subtitle`, `image_url`, `cta_label` | S1 (`cta_label` na S5) |
+| `hero_banner` | Home | `title`, `subtitle`, `image_url`, `cta_label`, `secondary_cta_label` (2ª action; o hero regional usa para "Ver vitrine geral" → `context=geral`) | S1 (`cta_label` na S5, `secondary_cta_label` na S14) |
 | `product_card` | Home | `product_id`, `price`, `title`, `image_url`, `badge`; S13: `seller_city`, `seller_state`, `distance_km`, `co2_kg` (nulos na mesma região) | S1, S13 |
 | `product_detail` | Detalhe | `product_id`, `title`, `price`, `category`, `weight_g`, `seller_id`, `seller_city`, `seller_state`, `rating`, `review_count`, `badge` | S6 |
 | `category_grid` | Home | `title`, `categories[]` — cada item com `slug`, `label`, `product_count`, `selected` e **`actions` próprias** | S5 |

@@ -40,7 +40,7 @@ function InspectorTag({ block, known }: { block: UIComponent; known: boolean }) 
   return (
     <details className="mb-2">
       <summary
-        className={`inline-flex cursor-pointer list-none items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-[10px] leading-none ${
+        className={`inline-flex cursor-pointer list-none items-center gap-1.5 rounded-full px-2.5 py-1 font-mono text-xs leading-none ${
           known
             ? "bg-signal-soft text-signal-ink ring-1 ring-signal/30"
             : "bg-red-50 text-red-700 ring-1 ring-red-200"
@@ -50,7 +50,7 @@ function InspectorTag({ block, known }: { block: UIComponent; known: boolean }) 
         {block.actions.length > 0 && <span className="opacity-60">{block.actions.length} action(s)</span>}
         {!known && <span>· sem renderer</span>}
       </summary>
-      <pre className="mt-2 max-h-64 overflow-auto rounded-lg bg-ink/95 p-3 font-mono text-[11px] leading-relaxed text-paper">
+      <pre className="mt-2 max-h-64 overflow-auto rounded-lg bg-ink/95 p-3 font-mono text-xs leading-relaxed text-paper">
         {JSON.stringify(block, null, 2)}
       </pre>
     </details>
@@ -94,8 +94,8 @@ function ScreenMeta({ screen }: { screen: ScreenResponse }) {
 
   return (
     <section className="rounded-xl border border-signal/30 bg-signal-soft/50 p-4">
-      <p className="font-mono text-[11px] text-signal-ink">ScreenResponse</p>
-      <dl className="mt-2 flex flex-wrap gap-x-6 gap-y-1 font-mono text-[11px] text-muted">
+      <p className="font-mono text-xs text-signal-ink">ScreenResponse</p>
+      <dl className="mt-2 flex flex-wrap gap-x-6 gap-y-1 font-mono text-xs text-muted">
         {meta.map(([k, v]) => (
           <div key={k} className="flex gap-1.5">
             <dt>{k}:</dt>
@@ -103,7 +103,7 @@ function ScreenMeta({ screen }: { screen: ScreenResponse }) {
           </div>
         ))}
       </dl>
-      <p className="mt-2 font-mono text-[11px] leading-relaxed text-muted">
+      <p className="mt-2 font-mono text-xs leading-relaxed text-muted">
         {screen.components.map((c) => c.type).join(" → ")}
       </p>
     </section>
@@ -197,6 +197,26 @@ function Modal({
  * chega inteira de `GET /products/{id}` e o MESMO renderer desenha; o que
  * sobrou aqui e a moldura do modal.
  */
+/** Forma do detalhe enquanto o GET nao volta: o modal nao pula de tamanho (D11). */
+function DetailSkeleton() {
+  const bar = "rounded-md bg-line/70";
+  return (
+    <div role="status" aria-label="Carregando detalhe" className="animate-pulse space-y-6">
+      <div className="space-y-4 rounded-xl border border-line p-6">
+        <div className={`${bar} h-7 w-1/2`} />
+        <div className={`${bar} h-5 w-56`} />
+        <div className={`${bar} h-9 w-36`} />
+        <div className="grid grid-cols-2 gap-4">
+          <div className={`${bar} h-10`} />
+          <div className={`${bar} h-10`} />
+        </div>
+        <div className={`${bar} h-11 w-full rounded-full`} />
+      </div>
+      <div className={`${bar} h-28 rounded-xl`} />
+    </div>
+  );
+}
+
 function DetailScreen() {
   const { detail, pending, error, closeDetail } = useSdui();
 
@@ -204,7 +224,7 @@ function DetailScreen() {
     <>
       <div className="flex items-start justify-between gap-4">
         {/* O `screen_id` aparece so na inspecao, no `ScreenMeta`. */}
-        <p className="text-[11px] uppercase tracking-wide text-muted">Produto</p>
+        <p className="text-xs uppercase tracking-wide text-muted">Produto</p>
         <button
           type="button"
           onClick={closeDetail}
@@ -221,11 +241,7 @@ function DetailScreen() {
         {detail ? (
           <ScreenRenderer screen={detail} />
         ) : (
-          !error && (
-            <p className="py-8 text-center text-sm text-muted">
-              {pending ? "Carregando detalhe…" : ""}
-            </p>
-          )
+          !error && pending && <DetailSkeleton />
         )}
       </div>
     </>
@@ -249,7 +265,7 @@ function CartScreen() {
     <>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-muted">Carrinho</p>
+          <p className="text-xs uppercase tracking-wide text-muted">Carrinho</p>
           <h2 className="font-display text-2xl text-ink">
             {cart.length === 0
               ? "Vazio por enquanto"
@@ -325,11 +341,11 @@ function CartScreen() {
             type="button"
             disabled={!checkoutAction || pending}
             onClick={() => checkoutAction && run(checkoutAction)}
-            className="mt-5 w-full rounded-full bg-signal px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+            className="mt-5 w-full rounded-full bg-signal px-5 py-3 text-sm font-medium text-on-signal transition hover:opacity-90 disabled:opacity-50"
           >
             {pending ? "Simulando…" : "Simular compra"}
           </button>
-          <p className="mt-3 text-center text-[11px] text-muted">
+          <p className="mt-3 text-center text-xs text-muted">
             Simulação acadêmica — nenhum pagamento é processado.
           </p>
         </>
@@ -352,7 +368,7 @@ const STEPS = [
  * conteudo e a mesma `ScreenResponse` do POST, desenhada pelo mesmo renderer.
  */
 function CheckoutPage({ screen, onBack }: { screen: ScreenResponse; onBack: () => void }) {
-  const { openCart } = useSdui();
+  const { openCart, pending } = useSdui();
   const present = new Set(screen.components.map((c) => c.type));
   const goTo = (id: string) => {
     const el = document.getElementById(id);
@@ -367,7 +383,7 @@ function CheckoutPage({ screen, onBack }: { screen: ScreenResponse; onBack: () =
           <button type="button" onClick={onBack} className="text-sm text-muted transition hover:text-ink">
             ← Voltar à vitrine
           </button>
-          <p className="mt-3 text-[11px] uppercase tracking-wide text-muted">Checkout</p>
+          <p className="mt-3 text-xs uppercase tracking-wide text-muted">Checkout</p>
           <h1 className="font-display text-3xl text-ink sm:text-4xl">Compra simulada</h1>
         </div>
         <button
@@ -388,7 +404,7 @@ function CheckoutPage({ screen, onBack }: { screen: ScreenResponse; onBack: () =
                 onClick={() => goTo(step.target)}
                 className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink transition hover:border-ink/30 sm:gap-2 sm:px-3.5"
               >
-                <span className="flex size-5 items-center justify-center rounded-full bg-ink text-[11px] font-medium text-paper">
+                <span className="flex size-5 items-center justify-center rounded-full bg-ink text-xs font-medium text-paper">
                   {i + 1}
                 </span>
                 {step.label}
@@ -398,7 +414,14 @@ function CheckoutPage({ screen, onBack }: { screen: ScreenResponse; onBack: () =
         </ol>
       </nav>
 
-      <ScreenRenderer screen={screen} anchors />
+      {/* Trocar modalidade ou vendedor refaz o POST: a tela inteira muda junto
+          (frete, CO2, selo), entao ela inteira sinaliza que esta sendo refeita. */}
+      <p role="status" className="min-h-4 text-xs text-muted">
+        {pending ? "Recalculando frete e emissão…" : ""}
+      </p>
+      <div aria-busy={pending} className={`transition-opacity ${pending ? "opacity-60" : ""}`}>
+        <ScreenRenderer screen={screen} anchors />
+      </div>
     </div>
   );
 }
@@ -407,7 +430,7 @@ function CheckoutPage({ screen, onBack }: { screen: ScreenResponse; onBack: () =
 export const CHECKOUT_STEP_PARAM = "etapa";
 
 export function Host({ children }: { children: React.ReactNode }) {
-  const { detailOpen, checkout, cartOpen, closeDetail, openCart, closeCheckout } =
+  const { detailOpen, checkout, cartOpen, closeDetail, openCart, closeCheckout, navigating } =
     useSdui();
   // So volta pelo historico se fomos NOS que empilhamos a entrada; quem chegou
   // pela URL ja com `?etapa=checkout` (recarga) sairia do site com o back.
@@ -449,7 +472,13 @@ export function Host({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {checkout ? <CheckoutPage screen={checkout} onBack={back} /> : children}
+      {checkout ? (
+        <CheckoutPage screen={checkout} onBack={back} />
+      ) : (
+        <div aria-busy={navigating} className={`transition-opacity ${navigating ? "opacity-50" : ""}`}>
+          {children}
+        </div>
+      )}
       <Modal open={detailOpen} onClose={closeDetail} wide>
         <DetailScreen />
       </Modal>

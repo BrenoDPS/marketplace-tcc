@@ -48,6 +48,10 @@ CONSCIOUS_BUYER_CONTEXT = "conscious_buyer"
 # Sem contexto escolhido, o contexto vem do CEP (Sprint 9). Qualquer outro valor
 # do query param e escolha explicita e vence a derivacao.
 DEFAULT_CONTEXT = "default"
+# Vitrine sem a personalizacao regional: o "desfazer" do hero regional (V5).
+# Contexto sem hero proprio cai no `_DEFAULT_HERO`, e so `default` dispara a
+# regiao — entao basta o nome; nada mais no composer precisa conhece-lo.
+GENERAL_CONTEXT = "geral"
 _DEFAULT_LIMIT = 6
 _CONSCIOUS_POOL_LIMIT = 24
 # 70 categorias na amostra; a grade mostra as maiores e o resto fica a um clique
@@ -136,15 +140,25 @@ def _regional_hero(pick: RegionalPick, customer_zip_prefix: str) -> HeroBannerBl
             "category": pick.category,
         }
     )
+    geral = "/?" + urlencode(
+        {"customer_zip_prefix": customer_zip_prefix, "context": GENERAL_CONTEXT}
+    )
     vezes = f"{pick.lift:.1f}".replace(".", ",")
     return HeroBannerBlock(
         props=HeroBannerProps(
             title=f"Em alta em {pick.uf}: {rotulo_categoria(pick.category)}",
-            subtitle=f"Compradores de {pick.uf} levam {vezes}x mais desta categoria que a média do Brasil",
+            subtitle=(
+                f"Por que esta vitrine? Compradores de {pick.uf} levam {vezes}× mais "
+                "desta categoria que a média do Brasil."
+            ),
             image_url="https://placeholders.dev/800x400?text=Em+alta+na+regiao",
             cta_label="Ver a categoria",
+            secondary_cta_label="Ver vitrine geral",
         ),
-        actions=[NavigateAction(payload=NavigatePayload(path=path))],
+        actions=[
+            NavigateAction(payload=NavigatePayload(path=path)),
+            NavigateAction(payload=NavigatePayload(path=geral)),
+        ],
     )
 
 

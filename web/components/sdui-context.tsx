@@ -8,6 +8,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  useTransition,
 } from "react";
 import { parseScreen } from "@/lib/sdui";
 import type { ProductCardBlock, ScreenResponse, UIAction } from "@/lib/sdui";
@@ -108,6 +109,10 @@ type SduiValue = {
    */
   checkoutAction: UIAction | null;
   pending: boolean;
+  /** A vitrine esta sendo recomposta pelo servidor (troca de contexto, CEP, busca). */
+  navigating: boolean;
+  /** `router.push` dentro de uma transicao: e o que liga o `navigating`. */
+  navigate: (path: string, replace?: boolean) => void;
   error: string | null;
   run: (action: UIAction, ctx?: RunContext) => void;
   closeDetail: () => void;
@@ -198,14 +203,21 @@ export function SduiProvider({
   // mudar entre versoes do contrato. Guardar apontaria para um caminho velho.
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Sem a transicao, trocar de contexto deixava a vitrine velha na tela, sem
+  // sinal nenhum, ate o servidor responder (D11).
+  const [navigating, startNavigation] = useTransition();
+  const navigate = useCallback(
+    (path: string, replace = false) =>
+      startNavigation(() => (replace ? router.replace(path) : router.push(path))),
+    [router],
+  );
 
   const run = useCallback(
     (action: UIAction, ctx: RunContext = {}) => {
       switch (action.type) {
         case "navigate": {
           const { path, replace } = action.payload;
-          if (replace) router.replace(path);
-          else router.push(path);
+          navigate(path, replace);
           return;
         }
 
@@ -279,7 +291,7 @@ export function SduiProvider({
         }
       }
     },
-    [cart, customerZipPrefix, router],
+    [cart, customerZipPrefix, navigate],
   );
 
   // Recarga na pagina de checkout (`?etapa=checkout`): a resposta do POST nao
@@ -309,6 +321,8 @@ export function SduiProvider({
       checkoutAction,
       inspecting,
       pending,
+      navigating,
+      navigate,
       error,
       run,
       closeDetail: () => setDetailOpen(false),
@@ -359,6 +373,8 @@ export function SduiProvider({
       checkoutAction,
       inspecting,
       pending,
+      navigating,
+      navigate,
       error,
       run,
     ],

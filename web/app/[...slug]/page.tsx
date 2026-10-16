@@ -12,7 +12,7 @@ export default async function NotBuiltYet({ params }: PageProps<"/[...slug]">) {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-xl flex-col justify-center px-6">
-      <p className="text-[11px] uppercase tracking-[0.2em] text-muted">Rota não implementada</p>
+      <p className="text-xs uppercase tracking-[0.2em] text-muted">Rota não implementada</p>
       <h1 className="mt-4 font-display text-3xl text-ink">
         O servidor pediu <code className="text-signal">{path}</code>
       </h1>

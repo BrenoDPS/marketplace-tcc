@@ -85,6 +85,9 @@ class HeroBannerProps(BaseModel):
     # Rotulo do botao da primeira `action`. Sem isso o texto fica cravado no
     # cliente e um hero de "limpar filtro" acaba com o botao escrito "Explorar".
     cta_label: str | None = None
+    # Rotulo do botao da SEGUNDA `action` (Sprint 14). O hero regional usa para
+    # desfazer a personalizacao: "Ver vitrine geral".
+    secondary_cta_label: str | None = None
 
 
 class ProductDetailProps(BaseModel):
