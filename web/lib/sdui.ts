@@ -186,6 +186,27 @@ export type DeliveryOptionsBlock = Envelope<
   }
 >;
 
+/** Uma origem do mesmo produto (Sprint 15, V1). */
+export type OfferOption = {
+  seller_id: string;
+  seller_city: string | null;
+  seller_state: string | null;
+  price: number;
+  /** Nulos: distancia desconhecida ou mesma regiao (`same_region`). */
+  distance_km: number | null;
+  co2_kg: number | null;
+  same_region: boolean;
+  local: boolean;
+  chosen: boolean;
+  /** So na escolhida: a regra de `escolher_oferta` em uma frase. */
+  reason: string | null;
+};
+
+export type OfferComparisonBlock = Envelope<
+  "offer_comparison",
+  { title: string; offers: OfferOption[]; note: string | null }
+>;
+
 export type UIComponent =
   | HeroBannerBlock
   | CategoryGridBlock
@@ -194,7 +215,8 @@ export type UIComponent =
   | CheckoutSummaryBlock
   | DeliveryOptionsBlock
   | ShipmentBreakdownBlock
-  | ImpactBannerBlock;
+  | ImpactBannerBlock
+  | OfferComparisonBlock;
 
 export type ScreenResponse = {
   schema_version: number;

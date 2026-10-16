@@ -258,6 +258,35 @@ test("mutacao de contrato: o cliente obedece a arvore, sem rebuild", async ({
     await registrar(page, "4-envelope-sem-actions");
   });
 
+  await test.step("mutacao 5: o comparador de origens entra numa tela que nao o tinha", async () => {
+    // O produto da linha de base tem UM vendedor, entao o servidor nao emite
+    // `offer_comparison` para ele. Injetado, o bloco da Sprint 15 aparece com o
+    // mesmo renderer — e a escolhida e a do servidor, nao uma conta do cliente.
+    await mutarContrato(page, (tela) => {
+      tela.components.push({
+        type: "offer_comparison",
+        version: 1,
+        props: {
+          title: "Origens injetadas pelo contrato",
+          note: null,
+          offers: [
+            { seller_id: "perto", seller_city: "Osasco", seller_state: "SP", price: 50, distance_km: 12,
+              co2_kg: 0.01, same_region: false, local: true, chosen: true, reason: "A mais próxima de você." },
+            { seller_id: "longe", seller_city: "Recife", seller_state: "PE", price: 45, distance_km: 2100,
+              co2_kg: 0.2, same_region: false, local: false, chosen: false, reason: null },
+          ],
+        },
+        actions: [],
+      });
+    });
+    await reabrirDetalhe(page);
+
+    await expect(arvore(page)).toHaveText("product_detail → impact_banner → offer_comparison");
+    await expect(modal(page).getByRole("heading", { name: "Origens injetadas pelo contrato" })).toBeVisible();
+    await expect(modal(page).getByText("Escolhida: A mais próxima de você.")).toBeVisible();
+    await registrar(page, "5-comparador-injetado");
+  });
+
   await test.step("nada disso recarregou a pagina nem reconstruiu o bundle", async () => {
     const contexto = await page.evaluate(
       () => (window as unknown as Record<string, unknown>).__contexto,

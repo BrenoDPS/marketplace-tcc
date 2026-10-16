@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.core.rotulos import rotulo_categoria, rotulo_cidade
 from src.features.green_logistics.badge import (
+    DISTANCE_THRESHOLD_KM,
     RESOLUTION_FLOOR_KM,
     build_sustainability_props,
 )
@@ -24,6 +25,9 @@ from src.schemas.sdui import (
     ApiCallPayload,
     ImpactBannerBlock,
     ImpactBannerProps,
+    OfferComparisonBlock,
+    OfferComparisonProps,
+    OfferOptionProps,
     ProductDetailBlock,
     ProductDetailProps,
     ScreenResponse,
@@ -95,6 +99,63 @@ def _mensagem_comparativa(
         perto_km, perto.weight_g, perto.volume_cm3
     )
     return f"{base} Comprar do mais próximo evita ~{format_co2(evitado)} de CO₂."
+
+
+def _motivo(escolhida_km: float, menor_km: float) -> str:
+    """A regra de `escolher_oferta` em uma frase, para a oferta escolhida."""
+    if escolhida_km == INFINITY:
+        return "Nenhuma origem com distância conhecida: a mais barata."
+    if escolhida_km <= menor_km:
+        return "A mais próxima de você."
+    return "Praticamente à mesma distância da mais próxima (até 1%) e mais barata."
+
+
+def _comparacao(
+    medidas: list[tuple[float, ProductDetailRow]],
+    escolhida: tuple[float, ProductDetailRow],
+) -> OfferComparisonBlock | None:
+    """Todas as origens do produto (V1). So existe com mais de uma: com uma
+    so, nao ha o que comparar e o bloco seria uma linha repetindo o detalhe.
+
+    Custa zero consulta: as ofertas ja vieram para `escolher_oferta`, e os
+    centroides vivem em memoria."""
+    if len(medidas) < 2:
+        return None
+    menor = min(d for d, _ in medidas)
+    opcoes = []
+    for d, oferta in sorted(medidas, key=lambda par: (par[0], par[1].unit_price)):
+        conhecida = d != INFINITY
+        mesma_regiao = conhecida and d < RESOLUTION_FLOOR_KM
+        afirma = conhecida and not mesma_regiao
+        opcoes.append(
+            OfferOptionProps(
+                seller_id=oferta.seller_id,
+                seller_city=rotulo_cidade(oferta.seller_city),
+                seller_state=oferta.seller_state,
+                price=oferta.unit_price,
+                distance_km=d if afirma else None,
+                co2_kg=(
+                    calculate_co2_kg(d, oferta.weight_g, oferta.volume_cm3)
+                    if afirma and oferta.weight_g
+                    else None
+                ),
+                same_region=mesma_regiao,
+                local=conhecida and d < DISTANCE_THRESHOLD_KM,
+                chosen=oferta is escolhida[1],
+                reason=_motivo(escolhida[0], menor) if oferta is escolhida[1] else None,
+            )
+        )
+    return OfferComparisonBlock(
+        props=OfferComparisonProps(
+            title=f"De onde este produto pode sair ({len(opcoes)} vendedores)",
+            offers=opcoes,
+            note=(
+                "Mesmo produto, origens diferentes. Distância em linha reta entre "
+                "centroides de CEP; CO₂ pela cadeia de transporte (estrada, caminhão "
+                "e van na última milha). A compra sai da origem escolhida."
+            ),
+        )
+    )
 
 
 async def compose_product_detail(
@@ -177,6 +238,10 @@ async def compose_product_detail(
             ),
         ),
     ]
+    # Depois do banner: ele diz de onde ESTE sai; o comparador mostra todas.
+    comparacao = _comparacao(medidas, escolhida)
+    if comparacao is not None:
+        components.append(comparacao)
 
     return ScreenResponse(
         screen_id="product_detail",

@@ -126,6 +126,31 @@ describe("ScreenRenderer", () => {
     expect(screen.getByText("403 km · 40,0 g CO₂")).toBeTruthy();
   });
 
+  test("comparador de origens marca a escolhida e quanto as outras emitem a mais (V1)", () => {
+    const comparador: UIComponent = {
+      type: "offer_comparison",
+      version: 1,
+      props: {
+        title: "De onde este produto pode sair (2 vendedores)",
+        note: null,
+        offers: [
+          { seller_id: "a", seller_city: "Recife", seller_state: "PE", price: 39.9, distance_km: 27, co2_kg: 0.03,
+            same_region: false, local: true, chosen: true, reason: "A mais próxima de você." },
+          { seller_id: "b", seller_city: "Maringa", seller_state: "PR", price: 35, distance_km: 2000, co2_kg: 0.3,
+            same_region: false, local: false, chosen: false, reason: null },
+        ],
+      },
+      actions: [],
+    };
+    render(
+      <SduiProvider customerZipPrefix="05311">
+        <ScreenRenderer screen={screenOf([comparador])} />
+      </SduiProvider>,
+    );
+    expect(screen.getByText("Escolhida: A mais próxima de você.")).toBeTruthy();
+    expect(screen.getByText("2.000 km · 300,0 g CO₂ · 10,0× a emissão da escolhida")).toBeTruthy();
+  });
+
   test("bloco entre cards quebra a grade em duas", () => {
     const { container } = render(
       <SduiProvider customerZipPrefix="05311">

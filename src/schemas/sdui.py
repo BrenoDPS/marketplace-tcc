@@ -230,6 +230,34 @@ class DeliveryOptionsProps(BaseModel):
     note: str | None = None
 
 
+class OfferOptionProps(BaseModel):
+    """Uma origem do MESMO produto. Distancia e CO2 nulos = desconhecida ou
+    abaixo do piso de resolucao (mesma regiao) — a regra do `impact_banner`."""
+
+    seller_id: str
+    seller_city: str | None = None
+    seller_state: str | None = None
+    price: float
+    distance_km: float | None = None
+    co2_kg: float | None = None
+    # Mesma regiao (< piso de resolucao): o numero existe mas seria ruido.
+    same_region: bool = False
+    local: bool = False  # ganharia o selo (< 100 km)
+    chosen: bool = False
+    # So na escolhida: POR QUE ela (a regra de `escolher_oferta`, em texto).
+    reason: str | None = None
+
+
+class OfferComparisonProps(BaseModel):
+    """Todas as origens do produto, da mais proxima para a mais distante
+    (Sprint 15, V1). E o argumento da tese em tela: mesmo produto, origem
+    mais perto, emite menos — e quanto custa a diferenca."""
+
+    title: str
+    offers: list[OfferOptionProps]
+    note: str | None = None
+
+
 class ImpactBannerProps(BaseModel):
     distance_km: float | None = None
     co2_kg: float | None = None
@@ -290,6 +318,13 @@ class ShipmentBreakdownBlock(BaseModel):
     actions: list[UIAction] = Field(default_factory=list)
 
 
+class OfferComparisonBlock(BaseModel):
+    type: Literal["offer_comparison"] = "offer_comparison"
+    version: int = 1
+    props: OfferComparisonProps
+    actions: list[UIAction] = Field(default_factory=list)
+
+
 class ImpactBannerBlock(BaseModel):
     type: Literal["impact_banner"] = "impact_banner"
     version: int = 1
@@ -307,6 +342,7 @@ UIComponent = Annotated[
         DeliveryOptionsBlock,
         ImpactBannerBlock,
         ShipmentBreakdownBlock,
+        OfferComparisonBlock,
     ],
     Field(discriminator="type"),
 ]

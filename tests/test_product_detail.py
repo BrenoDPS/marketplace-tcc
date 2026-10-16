@@ -12,6 +12,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 from src.core.database import get_db
+from src.features.green_logistics.co2 import calculate_co2_kg
 from src.features.product_detail.repository import ProductDetailRow
 from src.main import app
 
@@ -369,3 +370,35 @@ def test_co2_evitado_e_a_diferenca_das_emissoes_nao_a_emissao_da_diferenca() -> 
     errado = calculate_co2_kg(longe_km - perto_km, 1000.0)
     assert format_co2(certo) != format_co2(errado)
     assert f"evita ~{format_co2(certo)} de CO₂" in texto
+
+
+# --- offer_comparison (Sprint 15, V1) ----------------------------------------
+
+async def test_comparador_lista_as_origens_da_mais_proxima_para_a_mais_distante() -> None:
+    _, body = await _get("/api/v1/products/prod_dois_vendedores?customer_zip_prefix=05311")
+    tipos = [c["type"] for c in body["components"]]
+    assert tipos == ["product_detail", "impact_banner", "offer_comparison"]
+
+    ofertas = _block(body, "offer_comparison")["props"]["offers"]
+    assert [o["seller_id"] for o in ofertas] == ["seller_recife", "seller_maringa"]
+    perto, longe = ofertas
+    assert perto["chosen"] and perto["reason"] == "A mais próxima de você."
+    assert not longe["chosen"] and longe["reason"] is None
+    assert perto["local"] and not longe["local"]
+    assert (perto["seller_city"], longe["seller_city"]) == ("Recife", "Maringa")
+    # O argumento em numero: mesma massa, a origem distante emite mais.
+    assert perto["co2_kg"] == pytest.approx(calculate_co2_kg(27.0, 1000.0))
+    assert longe["co2_kg"] > perto["co2_kg"]
+
+
+async def test_comparador_so_existe_com_mais_de_uma_origem() -> None:
+    _, body = await _get("/api/v1/products/prod_real_1?customer_zip_prefix=05311")
+    assert "offer_comparison" not in [c["type"] for c in body["components"]]
+
+
+def test_motivo_do_desempate_por_preco() -> None:
+    from src.features.product_detail.composer import INFINITY, _motivo
+
+    assert _motivo(27.0, 27.0) == "A mais próxima de você."
+    assert "mais barata" in _motivo(27.2, 27.0)
+    assert _motivo(INFINITY, INFINITY).startswith("Nenhuma origem")

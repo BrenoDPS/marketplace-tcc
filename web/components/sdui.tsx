@@ -9,6 +9,7 @@ import {
   DeliveryOptions,
   HeroBanner,
   ImpactBanner,
+  OfferComparison,
   ProductCard,
   ProductDetail,
   ShipmentBreakdown,
@@ -29,6 +30,7 @@ const REGISTRY = {
   delivery_options: DeliveryOptions,
   shipment_breakdown: ShipmentBreakdown,
   impact_banner: ImpactBanner,
+  offer_comparison: OfferComparison,
 } as const;
 
 /**

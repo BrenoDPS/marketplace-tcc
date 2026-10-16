@@ -9,6 +9,7 @@ import type {
   DeliveryOptionsBlock,
   HeroBannerBlock,
   ImpactBannerBlock,
+  OfferComparisonBlock,
   ProductCardBlock,
   ProductDetailBlock,
   ShipmentBreakdownBlock,
@@ -609,6 +610,85 @@ export function ImpactBanner({ block }: { block: ImpactBannerBlock }) {
           ))}
         </dl>
       )}
+    </section>
+  );
+}
+
+/**
+ * Todas as origens do mesmo produto (V1): o argumento da tese em tela — mesmo
+ * produto, origem mais perto, emite menos. A escolhida vem marcada pelo
+ * servidor, com o motivo; o cliente so desenha. Barras neutras e verde so na
+ * de menor emissao (a regra do D4).
+ */
+export function OfferComparison({ block }: { block: OfferComparisonBlock }) {
+  const { title, offers, note } = block.props;
+  const co2s = offers.map((o) => o.co2_kg).filter((c): c is number => c !== null);
+  const maxCo2 = Math.max(0, ...co2s);
+  const minCo2 = co2s.length ? Math.min(...co2s) : null;
+  const chosenCo2 = offers.find((o) => o.chosen)?.co2_kg ?? null;
+  // Ate 8 origens num produto da amostra: as 4 mais proximas (e a escolhida,
+  // sempre) ficam a vista; o resto recolhe — no celular eram 2 telas de lista.
+  const VISIVEIS = 4;
+  const vista = offers.filter((o, i) => i < VISIVEIS || o.chosen);
+  const resto = offers.filter((o) => !vista.includes(o));
+
+  const row = (o: (typeof offers)[number]) => {
+    const origem = [o.seller_city, o.seller_state].filter(Boolean).join(" · ") || "Origem não informada";
+    const distancia = o.same_region
+      ? "na sua região"
+      : o.distance_km !== null
+        ? `${decimal(o.distance_km, 0)} km`
+        : "distância desconhecida";
+    const vezes =
+      !o.chosen && o.co2_kg !== null && chosenCo2
+        ? o.co2_kg / chosenCo2
+        : null;
+    return (
+      <li
+        key={o.seller_id}
+        aria-current={o.chosen || undefined}
+        className={`rounded-lg border p-3 ${o.chosen ? "border-signal bg-signal-soft/60" : "border-line"}`}
+      >
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <p className="text-sm font-medium text-ink">
+            {origem}
+            {o.local && <span className="ml-2 text-xs font-normal text-signal-ink">entrega local</span>}
+          </p>
+          <p className="text-sm tabular-nums text-ink">{brl(o.price)}</p>
+        </div>
+        <p className="mt-1 text-xs tabular-nums text-muted">
+          {distancia}
+          {o.co2_kg !== null && ` · ${co2Label(o.co2_kg)} CO₂`}
+          {vezes !== null && vezes >= 1.05 && ` · ${decimal(vezes, 1)}× a emissão da escolhida`}
+        </p>
+        {o.co2_kg !== null && maxCo2 > 0 && (
+          <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-line">
+            <div
+              className={`h-full rounded-full ${o.co2_kg === minCo2 ? "bg-signal" : "bg-muted"}`}
+              style={{ width: `${(o.co2_kg / maxCo2) * 100}%` }}
+            />
+          </div>
+        )}
+        {o.chosen && o.reason && (
+          <p className="mt-2 text-xs font-medium text-signal-ink">Escolhida: {o.reason}</p>
+        )}
+      </li>
+    );
+  };
+
+  return (
+    <section className="rounded-xl border border-line bg-surface p-6">
+      <h2 className="font-display text-xl text-ink">{title}</h2>
+      <ol className="mt-4 space-y-2">{vista.map(row)}</ol>
+      {resto.length > 0 && (
+        <details className="mt-2">
+          <summary className="cursor-pointer rounded-lg px-1 py-1.5 text-sm text-muted transition hover:text-ink">
+            Ver as outras {resto.length} {resto.length === 1 ? "origem" : "origens"}
+          </summary>
+          <ol className="mt-2 space-y-2">{resto.map(row)}</ol>
+        </details>
+      )}
+      {note && <p className="mt-4 text-xs leading-relaxed text-muted">{note}</p>}
     </section>
   );
 }
