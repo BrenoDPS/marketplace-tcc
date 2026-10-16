@@ -22,6 +22,7 @@ Nenhum coeficiente arbitrado entra aqui.
 
 from __future__ import annotations
 
+from src.core.categorias import rotulo_categoria
 from src.features.checkout.repository import AlternativeRow, CheckoutProductRow
 from src.features.green_logistics.co2 import calculate_co2_kg
 from src.features.green_logistics.distance import haversine_km
@@ -98,7 +99,7 @@ def best_alternative_for(
 
 def _title_for(row: AlternativeRow) -> str:
     if row.category:
-        return row.category.replace("_", " ").title()
+        return rotulo_categoria(row.category)
     return row.product_id
 
 

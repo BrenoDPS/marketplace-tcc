@@ -11,6 +11,7 @@ from urllib.parse import urlencode
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.categorias import rotulo_categoria
 from src.features.green_logistics.badge import RESOLUTION_FLOOR_KM
 from src.features.green_logistics.co2 import calculate_co2_kg
 from src.features.green_logistics.offers import escolher_oferta
@@ -90,10 +91,6 @@ _DEFAULT_HERO = HeroBannerBlock(
 )
 
 
-def _humanize(slug: str) -> str:
-    return slug.replace("_", " ").title()
-
-
 def _count_label(total: int) -> str:
     if total == 0:
         return "Nenhum produto encontrado nesta amostra"
@@ -117,7 +114,7 @@ def _hero_for(
             path=f"/?{urlencode({'customer_zip_prefix': customer_zip_prefix, 'context': context})}"
         )
     )
-    title = f"Busca: {search}" if search else _humanize(category or "")
+    title = f"Busca: {search}" if search else rotulo_categoria(category or "")
     return HeroBannerBlock(
         props=HeroBannerProps(
             title=title,
@@ -142,8 +139,8 @@ def _regional_hero(pick: RegionalPick, customer_zip_prefix: str) -> HeroBannerBl
     vezes = f"{pick.lift:.1f}".replace(".", ",")
     return HeroBannerBlock(
         props=HeroBannerProps(
-            title=f"Em alta em {pick.uf}: {_humanize(pick.category)}",
-            subtitle=f"Compradores de {pick.uf} levam {vezes}x mais desta categoria que a media do Brasil",
+            title=f"Em alta em {pick.uf}: {rotulo_categoria(pick.category)}",
+            subtitle=f"Compradores de {pick.uf} levam {vezes}x mais desta categoria que a média do Brasil",
             image_url="https://placeholders.dev/800x400?text=Em+alta+na+regiao",
             cta_label="Ver a categoria",
         ),
@@ -162,7 +159,7 @@ def _card_impact(distance: float | None, product: ProductRow) -> dict[str, float
 
 def _title_for(product_id: str, category: str | None) -> str:
     if category:
-        return _humanize(category)
+        return rotulo_categoria(category)
     return product_id
 
 
@@ -191,7 +188,7 @@ def _category_grid(
             categories=[
                 CategoryItemProps(
                     slug=row.slug,
-                    label=_humanize(row.slug),
+                    label=rotulo_categoria(row.slug),
                     product_count=row.product_count,
                     selected=row.slug == selected,
                     actions=[

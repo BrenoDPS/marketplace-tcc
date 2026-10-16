@@ -181,7 +181,7 @@ async def test_returns_a_screen_response() -> None:
 async def test_detail_carries_real_dataset_fields() -> None:
     _, body = await _get("/api/v1/products/prod_real_1?customer_zip_prefix=05311")
     props = _block(body, "product_detail")["props"]
-    assert props["title"] == "Informatica Acessorios"
+    assert props["title"] == "Informática e acessórios"
     assert props["price"] == pytest.approx(199.90)
     assert props["weight_g"] == pytest.approx(2500.0)
     assert props["seller_city"] == "sao paulo"

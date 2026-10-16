@@ -117,10 +117,11 @@ function coverStyle(productId: string) {
   };
 }
 
-/** "Esporte Lazer" -> "EL": sem foto no Olist, a capa leva a categoria. */
+/** "Esporte e lazer" -> "EL": sem foto no Olist, a capa leva a categoria. */
 function monogram(title: string) {
   return title
     .split(/\s+/)
+    .filter((w) => w.length > 2 || /^[A-Z]/.test(w))
     .slice(0, 2)
     .map((w) => w[0])
     .join("")

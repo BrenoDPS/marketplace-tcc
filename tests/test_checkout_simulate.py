@@ -525,7 +525,7 @@ async def test_alternative_carries_price_so_the_trade_off_is_visible() -> None:
     _, body = await _cart(("prod_far", 1))
     alt = _shipments(body)[0]["alternatives"][0]
     assert alt["price"] == pytest.approx(79.90)
-    assert alt["title"] == "Bebes"
+    assert alt["title"] == "Bebês"
 
 
 # ---------------------------------------------------------------------------

@@ -353,7 +353,7 @@ async def test_home_includes_category_grid() -> None:
         "informatica_acessorios",
         "beleza_saude",
     ]
-    assert grid["props"]["categories"][0]["label"] == "Informatica Acessorios"
+    assert grid["props"]["categories"][0]["label"] == "Informática e acessórios"
     assert grid["props"]["categories"][0]["product_count"] == 2
 
 
@@ -553,7 +553,7 @@ async def test_sem_contexto_escolhido_a_home_segue_a_regiao_do_cep() -> None:
     assert isinstance(body, dict)
 
     hero = _hero(body)
-    assert hero["props"]["title"] == "Em alta em CE: Relogios Presentes"
+    assert hero["props"]["title"] == "Em alta em CE: Relógios e presentes"
     assert "1,7x" in hero["props"]["subtitle"], "o hero precisa dizer POR QUE"
     assert _cards(body) == ["prod_dois_vendedores"]
     # O contrato nao muda: o contexto da resposta e o pedido.
@@ -585,7 +585,7 @@ async def test_filtro_explicito_vence_a_regiao() -> None:
     )
     assert isinstance(body, dict)
 
-    assert _hero(body)["props"]["title"] == "Informatica Acessorios"
+    assert _hero(body)["props"]["title"] == "Informática e acessórios"
     assert set(_cards(body)) == {"prod_real_1", "prod_real_2"}
 
 
@@ -596,3 +596,19 @@ async def test_categoria_regional_sem_produto_cai_para_a_vitrine_geral() -> None
 
     assert _hero(body)["props"]["title"] == "Olist Marketplace"
     assert _cards(body)
+
+
+def test_toda_categoria_do_dataset_tem_rotulo_com_acento() -> None:
+    """D7: o `.title()` sobre o slug mostrava "Moveis Decoracao". Categoria nova
+    cai no titulo antigo em vez de quebrar; esta lista e a do dataset Olist."""
+    from src.core.categorias import CATEGORIAS, rotulo_categoria
+
+    assert len(CATEGORIAS) == 73
+    assert rotulo_categoria("moveis_decoracao") == "Móveis e decoração"
+    assert rotulo_categoria("categoria_nova") == "Categoria Nova"
+
+
+async def test_hero_regional_escreve_media_com_acento() -> None:
+    _, body = await _get("/api/v1/home?customer_zip_prefix=60000")
+    assert isinstance(body, dict)
+    assert "média do Brasil" in _hero(body)["props"]["subtitle"]

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.core.categorias import rotulo_categoria
 from src.features.green_logistics.badge import (
     RESOLUTION_FLOOR_KM,
     build_sustainability_props,
@@ -34,7 +35,7 @@ INFINITY = float("inf")
 
 def _title_for(product: ProductDetailRow) -> str:
     if product.category:
-        return product.category.replace("_", " ").title()
+        return rotulo_categoria(product.category)
     return product.product_id
 
 
