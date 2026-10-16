@@ -28,6 +28,15 @@ outra oferta). Essa distinção evita apresentar uma estimativa como medição.
 
 ### 5.1 RESULTADOS QUANTITATIVOS
 
+Os resultados quantitativos foram organizados de forma progressiva, partindo da
+qualidade da base utilizada e chegando ao comportamento da aplicação sob carga.
+Essa sequência permite compreender primeiro quais dados sustentam as análises,
+depois verificar se as regras foram implementadas conforme o modelo definido e,
+por fim, observar os efeitos da solução em escala experimental. Ao longo da
+seção, os valores são acompanhados de sua base de cálculo e de suas limitações,
+para que não sejam confundidas medições diretas, estimativas do modelo e
+projeções contrafactuais.
+
 #### 5.1.1 Qualidade e cobertura dos dados
 
 Os resultados usam dois universos de dados (Figura 9). As análises de
@@ -282,9 +291,14 @@ próprio gerador de carga saturou.
 
 ### 5.2 RESULTADOS QUALITATIVO-ESTRUTURAIS
 
-Esta seção examina o que não cabe em uma métrica de latência ou emissão: se o
-frontend interpreta composições alteradas pelo servidor e se a jornada resiste
-a componentes desconhecidos e a dados incompletos.
+Os resultados qualitativo-estruturais complementam as métricas anteriores ao
+examinar a forma como a solução se comporta diante de alterações no contrato e
+de situações que não podem ser reduzidas a um valor de latência ou emissão.
+Nesta etapa, a avaliação concentrou-se na capacidade de o frontend interpretar
+composições modificadas pelo servidor e de preservar a jornada quando recebe
+blocos desconhecidos ou dados insuficientes. O foco, portanto, recai sobre o
+desacoplamento e a robustez que sustentam a proposta de uma interface orientada
+pelo servidor.
 
 #### 5.2.1 Desacoplamento por mutação do contrato
 

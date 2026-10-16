@@ -31,3 +31,9 @@ load/results/**/*_failures.csv
 load/results/protocolo*/**/execucao-erros.log
 load/results/s8-pool-*/**/execucao-erros.log
 load/results/s10-*/**/execucao-erros.log
+
+gerar_carrossel_tcc.py
+docs/agents/
+docs/tcc/
+docs/devolutiva-harness.md
+docs/revisao-harness.md

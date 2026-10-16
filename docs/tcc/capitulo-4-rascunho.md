@@ -21,10 +21,13 @@ sistema em que cada medição foi feita.
 
 ### 4.1 ESPECIFICAÇÃO
 
-A especificação relacionou os objetivos do trabalho às funcionalidades da
-jornada de compra, às exigências de desempenho e às limitações do conjunto de
-dados. Mais do que uma lista de funções, ela definiu o comportamento esperado e
-os critérios que permitiriam verificar se a solução atendia à proposta.
+O desenvolvimento foi iniciado pela definição do que o sistema deveria
+realizar e das condições que orientariam sua avaliação. Nesta etapa, foram
+relacionados os objetivos do trabalho às funcionalidades da jornada de compra,
+às exigências de desempenho e às limitações impostas pelo conjunto de dados da
+Olist. A especificação, portanto, não foi tratada apenas como uma lista de
+funções, mas como a delimitação do comportamento esperado e dos critérios que
+permitiriam verificar se a solução atendia à proposta.
 
 #### 4.1.1 Requisitos funcionais
 
@@ -174,11 +177,13 @@ vendedor mais próximo só existe quando o produto tem mais de uma oferta.
 
 ### 4.2 PROJETO
 
-O projeto organizou as responsabilidades do sistema em três decisões: a divisão
-do backend em fatias verticais, a estrutura relacional dos dados e o contrato
-de comunicação entre servidor e interface. O objetivo foi manter próximas as
-regras de personalização, os cálculos logísticos e a composição visual, sem
-transferir ao cliente regras que deveriam ficar no servidor.
+Com os requisitos definidos, a etapa de projeto organizou as responsabilidades
+necessárias para transformar as regras de negócio em uma solução integrada.
+Foram estabelecidas a divisão do backend em fatias verticais, a estrutura
+relacional dos dados e a forma de comunicação entre o servidor e a interface.
+Essa etapa foi decisiva para manter próximas as decisões de personalização, os
+cálculos de logística e a composição visual, sem transferir ao cliente as
+regras que deveriam permanecer centralizadas no servidor.
 
 #### 4.2.1 Organização em Vertical Slices
 
@@ -287,11 +292,14 @@ desacoplamento.
 
 ### 4.3 IMPLEMENTAÇÃO
 
-A implementação materializou as decisões de projeto: preparou os dados,
-integrou as regras de distância, emissão e escolha de oferta às rotas do
-backend e transformou as respostas em telas interpretadas pelo frontend.
-Também configurou o cache e o ambiente de execução usados na demonstração e
-nas avaliações.
+A implementação correspondeu à materialização das decisões apresentadas nas
+etapas anteriores. Nela, os dados foram preparados para a execução da
+aplicação, as regras de distância, emissão e escolha de ofertas foram
+integradas às rotas do backend e as respostas foram transformadas em telas
+interpretadas pelo frontend. Também foram configurados os mecanismos de cache e
+o ambiente de execução, de modo que o mesmo artefato pudesse ser utilizado
+tanto na demonstração da jornada quanto nos procedimentos de avaliação
+descritos no capítulo seguinte.
 
 #### 4.3.1 Tratamento e carga do conjunto de dados Olist
 
