@@ -174,11 +174,19 @@ de mesmo preço em 6,3% e mais cara em 50,4%, com diferença mediana de R$ 0,01.
 Como metade dos casos fica mais cara, a interface deve exibir distância, emissão
 e preço juntos, em vez de esconder a decisão sob um selo.
 
+A aplicação não usa a oferta mais próxima pura, e sim uma regra com desempate:
+entre ofertas a até 1% da menor distância (com piso de 1 km), escolhe a mais
+barata, sem trocar uma oferta com selo por uma sem. Repetida com essa regra, a
+análise muda a escolha em 1.823 itens (12,7%). Nesses itens, a distância a mais
+é nula na mediana, porque são vendedores do mesmo prefixo de CEP, e o preço cai
+R$ 6,11 na mediana. O CO₂ evitado passa de 254,2 para 253,7 kg CO₂e e continua
+em 9,8%. Nos itens em que a regra trocaria o vendedor, a oferta recomendada
+fica mais cara em 39,3% dos casos, contra 50,4% sem o desempate. O desempate
+por preço reduz o custo da recomendação sem alterar o benefício ambiental.
+
 Esses números são contrafactuais e devem ser lidos como potencial. O cálculo
 supõe que a oferta mais próxima estaria disponível e que só a origem mudaria,
-sem modelar estoque, consolidação de carga ou tipo de veículo. A análise compara
-a escolha real com a oferta mais próxima, sem o desempate por preço usado pela
-aplicação. E, como o fator de circuidade superestima as distâncias longas (Seção
+sem modelar estoque, consolidação de carga ou tipo de veículo. E, como o fator de circuidade superestima as distâncias longas (Seção
 5.1.3), os valores absolutos de emissão podem estar até cerca de 10% acima; a
 ordem de grandeza e a conclusão não mudam. O mesmo vale para o fator de
 cubagem: com a convenção rodoviária de 300 kg/m³ no lugar do divisor das

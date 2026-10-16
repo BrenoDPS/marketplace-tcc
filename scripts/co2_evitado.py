@@ -12,6 +12,10 @@ fatores de emissao sao cenario declarado, nao dado. Aqui so muda a ORIGEM, e o
 calculo e o mesmo motor da aplicacao (`co2.calculate_co2_kg`, cadeia de
 transporte da Sprint 9). O preco de cada vendedor (mediana do que ele cobrou
 pelo produto) entra para mostrar o trade-off, nao para escolher.
+
+Duas regras de recomendacao (M7 do parecer): a mais proxima PURA (a do
+resultado principal) e a da APLICACAO, `escolher_oferta` — entre ofertas
+praticamente equidistantes (1%, piso de 1 km), a mais barata, sem perder o selo.
 """
 
 from __future__ import annotations
@@ -25,6 +29,7 @@ import pandas as pd
 from scripts.concentracao_regional import _haversine
 from scripts.etl_load_sample import build_cep_centroids, load_csvs, normalize_prefixes
 from src.features.green_logistics.co2 import calculate_co2_kg
+from src.features.green_logistics.offers import escolher_oferta
 
 SAIDA = Path("docs/resultados/co2-evitado.md")
 _co2 = np.vectorize(calculate_co2_kg, otypes=[float])
@@ -74,6 +79,14 @@ def calcular(data_dir: Path = Path("data/raw")) -> tuple[pd.DataFrame, dict[str,
     rec = pares.loc[pares.groupby("item")["dist"].idxmin(), ["item", "alt_seller", "dist", "alt_price"]]
     cand = cand.merge(rec.rename(columns={"alt_seller": "rec_seller", "dist": "dist_rec", "alt_price": "preco_rec"}), on="item")
 
+    # A regra da aplicacao, a MESMA funcao que vitrine, detalhe e checkout chamam.
+    app = []
+    for item, g in pares.groupby("item", sort=True):
+        medidas = list(zip(g["dist"], g[["alt_seller", "alt_price"]].itertuples(index=False)))
+        dist, oferta = escolher_oferta(medidas, preco=lambda o: o.alt_price)
+        app.append((item, oferta.alt_seller, dist, oferta.alt_price))
+    cand = cand.merge(pd.DataFrame(app, columns=["item", "app_seller", "dist_app", "preco_app"]), on="item")
+
     c = pos.reindex(cand["customer_zip_code_prefix"]).to_numpy()
     s = pos.reindex(cand["seller_zip_code_prefix"]).to_numpy()
     cand["dist_real"] = _haversine(c[:, 0], c[:, 1], s[:, 0], s[:, 1])
@@ -81,6 +94,7 @@ def calcular(data_dir: Path = Path("data/raw")) -> tuple[pd.DataFrame, dict[str,
     cand["co2_real"] = _co2(cand["dist_real"], cand["product_weight_g"], vol.fillna(0))
     cand["co2_rec"] = _co2(cand["dist_rec"], cand["product_weight_g"], vol.fillna(0))
     cand["evitado"] = cand["co2_real"] - cand["co2_rec"]
+    cand["co2_app"] = _co2(cand["dist_app"], cand["product_weight_g"], vol.fillna(0))
     # Invariante: o recomendado e o MAIS PROXIMO, com o mesmo produto (mesma massa), e o
     # motor cresce com a distancia — logo nunca emite mais que a escolha real.
     assert (cand["evitado"] >= -1e-12).all(), "recomendacao emitindo mais que a escolha real"
@@ -89,6 +103,8 @@ def calcular(data_dir: Path = Path("data/raw")) -> tuple[pd.DataFrame, dict[str,
     cand["preco_real"] = preco_real.reindex(pd.MultiIndex.from_frame(cand[["product_id", "seller_id"]])).to_numpy()
 
     trocaria = cand[~cand["ja_era_o_mais_proximo"]]
+    difere = cand["app_seller"] != cand["rec_seller"]
+    trocaria_app = cand[cand["seller_id"] != cand["app_seller"]]
     # Contexto: o CO2 de TODAS as compras medivies, para dar a escala do evitado.
     med = itens[itens["customer_zip_code_prefix"].isin(pos.index) & itens["seller_zip_code_prefix"].isin(pos.index)
                 & (itens["product_weight_g"] > 0)]
@@ -112,6 +128,13 @@ def calcular(data_dir: Path = Path("data/raw")) -> tuple[pd.DataFrame, dict[str,
         "rec_mesmo_preco": ((trocaria["preco_rec"] - trocaria["preco_real"]).abs() <= 0.005).mean(),
         "rec_mais_cara": (trocaria["preco_rec"] > trocaria["preco_real"] + 0.005).mean(),
         "delta_preco_mediano": (trocaria["preco_rec"] - trocaria["preco_real"]).median(),
+        "app_difere": difere.sum(),
+        "app_co2_kg": cand["co2_app"].sum(),
+        "app_evitado_kg": (cand["co2_real"] - cand["co2_app"]).sum(),
+        "app_km_extra_mediano": (cand.loc[difere, "dist_app"] - cand.loc[difere, "dist_rec"]).median() if difere.any() else 0.0,
+        "app_economia_mediana": (cand.loc[difere, "preco_rec"] - cand.loc[difere, "preco_app"]).median() if difere.any() else 0.0,
+        "app_trocas": len(trocaria_app),
+        "app_mais_cara": (trocaria_app["preco_app"] > trocaria_app["preco_real"] + 0.005).mean(),
     }
     por_uf = (
         cand.groupby("customer_state")
@@ -159,6 +182,19 @@ def _markdown(por_uf: pd.DataFrame, r: dict[str, float]) -> str:
         f"| diferença mediana (recomendada − real) | R$ {num(r['delta_preco_mediano'], 2)} |",
         "",
         "Preço de cada vendedor = mediana do que ele cobrou por aquele produto no dataset.",
+        "",
+        "## A regra da aplicação — escolher_oferta (mais próxima; empate de 1% decide pelo preço)",
+        "",
+        "| | valor |",
+        "|---|---|",
+        f"| itens em que a regra da aplicação escolhe outra oferta que a mais próxima pura | {num(r['app_difere'])} "
+        f"({pct(r['app_difere'] / r['itens_com_alternativa'])}) |",
+        f"| nesses, distância a mais (mediana) | {num(r['app_km_extra_mediano'], 2)} km |",
+        f"| nesses, preço a menos (mediana) | R$ {num(r['app_economia_mediana'], 2)} |",
+        f"| CO₂ se todos seguissem a regra da aplicação | {num(r['app_co2_kg'], 1)} kg CO₂e |",
+        f"| **CO₂ evitado pela regra da aplicação** | **{num(r['app_evitado_kg'], 1)} kg CO₂e "
+        f"({pct(r['app_evitado_kg'] / r['co2_real_kg'])})** |",
+        f"| itens em que ela trocaria o vendedor; recomendada mais cara | {num(r['app_trocas'])}; {pct(r['app_mais_cara'])} |",
         "",
         "## Por UF do comprador (UFs com pelo menos 300 itens com alternativa)",
         "",

@@ -103,6 +103,7 @@ distância em linha reta entre centroides de prefixo de CEP.
 | **CO₂ evitado se todos seguissem a recomendação** | **254 kg CO₂e — 9,8%** dessas compras (SP 23,5%; BA 3,7%) |
 | Escala no dataset inteiro | 0,9% do CO₂ de todas as compras |
 | Preço da recomendada | mais barata em 43%, igual em 6%, mais cara em 50%; diferença mediana **R$ 0,01** |
+| Com a regra da aplicação (`escolher_oferta`, M7) | escolha diferente em 1.823 itens (12,7%), mesma distância na mediana e R$ 6,11 mais barata; CO₂ evitado **253,7 kg — 9,8%**; recomendada mais cara em 39% (contra 50%) |
 
 **Leitura.** A recomendação reduz quase 10% do CO₂ onde ela pode agir, a custo
 praticamente nulo para o comprador. Mas ela só pode agir em 12,8% das compras —

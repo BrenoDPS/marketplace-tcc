@@ -1,6 +1,6 @@
 # CO₂ evitado pela recomendação "mesmo produto, vendedor mais próximo"
 
-> Gerado por `python -m scripts.co2_evitado` no commit `953fc4e`, sobre as compras reais
+> Gerado por `python -m scripts.co2_evitado` no commit `b00818e`, sobre as compras reais
 > do dataset Olist **completo** (112.650 itens). Motor de CO₂ da aplicação
 > (cadeia de transporte, Sprint 9). Sem pedido gravado: compara a escolha FEITA com a recomendada.
 
@@ -26,6 +26,17 @@
 | diferença mediana (recomendada − real) | R$ 0,01 |
 
 Preço de cada vendedor = mediana do que ele cobrou por aquele produto no dataset.
+
+## A regra da aplicação — escolher_oferta (mais próxima; empate de 1% decide pelo preço)
+
+| | valor |
+|---|---|
+| itens em que a regra da aplicação escolhe outra oferta que a mais próxima pura | 1.823 (12,7%) |
+| nesses, distância a mais (mediana) | 0,00 km |
+| nesses, preço a menos (mediana) | R$ 6,11 |
+| CO₂ se todos seguissem a regra da aplicação | 2.347,6 kg CO₂e |
+| **CO₂ evitado pela regra da aplicação** | **253,7 kg CO₂e (9,8%)** |
+| itens em que ela trocaria o vendedor; recomendada mais cara | 8.076; 39,3% |
 
 ## Por UF do comprador (UFs com pelo menos 300 itens com alternativa)
 
