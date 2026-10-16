@@ -23,9 +23,9 @@ async def test_toda_celula_de_docs_resultados_chega_a_tela() -> None:
             if linha.startswith("|") and not set(linha) <= set("|-: "):
                 for cel in linha.strip("|").split("|"):
                     assert cel.replace("**", "").replace("`", "").strip() in na_tela, (nome, cel)
-    assert len(tabelas) == 7
+    assert len(tabelas) == 8
     destaques = {linha["cells"][0] for t in tabelas for linha in t["rows"] if linha["emphasis"]}
-    assert destaques == {"Brasil", "CO₂ evitado", "CO₂ evitado pela regra da aplicação", "todas"}
+    assert destaques == {"Brasil", "CO₂ evitado", "CO₂ evitado pela regra da aplicação", "todas", "referência"}
     hero = body["components"][0]
     assert [a["payload"]["path"] for a in hero["actions"]] == ["/?customer_zip_prefix=05311", "/metodologia?customer_zip_prefix=05311"]
 

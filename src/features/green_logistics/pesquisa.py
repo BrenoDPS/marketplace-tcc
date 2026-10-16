@@ -26,8 +26,9 @@ from src.schemas.sdui import (
 
 RESULTADOS = Path(__file__).resolve().parents[3] / "docs" / "resultados"
 # Ordem da tela = a pergunta que cada um responde: ha onde comprar perto? a
-# recomendacao reduz CO2? a distancia em linha reta e confiavel?
-ARQUIVOS = ("concentracao-regional.md", "co2-evitado.md", "haversine-osrm.md")
+# recomendacao reduz CO2? a distancia em linha reta e confiavel? e se os
+# parametros do motor estiverem errados?
+ARQUIVOS = ("concentracao-regional.md", "co2-evitado.md", "haversine-osrm.md", "sensibilidade-co2.md")
 
 
 def _limpo(texto: str) -> str:

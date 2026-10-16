@@ -188,10 +188,20 @@ Esses números são contrafactuais e devem ser lidos como potencial. O cálculo
 supõe que a oferta mais próxima estaria disponível e que só a origem mudaria,
 sem modelar estoque, consolidação de carga ou tipo de veículo. E, como o fator de circuidade superestima as distâncias longas (Seção
 5.1.3), os valores absolutos de emissão podem estar até cerca de 10% acima; a
-ordem de grandeza e a conclusão não mudam. O mesmo vale para o fator de
-cubagem: com a convenção rodoviária de 300 kg/m³ no lugar do divisor das
-encomendas, a emissão absoluta sobe cerca de 60%, mas a parcela evitada fica
-praticamente igual (9,6% contra 9,8%).
+ordem de grandeza e a conclusão não mudam.
+
+Para verificar quanto esses resultados dependem dos parâmetros do modelo, a
+análise foi repetida variando cada um em 20% para baixo e para cima:
+circuidade, extensão da última milha, fator de emissão do caminhão, fator da
+van e divisor de cubagem. Também foram testados valores alternativos com
+fonte: a circuidade de 1,27 medida contra o OSRM (Seção 5.1.3), a última milha
+de 20 km (WORLD ECONOMIC FORUM, 2024) e a cubagem rodoviária de 300 kg/m³. A
+emissão absoluta varia de −23% a +67% entre os cenários, e o maior efeito vem
+da cubagem rodoviária. A parcela evitada, porém, fica entre 9,5% e 10,0% em
+todos eles, contra 9,8% na referência. Em nenhum cenário a recomendação emite
+mais que a escolha real, porque o mesmo produto, vindo de mais perto, emite
+menos para qualquer valor positivo dos parâmetros. Os números absolutos
+dependem das escolhas do modelo; a conclusão relativa, não.
 
 #### 5.1.5 Personalização contextual regional
 
