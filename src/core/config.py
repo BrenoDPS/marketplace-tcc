@@ -27,5 +27,10 @@ class Settings(BaseSettings):
     # ate a chave expirar. Foi o TTL usado no protocolo.
     CACHE_TTL_SECONDS: int = 3600
 
+    # Modo apresentacao (Sprint 16, V9): o detalhe aceita `X-SDUI-Mutacao` e o
+    # BFF muta a propria arvore antes de responder (src/features/orchestrator/
+    # mutacoes.py). Ferramenta de demonstracao da §3.3 — desligue fora dela.
+    SDUI_MUTACOES_DEMO: bool = True
+
 
 settings = Settings()

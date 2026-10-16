@@ -434,3 +434,39 @@ async def test_mapa_traz_comprador_e_origens_ja_projetados() -> None:
 async def test_sem_centroide_de_nenhuma_origem_nao_ha_mapa() -> None:
     _, body = await _get("/api/v1/products/prod_sem_centroide?customer_zip_prefix=05311")
     assert "origin_map" not in [c["type"] for c in body["components"]]
+
+
+# --- modo apresentacao: mutacoes no BFF (Sprint 16, V9) ------------------------
+
+async def _get_h(path: str, mutacao: str) -> tuple[int, dict]:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.get(path, headers={"X-SDUI-Mutacao": mutacao})
+    return response.status_code, response.json()
+
+
+DETALHE = "/api/v1/products/prod_real_1?customer_zip_prefix=05311"
+
+
+async def test_servidor_reordena_a_propria_arvore() -> None:
+    _, normal = await _get(DETALHE)
+    status, mutada = await _get_h(DETALHE, "reordenar")
+    assert status == 200
+    assert [c["type"] for c in mutada["components"]] == [c["type"] for c in normal["components"]][::-1]
+
+
+async def test_servidor_entrega_bloco_desconhecido_e_envelope_sem_actions() -> None:
+    _, desconhecido = await _get_h(DETALHE, "bloco_desconhecido")
+    assert desconhecido["components"][-1]["type"] == "promo_carousel_que_nao_existe"
+    _, sem = await _get_h(DETALHE, "sem_actions")
+    assert all("actions" not in c for c in sem["components"])
+
+
+async def test_mutacao_desconhecida_e_422_e_desligada_e_403(monkeypatch: pytest.MonkeyPatch) -> None:
+    status, _ = await _get_h(DETALHE, "apagar_tudo")
+    assert status == 422
+    from src.core.config import settings
+
+    monkeypatch.setattr(settings, "SDUI_MUTACOES_DEMO", False)
+    status, _ = await _get_h(DETALHE, "reordenar")
+    assert status == 403

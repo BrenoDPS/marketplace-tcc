@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { brl } from "@/lib/sdui";
+import { MUTACOES_DEMO, brl } from "@/lib/sdui";
 import type { ScreenResponse, UIComponent } from "@/lib/sdui";
 import {
   CategoryGrid,
@@ -89,8 +89,16 @@ function Block({ block }: { block: UIComponent }) {
   );
 }
 
+/**
+ * Hora em que ESTE bundle foi avaliado no navegador. O modo apresentacao a
+ * exibe fixa: se as mutacoes recarregassem a pagina ou reconstruissem o JS, ela
+ * mudaria. E a versao visivel do marcador `window.__contexto` do E2E.
+ */
+const CARREGADA_EM = new Date().toLocaleTimeString("pt-BR");
+
 /** Cabecalho do modo de inspecao: a tela inteira e uma resposta do servidor. */
 function ScreenMeta({ screen }: { screen: ScreenResponse }) {
+  const { mutacao } = useSdui();
   const meta = [
     ["screen_id", screen.screen_id],
     ["context", screen.context],
@@ -111,6 +119,10 @@ function ScreenMeta({ screen }: { screen: ScreenResponse }) {
       </dl>
       <p className="mt-2 font-mono text-xs leading-relaxed text-muted">
         {screen.components.map((c) => c.type).join(" → ")}
+      </p>
+      <p className="mt-2 font-mono text-xs text-muted">
+        mesma página desde {CARREGADA_EM}
+        {mutacao && <span className="text-signal-ink"> · mutação do servidor: {mutacao}</span>}
       </p>
     </section>
   );
@@ -223,14 +235,36 @@ function DetailSkeleton() {
   );
 }
 
+/** Modo apresentacao (V9): escolhe a mutacao que o BFF aplica a este detalhe. */
+function MutationPicker() {
+  const { mutacao, setMutacao } = useSdui();
+  return (
+    <label className="flex flex-wrap items-center gap-2 text-xs text-muted">
+      Mutação do servidor
+      <select
+        value={mutacao ?? ""}
+        onChange={(e) => setMutacao(e.target.value || null)}
+        className="rounded-full border border-signal/40 bg-signal-soft px-3 py-1 text-xs text-signal-ink"
+      >
+        <option value="">Nenhuma (árvore original)</option>
+        {MUTACOES_DEMO.map((m) => (
+          <option key={m.value} value={m.value}>
+            {m.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 function DetailScreen() {
-  const { detail, pending, error, closeDetail } = useSdui();
+  const { detail, pending, error, closeDetail, inspecting } = useSdui();
 
   return (
     <>
       <div className="flex items-start justify-between gap-4">
         {/* O `screen_id` aparece so na inspecao, no `ScreenMeta`. */}
-        <p className="text-xs uppercase tracking-wide text-muted">Produto</p>
+        {inspecting ? <MutationPicker /> : <p className="text-xs uppercase tracking-wide text-muted">Produto</p>}
         <button
           type="button"
           onClick={closeDetail}

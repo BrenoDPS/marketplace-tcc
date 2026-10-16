@@ -234,3 +234,12 @@ class TestEspelhoDoContratoNoFront:
     def test_acoes_iguais_no_contrato_e_no_espelho(self) -> None:
         ts = (self.ROOT / "web/lib/sdui.ts").read_text(encoding="utf-8")
         assert set(re.findall(r'type: "(\w+)";', ts)) == self._py_types(UIAction)
+
+    def test_mutacoes_do_modo_apresentacao_iguais_no_bff_e_no_front(self) -> None:
+        """Mutacao listada no front e que o BFF nao conhece daria 422 na demo."""
+        from src.features.orchestrator.mutacoes import MUTACOES
+
+        ts = (self.ROOT / "web/lib/sdui.ts").read_text(encoding="utf-8")
+        bloco = re.search(r"MUTACOES_DEMO = \[(.*?)\] as const", ts, re.S)
+        assert bloco, "MUTACOES_DEMO nao encontrado em web/lib/sdui.ts"
+        assert re.findall(r'value: "(\w+)"', bloco.group(1)) == list(MUTACOES)

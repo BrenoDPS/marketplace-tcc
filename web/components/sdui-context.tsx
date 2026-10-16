@@ -33,6 +33,8 @@ type RunContext = {
   product?: ProductCardBlock;
   deliveryOption?: string;
   cart?: CartEntry[];
+  /** Modo apresentacao: sobrescreve a mutacao em vigor neste GET. */
+  mutacao?: string | null;
 };
 
 export type CartEntry = {
@@ -130,6 +132,10 @@ type SduiValue = {
   /** Modo de inspecao: contorna cada bloco e expoe o JSON que veio do servidor. */
   inspecting: boolean;
   toggleInspecting: () => void;
+  /** Modo apresentacao (V9): mutacao que o BFF aplica ao detalhe; null = nenhuma. */
+  mutacao: string | null;
+  /** Troca a mutacao e refaz o detalhe aberto — sem recarregar a pagina. */
+  setMutacao: (mutacao: string | null) => void;
 };
 
 const SduiCtx = createContext<SduiValue | null>(null);
@@ -175,6 +181,9 @@ export function SduiProvider({
   // Nao persiste de proposito: e um modo de demonstracao, e comecar a sessao
   // com a tela contornada seria confuso.
   const [inspecting, setInspecting] = useState(false);
+  const [mutacao, setMutacaoState] = useState<string | null>(null);
+  // A ultima `api_call` GET do detalhe: o modo apresentacao a refaz com outra mutacao.
+  const [detailAction, setDetailAction] = useState<UIAction | null>(null);
 
   // O carrinho comeca vazio para o HTML do servidor e o primeiro render do
   // cliente baterem; ler o storage aqui no corpo causaria mismatch de
@@ -238,7 +247,15 @@ export function SduiProvider({
             setDetail(null);
             setDetailOpen(true);
             setPending(true);
-            fetch(path, { headers: { Accept: "application/json" } })
+            setDetailAction(action);
+            const pedida = ctx.mutacao !== undefined ? ctx.mutacao : mutacao;
+            fetch(path, {
+              headers: {
+                Accept: "application/json",
+                // Modo apresentacao: o SERVIDOR muta a arvore; o cliente so pede.
+                ...(pedida ? { "X-SDUI-Mutacao": pedida } : {}),
+              },
+            })
               .then(async (res) => {
                 const body = await res.json().catch(() => null);
                 if (!res.ok) {
@@ -291,7 +308,7 @@ export function SduiProvider({
         }
       }
     },
-    [cart, customerZipPrefix, navigate],
+    [cart, customerZipPrefix, navigate, mutacao],
   );
 
   // Recarga na pagina de checkout (`?etapa=checkout`): a resposta do POST nao
@@ -362,6 +379,11 @@ export function SduiProvider({
       },
       closeCheckout: () => setCheckout(null),
       toggleInspecting: () => setInspecting((on) => !on),
+      mutacao,
+      setMutacao: (proxima) => {
+        setMutacaoState(proxima);
+        if (detailAction) run(detailAction, { mutacao: proxima });
+      },
     }),
     [
       customerZipPrefix,
@@ -377,6 +399,8 @@ export function SduiProvider({
       navigate,
       error,
       run,
+      mutacao,
+      detailAction,
     ],
   );
 

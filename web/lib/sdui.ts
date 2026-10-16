@@ -282,6 +282,19 @@ export type ScreenResponse = {
 
 // --- Constantes de demo ----------------------------------------------------
 
+/**
+ * Modo apresentacao (V9): mutacoes que o BFF aplica a propria arvore do
+ * detalhe, pedidas pelo cabecalho `X-SDUI-Mutacao`. Espelho de `MUTACOES` em
+ * `src/features/orchestrator/mutacoes.py` — `tests/test_schemas.py` confere.
+ */
+export const MUTACOES_DEMO = [
+  { value: "reordenar", label: "Reordenar os blocos" },
+  { value: "selo", label: "Injetar selo" },
+  { value: "bloco_novo", label: "Bloco que a tela nunca teve" },
+  { value: "bloco_desconhecido", label: "Bloco que o cliente não conhece" },
+  { value: "sem_actions", label: "Envelope sem actions" },
+] as const;
+
 /** `hint`: o que cada perfil muda na vitrine (D12) — parecia aba de categoria. */
 export const CONTEXTS = [
   { value: "default", label: "Padrão", hint: "Vitrine da sua região: a categoria que a sua UF mais compra" },
