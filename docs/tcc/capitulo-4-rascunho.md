@@ -70,8 +70,8 @@ linha reta é convertida em distância rodoviária pelo fator de circuidade 1,34
 (LEE; CHAE, 2023), e o percurso é dividido em dois trechos. Os últimos
 15 km são feitos por van (WORLD ECONOMIC FORUM, 2024) e o restante por caminhão
 pesado. A massa considerada é a massa cobrável, isto é, o maior valor entre o
-peso real e o peso cubado, calculado à razão de 6.000 cm³ por quilograma.
-**[Pendente: fonte do fator de cubagem.]**
+peso real e o peso cubado, calculado à razão de 6.000 cm³ por quilograma, o
+divisor do peso cúbico que os Correios aplicam às encomendas (OLIST, 2022).
 **[Pendente: incluir as referências novas e alinhar a versão do GLEC.]**
 
 **Escolha da oferta.** Um mesmo produto pode ser vendido por mais de um
@@ -401,7 +401,7 @@ O capítulo seguinte apresenta os resultados obtidos com esse sistema.
 
 | Item | O que falta | Card no Trello |
 |---|---|---|
-| Fonte do fator de cubagem (6.000 cm³/kg) | Citar a fonte ou trocar o valor; a convenção rodoviária brasileira costuma ser 300 kg/m³ (a verificar) | Sprint 12 — fator de cubagem |
+| Fonte do fator de cubagem (6.000 cm³/kg) | **Resolvido no texto:** citar OLIST (2022) no §4.1.1 do .docx (onde está o comentário do Word) e incluir nas Referências: OLIST. *Como calcular o frete dos produtos para envio pelos Correios?* São Paulo: Olist, 20 set. 2022. Disponível em: https://olist.com/blog/pt/gestao-empresarial/operacao-e-logistica/como-calcular-o-frete-dos-produtos-na-loja-virtual/ | Sprint 12 — fator de cubagem |
 | Fatores das modalidades expressa e verde | Justificar ou citar os fatores (expressa: preço 1,6, CO₂ 2,5, prazo 0,5; verde: 0,85, 0,6, 1,5) | Sprint 12 — modalidades |
 | Referências novas | Incluir nas Referências: LEE; CHAE (2023), *ISPRS International Journal of Geo-Information* 12(2), 57 (substitui Gonçalves et al., 2014, fora da janela de 5 anos); WORLD ECONOMIC FORUM (2024), *Transforming Urban Logistics*. O código usa os fatores do GLEC v2.0 (2019, rev. 2022); as Referências citam a v3.0 (2023) — alinhar | Sprint 11 — ajustes menores |
 | Capítulo 3 | O Cap. 3 ainda descreve o fator único de 0,102 kg/(t·km) do GHG Protocol; o Cap. 4 agora diz que o modelo evoluiu. Ajustar o Cap. 3 ou manter a menção à evolução | Sprint 11 |

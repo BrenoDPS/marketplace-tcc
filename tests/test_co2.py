@@ -7,6 +7,7 @@ from src.features.green_logistics.co2 import (
     FE_LAST_MILE_KG_PER_T_KM,
     FE_LINE_HAUL_KG_PER_T_KM,
     LAST_MILE_KM,
+    VOLUMETRIC_FACTOR_CM3_PER_KG,
     calculate_co2_kg,
     chargeable_weight_g,
     road_distance_km,
@@ -19,6 +20,7 @@ def test_constantes_sao_as_das_fontes_citadas() -> None:
     assert LAST_MILE_KM == 15.0  # WEF (2024), limite inferior de 15-20 km
     assert FE_LINE_HAUL_KG_PER_T_KM == 0.092  # GLEC v2, HGV > 20 t, WTW
     assert FE_LAST_MILE_KG_PER_T_KM == 0.680  # GLEC v2, van < 3,5 t, WTW
+    assert VOLUMETRIC_FACTOR_CM3_PER_KG == 6000.0  # peso cubico dos Correios (Olist, 2022)
 
 
 def test_linha_reta_vira_estrada_pela_circuidade() -> None:

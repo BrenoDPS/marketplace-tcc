@@ -171,7 +171,10 @@ sem modelar estoque, consolidação de carga ou tipo de veículo. A análise com
 a escolha real com a oferta mais próxima, sem o desempate por preço usado pela
 aplicação. E, como o fator de circuidade superestima as distâncias longas (Seção
 5.1.3), os valores absolutos de emissão podem estar até cerca de 10% acima; a
-ordem de grandeza e a conclusão não mudam.
+ordem de grandeza e a conclusão não mudam. O mesmo vale para o fator de
+cubagem: com a convenção rodoviária de 300 kg/m³ no lugar do divisor das
+encomendas, a emissão absoluta sobe cerca de 60%, mas a parcela evitada fica
+praticamente igual (9,6% contra 9,8%).
 
 #### 5.1.5 Personalização contextual regional
 
@@ -266,9 +269,13 @@ dividiram o mesmo computador, então os resultados comparam configurações entr
 si, mas não representam um serviço distribuído em produção. Com três repetições,
 a dispersão na carga máxima é alta (p95 com desvio de 1 a 1,5 s). E os ensaios
 foram executados antes das últimas mudanças de regra do sistema (motor de
-emissão em cadeia, contexto regional e regra única de oferta). O controle
-repetido depois do contexto regional não mostrou efeito mensurável, e a regra
-única de oferta não teve o desempenho medido. Por fim, catorze ensaios da
+emissão em cadeia, contexto regional e regra única de oferta). Por isso, o
+cenário de 250 usuários foi repetido na versão final, nos três estados do cache
+e com três repetições. O custo de processamento por requisição ficou igual
+(8,5 contra 8,3 ms sem cache), e com cache o p95 ficou em 19 ms, abaixo dos 25
+a 29 ms originais. Sem cache, o p95 variou entre 600 e 1.200 ms entre as
+repetições: com o processador acima de 90%, pequenas variações formam filas
+longas. A conclusão sobre o cache se mantém. Por fim, catorze ensaios da
 primeira execução foram descartados e refeitos: treze porque o computador
 funcionou na bateria, com o processador em frequência reduzida, e um porque o
 próprio gerador de carga saturou.

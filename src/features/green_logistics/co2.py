@@ -42,8 +42,12 @@ LAST_MILE_KM: float = 15.0
 FE_LINE_HAUL_KG_PER_T_KM: float = 0.092  # p. 104: HGV > 20 t (ponto de partida)
 FE_LAST_MILE_KG_PER_T_KM: float = 0.680  # Tabela 41: van < 3,5 t
 
-# Fator de cubagem rodoviario: 6.000 cm3 equivalem a 1 kg de carga. E a
-# convencao do transporte rodoviario de carga fracionada no Brasil.
+# Divisor do peso cubico de ENCOMENDAS: 6.000 cm3 = 1 kg. E o dos Correios (de
+# origem aerea, IATA), publicado pelo proprio Olist: "O numero 6000 e o fator de
+# cubagem" (Olist, 2022, "Como calcular o frete dos produtos para envio pelos
+# Correios?"). NAO e o rodoviario de carga fracionada (~300 kg/m3 = 3.333 cm3/kg).
+# Sensibilidade (Sprint 12): com 3.333 o CO2 absoluto sobe ~61-67%, e o CO2
+# evitado relativo quase nao muda (9,8% -> 9,6%) — `docs/tese-rastreabilidade.md` §6.
 VOLUMETRIC_FACTOR_CM3_PER_KG: float = 6000.0
 
 

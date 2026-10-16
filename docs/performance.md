@@ -1014,6 +1014,51 @@ vitrine só troca de filtro. As diferenças de p50/p95 contra a Sprint 8 estão
 dentro da variação entre ensaios (p95 de 640, 1.100 e 880 ms nas três
 repetições de hoje).
 
+## 13. Controle no HEAD (Sprint 12)
+
+Os 27 ensaios da §11 são de `f15f8a1`/`30ebe97`, antes do motor de CO₂ em
+cadeia, do contexto regional e da regra única de oferta (`escolher_oferta`,
+que mudou a consulta do checkout em `2de753d`). Controle: o cenário de 250 VU
+inteiro, mesmas sementes, plateau e ordem da §11, no commit `2950c02`.
+
+```bash
+python -m load.protocolo --cargas 250 --saida load/results/s12-controle-head
+python -m load.resumo load/results/s12-controle-head
+```
+
+2026-10-15, 19:31–21:06; 9 ensaios válidos (na tomada, gerador sem saturar).
+Dados iguais aos da §11 (53.114 clientes, 7.356 ofertas, 12.933 centroides).
+
+| 250 VU, todas as rotas | cache | p50 | p95 | p99 | req/s | CPU API | CPU/req |
+|---|---|---|---|---|---|---|---|
+| §11.3 (Sprint 8) | off | 173 ± 6 | 613 ± 29 | 1.030 ± 214 | 111 | 91,0% | 8,3 ms |
+| **HEAD** | off | 210 ± 20 | 920 ± 302 | 2.057 ± 1.066 | 108 ± 3 | 90,0% | 8,5 ms |
+| §11.3 | frio | 5,7 ± 0,6 | 28,7 ± 7,8 | 96 ± 83 | 124 | 33,5% | ~2,7 ms |
+| **HEAD** | frio | 5,3 ± 0,6 | 19,0 ± 1,0 | 56 ± 27 | 124 | 28,3% | 2,1 ms |
+| §11.3 | aquecido | 5,7 ± 0,6 | 24,7 ± 6,0 | 51 ± 17 | 124 | 30,2% | ~2,4 ms |
+| **HEAD** | aquecido | 5,3 ± 0,6 | 19,3 ± 1,2 | 61 ± 33 | 124 | 26,5% | 2,1 ms |
+
+CPU/req = CPU média da API no plateau ÷ req/s (ensaio a ensaio: off 8,64 /
+8,41 / 8,34 ms; Sprint 8: 8,17 / 8,42 / 8,27 ms).
+
+**Leitura.**
+
+- **O custo por requisição não mudou** (+2%, dentro da variação entre
+  ensaios; a Sprint 10 mediu 8,3–8,5 ms). As mudanças das Sprints 9–10 não
+  pesaram na CPU.
+- **Com cache, igual ou melhor**: p95 de 19 ms contra 25–29 ms; nenhuma falha.
+- **Sem cache, o p95 é instável nesse ponto**: 1.200, 960 e 600 ms nas três
+  repetições (r3 igual à Sprint 8). Com a CPU acima de 90%, o sistema está
+  perto da saturação, e a fila responde de forma não linear a variações
+  pequenas de vazão (105,7 × 111,1 req/s). A §12.5 já tinha visto o mesmo
+  (640, 1.100, 880 ms). O ± 29 da §11.3 era a exceção, não a regra.
+- **A conclusão da §11.7 se mantém no código atual**: a 250 VU com 1 worker, o
+  cache decide. A Tabela 5 do Cap. 5 continua valendo; o p95 sem cache a
+  250 VU deve ser lido como faixa (600–1.200 ms), não como valor pontual.
+
+Não repetido: 50 e 1.000 VU. A 50 VU a CPU fica abaixo de 20% e não há fila;
+a 1.000 VU a saturação domina (§11.5).
+
 ---
 
-*§§1–7: Sprint 6. §§8–9: Sprint 7. §§10–11: Sprint 8. §12: Sprint 10. Suíte em `load/locustfile.py`; runner em `load/protocolo.py`; dados em `load/results/`.*
+*§§1–7: Sprint 6. §§8–9: Sprint 7. §§10–11: Sprint 8. §12: Sprint 10. §13: Sprint 12. Suíte em `load/locustfile.py`; runner em `load/protocolo.py`; dados em `load/results/`.*
