@@ -112,12 +112,26 @@ test("jornada da defesa: do CEP ao comparativo de entrega", async ({ page }) => 
     await expect(modal(page).getByRole("heading", { name: "1 produto" })).toBeVisible();
     await modal(page).getByRole("button", { name: "Simular compra" }).click();
 
-    await expect(modal(page).getByRole("heading", { name: "Compra simulada" })).toBeVisible();
-    await expect(modal(page).getByRole("heading", { name: "Como entregar" })).toBeVisible();
+    // Checkout e PAGINA (D5), com URL propria: nada de modal por cima.
+    const checkout = page.locator("main");
+    await expect(checkout.getByRole("heading", { name: "Compra simulada" })).toBeVisible();
+    await expect(page).toHaveURL(/etapa=checkout/);
+    await expect(page.locator("dialog[open]")).toHaveCount(0);
+    await expect(checkout.getByRole("heading", { name: "Como entregar" })).toBeVisible();
+  });
+
+  await test.step("etapas levam aos blocos e a recarga refaz a simulacao", async () => {
+    const etapas = page.getByRole("navigation", { name: "Etapas da compra" });
+    await etapas.getByRole("button", { name: /Impacto/ }).click();
+    await expect(page.locator("#shipment_breakdown")).toBeFocused();
+
+    // F5: a resposta do POST se perde, o carrinho nao — a pagina refaz.
+    await page.reload();
+    await expect(page.getByRole("heading", { name: "Compra simulada" })).toBeVisible();
   });
 
   await test.step("trocar de modalidade move frete, CO₂ e selo juntos", async () => {
-    const dialog = modal(page);
+    const dialog = page.locator("main");
     const modes = dialog.getByRole("radiogroup", { name: "Modalidade de entrega" });
     const freight = fact(dialog, "Frete");
     const footprint = fact(dialog, "CO₂ estimado");
@@ -150,5 +164,11 @@ test("jornada da defesa: do CEP ao comparativo de entrega", async ({ page }) => 
     );
     expect(brl(await freight.innerText())).toBeGreaterThan(base.freight);
     expect(co2(await footprint.innerText())).toBeGreaterThan(base.co2);
+  });
+
+  await test.step("voltar do navegador sai do checkout para a vitrine", async () => {
+    await page.goBack();
+    await expect(page).not.toHaveURL(/etapa=checkout/);
+    await expect(page.getByRole("heading", { name: "Compra simulada" })).toHaveCount(0);
   });
 });

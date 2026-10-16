@@ -209,9 +209,16 @@ export function Controls({
           <button
             type="button"
             onClick={() => openCart(true)}
-            className="flex items-center gap-2 rounded-full border border-line px-3.5 py-1.5 text-sm text-ink transition hover:border-ink/30"
+            aria-label={cartCount > 0 ? `Carrinho, ${cartCount} ${cartCount === 1 ? "item" : "itens"}` : "Carrinho"}
+            className="flex items-center gap-2 rounded-full border border-line px-3 py-1.5 text-sm text-ink transition hover:border-ink/30 sm:px-3.5"
           >
-            Carrinho
+            {/* No celular, icone: com o contador, a palavra quebrava o cabecalho
+                em duas linhas de novo (D1). */}
+            <svg viewBox="0 0 20 20" aria-hidden className="size-4 fill-none stroke-current stroke-[1.6] sm:hidden">
+              <path d="M5 7h10l-1 10H6L5 7Z" strokeLinejoin="round" />
+              <path d="M7.5 7V5.5a2.5 2.5 0 0 1 5 0V7" />
+            </svg>
+            <span className="hidden sm:inline">Carrinho</span>
             {cartCount > 0 && (
               <span className="rounded-full bg-signal px-1.5 py-0.5 text-[11px] font-medium tabular-nums leading-none text-white">
                 {cartCount}

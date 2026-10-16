@@ -282,6 +282,22 @@ export function SduiProvider({
     [cart, customerZipPrefix, router],
   );
 
+  // Recarga na pagina de checkout (`?etapa=checkout`): a resposta do POST nao
+  // sobrevive ao F5, o carrinho sim. Refaz a simulacao com a acao que o
+  // servidor mandou na Home — uma vez, logo depois de restaurar o carrinho.
+  // Carrinho vazio: `run` nao chama a rede e o `Host` limpa o parametro.
+  useEffect(() => {
+    if (!hydrated || !checkoutAction) return;
+    if (new URLSearchParams(window.location.search).get("etapa") === "checkout") {
+      // Sincroniza com sistema externo (URL + storage), como a leitura do
+      // carrinho acima; o setState vem de dentro do `run`, uma vez so.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      run(checkoutAction);
+    }
+    // So na restauracao: `run` e `checkoutAction` mudam a cada item adicionado.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated]);
+
   const value = useMemo<SduiValue>(
     () => ({
       customerZipPrefix,

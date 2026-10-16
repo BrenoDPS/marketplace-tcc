@@ -110,8 +110,18 @@ function ScreenMeta({ screen }: { screen: ScreenResponse }) {
   );
 }
 
-/** Agrupa `product_card` consecutivos numa grade; demais blocos ficam em fluxo. */
-export function ScreenRenderer({ screen }: { screen: ScreenResponse }) {
+/**
+ * Agrupa `product_card` consecutivos numa grade; demais blocos ficam em fluxo.
+ * `anchors` da a cada bloco um `id` igual ao `type`, para as etapas do checkout
+ * levarem ate ele.
+ */
+export function ScreenRenderer({
+  screen,
+  anchors = false,
+}: {
+  screen: ScreenResponse;
+  anchors?: boolean;
+}) {
   const { inspecting } = useSdui();
   const groups: UIComponent[][] = [];
   for (const block of screen.components) {
@@ -132,6 +142,10 @@ export function ScreenRenderer({ screen }: { screen: ScreenResponse }) {
             {group.map((block, j) => (
               <Block key={j} block={block} />
             ))}
+          </div>
+        ) : anchors ? (
+          <div key={i} id={group[0].type} tabIndex={-1} className="scroll-mt-24 outline-none">
+            <Block block={group[0]} />
           </div>
         ) : (
           <Block key={i} block={group[0]} />
@@ -324,53 +338,125 @@ function CartScreen() {
   );
 }
 
-function CheckoutScreen() {
-  const { checkout, closeCheckout } = useSdui();
-  if (!checkout) return null;
+/** Etapa -> bloco do checkout onde ela comeca. O servidor manda os blocos; o
+ * cliente so sabe por qual `type` cada etapa se ancora. */
+const STEPS = [
+  { label: "Carrinho", target: "checkout_summary" },
+  { label: "Entrega", target: "delivery_options" },
+  { label: "Impacto", target: "shipment_breakdown" },
+] as const;
+
+/**
+ * Checkout como PAGINA (D5). Ate a Sprint 13 era um modal com rolagem interna,
+ * e remessas e alternativas ficavam abaixo da dobra. Continua server-driven: o
+ * conteudo e a mesma `ScreenResponse` do POST, desenhada pelo mesmo renderer.
+ */
+function CheckoutPage({ screen, onBack }: { screen: ScreenResponse; onBack: () => void }) {
+  const { openCart } = useSdui();
+  const present = new Set(screen.components.map((c) => c.type));
+  const goTo = (id: string) => {
+    const el = document.getElementById(id);
+    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    el?.focus({ preventScroll: true });
+  };
 
   return (
-    <>
-      <div className="flex items-start justify-between gap-4">
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-muted">Checkout</p>
-          <h2 className="font-display text-2xl text-ink">Compra simulada</h2>
+          <button type="button" onClick={onBack} className="text-sm text-muted transition hover:text-ink">
+            ← Voltar à vitrine
+          </button>
+          <p className="mt-3 text-[11px] uppercase tracking-wide text-muted">Checkout</p>
+          <h1 className="font-display text-3xl text-ink sm:text-4xl">Compra simulada</h1>
         </div>
         <button
           type="button"
-          onClick={closeCheckout}
-          aria-label="Fechar"
-          className="text-muted transition hover:text-ink"
+          onClick={() => openCart(true)}
+          className="rounded-full border border-line px-4 py-2 text-sm text-ink transition hover:border-ink/30"
         >
-          ✕
+          Editar carrinho
         </button>
       </div>
 
-      {/* Mesma ScreenRenderer da Home: a tela de checkout tambem vem do servidor. */}
-      <div className="mt-6">
-        <ScreenRenderer screen={checkout} />
-      </div>
-    </>
+      <nav aria-label="Etapas da compra">
+        <ol className="flex gap-1.5 sm:gap-2">
+          {STEPS.filter((step) => present.has(step.target)).map((step, i) => (
+            <li key={step.target}>
+              <button
+                type="button"
+                onClick={() => goTo(step.target)}
+                className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink transition hover:border-ink/30 sm:gap-2 sm:px-3.5"
+              >
+                <span className="flex size-5 items-center justify-center rounded-full bg-ink text-[11px] font-medium text-paper">
+                  {i + 1}
+                </span>
+                {step.label}
+              </button>
+            </li>
+          ))}
+        </ol>
+      </nav>
+
+      <ScreenRenderer screen={screen} anchors />
+    </div>
   );
 }
+
+/** Parametro de URL da pagina de checkout: da endereco, voltar e recarga a ela. */
+export const CHECKOUT_STEP_PARAM = "etapa";
 
 export function Host({ children }: { children: React.ReactNode }) {
   const { detailOpen, checkout, cartOpen, closeDetail, openCart, closeCheckout } =
     useSdui();
+  // So volta pelo historico se fomos NOS que empilhamos a entrada; quem chegou
+  // pela URL ja com `?etapa=checkout` (recarga) sairia do site com o back.
+  const pushed = useRef(false);
+  const wasOpen = useRef(false);
+
+  // A pagina de checkout tem URL: `pushState` no lugar de navegar, porque o
+  // conteudo e estado do cliente (a resposta do POST), nao uma rota do servidor.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const onUrl = url.searchParams.get(CHECKOUT_STEP_PARAM) === "checkout";
+    if (checkout && !onUrl) {
+      url.searchParams.set(CHECKOUT_STEP_PARAM, "checkout");
+      window.history.pushState(null, "", url);
+      pushed.current = true;
+      window.scrollTo(0, 0);
+    } else if (!checkout && onUrl && wasOpen.current) {
+      // So ao FECHAR: na recarga o parametro chega antes da simulacao, e e
+      // ele que diz ao provider para refaze-la.
+      url.searchParams.delete(CHECKOUT_STEP_PARAM);
+      window.history.replaceState(null, "", url);
+    }
+    wasOpen.current = checkout !== null;
+  }, [checkout]);
+
+  useEffect(() => {
+    const onPop = () => {
+      const onUrl = new URL(window.location.href).searchParams.get(CHECKOUT_STEP_PARAM);
+      if (onUrl !== "checkout") {
+        pushed.current = false;
+        closeCheckout();
+      }
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [closeCheckout]);
+
+  const back = () => (pushed.current ? window.history.back() : closeCheckout());
+
   return (
     <>
-      {children}
-      <Modal open={detailOpen && checkout === null} onClose={closeDetail} wide>
+      {checkout ? <CheckoutPage screen={checkout} onBack={back} /> : children}
+      <Modal open={detailOpen} onClose={closeDetail} wide>
         <DetailScreen />
       </Modal>
-      <Modal
-        open={cartOpen && checkout === null}
-        onClose={() => openCart(false)}
-        wide
-      >
+      {/* Tambem sobre a pagina de checkout: "Editar carrinho" reabre o modal,
+          e "Simular compra" atualiza a pagina com a resposta nova. */}
+      <Modal open={cartOpen} onClose={() => openCart(false)} wide>
         <CartScreen />
-      </Modal>
-      <Modal open={checkout !== null} onClose={closeCheckout} wide>
-        <CheckoutScreen />
       </Modal>
     </>
   );
