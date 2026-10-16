@@ -194,6 +194,7 @@ async def compose_checkout(
             weight_g=weight_g,
             co2_factor=mode.co2_factor,
             volume_cm3=volume_cm3,
+            explain=True,
         )
         shipments.append(
             ShipmentProps(

@@ -50,6 +50,15 @@ FE_LAST_MILE_KG_PER_T_KM: float = 0.680  # Tabela 41: van < 3,5 t
 # evitado relativo quase nao muda (9,8% -> 9,6%) — `docs/tese-rastreabilidade.md` §6.
 VOLUMETRIC_FACTOR_CM3_PER_KG: float = 6000.0
 
+# As mesmas fontes, em texto para a tela (explicador do selo, Sprint 15).
+# Mudou uma constante acima? Mude a fonte aqui junto.
+FONTES: tuple[str, ...] = (
+    "Circuidade 1,345: Lee e Chae (2023), sobre Gonçalves et al. (2014).",
+    "Última milha de 15 km: World Economic Forum (2024), Transforming Urban Logistics.",
+    "Fatores por veículo (van 0,680; caminhão 0,092 kg CO₂e por t·km): GLEC Framework v2.0, Smart Freight Centre.",
+    "Peso cúbico de 6.000 cm³ por kg: divisor dos Correios para encomendas (Olist, 2022).",
+)
+
 
 def chargeable_weight_g(weight_g: float | None, volume_cm3: float | None) -> float:
     """Massa que a carga OCUPA, nao a que ela pesa: `max(real, cubada)`.

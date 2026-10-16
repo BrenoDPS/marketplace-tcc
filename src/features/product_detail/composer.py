@@ -176,7 +176,9 @@ async def compose_product_detail(
     bruto, product = escolhida
     medido = None if bruto == INFINITY else bruto
     badge = (
-        build_sustainability_props(medido, product.weight_g, volume_cm3=product.volume_cm3)
+        build_sustainability_props(
+            medido, product.weight_g, volume_cm3=product.volume_cm3, explain=True
+        )
         if medido is not None
         else None
     )

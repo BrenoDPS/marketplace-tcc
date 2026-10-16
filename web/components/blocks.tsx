@@ -8,6 +8,7 @@ import type {
   CheckoutSummaryBlock,
   DeliveryOptionsBlock,
   HeroBannerBlock,
+  Co2Explanation,
   ImpactBannerBlock,
   OfferComparisonBlock,
   ProductCardBlock,
@@ -17,9 +18,72 @@ import type {
 } from "@/lib/sdui";
 import { useSdui } from "./sdui-context";
 
+/**
+ * "De onde vem esse numero?" (V2): a conta do selo, passo a passo, com as
+ * fontes. `<details>` nativo: teclado, leitor de tela e Esc sem codigo nosso.
+ * Os numeros vem do servidor; aqui so formatacao.
+ */
+function Co2Explainer({ e }: { e: Co2Explanation }) {
+  const cubado = e.chargeable_weight_g > e.weight_g;
+  const passos: [string, string][] = [
+    ["Linha reta entre os CEPs", `${decimal(e.straight_km, 1)} km`],
+    [`Estrada estimada (× ${decimal(e.circuity, 3)})`, `${decimal(e.road_km, 1)} km`],
+    [
+      "Trechos",
+      e.line_haul_km > 0
+        ? `${decimal(e.line_haul_km, 1)} km de caminhão + ${decimal(e.last_mile_km, 1)} km de van`
+        : `${decimal(e.last_mile_km, 1)} km de van (só última milha)`,
+    ],
+    [
+      cubado ? "Massa considerada (peso cúbico)" : "Massa considerada",
+      cubado
+        ? `${decimal(e.chargeable_weight_g, 0)} g (o produto pesa ${decimal(e.weight_g, 0)} g, mas ocupa mais)`
+        : `${decimal(e.chargeable_weight_g, 0)} g`,
+    ],
+    ["Fatores (kg CO₂e por t·km)", `caminhão ${decimal(e.fe_line_haul, 3)} · van ${decimal(e.fe_last_mile, 3)}`],
+    ...(e.mode_factor !== 1
+      ? [["Modalidade de entrega", `× ${decimal(e.mode_factor, 2)}`] as [string, string]]
+      : []),
+    ["Emissão estimada", `${co2Label(e.co2_kg)} CO₂e`],
+  ];
+  return (
+    <details className="mt-2 text-xs text-muted">
+      <summary className="w-fit cursor-pointer rounded underline decoration-dotted underline-offset-2 hover:text-ink">
+        Como calculamos?
+      </summary>
+      <div className="mt-2 rounded-lg border border-line bg-paper p-3">
+        <dl className="space-y-1.5">
+          {passos.map(([k, v]) => (
+            <div key={k} className="flex flex-wrap justify-between gap-x-4">
+              <dt>{k}</dt>
+              <dd className="tabular-nums text-ink">{v}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-3 font-medium text-ink">Fontes</p>
+        <ul className="mt-1 list-disc space-y-0.5 pl-4">
+          {e.sources.map((s) => (
+            <li key={s}>{s}</li>
+          ))}
+        </ul>
+        <p className="mt-2">Estimativa comparativa: serve para comparar origens, não para inventário de emissões.</p>
+      </div>
+    </details>
+  );
+}
+
 /** Unico elemento saturado da interface — ver comentario da paleta em globals.css. */
-export function Badge({ badge }: { badge: SustainabilityProps | null }) {
+export function Badge({ badge, explain = false }: { badge: SustainabilityProps | null; explain?: boolean }) {
   if (!badge) return null;
+  // Dentro do card da vitrine o selo esta num <button>: nada interativo ali.
+  if (explain && badge.explanation) {
+    return (
+      <div>
+        <Badge badge={badge} />
+        <Co2Explainer e={badge.explanation} />
+      </div>
+    );
+  }
   return (
     <span className="inline-flex w-fit items-center gap-1.5 rounded-2xl bg-signal-soft px-2.5 py-1 text-xs font-medium leading-tight text-signal-ink ring-1 ring-signal/20">
       {badge.icon === "leaf" && (
@@ -285,7 +349,7 @@ export function ProductDetail({ block }: { block: ProductDetailBlock }) {
       {/* O id e um hash de 32 caracteres: so interessa a quem inspeciona o JSON. */}
       {inspecting && <p className="mt-1 font-mono text-xs text-muted">{product_id}</p>}
 
-      <div className="mt-4">{badge ? <Badge badge={badge} /> : null}</div>
+      <div className="mt-4">{badge ? <Badge badge={badge} explain /> : null}</div>
       <p className="mt-4 font-display text-3xl text-ink">{brl(price)}</p>
 
       {facts.length > 0 && (
@@ -472,7 +536,7 @@ export function ShipmentBreakdown({ block }: { block: ShipmentBreakdownBlock }) 
                   {shipment.seller_id.slice(0, 12)}…
                 </p>
               </div>
-              <Badge badge={shipment.badge} />
+              <Badge badge={shipment.badge} explain />
             </div>
 
             <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">

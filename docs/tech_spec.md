@@ -96,7 +96,7 @@ Todos seguem o envelope e estão na união discriminada `UIComponent` (`version:
 | `impact_banner` | Checkout | `distance_km`, `co2_kg`, `badge`, `message` | S3 |
 | `offer_comparison` | Detalhe | `title`, `offers[]` (`seller_city`, `seller_state`, `price`, `distance_km`, `co2_kg`, `same_region`, `local`, `chosen`, `reason`), `note` — todas as origens do produto, da mais próxima para a mais distante; a escolhida por `escolher_oferta`, com o motivo. Só com 2+ vendedores; zero consulta nova | S15 |
 
-`SustainabilityProps` (`label`, `impact_level`, `icon`) é o selo verde, reaproveitado por
+`SustainabilityProps` (`label`, `impact_level`, `icon` e, desde a S15, `explanation` opcional — a conta do CO₂ passo a passo com as fontes, pedida só pelo detalhe e pelo checkout) é o selo verde, reaproveitado por
 `product_card`, `shipment_breakdown` e `impact_banner`.
 
 **Duas exceções ao envelope, ambas deliberadas:**

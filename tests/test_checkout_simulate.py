@@ -144,6 +144,7 @@ async def _fake_badge_for_pair(
     weight_g: float | None = None,
     co2_factor: float = 1.0,
     volume_cm3: float | None = None,
+    explain: bool = False,
 ) -> tuple[float | None, SustainabilityProps | None]:
     """Espelha a regra real: selo so abaixo de 100 km, CO2 = d * massa * FE."""
     d = DISTANCE_BY_SELLER_ZIP.get(seller_zip_prefix)

@@ -32,10 +32,28 @@ export type UIAction = NavigateAction | ApiCallAction | OpenModalAction;
 
 // --- Props -----------------------------------------------------------------
 
+/** A conta por tras do numero do selo (Sprint 15, V2). Pronta do servidor. */
+export type Co2Explanation = {
+  straight_km: number;
+  circuity: number;
+  road_km: number;
+  line_haul_km: number;
+  last_mile_km: number;
+  weight_g: number;
+  chargeable_weight_g: number;
+  fe_line_haul: number;
+  fe_last_mile: number;
+  mode_factor: number;
+  co2_kg: number;
+  sources: string[];
+};
+
 export type SustainabilityProps = {
   label: string;
   impact_level: "green" | "neutral";
   icon: string | null;
+  /** So no detalhe e no checkout; ausente nos cards da vitrine. */
+  explanation?: Co2Explanation | null;
 };
 
 // --- Blocos ----------------------------------------------------------------

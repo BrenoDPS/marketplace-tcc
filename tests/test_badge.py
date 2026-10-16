@@ -1,3 +1,5 @@
+import pytest
+
 from src.features.green_logistics.badge import (
     DISTANCE_THRESHOLD_KM,
     build_sustainability_props,
@@ -90,3 +92,28 @@ def test_label_only_km_when_weight_zero() -> None:
 
 def test_above_threshold_with_weight_returns_none() -> None:
     assert build_sustainability_props(150.0, weight_g=2500.0) is None
+
+
+# --- explicador do selo (Sprint 15, V2) ---------------------------------------
+
+def test_explicacao_repete_a_conta_do_selo_passo_a_passo() -> None:
+    from src.features.green_logistics.co2 import FONTES, calculate_co2_kg
+
+    badge = build_sustainability_props(50.0, weight_g=2500.0, explain=True)
+    assert badge is not None and badge.explanation is not None
+    e = badge.explanation
+    assert e.road_km == pytest.approx(50.0 * 1.345)
+    assert e.last_mile_km == 15.0
+    assert e.line_haul_km == pytest.approx(e.road_km - 15.0)
+    # Os passos fecham no mesmo numero do selo — nunca uma segunda conta.
+    passos = e.chargeable_weight_g / 1e6 * (e.line_haul_km * e.fe_line_haul + e.last_mile_km * e.fe_last_mile)
+    assert passos == pytest.approx(e.co2_kg)
+    assert e.co2_kg == pytest.approx(calculate_co2_kg(50.0, 2500.0))
+    assert e.sources == list(FONTES)
+
+
+def test_explicacao_so_quando_pedida_e_quando_ha_numero() -> None:
+    assert build_sustainability_props(50.0, weight_g=2500.0).explanation is None
+    # Mesma regiao e sem peso: o selo nao afirma CO2, entao nao ha o que explicar.
+    assert build_sustainability_props(0.4, weight_g=2500.0, explain=True).explanation is None
+    assert build_sustainability_props(50.0, explain=True).explanation is None

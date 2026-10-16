@@ -151,6 +151,35 @@ describe("ScreenRenderer", () => {
     expect(screen.getByText("2.000 km · 300,0 g CO₂ · 10,0× a emissão da escolhida")).toBeTruthy();
   });
 
+  test("selo do detalhe explica a conta com os numeros do servidor (V2)", () => {
+    const detalhe: UIComponent = {
+      type: "product_detail",
+      version: 1,
+      props: {
+        product_id: "p1", title: "Esporte e lazer", price: 99.9, image_url: null, category: null,
+        weight_g: 950, seller_id: "s", seller_city: "Pirituba", seller_state: "SP", rating: null, review_count: 0,
+        badge: {
+          label: "Entrega local (~4 km · ~8,48 g CO₂)", impact_level: "green", icon: "leaf",
+          explanation: {
+            straight_km: 4.2, circuity: 1.345, road_km: 5.66, line_haul_km: 0, last_mile_km: 5.66,
+            weight_g: 950, chargeable_weight_g: 2208, fe_line_haul: 0.092, fe_last_mile: 0.68,
+            mode_factor: 1, co2_kg: 0.00848, sources: ["Circuidade 1,345: Lee e Chae (2023)."],
+          },
+        },
+      },
+      actions: [],
+    };
+    render(
+      <SduiProvider customerZipPrefix="05311">
+        <ScreenRenderer screen={screenOf([detalhe])} />
+      </SduiProvider>,
+    );
+    expect(screen.getByText("Como calculamos?")).toBeTruthy();
+    expect(screen.getByText("5,7 km de van (só última milha)")).toBeTruthy();
+    expect(screen.getByText("2.208 g (o produto pesa 950 g, mas ocupa mais)")).toBeTruthy();
+    expect(screen.getByText("Circuidade 1,345: Lee e Chae (2023).")).toBeTruthy();
+  });
+
   test("bloco entre cards quebra a grade em duas", () => {
     const { container } = render(
       <SduiProvider customerZipPrefix="05311">

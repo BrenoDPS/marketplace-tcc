@@ -56,10 +56,31 @@ UIAction = Annotated[
 # Props (apresentacao / dados para renderizar)
 # ---------------------------------------------------------------------------
 
+class Co2ExplanationProps(BaseModel):
+    """A conta por tras do numero do selo, passo a passo (Sprint 15, V2).
+    Vem pronta do servidor: o cliente formata, nao recalcula."""
+
+    straight_km: float
+    circuity: float
+    road_km: float
+    line_haul_km: float  # trecho de caminhao
+    last_mile_km: float  # trecho de van
+    weight_g: float
+    chargeable_weight_g: float  # max(real, cubado)
+    fe_line_haul: float  # kg CO2e por t.km
+    fe_last_mile: float
+    mode_factor: float = 1.0  # modalidade de entrega (checkout); 1 = padrao
+    co2_kg: float
+    sources: list[str] = Field(default_factory=list)
+
+
 class SustainabilityProps(BaseModel):
     label: str
     impact_level: Literal["green", "neutral"] = "green"
     icon: str | None = None
+    # Opcional: so as telas que mostram o explicador pedem (detalhe, checkout);
+    # os cards da vitrine nao carregam o peso de 6 explicacoes que nao exibem.
+    explanation: Co2ExplanationProps | None = None
 
 
 class ProductCardProps(BaseModel):

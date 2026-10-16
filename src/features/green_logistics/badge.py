@@ -8,8 +8,18 @@ contradizer o bloco `delivery_options` na mesma tela.
 
 from __future__ import annotations
 
-from src.features.green_logistics.co2 import calculate_co2_kg, format_co2
-from src.schemas.sdui import SustainabilityProps
+from src.features.green_logistics.co2 import (
+    CIRCUITY_FACTOR,
+    FE_LAST_MILE_KG_PER_T_KM,
+    FE_LINE_HAUL_KG_PER_T_KM,
+    FONTES,
+    LAST_MILE_KM,
+    calculate_co2_kg,
+    chargeable_weight_g,
+    format_co2,
+    road_distance_km,
+)
+from src.schemas.sdui import Co2ExplanationProps, SustainabilityProps
 
 DISTANCE_THRESHOLD_KM: float = 100.0
 
@@ -31,6 +41,7 @@ def build_sustainability_props(
     weight_g: float | None = None,
     co2_factor: float = 1.0,
     volume_cm3: float | None = None,
+    explain: bool = False,
 ) -> SustainabilityProps | None:
     """Selo verde apenas para entregas com `d_km < 100`. Senao retorna None.
 
@@ -41,6 +52,7 @@ def build_sustainability_props(
     """
     if distance_km >= DISTANCE_THRESHOLD_KM:
         return None
+    explanation = None
     if distance_km < RESOLUTION_FLOOR_KM:
         # Mesma regiao: o numero existe, mas seria ruido do modelo — e o CO2
         # sai junto, porque afirmar "0,00 g" e afirmar zero, nao "pouco".
@@ -48,10 +60,40 @@ def build_sustainability_props(
     elif weight_g is not None and weight_g > 0:
         co2_kg = calculate_co2_kg(distance_km, weight_g, volume_cm3) * co2_factor
         label = f"Entrega local (~{distance_km:.0f} km · ~{format_co2(co2_kg)} CO₂)"
+        if explain:
+            explanation = explicar_co2(distance_km, weight_g, volume_cm3, co2_factor, co2_kg)
     else:
         label = f"Entrega local (~{distance_km:.0f} km)"
     return SustainabilityProps(
         label=label,
         impact_level="green",
         icon="leaf",
+        explanation=explanation,
+    )
+
+
+def explicar_co2(
+    distance_km: float,
+    weight_g: float,
+    volume_cm3: float | None,
+    co2_factor: float,
+    co2_kg: float,
+) -> Co2ExplanationProps:
+    """Os passos de `calculate_co2_kg`, com os mesmos numeros. `co2_kg` vem de
+    quem chamou (a conta do selo), para o explicador nunca divergir dele."""
+    estrada = road_distance_km(distance_km)
+    van = min(estrada, LAST_MILE_KM)
+    return Co2ExplanationProps(
+        straight_km=distance_km,
+        circuity=CIRCUITY_FACTOR,
+        road_km=estrada,
+        line_haul_km=estrada - van,
+        last_mile_km=van,
+        weight_g=weight_g,
+        chargeable_weight_g=chargeable_weight_g(weight_g, volume_cm3),
+        fe_line_haul=FE_LINE_HAUL_KG_PER_T_KM,
+        fe_last_mile=FE_LAST_MILE_KG_PER_T_KM,
+        mode_factor=co2_factor,
+        co2_kg=co2_kg,
+        sources=list(FONTES),
     )
