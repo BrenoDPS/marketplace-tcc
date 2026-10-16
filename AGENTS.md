@@ -54,8 +54,9 @@ handoff, ela está em `docs/PROJECT_BOOTSTRAP.md` → "Sprint ativa".
 - **SDUI:** todo bloco segue o envelope `{ type, version, props, actions }`;
   `props` só dado/apresentação, `actions` é união discriminada. Pydantic v2 com
   discriminated unions; não troque props tipados por `dict` genérico.
-- **Mudou o contrato?** Atualize `tests/test_schemas.py`, `web/lib/sdui.ts` e o
-  `REGISTRY` juntos — `tests/test_schemas.py` falha se os `type` divergirem.
+- **Mudou o contrato?** Atualize `tests/test_schemas.py`, `web/lib/sdui.ts`, o
+  `REGISTRY` e `web/lib/contrato.ts` juntos e rode `python -m scripts.forma_contrato`
+  — o pytest falha se os `type` divergirem; o `tsc` e o Vitest, se os campos de `props` divergirem.
 - **Logística verde:** onde a resposta expuser produto, integrar distância/selo:
   Haversine sobre centroides de CEP, selo < 100 km, CO₂ por cadeia de transporte
   (estrada = linha reta × 1,345; última milha de van; fontes citadas) em

@@ -353,10 +353,15 @@ aumentaria artificialmente as entregas "verdes"; a omissão é menos chamativa,
 mas mantém a relação entre afirmação e evidência.
 
 A correspondência entre servidor e cliente também é verificada
-automaticamente: um teste compara os tipos de blocos e ações declarados no
-backend, no espelho em TypeScript e no registro de componentes. O teste compara
-os tipos, mas não cada campo interno, e as situações avaliadas foram
-controladas, não exaustivas. A convivência de versões diferentes do contrato em
+automaticamente, em dois níveis. Um teste compara os tipos de blocos e ações
+declarados no backend, no espelho em TypeScript e no registro de componentes.
+Um segundo compara, campo a campo e em todos os níveis, os `props` de cada
+bloco: o backend exporta a forma de cada um a partir dos modelos Pydantic, e o
+frontend declara a mesma forma, que o compilador TypeScript amarra aos tipos do
+espelho. Um campo renomeado, removido ou acrescentado de um lado só faz a
+integração contínua falhar, o que foi conferido mutando o contrato de cada
+lado. Os testes conferem nomes de campo, não tipos de valor, e as situações
+avaliadas foram controladas, não exaustivas. A convivência de versões diferentes do contrato em
 produção não foi avaliada.
 
 ### 5.3 SÍNTESE DOS RESULTADOS

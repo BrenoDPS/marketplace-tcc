@@ -212,7 +212,9 @@ class TestScreenResponse:
 class TestEspelhoDoContratoNoFront:
     """`web/lib/sdui.ts` e o `REGISTRY` sao escritos a mao. Isto pega o `type`
     que existe de um lado so — bloco novo no backend sem renderer, ou acao sem
-    executor. Compara so os `type`; divergencia de props continua sem sensor."""
+    executor. Aqui, `type` de blocos e acoes; os campos de props sao conferidos
+    pelo par `web/tests/contrato-bff.json` (gerado do Pydantic) x `web/lib/contrato.ts`
+    (amarrado aos tipos TS pelo `tsc`), no Vitest."""
 
     ROOT = Path(__file__).resolve().parent.parent
 
@@ -234,6 +236,16 @@ class TestEspelhoDoContratoNoFront:
     def test_acoes_iguais_no_contrato_e_no_espelho(self) -> None:
         ts = (self.ROOT / "web/lib/sdui.ts").read_text(encoding="utf-8")
         assert set(re.findall(r'type: "(\w+)";', ts)) == self._py_types(UIAction)
+
+    def test_forma_dos_props_exportada_para_o_front_esta_em_dia(self) -> None:
+        """O Vitest compara `web/tests/contrato-bff.json` com o espelho TS
+        (`web/lib/contrato.ts`); este teste garante que o JSON e o do Pydantic
+        ATUAL. Mudou um campo de props? `python -m scripts.forma_contrato`."""
+        from scripts.forma_contrato import SAIDA, texto
+
+        assert (self.ROOT / SAIDA).read_text(encoding="utf-8") == texto(), (
+            "contrato-bff.json velho: rode python -m scripts.forma_contrato"
+        )
 
     def test_mutacoes_do_modo_apresentacao_iguais_no_bff_e_no_front(self) -> None:
         """Mutacao listada no front e que o BFF nao conhece daria 422 na demo."""

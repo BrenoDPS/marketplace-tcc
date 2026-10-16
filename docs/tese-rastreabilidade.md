@@ -73,7 +73,7 @@ Situação item a item em `docs/performance.md` §10.7 (runner × texto). Resumo
 |---|---|---|
 | Reordenar blocos, injetar selo e inserir componente novo **sem alterar o cliente** e **sem rebuild** | `web/e2e/contract-mutation.spec.ts` — muta a resposta real do BFF e confere que a página não recarrega (marcador no `window` sobrevive); capturas em `docs/evidencia/` | prova que o **cliente** aceita árvores novas em runtime; **não** prova que o servidor as produza sem deploy (as mutações são injetadas no tráfego) |
 | Envelope **malformado** (bloco sem `actions`) não derruba a tela | `parseScreen` em `web/lib/sdui.ts` normaliza na entrada; `web/tests/sdui.test.tsx` (3 casos) e a mutação 4 do E2E | antes da Sprint 8 a tela inteira ficava em branco |
-| Contrato servidor ↔ cliente consistente | `tests/test_schemas.py::TestEspelhoDoContratoNoFront` — os `type` de blocos e ações são iguais em `src/schemas/sdui.py`, `web/lib/sdui.ts` e no `REGISTRY` | compara `type`, não `props` |
+| Contrato servidor ↔ cliente consistente | `tests/test_schemas.py::TestEspelhoDoContratoNoFront` — os `type` de blocos e ações são iguais em `src/schemas/sdui.py`, `web/lib/sdui.ts` e no `REGISTRY`; desde a Sprint 12, os **campos de `props`** também, em todos os níveis: `web/tests/contrato-bff.json` (gerado do Pydantic por `python -m scripts.forma_contrato`, conferido em dia pelo pytest) = `web/lib/contrato.ts` (amarrado aos tipos TS pelo `tsc`), no Vitest `web/tests/contrato.test.ts`. Mutação conferida dos dois lados, inclusive campo só no TS que nenhum componente usa | compara nomes de campo, não tipos de valor (`string` × `number`) |
 
 ## 4b. Logística verde — números para o capítulo 5 (Sprint 9)
 
