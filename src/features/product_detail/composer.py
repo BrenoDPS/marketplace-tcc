@@ -14,6 +14,7 @@ from src.core.rotulos import descritor_produto, rotulo_categoria, rotulo_cidade
 from src.features.green_logistics.badge import (
     DISTANCE_THRESHOLD_KM,
     RESOLUTION_FLOOR_KM,
+    build_distance_props,
     build_sustainability_props,
 )
 from src.features.green_logistics.co2 import calculate_co2_kg, format_co2
@@ -232,6 +233,7 @@ async def compose_product_detail(
         build_sustainability_props(
             medido, product.weight_g, volume_cm3=product.volume_cm3, explain=True
         )
+        or build_distance_props(medido, product.weight_g, volume_cm3=product.volume_cm3, explain=True)
         if medido is not None
         else None
     )

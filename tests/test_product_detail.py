@@ -229,9 +229,13 @@ async def test_badge_and_impact_reflect_the_customer_distance() -> None:
     assert banner["badge"] is None
 
 
-async def test_distant_seller_has_no_badge() -> None:
+async def test_distant_seller_gets_a_neutral_badge_with_the_math() -> None:
+    """Sem selo verde, mas com distancia, CO2 e "Como calculamos?" em tom neutro."""
     _, body = await _get("/api/v1/products/prod_sem_nota?customer_zip_prefix=05311")
-    assert _block(body, "product_detail")["props"]["badge"] is None
+    badge = _block(body, "product_detail")["props"]["badge"]
+    assert badge["impact_level"] == "neutral"
+    assert badge["label"].startswith("Entrega a ~")
+    assert "local" not in badge["label"].lower()
 
 
 async def test_detail_carries_the_checkout_action() -> None:

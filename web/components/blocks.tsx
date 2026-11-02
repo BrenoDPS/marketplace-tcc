@@ -33,7 +33,7 @@ export function Stepper({ value, onChange, label }: { value: number; onChange: (
   const btn =
     "flex size-8 items-center justify-center rounded-lg text-muted transition hover:bg-paper-2 hover:text-ink disabled:opacity-40 disabled:hover:bg-transparent";
   return (
-    <div className="flex items-center rounded-xl border border-line bg-surface p-0.5">
+    <div className="flex items-center rounded-xl border border-line bg-surface p-0.5 transition has-[input:focus-visible]:border-signal has-[input:focus-visible]:ring-4 has-[input:focus-visible]:ring-signal/15">
       <button type="button" aria-label={`Diminuir quantidade de ${label}`} disabled={value <= 1} onClick={() => onChange(value - 1)} className={btn}>
         <Icon name="minus" className="size-4" />
       </button>
@@ -155,8 +155,15 @@ export function Badge({ badge, explain = false }: { badge: SustainabilityProps |
     );
   }
   return (
-    <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-signal-soft px-2.5 py-1 text-xs font-medium leading-tight text-signal-ink ring-1 ring-signal/20">
+    <span
+      className={`inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium leading-tight ring-1 ${
+        badge.impact_level === "neutral"
+          ? "bg-paper-2 text-ink-2 ring-line-strong"
+          : "bg-signal-soft text-signal-ink ring-signal/20"
+      }`}
+    >
       {badge.icon === "leaf" && <Icon name="leaf" className="size-3.5" />}
+      {badge.icon === "truck" && <Icon name="truck" className="size-3.5" />}
       {badge.label}
     </span>
   );
@@ -518,12 +525,16 @@ export function ProductDetail({ block }: { block: ProductDetailBlock }) {
   const tone = coverTone(category, product_id);
 
   const local = [seller_city, seller_state].filter(Boolean).join(" · ");
-  const facts = [
+  // "Ref. 092BE1 · 750 g · 2,9 L": a referencia vai para a linha de meta e o
+  // volume para a ficha, cada um no seu lugar (apontamento de 02/11).
+  const partes = subtitle?.split(" · ") ?? [];
+  const ref = partes.find((x) => x.startsWith("Ref."));
+  const volume = partes.find((x) => / L$/.test(x));
+  const ficha = [
     local ? (["store", "Vendedor", local] as const) : null,
     weight_g ? (["scale", "Peso", `${decimal(weight_g, 0)} g`] as const) : null,
-    rating !== null
-      ? (["star", "Avaliação", `${decimal(rating, 1)} / 5 · ${review_count} ${review_count === 1 ? "pedido" : "pedidos"}`] as const)
-      : null,
+    volume ? (["box", "Volume", volume] as const) : null,
+    category ? ([categoryIcon(category), "Categoria", title ?? category] as const) : null,
   ].filter((f) => f !== null);
 
   const add = (thenOpenCart: boolean) => {
@@ -533,65 +544,94 @@ export function ProductDetail({ block }: { block: ProductDetailBlock }) {
   };
 
   return (
-    <section className={`${CARD} p-4 sm:p-6`}>
-      <div className="grid gap-5 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-6">
+    <section className={`${CARD} overflow-hidden`}>
+      <div className="grid gap-5 p-4 sm:grid-cols-[13rem_minmax(0,1fr)] sm:gap-7 sm:p-6">
         <div
-          className="relative hidden aspect-square overflow-hidden rounded-2xl sm:block"
+          className="relative hidden aspect-square self-start overflow-hidden rounded-2xl sm:block"
           style={{ backgroundImage: tone.backgroundImage }}
         >
           <span aria-hidden style={{ color: tone.color }} className="absolute inset-0 flex items-center justify-center opacity-50">
             <Icon name={categoryIcon(category)} className="size-24" strokeWidth={1.1} />
           </span>
         </div>
+
         <div className="min-w-0">
-          <h2 className="font-display text-2xl leading-tight tracking-tight text-ink sm:text-3xl">{title ?? product_id}</h2>
-          {subtitle && <p className="mt-1 text-xs tabular-nums text-muted">{subtitle}</p>}
+          <h2 className="font-display text-3xl leading-tight tracking-tight text-ink">{title ?? product_id}</h2>
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
+            {rating !== null ? (
+              <span className="flex items-center gap-1">
+                <Icon name="star" className="size-4 fill-star text-star" />
+                <span className="font-medium tabular-nums text-ink">{decimal(rating, 1)}</span>
+                <span>
+                  ({review_count} {review_count === 1 ? "pedido avaliado" : "pedidos avaliados"})
+                </span>
+              </span>
+            ) : (
+              <span>Sem avaliações</span>
+            )}
+            {ref && (
+              <>
+                <span aria-hidden className="text-line-strong">|</span>
+                <span className="tabular-nums">{ref}</span>
+              </>
+            )}
+          </p>
           {/* O id e um hash de 32 caracteres: so interessa a quem inspeciona o JSON. */}
           {inspecting && <p className="mt-1 font-mono text-xs text-muted">{product_id}</p>}
 
-          <p className="mt-4 font-display text-4xl tabular-nums tracking-tight text-ink">{brl(price)}</p>
-          {/* Selo e "Como calculamos?" DEPOIS do preco (D10): aberto, empurrava o preco. */}
+          <div className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <p className="font-display text-4xl tabular-nums tracking-tight text-ink">{brl(price)}</p>
+            <p className="text-xs text-muted">frete e prazo calculados no checkout</p>
+          </div>
+          {/* Selo e "Como calculamos?" DEPOIS do preco (D10): aberto, empurrava o preco.
+              Longe de voce o selo vem neutro, mas com a mesma conta. */}
           {badge && <div className="mt-3">{<Badge badge={badge} explain />}</div>}
 
-          {facts.length > 0 && (
-            <dl className="mt-5 grid gap-2 sm:grid-cols-3">
-              {facts.map(([icone, label, value]) => (
-                <div key={label} className="rounded-xl border border-line bg-surface-2 px-3 py-2.5">
-                  <dt className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-[0.12em] text-muted">
-                    <Icon name={icone} className={`size-3.5 ${icone === "star" ? "fill-star text-star" : ""}`} />
+          {ficha.length > 0 && (
+            <dl className="mt-5 divide-y divide-line rounded-xl border border-line bg-surface-2 text-sm">
+              {ficha.map(([icone, label, value]) => (
+                <div key={label} className="flex items-center justify-between gap-4 px-4 py-2.5">
+                  <dt className="flex items-center gap-2 text-muted">
+                    <Icon name={icone} className="size-4" />
                     {label}
                   </dt>
-                  <dd className="mt-1 text-sm text-ink">{value}</dd>
+                  <dd className="text-right font-medium tabular-nums text-ink">{value}</dd>
                 </div>
               ))}
             </dl>
           )}
+        </div>
+      </div>
 
-          <div className="mt-5 flex flex-wrap items-center gap-3">
+      <div className="border-t border-line bg-surface-2/60 p-4 sm:px-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
             <span className="text-sm text-muted">Quantidade</span>
             <Stepper value={quantity} onChange={setQuantity} label={title ?? "produto"} />
           </div>
-
-          <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-            <button
-              type="button"
-              onClick={() => add(false)}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-5 py-3 text-sm font-medium text-ink transition hover:border-line-strong hover:shadow-soft"
-            >
-              <Icon name="plus" className="size-4" />
-              Adicionar ao carrinho
-            </button>
-            <button
-              type="button"
-              onClick={() => add(true)}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-signal px-5 py-3 text-sm font-medium text-on-signal shadow-soft transition hover:bg-signal-strong"
-            >
-              <Icon name="bag" className="size-4" />
-              Ir para o carrinho
-            </button>
-          </div>
-          <p className="mt-3 text-center text-xs text-muted sm:text-left">Simulação acadêmica — nenhum pagamento é processado.</p>
+          <p className="text-sm text-muted">
+            Subtotal <span className="ml-1 font-display text-xl tabular-nums text-ink">{brl(price * quantity)}</span>
+          </p>
         </div>
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+          <button
+            type="button"
+            onClick={() => add(false)}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-5 py-3 text-sm font-medium text-ink transition hover:border-line-strong hover:shadow-soft"
+          >
+            <Icon name="plus" className="size-4" />
+            Adicionar ao carrinho
+          </button>
+          <button
+            type="button"
+            onClick={() => add(true)}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-signal px-5 py-3 text-sm font-medium text-on-signal shadow-soft transition hover:bg-signal-strong"
+          >
+            <Icon name="bag" className="size-4" />
+            Ir para o carrinho
+          </button>
+        </div>
+        <p className="mt-3 text-center text-xs text-muted sm:text-left">Simulação acadêmica — nenhum pagamento é processado.</p>
       </div>
     </section>
   );

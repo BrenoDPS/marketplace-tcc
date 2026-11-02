@@ -27,7 +27,7 @@ const shotModal = async (page, nome) => {
   await shot(page, "c01-entrada-cep");
 
   await page.goto(`${BASE}/?customer_zip_prefix=05311`);
-  await page.getByRole("heading", { name: /Em alta em SP/ }).waitFor();
+  await page.getByText("Em alta em SP", { exact: true }).waitFor();
   await shot(page, "c02-home-regional-sp", { fullPage: true });
 
   await page.goto(`${BASE}/?customer_zip_prefix=60165`);
@@ -55,6 +55,14 @@ const shotModal = async (page, nome) => {
   // Carrinho e checkout a 1440x900: o modal tem corpo rolavel (redesenho de 02/11)
   // e, na viewport de 2600 px, o checkout abria fora do recorte e a espera estourava.
   await page.setViewportSize({ width: 1440, height: 900 });
+  // Checkout com sugestao de troca dentro do teto de 20% (T7): o item de Atibaia
+  // (R$ 27,90) nao tem substituto ate R$ 33,48; o 3o card da vitrine padrao tem
+  // (o mesmo do e2e/impacto.spec.ts). Carrinho limpo para a figura ter um item.
+  await page.goto(`${BASE}/?customer_zip_prefix=05311`);
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+  await page.waitForLoadState("networkidle");
+  await page.locator("main button:has(h3)").nth(2).click();
   await dialog.getByRole("button", { name: "Ir para o carrinho" }).click();
   await page.waitForTimeout(500);
   await shot(page, "c07-carrinho");
@@ -86,7 +94,7 @@ const shotModal = async (page, nome) => {
   // Home no modo de inspecao SDUI (Figura 5), 1280x860 a 2x, como a figura original.
   const h = await browser.newPage({ viewport: { width: 1280, height: 860 }, deviceScaleFactor: 2 });
   await h.goto(`${BASE}/?customer_zip_prefix=05311`);
-  await h.getByRole("heading", { name: /Em alta em SP/ }).waitFor();
+  await h.getByText("Em alta em SP", { exact: true }).waitFor();
   await h.getByRole("button", { name: "SDUI" }).click();
   await h.waitForTimeout(800);
   await shot(h, "c15-home-inspecao-sdui");

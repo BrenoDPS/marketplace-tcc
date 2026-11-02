@@ -1,15 +1,12 @@
 """Regra de troca "Mais perto de voce" do checkout (T7, achado C4).
 
-Fixa o comportamento ATUAL: o preco nao entra na escolha do substituto — vence
-a maior economia de CO2, mesmo muito mais cara, e o preco so e exibido.
-DECISAO PENDENTE do grupo (card [Decisao] no Trello; analise-app-x-monografia
-C4/D5): se houver teto de preco, este teste muda junto com
-`src/features/checkout/alternatives.py`.
+Decisao do grupo (02/11): o substituto pode custar no maximo 20% a mais que o
+item (`MAX_PRICE_RATIO`); dentro do teto, vence a maior economia de CO2.
 """
 
 from __future__ import annotations
 
-from src.features.checkout.alternatives import best_alternative_for
+from src.features.checkout.alternatives import MAX_PRICE_RATIO, best_alternative_for
 from src.features.checkout.repository import AlternativeRow, CheckoutProductRow
 
 # Caso do roteiro da banca: item de R$ 27,90 a 50 km; substituto a ~13 km por R$ 169,90.
@@ -37,8 +34,8 @@ def _candidato(product_id: str, preco: float, graus_ao_norte: float) -> Alternat
     )
 
 
-def test_substituto_mais_caro_vence_se_economiza_mais_co2() -> None:
-    caro_perto = _candidato("caro", 169.90, 0.117)  # ~13 km
+def test_substituto_muito_mais_caro_nao_e_sugerido() -> None:
+    caro_perto = _candidato("caro", 169.90, 0.117)  # ~13 km, R$ 142 a mais
     barato_meio = _candidato("barato", 20.00, 0.27)  # ~30 km: mais barato, economiza menos
 
     best = best_alternative_for(
@@ -46,9 +43,25 @@ def test_substituto_mais_caro_vence_se_economiza_mais_co2() -> None:
     )
 
     assert best is not None
-    assert best.product_id == "caro"
-    assert round(best.distance_km) == 13
+    assert best.product_id == "barato"
+    assert round(best.distance_km) == 30
     assert best.co2_saved_kg > 0
-    # Sem teto: R$ 142 a mais e aceito, e o preco vai para a tela.
-    assert best.price == 169.90
-    assert best.price - ITEM.unit_price > 140
+
+
+def test_teto_de_preco_e_inclusivo_e_dentro_dele_vence_a_maior_economia() -> None:
+    no_teto = _candidato("no-teto", round(ITEM.unit_price * MAX_PRICE_RATIO, 2), 0.117)
+    barato_meio = _candidato("barato", 20.00, 0.27)
+
+    best = best_alternative_for(
+        ITEM, 1, 50.0, [barato_meio, no_teto], *CLIENTE, co2_factor=1.0, exclude_product_ids=set()
+    )
+
+    assert best is not None and best.product_id == "no-teto"
+
+
+def test_sem_candidato_dentro_do_teto_nao_ha_sugestao() -> None:
+    best = best_alternative_for(
+        ITEM, 1, 50.0, [_candidato("caro", 169.90, 0.117)], *CLIENTE, co2_factor=1.0, exclude_product_ids=set()
+    )
+
+    assert best is None

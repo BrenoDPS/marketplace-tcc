@@ -422,7 +422,8 @@ async def test_search_hero_reports_what_was_searched() -> None:
     _, body = await _get("/api/v1/home?customer_zip_prefix=01000&q=beleza")
     assert isinstance(body, dict)
     hero = _hero(body)
-    assert hero["props"]["title"] == "Busca: beleza"
+    assert hero["props"]["title"] == "“beleza”"
+    assert hero["props"]["eyebrow"] == "Busca"
     assert "1 produto" in hero["props"]["subtitle"]
 
 
@@ -482,7 +483,7 @@ async def test_punctuation_search_is_a_real_search_with_no_results() -> None:
     _, body = await _get("/api/v1/home?customer_zip_prefix=01000&q=%23%23%23")
     assert isinstance(body, dict)
     assert _cards(body) == []
-    assert _hero(body)["props"]["title"] == "Busca: ###"
+    assert _hero(body)["props"]["title"] == "“###”"
 
 
 async def test_search_composes_with_conscious_buyer_ranking() -> None:
@@ -576,7 +577,8 @@ async def test_sem_contexto_escolhido_a_home_segue_a_regiao_do_cep() -> None:
     assert isinstance(body, dict)
 
     hero = _hero(body)
-    assert hero["props"]["title"] == "Em alta em CE: Relógios e presentes"
+    assert hero["props"]["title"] == "Relógios e presentes"
+    assert hero["props"]["eyebrow"] == "Em alta em CE"
     assert "1,7×" in hero["props"]["subtitle"], "o hero precisa dizer POR QUE"
     assert _cards(body) == ["prod_dois_vendedores"]
     # O contrato nao muda: o contexto da resposta e o pedido.

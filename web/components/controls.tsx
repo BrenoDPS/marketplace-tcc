@@ -67,11 +67,7 @@ export function EntryScreen() {
       </header>
       <div className="mx-auto grid w-full max-w-6xl flex-1 items-center gap-12 px-6 pb-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <section className="max-w-xl">
-          <p className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-xs font-medium text-muted shadow-soft">
-            <span className="size-1.5 rounded-full bg-signal" />
-            Marketplace com logística verde
-          </p>
-          <h1 className="mt-6 font-display text-5xl leading-[1.05] tracking-tight text-ink [overflow-wrap:anywhere] sm:text-6xl">
+          <h1 className="font-display text-5xl leading-[1.05] tracking-tight text-ink [overflow-wrap:anywhere] sm:text-6xl">
             Compre de quem está perto.
           </h1>
           <p className="mt-5 text-lg leading-relaxed text-muted">
@@ -84,17 +80,21 @@ export function EntryScreen() {
               e.preventDefault();
               if (zip.trim()) router.push(hrefFor(zip.trim(), "default"));
             }}
-            className="mt-8 flex flex-col gap-3 rounded-2xl border border-line bg-surface p-2 shadow-lift sm:flex-row"
+            // Foco no cartao inteiro, arredondado como ele: o anel global no <input>
+            // desenhava um retangulo reto dentro do cartao (apontamento de 02/11).
+            className="mt-8 flex flex-col gap-3 rounded-2xl border border-line bg-surface p-2 shadow-lift transition focus-within:border-signal focus-within:ring-4 focus-within:ring-signal/15 sm:flex-row"
           >
             <label className="flex flex-1 items-center gap-3 px-3">
-              <Icon name="pin" className="size-5 text-muted" />
+              <Icon name="pin" className="size-5 text-signal" />
               <input
                 value={zip}
                 onChange={(e) => setZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
                 inputMode="numeric"
+                // Prefixo de 5 digitos nao e endereco: sem a lista de enderecos do navegador.
+                autoComplete="off"
                 placeholder="Prefixo do CEP (5 dígitos)"
                 aria-label="Prefixo do CEP"
-                className="w-full bg-transparent py-3 text-base text-ink outline-none placeholder:text-muted/70"
+                className="w-full bg-transparent py-3 text-base tabular-nums text-ink outline-none placeholder:text-muted focus-visible:outline-none"
               />
             </label>
             <button
@@ -230,7 +230,7 @@ function LocationPicker({
               onChange={(e) => setZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
               inputMode="numeric"
               aria-label="Novo prefixo do CEP"
-              className="w-full rounded-xl border border-line bg-surface-2 px-3 py-2 text-sm tabular-nums text-ink outline-none focus:border-signal"
+              className="w-full rounded-xl border border-line bg-surface-2 px-3 py-2 text-sm tabular-nums text-ink outline-none transition focus:border-signal focus:ring-4 focus:ring-signal/15"
             />
             <button type="submit" className="rounded-xl bg-ink px-3.5 py-2 text-sm font-medium text-paper transition hover:bg-signal">
               Usar
@@ -303,7 +303,7 @@ export function Controls({
         defaultValue={search ?? ""}
         placeholder="Buscar categoria — ex.: relógios"
         aria-label="Buscar por categoria"
-        className="h-10 w-full rounded-xl border border-line bg-surface-2 pl-10 pr-24 text-sm text-ink outline-none transition placeholder:text-muted/70 focus:border-line-strong focus:bg-surface focus:shadow-soft"
+        className="h-10 w-full rounded-xl border border-line bg-surface-2 pl-10 pr-24 text-sm text-ink outline-none transition placeholder:text-muted/70 focus:border-signal focus:bg-surface focus:shadow-soft focus:ring-4 focus:ring-signal/15"
       />
       <button
         type="submit"
@@ -464,7 +464,7 @@ export function SiteFooter() {
     <footer className="mt-auto border-t border-line">
       <div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-6 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
         <p>
-          Marketplace contextual adaptativo · TCC de Engenharia de Computação · Facens, 2026
+          Marketplace contextual adaptativo · TCC de Engenharia de Computação · UniFacens, 2026
         </p>
         <p>Dados públicos da Olist (2016–2018) · simulação acadêmica, sem pagamento</p>
       </div>

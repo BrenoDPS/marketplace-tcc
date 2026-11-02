@@ -169,7 +169,7 @@ do mais importante para o menos:
 |---|---|---|---|---|
 | T1 | **Ensaio da demo na máquina e no local da banca**: pilha do zero, ETL carregado, aquecimento, roteiro cronometrado, **notebook na tomada** | 13 dos 27 ensaios de carga foram descartados porque a máquina estava na bateria: a CPU cai e a demo fica lenta. O roteiro já tem plano B (vídeo), mas nunca foi ensaiado fora da máquina de desenvolvimento | 1 h | grupo (eu preparo o checklist) |
 | T2 | **Reprodução do zero em outra máquina**: clone limpo → `docker compose up` → ETL → `pytest` → `npm run e2e`, cronometrado | Reprodutibilidade é requisito não funcional declarado (§4.1.2) e nunca foi exercida fora da máquina original. Pega dependência esquecida antes da banca | 1 h | grupo, com o meu passo a passo |
-| T3 | **Teste de usabilidade** (SUS + preferência declarada × revelada) | Única validação com pessoas; hoje é limitação declarada no Cap. 6 | 3–4 h | grupo (aguarda orientador) |
+| T3 | **Teste de usabilidade** (SUS + preferência declarada × revelada) | Única validação com pessoas; hoje é limitação declarada no Cap. 6 | 3–4 h | **não será feito** (02/11): limitação no Cap. 6 |
 | T4 | **1.000 VU no código final** (3 estados × 1 repetição) | O controle no código final cobriu só 250 VU; o 1.000 VU do Cap. 5 é do código das Sprints 8 e 10 (declarado) | ~50 min de máquina | eu |
 | T5 | **Desempenho no cliente** (build de produção; LCP, CLS e tempo de renderização da árvore SDUI por tela) | O trabalho mede só a API. A crítica natural à SDUI é o custo de interpretar a árvore no cliente; hoje não há número | 1 h | eu |
 | T6 | **Validação externa do CO₂**: 3 a 5 rotas comparadas com uma calculadora independente (ex.: ferramenta do GHG Protocol Brasil) | O §5.1.2 diz "consistência interna, não precisão externa". Uma ordem de grandeza conferida fora do código responde à pergunta mais provável sobre o modelo | 1–2 h | eu |
@@ -183,15 +183,15 @@ comprimido), registrado em `de-para-metricas.md` §10 e citado no §6.1.1.
 **Feito em 02/11 (tarde):** T5 (`docs/resultados/desempenho-cliente.md`), T6
 (`docs/resultados/fator-externo-co2.md`) e T8 (`docs/resultados/primeira-requisicao.md`),
 todos já no Cap. 5. B3 também: as fontes exibidas no app citam só Lee e Chae (2023).
-T4 aguarda a porta 8000 livre (~50 min de máquina); T7 aguarda a decisão sobre o teto
+T4 aguarda a porta 8000 livre (~50 min de máquina); T7 resolvido com teto de 20% (02/11)
 de preço da troca.
 
 **Feito em 02/11 (noite):** T9 (`docs/resultados/acessibilidade.md`, `web/e2e/acessibilidade.spec.ts`:
 0 críticas, 3 sérias de correção pontual; no §5.2.2). T1 e T2 viraram roteiros para o
 grupo executar (`docs/roteiro-banca.md` → "Ensaio na máquina e no local da banca";
 `README.md` → "Reprodução do zero", com ETL ~70 s, `pytest` ~15 s, E2E ~1 min). T7:
-`tests/test_checkout_alternatives.py` fixa o comportamento atual (sem teto de preço);
-se o grupo decidir pelo teto, o teste muda junto com `alternatives.py`. T4: 1.000 VU no
+`tests/test_checkout_alternatives.py` fixa o teto de 20% decidido pelo grupo em 02/11
+(`MAX_PRICE_RATIO` em `alternatives.py`). T4: 1.000 VU no
 commit `6e5398c` (`docs/performance.md` §13.1), iguais ou melhores que a Tabela 6 e dentro
 da sua dispersão; CPU saturada nos três estados; no §5.1.6.
 

@@ -125,8 +125,9 @@ utilizada no cálculo é a massa cobrável, isto é, o maior valor entre o peso 
 e o peso cubado. Para a cubagem, adotou-se a relação de 6.000 cm³ para cada
 quilograma (BSOFT, 2026). Os fatores por veículo são os do GLEC Framework
 (SMART FREIGHT CENTRE, 2023). Para que a estimativa não seja uma caixa-preta, o
-selo oferece a opção "Como calculamos?", que abre a cadeia do cálculo da oferta
-exibida: distância em linha reta, estrada estimada, trechos de caminhão e de van,
+detalhe de todo produto oferece a opção "Como calculamos?", no selo verde (até
+100 km) ou em uma etiqueta neutra com a distância e o CO₂ (acima disso), que abre a
+cadeia do cálculo da oferta exibida: distância em linha reta, estrada estimada, trechos de caminhão e de van,
 massa considerada, fatores e fontes (Figura 6). <!-- A2, M6 -->
 
 <!-- m2 -->
@@ -174,7 +175,8 @@ procura outro produto da mesma categoria vendido mais perto do comprador e
 informa quanto CO₂ a troca evitaria. Esse mecanismo é diferente da escolha de
 oferta: a escolha de oferta mantém o produto e muda o vendedor, enquanto a
 sugestão de troca muda o produto. Por isso, a troca é apresentada com preço e
-distância próprios, e a decisão fica com o usuário. As trocas aceitas somam-se
+distância próprios, e só são sugeridos substitutos até 20% mais caros que o item;
+dentro desse teto, vence a maior economia de CO₂, e a decisão fica com o usuário. As trocas aceitas somam-se
 em um indicador da sessão, "Seu impacto", que mostra o CO₂ evitado pelas
 escolhas do próprio usuário. A Figura 7 mostra o checkout com as três
 modalidades de entrega, a remessa e uma sugestão de troca. <!-- A6 -->

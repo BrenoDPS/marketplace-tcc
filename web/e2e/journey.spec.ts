@@ -70,7 +70,7 @@ test("jornada da defesa: do CEP ao comparativo de entrega", async ({ page }) => 
 
     // O titulo do hero e escrito pelo SERVIDOR a partir do termo: se ele
     // aparece, a busca chegou ao backend e voltou como tela.
-    await expect(page.getByRole("heading", { name: `Busca: ${TERM}` })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: `“${TERM}”` })).toBeVisible();
     // Todo card visivel pertence a categoria buscada.
     await expect(page.locator("main h3").first()).toHaveText(/Cama, mesa e banho/i);
   });

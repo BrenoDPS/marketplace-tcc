@@ -35,6 +35,12 @@ from src.schemas.sdui import AlternativeProps
 # tela que ja tem resumo, modalidades e remessas.
 MAX_SUGGESTIONS = 3
 
+# Teto de preco do substituto (T7, decisao do grupo em 02/11): ate 20% acima do
+# item. Sem teto, a maior economia vencia mesmo R$ 142 mais cara, e ninguem
+# troca assim: escolheria outra modalidade de entrega. Dentro do teto, vence a
+# maior economia de CO2.
+MAX_PRICE_RATIO = 1.2
+
 
 def _co2(
     distance_km: float,
@@ -57,7 +63,7 @@ def best_alternative_for(
     co2_factor: float,
     exclude_product_ids: set[str],
 ) -> AlternativeProps | None:
-    """Melhor substituto para UM item, ou None se nenhum reduz a emissao.
+    """Melhor substituto para UM item ate 20% mais caro, ou None se nenhum reduz a emissao.
 
     "Melhor" = maior economia de CO2, nao menor distancia: um vendedor mais
     perto com produto mais pesado pode emitir mais. Distancia e massa entram
@@ -72,6 +78,8 @@ def best_alternative_for(
         if row.category != product.category:
             continue
         if row.product_id in exclude_product_ids:
+            continue
+        if row.unit_price > product.unit_price * MAX_PRICE_RATIO:
             continue
 
         distance = haversine_km(customer_lat, customer_lng, row.lat, row.lng)

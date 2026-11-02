@@ -341,7 +341,7 @@ def figura_detalhe() -> Path:
     from PIL import Image
 
     dialogo = Image.open(CANDIDATAS / "c06-detalhe-selo-mapa-comparador.png").convert("RGB")
-    largura, corte = dialogo.width, 1212
+    largura, corte = dialogo.width, 1335
     topo, base = dialogo.crop((0, 0, largura, corte)), dialogo.crop((0, corte, largura, dialogo.height))
     folha = Image.new("RGB", (largura * 2 + 24, max(topo.height, base.height)), "white")
     folha.paste(topo, (0, 0))
@@ -353,7 +353,10 @@ def figura_detalhe() -> Path:
 
 def figura_checkout() -> Path:
     """Figura nova (4.1.1) — checkout com modalidades, remessas e sugestao de troca."""
-    return _recorte("c08-checkout-completo", (150, 85, 1290, 1720), "fig-checkout.png")
+    from PIL import Image
+
+    altura = Image.open(CANDIDATAS / "c08-checkout-completo.png").height
+    return _recorte("c08-checkout-completo", (150, 85, 1290, altura - 70), "fig-checkout.png")  # sem o rodape
 
 
 def figura_mutacao_servidor() -> Path:

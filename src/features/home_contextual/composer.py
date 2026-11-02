@@ -112,7 +112,9 @@ def _hero_for(
     que esta filtrando, inclusive quando nao achou nada."""
     if search or category:
         clear = NavigateAction(payload=NavigatePayload(path=_home_path(customer_zip_prefix, context)))
-        title = f"Busca: {search}" if search else rotulo_categoria(category or "")
+        # Sem dois-pontos no titulo: na fonte de display o ":" colava na palavra
+        # (apontamento de 02/11). O rotulo "Busca"/"Categoria" vai no eyebrow.
+        title = f"“{search}”" if search else rotulo_categoria(category or "")
         if found == 0:
             subtitle = (
                 f"Nenhum produto desta amostra corresponde a “{search}”. A busca procura no nome "
@@ -180,7 +182,9 @@ def _regional_hero(pick: RegionalPick, customer_zip_prefix: str) -> HeroBannerBl
     vezes = f"{pick.lift:.1f}".replace(".", ",")
     return HeroBannerBlock(
         props=HeroBannerProps(
-            title=f"Em alta em {pick.uf}: {rotulo_categoria(pick.category)}",
+            # A UF vai no eyebrow e o titulo e so a categoria: "Em alta em SP: Alimentos"
+            # colava o ":" no "SP" na fonte de display (apontamento de 02/11).
+            title=rotulo_categoria(pick.category),
             subtitle=(
                 f"Por que esta vitrine? Compradores de {pick.uf} levam {vezes}× mais "
                 "desta categoria que a média do Brasil."
@@ -189,7 +193,7 @@ def _regional_hero(pick: RegionalPick, customer_zip_prefix: str) -> HeroBannerBl
             cta_label="Ver a categoria",
             secondary_cta_label="Ver vitrine geral",
             variant="regional",
-            eyebrow=f"Vitrine de {pick.uf}",
+            eyebrow=f"Em alta em {pick.uf}",
         ),
         actions=[
             NavigateAction(payload=NavigatePayload(path=path)),

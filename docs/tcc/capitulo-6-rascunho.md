@@ -3,9 +3,8 @@
 > Rascunho para o grupo passar ao Word, na estrutura do Sumário do Report 6.
 > Fontes: `docs/tese-rastreabilidade.md` (§§6 e 8), Cap. 5 do Report 6 e
 > `docs/tcc/ajustes-versao-final.md`. Cada número já aparece no Cap. 5; nenhum é
-> novo aqui. Escrito considerando que o teste de usabilidade **não** foi feito; se ele
-> acontecer, revisar o Quadro 1 (objetivo c), a §6.2 ("Validação com pessoas") e o item a)
-> da §6.4. v2 (02/11): pontos de `analise-app-x-monografia.md` (C1, C2, C4, C5) e o
+> novo aqui. O teste de usabilidade **não** será feito (decisão do grupo com o orientador,
+> 02/11): fica como limitação na §6.2 e como trabalho futuro no item a) da §6.4. v2 (02/11): pontos de `analise-app-x-monografia.md` (C1, C2, C4, C5) e o
 > tamanho das respostas medido em `de-para-metricas.md` §10.
 
 ## 6 DISCUSSÃO E CONSIDERAÇÕES FINAIS
@@ -61,10 +60,11 @@ defensável. Sobre as compras reais, o desempate por preço já muda a escolha e
 menores que 1 g, reduziria casos como o citado, ao custo de parte do benefício
 ambiental. Como a diferença de preço é visível no comparador, a decisão final
 continua com o usuário. O mesmo vale para a sugestão de troca no checkout, que
-propõe outro produto da mesma categoria vindo de mais perto: ela exibe o preço do
-substituto, mas não o limita. No caso usado na demonstração, a troca evitaria
-4,58 g de CO₂ ao custo de R$ 142,00 a mais, uma diferença que a interface deixa
-visível, mas que a regra não pondera.
+propõe outro produto da mesma categoria vindo de mais perto. Na primeira versão,
+a regra escolhia apenas a maior economia: no caso usado na demonstração, sugeria
+evitar 4,58 g de CO₂ ao custo de R$ 142,00 a mais, troca que dificilmente seria
+aceita. A versão final só sugere substitutos até 20% mais caros que o item,
+abrindo mão de parte da economia possível em troca de sugestões plausíveis.
 
 **Eficiência e equidade regional.** A recomendação de proximidade rende mais onde
 já há mais vendedores. Nos itens com alternativa, ela evitaria 23,5% da emissão
@@ -166,8 +166,9 @@ com intervalo de confiança de 95% entre 72% e 94%. Os limiares da personalizaç
 regional protegem contra ruído, mas não constituem um teste de significância.
 
 **Validação com pessoas.** O trabalho não avaliou se os usuários compreendem o selo e a estimativa de emissão,
-nem se mudariam de vendedor por causa deles. As conclusões sobre o potencial de
-redução dependem dessa hipótese.
+nem se mudariam de vendedor por causa deles. O escopo não incluiu estudo com
+participantes: a avaliação ficou restrita a verificações técnicas e automatizadas.
+As conclusões sobre o potencial de redução dependem dessa hipótese.
 
 ### 6.3 CONCLUSÃO
 

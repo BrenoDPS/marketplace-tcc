@@ -1,3 +1,6 @@
+> **Não executado (02/11):** o grupo, com o orientador, decidiu não fazer o teste com
+> pessoas; ficou como limitação (§6.2) e trabalho futuro (§6.4 a) da monografia.
+
 # Teste de usabilidade — protocolo (Sprint 14)
 
 Fecha a fragilidade 1 do parecer (`docs/tcc/parecer-revisao-cap4-cap5.md`, seção 8):

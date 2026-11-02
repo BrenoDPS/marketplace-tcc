@@ -143,10 +143,14 @@ body {
 }
 
 /* Foco visivel para quem navega por teclado (D10): um anel so, em todo
-   controle. `:focus-visible` nao aparece no clique do mouse. Nao anima. */
-:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-  outline: 2px solid var(--signal);
-  outline-offset: 2px;
+   controle. `:focus-visible` nao aparece no clique do mouse. Nao anima.
+   Em @layer base: fora de camada, vencia ate o `focus-visible:outline-none` de
+   quem desenha o proprio foco (campo de CEP da entrada, 02/11). */
+@layer base {
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 2px;
+  }
 }
 
 @keyframes rise {

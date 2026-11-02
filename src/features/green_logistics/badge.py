@@ -74,6 +74,27 @@ def build_sustainability_props(
     )
 
 
+
+def build_distance_props(
+    distance_km: float,
+    weight_g: float | None = None,
+    volume_cm3: float | None = None,
+    explain: bool = False,
+) -> SustainabilityProps:
+    """Sem selo (>= 100 km), o detalhe ainda mostra distancia, CO2 e a conta, em
+    tom NEUTRO: "Como calculamos?" so nas ofertas locais escondia justamente a
+    conta das entregas que mais emitem (apontamento de 02/11)."""
+    explanation = None
+    if weight_g is not None and weight_g > 0:
+        co2_kg = calculate_co2_kg(distance_km, weight_g, volume_cm3)
+        label = f"Entrega a ~{distance_km:.0f} km · ~{format_co2(co2_kg)} CO₂"
+        if explain:
+            explanation = explicar_co2(distance_km, weight_g, volume_cm3, 1.0, co2_kg)
+    else:
+        label = f"Entrega a ~{distance_km:.0f} km"
+    return SustainabilityProps(label=label, impact_level="neutral", icon="truck", explanation=explanation)
+
+
 def explicar_co2(
     distance_km: float,
     weight_g: float,

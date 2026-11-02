@@ -90,3 +90,15 @@ apontamentos e o que mudou (cards do Trello "Redesign 1/7" a "7/7"):
 Base mantida: Fraunces + Inter, papel quente, verde só como sinal. Sem dependência nova
 (ícones em SVG inline, `web/components/icons.tsx`). Os nomes acessíveis usados pelos E2E
 foram preservados.
+
+### 6.1 Segunda rodada de apontamentos (02/11, noite)
+
+| Apontamento | Mudança |
+|---|---|
+| Campo de CEP da entrada "feio" ao clicar | Foco no cartão inteiro (borda verde + anel suave, arredondado); a regra global de `:focus-visible` foi para `@layer base`, senão vencia o `outline-none` de quem desenha o próprio foco. Seletor de quantidade, CEP do cabeçalho e busca ganharam anel próprio. `autoComplete="off"`: prefixo de 5 dígitos não é endereço |
+| Badge "Marketplace com logística verde" | Removido (o título já diz o que o produto é) |
+| "Em alta em SP: Alimentos" com o ":" colado | Sem dois-pontos em título de display: a UF vai para o eyebrow ("Em alta em SP") e o título é só a categoria; na busca, eyebrow "Busca" e o termo entre aspas |
+| Primeiro bloco do detalhe pobre e desalinhado | Nota e referência sob o título; preço com "frete e prazo calculados no checkout"; ficha em linhas alinhadas (vendedor, peso, volume, categoria); rodapé com quantidade, subtotal e botões. Longe de você (≥ 100 km) o selo vem **neutro**, com distância, CO₂ e o mesmo "Como calculamos?" (antes a conta sumia justo nas entregas que mais emitem) |
+| Rodapé | "UniFacens, 2026" |
+| Troca de R$ 142 a mais (T7) | Teto: substituto até 20% mais caro (`MAX_PRICE_RATIO`) |
+

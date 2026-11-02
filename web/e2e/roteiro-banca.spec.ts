@@ -36,7 +36,8 @@ test("roteiro da banca: CEP → vitrine regional → menor CO2 → detalhe → c
     }).toPass({ timeout: 20_000 });
     await pausa(page, 2);
     await entrar.click();
-    await expect(page.getByRole("heading", { name: "Em alta em SP: Alimentos" })).toBeVisible();
+    await expect(page.getByText("Em alta em SP", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: "Alimentos" })).toBeVisible();
     await expect(page.getByText(/levam 1,3× mais desta categoria/)).toBeVisible();
     await pausa(page, 5);
   });
