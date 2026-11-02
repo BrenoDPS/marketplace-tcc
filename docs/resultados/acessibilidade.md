@@ -34,3 +34,20 @@ item no carrinho (sem item, o nome é só "Carrinho" e coincide com o texto).
 - O axe confere o que é automatizável (estimativa da Deque: cerca de metade dos critérios WCAG).
   Foco visível e navegação só por teclado estão em `web/e2e/teclado.spec.ts`; leitor de tela
   real e usuários com deficiência não foram testados (limitação, junto com o T3).
+
+## Depois do redesenho (02/11)
+
+Rodado de novo com o redesenho visual aplicado (cards 1–7 do Trello), mesmo comando e mesma pilha.
+A primeira rodada achou 4 regras **sérias**: 2 das 3 acima (o contraste do contador
+da categoria já tinha saído com o redesenho), o mesmo problema de nome acessível também no botão do
+CEP, e `definition-list`/`dlitem`, porque os blocos de impacto punham o ícone entre o `<dl>` e o par
+`<dt>`/`<dd>`. Correções aplicadas:
+
+| Regra | Correção |
+|---|---|
+| `color-contrast` (preço unitário do checkout) | `text-muted/70` → `text-muted` |
+| `label-content-name-mismatch` (carrinho) | sem `aria-label`; o nome sai do texto visível + `sr-only` ("Carrinho 1 item") |
+| `label-content-name-mismatch` (CEP) | sem `aria-label`; texto visível + `sr-only` ", alterar CEP" |
+| `definition-list` / `dlitem` (blocos de impacto) | ícone dentro do `<dt>`, posicionado em absoluto |
+
+**Resultado final: 0 violações (crítica, séria, moderada ou leve) nas seis telas.**

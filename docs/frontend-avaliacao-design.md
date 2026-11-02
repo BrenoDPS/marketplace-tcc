@@ -71,3 +71,22 @@ Prioridade pela força com que tornam a tese visível na interface.
 Regra para todas: cada bloco novo segue o envelope `{ type, version, props, actions }`
 e atualiza juntos `src/schemas/sdui.py`, `web/lib/sdui.ts`, o `REGISTRY` e
 `tests/test_schemas.py` (ver `AGENTS.md`).
+
+## 6. Redesign de 2026-11-02 (apontamentos do grupo)
+
+O grupo avaliou a interface como "visualmente limitada para o tamanho do trabalho". Os
+apontamentos e o que mudou (cards do Trello "Redesign 1/7" a "7/7"):
+
+| Apontamento | Mudança |
+|---|---|
+| Scroll grosso que cortava o arredondamento do modal; modal sem separação | Scrollbar fina global (`@layer base`); modal com cabeçalho fixo, corpo com rolagem própria e rodapé fixo; entrada com animação curta (respeita `prefers-reduced-motion`) |
+| Categorias com barra de rolagem e botão que esmaecia a barra; filtros que não pareciam botões | Carrossel sem barra (`no-scrollbar`), setas sobre o fade; chips com ícone e contagem; ordenação como controle segmentado com ícones |
+| Navbar "colada", sem ícones; CEPs pré-configurados com cara de mock | Cabeçalho em uma linha (64 px): marca, "Entregar em" com CEP editável em popover (exemplos rotulados como exemplos), busca com lupa, inspeção discreta e carrinho com contador; perfis numa barra própria abaixo |
+| Todos os produtos com o mesmo nome | Contrato novo (§6 da `tese-rastreabilidade`, linha 38): referência, peso, volume e nota vêm do servidor; capa no tom e com o ícone da categoria |
+| Modo SDUI "sujava" a aplicação | Mantido (prova do objetivo a e passo 5 do roteiro), mas discreto: ícone no cabeçalho, contorno fino que acende no hover, painel da `ScreenResponse` em cartão escuro |
+| Busca sem resultado "muito feia" | Herói com variante `empty` (vinda do servidor): ilustração, texto que explica a busca por categoria e sugestões logo abaixo |
+| Extras da análise de 02/11 (D1–D10) | Cidades com acento; remessa com cidade do vendedor; "Presentes criativos"; vitrine sem sinal regional explica o porquê; troca com diferença de preço; rótulo do mapa com halo; selo curto no card do celular; etapa "Impacto e remessas"; cálculo do selo depois do preço |
+
+Base mantida: Fraunces + Inter, papel quente, verde só como sinal. Sem dependência nova
+(ícones em SVG inline, `web/components/icons.tsx`). Os nomes acessíveis usados pelos E2E
+foram preservados.

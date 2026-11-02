@@ -86,9 +86,9 @@ test("roteiro da banca: CEP → vitrine regional → menor CO2 → detalhe → c
   await test.step("5. modo apresentacao: o servidor muta a arvore, sem recarregar (objetivos a e d)", async () => {
     await page.getByRole("button", { name: "SDUI" }).click();
     // Carrinho com item + SDUI ligado a 1280 px quebrava o cabecalho em 2 linhas
-    // (achado na 1a gravacao deste roteiro).
+    // (achado na 1a gravacao deste roteiro). Uma linha = h-16 + 1 px de borda.
     const cabecalho = await page.locator("header").boundingBox();
-    expect(cabecalho?.height).toBeLessThanOrEqual(64);
+    expect(cabecalho?.height).toBeLessThanOrEqual(65);
     await pausa(page, 3);
     await page.locator("main button:has(h3)").nth(4).click();
     const dialog = page.locator("dialog[open]");

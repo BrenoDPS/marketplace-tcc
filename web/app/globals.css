@@ -1,54 +1,106 @@
+/* Hallmark · redesign: Marketplace editorial · tone: editorial-warm · anchor hue: green 150
+ * fonts: Fraunces (display) + Inter (texto) · verde = cor de SINAL (selo, menor emissão)
+ * pre-emit critique: P4 H4 E4 S4 R4 V4
+ */
 @import "tailwindcss";
 
 /**
- * Identidade: base editorial sobria (quase-preto quente + off-white) com o
- * verde reservado como COR DE SINAL. O selo de logistica verde e o unico
- * elemento saturado da tela, entao ele chama atencao por escassez.
- * Trocar a paleta = trocar estas variaveis.
+ * Identidade: base editorial (quase-preto quente + papel) com o verde reservado
+ * como COR DE SINAL. O selo de logistica verde continua o unico elemento
+ * saturado da tela — chama atencao por escassez. O redesign de 02/11 acrescenta
+ * profundidade (superficies em camadas, sombras quentes, raios maiores), nao
+ * cor nova. Trocar a paleta = trocar estas variaveis.
  */
 :root {
-  --paper: #fbfaf8;
+  --paper: #f7f4ee;
+  --paper-2: #efebe3;
   --surface: #ffffff;
-  --ink: #14110f;
-  --muted: #6b635c;
-  --line: #e7e2d9;
+  --surface-2: #faf8f4;
+  --ink: #17130f;
+  --ink-2: #3d3631;
+  --muted: #6e665e;
+  --line: #e6e0d6;
+  --line-strong: #d3cbbe;
   --signal: #12704a;
-  --signal-soft: #e9f3ed;
+  --signal-strong: #0d5a3b;
+  --signal-soft: #e6f2ea;
   --signal-ink: #0b4a31;
   /* Texto SOBRE o verde: branco no claro (6,1:1); no escuro o verde e claro e
      o branco dava 1,95:1 — reprovado no AA. */
   --on-signal: #ffffff;
+  /* Unica cor quente: so a estrela da avaliacao. */
+  --star: #b7791f;
+  --danger: #b42318;
+  --danger-soft: #fdecea;
+
+  --shadow-sm: 0 1px 2px rgb(40 30 20 / 0.06), 0 1px 1px rgb(40 30 20 / 0.04);
+  --shadow-md: 0 6px 18px -6px rgb(40 30 20 / 0.12), 0 2px 6px -2px rgb(40 30 20 / 0.06);
+  --shadow-lg: 0 24px 60px -16px rgb(40 30 20 / 0.28), 0 8px 20px -8px rgb(40 30 20 / 0.12);
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --paper: #100e0d;
-    --surface: #171413;
+    --paper-2: #151211;
+    --surface: #1a1715;
+    --surface-2: #201c1a;
     --ink: #f5f2ed;
-    --muted: #9a9189;
-    --line: #292523;
+    --ink-2: #d9d3cb;
+    --muted: #a0978e;
+    --line: #2c2826;
+    --line-strong: #3a3532;
     --signal: #52d08a;
-    --signal-soft: #122c1f;
+    --signal-strong: #7ddca6;
+    --signal-soft: #11291c;
     --signal-ink: #9be8be;
     --on-signal: #100e0d;
+    --star: #e0a94a;
+    --danger: #f97066;
+    --danger-soft: #2b1513;
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-md: 0 6px 18px -6px rgb(0 0 0 / 0.6);
+    --shadow-lg: 0 24px 60px -16px rgb(0 0 0 / 0.7);
   }
 }
 
 @theme inline {
   --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
   --color-muted: var(--muted);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
   --color-signal: var(--signal);
+  --color-signal-strong: var(--signal-strong);
   --color-signal-soft: var(--signal-soft);
   --color-signal-ink: var(--signal-ink);
   --color-on-signal: var(--on-signal);
+  --color-star: var(--star);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --shadow-soft: var(--shadow-sm);
+  --shadow-lift: var(--shadow-md);
+  --shadow-float: var(--shadow-lg);
 
   /* Fontes self-hosted (ver app/layout.tsx): fonts.googleapis.com esta
      bloqueado nesta rede, entao nao usamos `next/font/google`. */
   --font-sans: "Inter", system-ui, sans-serif;
   --font-display: "Fraunces", Georgia, Cambria, serif;
+
+  --animate-rise: rise 220ms var(--ease-out) both;
+  --animate-fade: fade 180ms var(--ease-out) both;
+}
+
+html,
+body {
+  overflow-x: clip;
 }
 
 body {
@@ -56,9 +108,84 @@ body {
   color: var(--ink);
 }
 
+/* Barra de rolagem fina e da cor da linha (apontamento de 02/11: o scroll
+   grosso padrao cortava as bordas do modal). Em @layer base para o utilitario
+   `no-scrollbar` (camada utilities) conseguir sobrescrever. */
+@layer base {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background: var(--line-strong);
+    border: 3px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: var(--muted);
+  }
+}
+
+/* Carrosseis (categorias, perfis): rola com toque, roda e setas, sem barra. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* Foco visivel para quem navega por teclado (D10): um anel so, em todo
-   controle. `:focus-visible` nao aparece no clique do mouse. */
+   controle. `:focus-visible` nao aparece no clique do mouse. Nao anima. */
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: 2px solid var(--signal);
   outline-offset: 2px;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal nativo: entrada suave e fundo desfocado. */
+dialog[open] {
+  animation: rise 220ms var(--ease-out) both;
+}
+dialog::backdrop {
+  background: rgb(23 19 15 / 0.45);
+  backdrop-filter: blur(4px);
+  animation: fade 180ms var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 120ms !important;
+    transition-duration: 120ms !important;
+  }
+  dialog[open] {
+    animation-name: fade;
+  }
 }

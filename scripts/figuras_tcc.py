@@ -327,19 +327,25 @@ def _recorte(nome: str, caixa: tuple[int, int, int, int], saida: str) -> Path:
     return caminho
 
 
+def figura_home_inspecao() -> Path:
+    """Figura 5 (4.1) — pagina inicial no modo de inspecao SDUI (captura c15, sem recorte)."""
+    return _recorte("c15-home-inspecao-sdui", (0, 0, 2560, 1720), "fig-05-home-inspecao-sdui.png")
+
+
 def figura_detalhe() -> Path:
     """Figura nova (4.1.1) — detalhe com o calculo aberto, mapa e comparador, em duas colunas.
 
-    O dialogo inteiro e alto demais para uma pagina A4; corta entre o impacto e o mapa.
+    O dialogo inteiro (captura so do elemento, ver capturas-tcc.mjs) e alto demais
+    para uma pagina A4; corta entre o impacto e o mapa.
     """
     from PIL import Image
 
-    dialogo = Image.open(CANDIDATAS / "c06-detalhe-selo-mapa-comparador.png").crop((352, 262, 1088, 2337))
-    corte = 1100
-    topo, base = dialogo.crop((0, 0, 736, corte)), dialogo.crop((0, corte, 736, dialogo.height))
-    folha = Image.new("RGB", (736 * 2 + 24, max(topo.height, base.height)), "white")
+    dialogo = Image.open(CANDIDATAS / "c06-detalhe-selo-mapa-comparador.png").convert("RGB")
+    largura, corte = dialogo.width, 1212
+    topo, base = dialogo.crop((0, 0, largura, corte)), dialogo.crop((0, corte, largura, dialogo.height))
+    folha = Image.new("RGB", (largura * 2 + 24, max(topo.height, base.height)), "white")
     folha.paste(topo, (0, 0))
-    folha.paste(base, (736 + 24, 0))
+    folha.paste(base, (largura + 24, 0))
     caminho = SAIDA / "fig-detalhe-produto.png"
     folha.save(caminho)
     return caminho
@@ -347,12 +353,12 @@ def figura_detalhe() -> Path:
 
 def figura_checkout() -> Path:
     """Figura nova (4.1.1) — checkout com modalidades, remessas e sugestao de troca."""
-    return _recorte("c08-checkout-completo", (150, 85, 1290, 1600), "fig-checkout.png")
+    return _recorte("c08-checkout-completo", (150, 85, 1290, 1720), "fig-checkout.png")
 
 
 def figura_mutacao_servidor() -> Path:
     """Figura nova (5.2.1) — a mesma tela reordenada pelo proprio BFF (modo apresentacao)."""
-    return _recorte("c12-detalhe-mutacao-servidor-reordenar", (352, 20, 1088, 900), "fig-mutacao-servidor.png")
+    return _recorte("c12-detalhe-mutacao-servidor-reordenar", (0, 0, 832, 1370), "fig-mutacao-servidor.png")
 
 
 def figura_vitrines() -> Path:
@@ -372,7 +378,7 @@ def figura_vitrines() -> Path:
 def main() -> None:
     for figura in (figura_arquitetura, figura_modelo_dados, figura_fluxo_composicao, figura_funil,
                    figura_osrm, figura_contexto_regional, figura_desempenho, figura_mutacoes,
-                   figura_oferta_e_co2_por_uf, figura_detalhe, figura_checkout, figura_mutacao_servidor,
+                   figura_oferta_e_co2_por_uf, figura_home_inspecao, figura_detalhe, figura_checkout, figura_mutacao_servidor,
                    figura_vitrines):
         figura()
 

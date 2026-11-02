@@ -86,6 +86,18 @@ categoria, por sua vez, utiliza o identificador da categoria presente no
 conjunto de dados. Dessa maneira, a interface não apresenta uma funcionalidade de
 busca por nome de produto que a base original não poderia sustentar.
 
+<!-- R4 -->
+A mesma ausência afeta a identificação de cada produto na vitrine: sem nome nem
+descrição, todos os itens de uma categoria apareceriam com o mesmo título. Para
+diferenciá-los sem inventar informação, o servidor envia, junto com a categoria,
+uma referência curta derivada do identificador do produto, o peso, o volume e a
+nota média dos pedidos avaliados, quando existe. O cliente desenha a capa do
+cartão no tom e com o ícone da categoria, já que a base também não traz
+fotografias. Os textos de destaque da página inicial seguem a mesma regra: cada
+perfil descreve o que a vitrine faz e oferece uma ação real, como ordenar por
+proximidade ou por menor emissão, e a vitrine geral informa quando a UF do
+comprador não tem volume suficiente para um destaque regional.
+
 O segundo requisito está relacionado à localização da oferta. Para cada produto
 considerado na composição da vitrine, calcula-se a distância entre o CEP do
 comprador e o CEP do vendedor por meio da fórmula de Haversine aplicada aos
@@ -540,8 +552,9 @@ a simulação das consequências logísticas.
 
 <!-- A9 -->
 A mesma árvore de componentes é exibida em telas de celular, com o cabeçalho
-reduzido e os filtros recolhidos. A adaptação é feita no cliente, por folhas de
-estilo, sem que o servidor precise conhecer o dispositivo.
+reduzido (a busca recolhida em um botão) e os perfis, as categorias e a ordenação
+dispostos em faixas que rolam na horizontal. A adaptação é feita no cliente, por
+folhas de estilo, sem que o servidor precise conhecer o dispositivo.
 
 O contrato foi acompanhado por testes do renderizador, do interpretador de ações e
 dos casos de degradação. Também foram realizados testes de jornada com o
@@ -594,4 +607,5 @@ logísticas, o desempenho e a flexibilidade do contrato.
 | m1 | §4.1.2 | Ressalva do Locust (resposta completa, limite superior do TTFB) |
 | M4 | §4.2.1, §4.2.3 | Cinco fatias; orchestrator com as mutações; Tabela 2 com 12 componentes |
 | M6 | §4.1.1 (3º requisito) | Fatores citados como GLEC v2.0 (SMART FREIGHT CENTRE, 2019), a versão usada no código |
+| R4 | §4.1.1 (busca) | Redesign de 02/11: identidade dos produtos (referência, peso, volume, nota) e heróis honestos com ações reais |
 | A1–A9, B1, B2 | §§4.1.1, 4.1.2, 4.2.3, 4.3.3 | Pontos novos da análise da aplicação (v4); Figuras 6 e 7 novas; demais renumeradas (5, 8, 9, 10) |
