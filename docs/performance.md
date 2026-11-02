@@ -1056,8 +1056,40 @@ CPU/req = CPU média da API no plateau ÷ req/s (ensaio a ensaio: off 8,64 /
   cache decide. A Tabela 5 do Cap. 5 continua valendo; o p95 sem cache a
   250 VU deve ser lido como faixa (600–1.200 ms), não como valor pontual.
 
-Não repetido: 50 e 1.000 VU. A 50 VU a CPU fica abaixo de 20% e não há fila;
-a 1.000 VU a saturação domina (§11.5).
+Não repetido: 50 VU (CPU abaixo de 20%, sem fila). O 1.000 VU foi repetido em
+02/11 (§13.1).
+
+### 13.1 Controle de 1.000 VU no código final (02/11, T4)
+
+```bash
+python -m load.protocolo --cargas 1000 --reps 1 --saida load/results/s13-controle-head-1000
+python -m load.protocolo --cargas 1000 --condicoes off --rep 1 --saida load/results/s13-controle-head-1000-reexecucao
+python -m load.protocolo --cargas 1000 --condicoes frio --rep 1 --saida load/results/s13-controle-head-1000-reexecucao
+python -m load.resumo load/results/s13-controle-head-1000-reexecucao load/results/s13-controle-head-1000/r1-u1000-aquecido_stats.csv
+```
+
+Commit `6e5398c` (com `--permitir-sujo`: a árvore só tinha o redesenho do front
+em `web/` e docs, nada em `src/`); mesmos dados da §11. Uma repetição por
+estado, mesma semente da r1 da §11. Dois ensaios da primeira execução refeitos
+em pasta própria: o `off`, porque outra sessão mandou requisições à API durante
+os primeiros minutos (p95 19 s, 1,6% de falhas), e o `frio`, porque o notebook
+saiu da tomada nos 12 s finais (o protocolo o marcou como inválido). Os três
+ensaios válidos rodaram 100% na tomada.
+
+| 1.000 VU, todas as rotas | cache | p50 | p95 | p99 | req/s | falhas | CPU API |
+|---|---|---|---|---|---|---|---|
+| §11 (Sprint 8, n = 3) | off | 4.100 ± 400 | 14.000 ± 1.732 | 22.000 ± 3.464 | 153 ± 13 | 0,21% | 96,0% |
+| **HEAD** (n = 1) | off | 3.700 | 12.000 | 18.000 | 170 | 0,05% | 98,1% |
+| §11 | frio | 93 ± 15 | 2.900 ± 1.513 | 6.567 ± 3.066 | 401 ± 35 | 0,03% | 97,6% |
+| **HEAD** | frio | 85 | 1.400 | 4.800 | 424 | 0,02% | 97,4% |
+| §11 | aquecido | 95 ± 7 | 3.000 ± 1.058 | 7.167 ± 2.515 | 397 ± 27 | 0,07% | 96,3% |
+| **HEAD** | aquecido | 85 | 1.200 | 2.600 | 444 | 0% | 96,0% |
+
+**Leitura.** No código final, os três estados ficam iguais ou um pouco melhores,
+dentro da dispersão da §11 (com n = 1 não há desvio próprio). A conclusão da
+§11.5 se mantém: a 1.000 VU com 1 worker, a CPU satura (96–98%) com ou sem
+cache; o cache multiplica a vazão por ~2,5 (170 → 424–444 req/s) e baixa o p50
+de 3,7 s para 85 ms, mas o p95 segue acima da meta de 200 ms.
 
 ---
 

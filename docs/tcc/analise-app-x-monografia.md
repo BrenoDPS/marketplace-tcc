@@ -191,7 +191,9 @@ de preço da troca.
 grupo executar (`docs/roteiro-banca.md` → "Ensaio na máquina e no local da banca";
 `README.md` → "Reprodução do zero", com ETL ~70 s, `pytest` ~15 s, E2E ~1 min). T7:
 `tests/test_checkout_alternatives.py` fixa o comportamento atual (sem teto de preço);
-se o grupo decidir pelo teto, o teste muda junto com `alternatives.py`.
+se o grupo decidir pelo teto, o teste muda junto com `alternatives.py`. T4: 1.000 VU no
+commit `6e5398c` (`docs/performance.md` §13.1), iguais ou melhores que a Tabela 6 e dentro
+da sua dispersão; CPU saturada nos três estados; no §5.1.6.
 
 Recomendação: T1 e T2 antes de qualquer outro (risco de demo); T4, T5 e T8 rodam
 juntos numa tarde e entram no Cap. 5 como complemento; T6 fortalece a defesa do

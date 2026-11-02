@@ -134,6 +134,7 @@ descreve a tela inteira em poucos kilobytes).
 | Desempenho no cliente | §5.1.6, Tabela 7 | LCP 140 / 442 ms; CLS 0,006; detalhe 150 ms; checkout 83 ms; JS ~190 KB | `docs/resultados/desempenho-cliente.md` (`web/scripts/desempenho-cliente.mjs`) | ✅ |
 | Primeira requisição após subir a API | §5.1.6 | ~234 ms × 5 ms | `docs/resultados/primeira-requisicao.md` (`scripts.primeira_requisicao`) | ✅ |
 | Acessibilidade automatizada (T9) | §5.2.2 | 6 telas; 0 críticas; 3 sérias (2 de contraste, 1 de nome acessível) | `docs/resultados/acessibilidade.md` (`web/e2e/acessibilidade.spec.ts`) | ✅ |
+| 1.000 VU no código final (T4), n = 1 por estado | §5.1.6 | sem cache p95 12 s, 170 req/s; com cache p50 85 ms, p95 1,2–1,4 s, 424–444 req/s | `docs/performance.md` §13.1 (`load/results/s13-controle-head-1000*`) | ✅ (dentro da dispersão da Tabela 6; rota consciente cacheada: p95 200–270 ms) |
 | Reprodução do zero (T2), tempos de referência | — (roteiro, não entra no texto) | ETL ~70 s; `pytest` ~15 s; E2E ~1 min | `README.md` → "Reprodução do zero" | ✅ |
 
 ## Resumo

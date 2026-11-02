@@ -418,7 +418,12 @@ repetições. O custo de processamento por requisição ficou igual (8,5 contra 
 ms sem cache), e com cache o p95 ficou em 19 ms, abaixo dos 25 a 29 ms originais.
 Sem cache, o p95 variou entre 600 e 1.200 ms entre as repetições: com o
 processador acima de 90%, pequenas variações formam filas longas. A conclusão
-sobre o cache se mantém. Por fim, catorze ensaios da primeira execução foram
+sobre o cache se mantém. O cenário de 1.000 usuários também foi repetido na
+versão final, com uma repetição por estado do cache. Os resultados ficaram
+dentro da dispersão da Tabela 6: sem cache, p95 de 12 s e 170 requisições por
+segundo; com cache, p50 de 85 ms, p95 de 1,2 a 1,4 s e 424 a 444 requisições por
+segundo. O processador continua saturado nos três estados, e a meta de 200 ms
+segue não atendida no p95 dessa carga. Por fim, catorze ensaios da primeira execução foram
 descartados e refeitos: treze porque o computador funcionou na bateria, com o
 processador em frequência reduzida, e um porque o próprio gerador de carga
 saturou.
