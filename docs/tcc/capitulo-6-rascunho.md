@@ -3,7 +3,10 @@
 > Rascunho para o grupo passar ao Word, na estrutura do Sumário do Report 6.
 > Fontes: `docs/tese-rastreabilidade.md` (§§6 e 8), Cap. 5 do Report 6 e
 > `docs/tcc/ajustes-versao-final.md`. Cada número já aparece no Cap. 5; nenhum é
-> novo aqui. Trechos entre colchetes dependem de decisão do grupo.
+> novo aqui. Escrito considerando que o teste de usabilidade **não** foi feito; se ele
+> acontecer, revisar o Quadro 1 (objetivo c), a §6.2 ("Validação com pessoas") e o item a)
+> da §6.4. v2 (02/11): pontos de `analise-app-x-monografia.md` (C1, C2, C4, C5) e o
+> tamanho das respostas medido em `de-para-metricas.md` §10.
 
 ## 6 DISCUSSÃO E CONSIDERAÇÕES FINAIS
 
@@ -26,7 +29,9 @@ em Pydantic, no backend, e em TypeScript, no frontend. A duplicação é o preç
 desacoplamento. O projeto não a eliminou; tornou a divergência detectável, com
 testes que comparam tipos de blocos, tipos de ações e campos de cada bloco em
 todos os níveis. Um contrato genérico, com campos livres, evitaria a duplicação,
-mas deixaria o erro aparecer só na tela do usuário.
+mas deixaria o erro aparecer só na tela do usuário. O custo do contrato na rede
+é pequeno: as telas medidas ocupam de 3 a 13 KB de JSON, ou de 1,5 a 4,3 KB
+comprimidos.
 
 **Proximidade em vez de rota.** A distância é calculada em linha reta entre
 centroides de prefixos de CEP e corrigida por um fator de circuidade. Uma rota
@@ -55,7 +60,19 @@ defensável. Sobre as compras reais, o desempate por preço já muda a escolha e
 9,8%. Ampliar a tolerância, por exemplo tratando como empate diferenças de emissão
 menores que 1 g, reduziria casos como o citado, ao custo de parte do benefício
 ambiental. Como a diferença de preço é visível no comparador, a decisão final
-continua com o usuário.
+continua com o usuário. O mesmo vale para a sugestão de troca no checkout, que
+propõe outro produto da mesma categoria vindo de mais perto: ela exibe o preço do
+substituto, mas não o limita. No caso usado na demonstração, a troca evitaria
+4,58 g de CO₂ ao custo de R$ 142,00 a mais, uma diferença que a interface deixa
+visível, mas que a regra não pondera.
+
+**Eficiência e equidade regional.** A recomendação de proximidade rende mais onde
+já há mais vendedores. Nos itens com alternativa, ela evitaria 23,5% da emissão
+em SP e 3,7% na BA, e SP responde por 42% de todo o CO₂ evitado. No outro
+extremo, nenhum comprador do PA tinha vendedor a menos de 100 km. A regra, por
+construção, beneficia as regiões já bem servidas; reduzir a emissão das compras
+do Norte e de parte do Nordeste dependeria de abrir oferta nessas regiões, e não
+apenas de recomendar melhor.
 
 **Personalização regional, e não individual.** Sem autenticação nem histórico, o
 sistema conhece apenas o CEP do comprador. A vitrine se adapta à UF, pela
@@ -87,7 +104,7 @@ Quadro 1 – Aderência aos objetivos específicos
 |---|---|---|
 | a) Arquitetura SDUI orientada a contexto, sem depender de atualizações do front-end | Doze componentes descritos pelo servidor; cinco mutações do contrato refletidas na tela sem nova compilação, injetadas na resposta e produzidas pelo próprio servidor; componentes desconhecidos ignorados sem interromper a tela | Atendido |
 | b) Engine de pegada de carbono baseada em atividade | Motor em cadeia (circuidade, última milha por van, transferência por caminhão pesado, massa cobrável) com fatores do GLEC; testes de unidade, conversão e monotonicidade; erro de distância de 8,7% contra o OSRM; parcela evitada estável (9,5% a 10,0%) sob variação dos parâmetros | Atendido como estimativa; sem validação contra dados de transportadora |
-| c) Personalização integrada a dados logísticos, identificando compras locais | Vitrine regional em 12 das 27 UFs; selo, distância e emissão por oferta; comparador de origens; sugestão de troca no checkout; potencial de 9,8% de redução nos itens com alternativa (0,9% do total) | Atendido no nível regional; efeito sobre o comportamento do usuário não medido [ou: medido de forma exploratória no teste de usabilidade] |
+| c) Personalização integrada a dados logísticos, identificando compras locais | Vitrine regional em 12 das 27 UFs; selo, distância e emissão por oferta; comparador de origens; sugestão de troca no checkout; potencial de 9,8% de redução nos itens com alternativa (0,9% do total), concentrado nas regiões com mais vendedores; comparador que apresenta a redução relativa prevista na Seção 3.2 | Atendido no nível regional; efeito sobre o comportamento do usuário não medido |
 | d) Avaliar desempenho e flexibilidade | Protocolo de 27 ensaios em três cargas e três estados de cache; controle repetido no código final; mutação do contrato | Atendido, com a meta de 200 ms cumprida até 250 usuários com cache e não cumprida no p95 agregado com 1.000 usuários |
 
 Fonte: Elaborado pelos autores (2026).
@@ -134,7 +151,9 @@ indica que a venda ocorreu, e não que a oferta estaria disponível hoje. As
 distâncias são calculadas entre centroides de prefixos de CEP, e não entre
 endereços, e o OSRM representa a rota mais rápida de carro, e não a da
 transportadora. A amostra da aplicação favorece os produtos mais vendidos e não
-representa as proporções do catálogo inteiro. Os resultados de carga comparam
+representa as proporções do catálogo inteiro. Sem nome de produto na base, a
+interface identifica cada item pela categoria, o que limita a avaliação da
+experiência de compra. Os resultados de carga comparam
 configurações entre si em uma máquina, e não representam um serviço distribuído.
 
 **Validade de conclusão.** O CO₂ evitado é contrafactual: supõe que todos os
@@ -143,12 +162,9 @@ disponível. A concordância de 86,5% entre linha reta e rota vem de 37 decisõe
 com intervalo de confiança de 95% entre 72% e 94%. Os limiares da personalização
 regional protegem contra ruído, mas não constituem um teste de significância.
 
-**Validação com pessoas.** [Se o teste de usabilidade não for realizado:] O
-trabalho não avaliou se os usuários compreendem o selo e a estimativa de emissão,
+**Validação com pessoas.** O trabalho não avaliou se os usuários compreendem o selo e a estimativa de emissão,
 nem se mudariam de vendedor por causa deles. As conclusões sobre o potencial de
-redução dependem dessa hipótese. [Se for realizado: resumir n, SUS e a diferença
-entre preferência declarada e revelada, e declarar que a amostra é pequena e de
-conveniência.]
+redução dependem dessa hipótese.
 
 ### 6.3 CONCLUSÃO
 
@@ -175,7 +191,8 @@ verde observado na base não foi a falta de vendedores próximos, presentes para
 94,7% dos compradores, mas a falta de alternativas para o mesmo produto, que
 ocorre em 12,8% dos itens. Uma interface pode tornar a escolha local visível e
 comparável, mas o efeito depende de haver o que escolher e de o comprador decidir
-a partir da informação apresentada. Nesse sentido, o artefato demonstra a
+a partir da informação apresentada, e hoje se concentra nas regiões que já
+contam com mais vendedores. Nesse sentido, o artefato demonstra a
 viabilidade técnica da abordagem e deixa a medição do efeito sobre o
 comportamento como o passo seguinte.
 
@@ -185,8 +202,7 @@ Os itens a seguir estão ordenados do que mais afetaria as conclusões para o qu
 menos afetaria.
 
 a) **Medir o efeito da recomendação com usuários**, por teste A/B ou estudo de
-preferência, para substituir o CO₂ evitado contrafactual por um efeito observado
-[ampliando o teste de usabilidade exploratório deste trabalho].
+preferência, para substituir o CO₂ evitado contrafactual por um efeito observado.
 
 b) **Personalização por pessoa**, com autenticação e pedidos persistidos,
 separando a base de referência da Olist da base da aplicação; o contexto regional
@@ -200,7 +216,8 @@ categoria, para corrigir o caso do produto pesado próximo e do leve distante.
 
 e) **Regra de oferta com tolerância por emissão**, tratando como equivalentes
 ofertas cuja diferença de CO₂ seja menor que a incerteza do modelo, e medindo o
-custo ambiental dessa ampliação com a mesma análise do Capítulo 5.
+custo ambiental dessa ampliação com a mesma análise do Capítulo 5; na sugestão
+de troca do checkout, um limite de diferença de preço.
 
 f) **Distância rodoviária pré-calculada**, com uma matriz do OSRM entre os
 prefixos de vendedores e de compradores, consultada em memória, ou um fator de

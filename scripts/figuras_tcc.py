@@ -9,7 +9,10 @@ do Postgres carregado (precisa da pilha no ar) e as capturas de
 `docs/evidencia/` (so leitura). Os numeros do funil sao os do stdout do ETL
 registrados em `docs/tese-rastreabilidade.md` §3.
 
-A Figura 5 (Home no modo de inspecao) e captura de tela, nao sai daqui.
+A Figura 5 (Home no modo de inspecao) e captura de tela, nao sai daqui. As figuras
+novas da versao final (detalhe, checkout, vitrines, mutacao no servidor) recortam as
+capturas de `figuras/candidatas/`; os nomes de arquivo nao seguem mais a numeracao
+(a versao final renumerou as figuras).
 """
 
 from __future__ import annotations
@@ -269,9 +272,108 @@ def figura_mutacoes() -> Path:
     return _salvar(fig, "fig-13-mutacoes.png")
 
 
+def _tabela_md(caminho: str, titulo: str) -> list[list[str]]:
+    """Linhas de dados da primeira tabela markdown depois de `titulo` num resultado de `docs/resultados/`."""
+    linhas = Path(caminho).read_text(encoding="utf-8").splitlines()
+    i = next(k for k, l in enumerate(linhas) if titulo in l)
+    tabela = [l for l in linhas[i:] if l.startswith("|")]
+    fim = next((k for k in range(1, len(tabela)) if not tabela[k].startswith("|")), len(tabela))
+    return [[c.strip() for c in l.strip("|").split("|")] for l in tabela[2:fim]]
+
+
+def _pct(texto: str) -> float:
+    return float(texto.replace("*", "").replace("%", "").replace(",", "."))
+
+
+def figura_oferta_e_co2_por_uf() -> Path:
+    """Figura nova (5.1.4) — a lacuna oferta local x compra local, e o CO2 evitado, por UF."""
+    conc = _tabela_md("docs/resultados/concentracao-regional.md", "| UF |")
+    conc = [l for l in conc if l[0].strip("*") != "Brasil"]
+    co2 = _tabela_md("docs/resultados/co2-evitado.md", "## Por UF")
+    _estilo()
+    fig, (a, b) = plt.subplots(1, 2, figsize=(10, 4.2), gridspec_kw={"width_ratios": [1.6, 1]})
+    ufs = [l[0] for l in conc]
+    x = range(len(ufs))
+    a.bar([i - 0.2 for i in x], [_pct(l[6]) for l in conc], width=0.4, color=VERDE_CLARO, edgecolor=VERDE, label="comprador com oferta local disponível")
+    a.bar([i + 0.2 for i in x], [_pct(l[3]) for l in conc], width=0.4, color=VERDE, label="compra feita a menos de 100 km")
+    a.set_xticks(list(x), ufs, fontsize=8)
+    a.set(ylim=(0, 115), ylabel="%")
+    a.set_title("(a) Oferta local × compra local", fontsize=10)
+    a.legend(loc="upper right", fontsize=7.5)
+    ufs2 = [l[0] for l in co2][::-1]
+    vals = [_pct(l[5]) for l in co2][::-1]
+    b.barh(ufs2, vals, color=VERDE, height=0.6)
+    for i, v in enumerate(vals):
+        b.text(v + 0.4, i, f"{v:.1f}%".replace(".", ","), va="center", fontsize=8, color=TINTA)
+    b.axvline(9.8, color=TINTA_2, linestyle="--", linewidth=1)
+    b.text(10.1, len(vals) - 0.6, "Brasil 9,8%", fontsize=7.5, color=TINTA_2)
+    b.set(xlim=(0, 28), xlabel="CO₂ evitado nos itens com alternativa")
+    b.set_title("(b) CO₂ evitado pela recomendação", fontsize=10)
+    b.grid(axis="y", visible=False)
+    b.tick_params(axis="y", length=0)
+    fig.tight_layout(w_pad=2)
+    return _salvar(fig, "fig-oferta-e-co2-por-uf.png")
+
+
+CANDIDATAS = SAIDA / "candidatas"
+
+
+def _recorte(nome: str, caixa: tuple[int, int, int, int], saida: str) -> Path:
+    """Recorta uma captura de `figuras/candidatas/` (gerada por web/scripts/capturas-tcc.mjs)."""
+    from PIL import Image
+
+    caminho = SAIDA / saida
+    Image.open(CANDIDATAS / f"{nome}.png").crop(caixa).save(caminho)
+    return caminho
+
+
+def figura_detalhe() -> Path:
+    """Figura nova (4.1.1) — detalhe com o calculo aberto, mapa e comparador, em duas colunas.
+
+    O dialogo inteiro e alto demais para uma pagina A4; corta entre o impacto e o mapa.
+    """
+    from PIL import Image
+
+    dialogo = Image.open(CANDIDATAS / "c06-detalhe-selo-mapa-comparador.png").crop((352, 262, 1088, 2337))
+    corte = 1100
+    topo, base = dialogo.crop((0, 0, 736, corte)), dialogo.crop((0, corte, 736, dialogo.height))
+    folha = Image.new("RGB", (736 * 2 + 24, max(topo.height, base.height)), "white")
+    folha.paste(topo, (0, 0))
+    folha.paste(base, (736 + 24, 0))
+    caminho = SAIDA / "fig-detalhe-produto.png"
+    folha.save(caminho)
+    return caminho
+
+
+def figura_checkout() -> Path:
+    """Figura nova (4.1.1) — checkout com modalidades, remessas e sugestao de troca."""
+    return _recorte("c08-checkout-completo", (150, 85, 1290, 1600), "fig-checkout.png")
+
+
+def figura_mutacao_servidor() -> Path:
+    """Figura nova (5.2.1) — a mesma tela reordenada pelo proprio BFF (modo apresentacao)."""
+    return _recorte("c12-detalhe-mutacao-servidor-reordenar", (352, 20, 1088, 900), "fig-mutacao-servidor.png")
+
+
+def figura_vitrines() -> Path:
+    """Figura nova (5.1.5) — vitrine com contexto regional (SP) e sem sinal (AM), lado a lado."""
+    _estilo()
+    fig, eixos = plt.subplots(1, 2, figsize=(10, 3.4))
+    for ax, nome, titulo in zip(eixos, ["c02-home-regional-sp", "c04-home-sem-sinal-am"],
+                                ["(a) CEP 05311 (SP): categoria em destaque", "(b) CEP 69005 (AM): vitrine geral"]):
+        img = plt.imread(CANDIDATAS / f"{nome}.png")[:900, 150:1290]
+        ax.imshow(img)
+        ax.set_title(titulo, fontsize=10)
+        ax.axis("off")
+    fig.tight_layout(w_pad=1)
+    return _salvar(fig, "fig-vitrines-sp-am.png")
+
+
 def main() -> None:
     for figura in (figura_arquitetura, figura_modelo_dados, figura_fluxo_composicao, figura_funil,
-                   figura_osrm, figura_contexto_regional, figura_desempenho, figura_mutacoes):
+                   figura_osrm, figura_contexto_regional, figura_desempenho, figura_mutacoes,
+                   figura_oferta_e_co2_por_uf, figura_detalhe, figura_checkout, figura_mutacao_servidor,
+                   figura_vitrines):
         figura()
 
 

@@ -9,6 +9,17 @@
 > **Como usar:** cada achado diz **onde** está no PDF e traz o texto pronto para
 > colar no Word. Os trechos preservam a redação do grupo sempre que possível.
 > Marque aqui o que já foi passado.
+>
+> **Aplicado no Word (02/11, tarde):** `Monografia - versao final.docx`, gerado por
+> `_gerar_docx.py` a partir dos rascunhos v4 e de `pre-e-pos-textuais.md`. Só o M5 opção A
+> (mexer no Cap. 3) depende da resposta do orientador; a opção B está aplicada.
+>
+> **Versão consolidada (02/11):** `capitulo-4-rascunho.md` e `capitulo-5-rascunho.md`
+> (v3) são o texto do PDF com estes ajustes **já aplicados**, marcados com
+> `<!-- ID -->`. Para os Caps. 4 e 5, dá para copiar a seção inteira de lá em vez de
+> colar trecho a trecho. Ficam só aqui os ajustes de Caps. 1–3, Resumo e
+> Referências (M5 opção A, M6, M7, m4, m5, m6 nas Referências). Pontos novos,
+> vindos da análise da aplicação, estão em `docs/tcc/analise-app-x-monografia.md`.
 
 ## 1. Veredito
 
@@ -266,7 +277,7 @@ conferir que a v3.0 traz os mesmos fatores para van < 3,5 t e HGV > 20 t.
 > technical feasibility of the approach, within the limits of a prototype with
 > historical data and estimated emissions.
 
-### M8 — Tabela 5 com desvio padrão e p99
+### M8 — Tabela 5 com desvio padrão e p99 (vira Tabela 6 com a Tabela 3 nova)
 
 Fonte: `load/results/protocolo-final/resumo-agregado.md` (média ± desvio padrão,
 n = 3).
