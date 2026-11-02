@@ -33,23 +33,23 @@ trechos dos rascunhos v2 não entraram no PDF.
 
 | ID | Prioridade | Local no PDF | Tipo | Observação verificável | Feito |
 |---|---|---|---|---|---|
-| B1 | bloqueador | Cap. 6 (p. 51) | lacuna | Todas as subseções vazias | [ ] |
-| M1 | maior | §5.1.5 e Sumário | fato | Título duplicado "Desempenho sob carga e efeito do cache"; o conteúdo é a personalização regional | [ ] |
-| M2 | maior | §5.3 | lacuna | A síntese não responde aos objetivos (a)–(d) e omite a personalização (objetivo c) | [ ] |
-| M3 | maior | §§5.1.2, 5.1.4, 5.1.6, 5.2.1, 5.2.2 | contradito pelo código | Contagem de testes, desempate por preço, controle de carga no código final, mutação no servidor e contrato campo a campo estão desatualizados | [ ] |
-| M4 | maior | §4.2.1, §4.2.3 (Tabela 2) | contradito pelo código | 8 blocos na Tabela 2; o contrato tem 12. Orchestrator descrito só como "reservado" | [ ] |
-| M5 | maior | §3.2 × §4.1.1 | inconsistência | Cap. 3: fator único 0,104 kg/(t·km) e Figura 4 com "React" e "E = d × m × f"; Cap. 4: cadeia van + caminhão. O PDF não explica a mudança | [ ] |
-| M6 | maior | Referências (SMART FREIGHT CENTRE) | fato | Cita GLEC v3.0 (2023); os fatores do código (0,680 e 0,092) vêm da v2.0 (rev. 2022) | [ ] |
-| M7 | maior | Resumo e Abstract | inferência forte demais | "Reduziu a latência de 4.100 ms para 95 ms" é a **mediana** com 1.000 VU; o p95 ficou em ~3 s. "Comprovando" excede a evidência | [ ] |
-| M8 | maior | Tabela 5 (§5.1.6) | lacuna | A §3.3 promete média ± desvio padrão e p50/p95/p99; a tabela só traz médias e não tem p99 | [ ] |
-| M9 | maior | §4.1.1 "Modalidades de entrega" | lacuna | Fatores da Expressa e da Verde sem tabela nem justificativa; a Verde passou a × 0,7 (02/11) | [ ] |
-| m1 | menor | §4.1.2, 2º parágrafo | lacuna | Falta dizer que o Locust mede a resposta completa (limite superior do TTFB) | [ ] |
-| m2 | menor | §4.1.1, regra de oferta | omissão | O desempate nunca troca oferta com selo por oferta sem selo (`escolher_oferta`) | [ ] |
-| m3 | menor | Figura 5 | fato | "Protótipo" — é captura do sistema implementado | [ ] |
-| m4 | menor | Lista de siglas | editorial | Fora de ordem alfabética e incompleta | [ ] |
-| m5 | menor | Tabela 1, Equação 1, §3.2 "((1))" | formatação | Cabeçalho da Tabela 1 repetido no meio; "O(1)" e a Equação 1 saem corrompidos no PDF | [ ] |
-| m6 | menor | §4.1.1 cubagem; Referências | consistência | O texto cita Bsoft (2026); o app (página de metodologia) e o código citam Olist (2022). Na referência BSOFT falta ":" após "Disponível em" | [ ] |
-| m7 | menor | §5.2 (título) × §3.3 | editorial | "Resultados qualitativos" × "verificação qualitativa-estrutural" na metodologia | [ ] |
+| B1 | bloqueador | Cap. 6 (p. 51) | lacuna | Todas as subseções vazias | [x] |
+| M1 | maior | §5.1.5 e Sumário | fato | Título duplicado "Desempenho sob carga e efeito do cache"; o conteúdo é a personalização regional | [x] |
+| M2 | maior | §5.3 | lacuna | A síntese não responde aos objetivos (a)–(d) e omite a personalização (objetivo c) | [x] |
+| M3 | maior | §§5.1.2, 5.1.4, 5.1.6, 5.2.1, 5.2.2 | contradito pelo código | Contagem de testes, desempate por preço, controle de carga no código final, mutação no servidor e contrato campo a campo estão desatualizados | [x] |
+| M4 | maior | §4.2.1, §4.2.3 (Tabela 2) | contradito pelo código | 8 blocos na Tabela 2; o contrato tem 12. Orchestrator descrito só como "reservado" | [x] |
+| M5 | maior | §3.2 × §4.1.1 | inconsistência | Cap. 3: fator único 0,104 kg/(t·km) e Figura 4 com "React" e "E = d × m × f"; Cap. 4: cadeia van + caminhão. O PDF não explica a mudança | [x] opção B (A aguarda P5) |
+| M6 | maior | Referências (SMART FREIGHT CENTRE) | fato | Cita GLEC v3.0 (2023); os fatores do código (0,680 e 0,092) vêm da v2.0 (rev. 2022) | [x] |
+| M7 | maior | Resumo e Abstract | inferência forte demais | "Reduziu a latência de 4.100 ms para 95 ms" é a **mediana** com 1.000 VU; o p95 ficou em ~3 s. "Comprovando" excede a evidência | [x] |
+| M8 | maior | Tabela 5 (§5.1.6) | lacuna | A §3.3 promete média ± desvio padrão e p50/p95/p99; a tabela só traz médias e não tem p99 | [x] |
+| M9 | maior | §4.1.1 "Modalidades de entrega" | lacuna | Fatores da Expressa e da Verde sem tabela nem justificativa; a Verde passou a × 0,7 (02/11) | [x] |
+| m1 | menor | §4.1.2, 2º parágrafo | lacuna | Falta dizer que o Locust mede a resposta completa (limite superior do TTFB) | [x] |
+| m2 | menor | §4.1.1, regra de oferta | omissão | O desempate nunca troca oferta com selo por oferta sem selo (`escolher_oferta`) | [x] |
+| m3 | menor | Figura 5 | fato | "Protótipo" — é captura do sistema implementado | [x] |
+| m4 | menor | Lista de siglas | editorial | Fora de ordem alfabética e incompleta | [x] |
+| m5 | menor | Tabela 1, Equação 1, §3.2 "((1))" | formatação | Cabeçalho da Tabela 1 repetido no meio; "O(1)" e a Equação 1 saem corrompidos no PDF | [x] |
+| m6 | menor | §4.1.1 cubagem; Referências | consistência | O texto cita Bsoft (2026); o app (página de metodologia) e o código citam Olist (2022). Na referência BSOFT falta ":" após "Disponível em" | [x] |
+| m7 | menor | §5.2 (título) × §3.3 | editorial | "Resultados qualitativos" × "verificação qualitativa-estrutural" na metodologia | [x] |
 
 ## 3. Trechos prontos
 
