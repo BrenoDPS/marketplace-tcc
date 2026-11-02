@@ -76,6 +76,29 @@ pytest -q                          # backend (igual ao CI)
 cd web && npm run lint && npm run typecheck && npm test   # frontend
 ```
 
+## Reprodução do zero em outra máquina (T2)
+
+Para provar que o projeto sobe fora da máquina de desenvolvimento. Faça num computador que
+**nunca** rodou o projeto, cronometre cada passo e anote divergências no card do Trello.
+Tempos de referência medidos em 02/11 num notebook na tomada (download depende da rede).
+
+| # | Passo | Comando | Tempo esperado | Confere |
+|---|---|---|---|---|
+| 1 | Clonar | `git clone <url> && cd marketplace-tcc` | < 1 min | |
+| 2 | Configurar | copiar `.env.example` para `.env` (os valores padrão servem) | — | |
+| 3 | Dados brutos | baixar o *Brazilian E-Commerce Public Dataset by Olist* (Kaggle) e pôr os 9 CSVs em `data/raw/` (não são versionados) | 2–5 min | |
+| 4 | Banco e cache | `docker compose up -d` | 1–3 min na 1ª vez (imagens `postgres:16` e `redis:7-alpine`) | `docker ps` mostra `olist-postgres` e `olist-redis` |
+| 5 | Python | `python -m venv .venv`, ativar, `pip install -r requirements.txt` | 1–3 min | |
+| 6 | ETL | `python -m scripts.etl_load_sample` | **~70 s** | termina com a linha `DEMO MULTI-VENDEDOR` |
+| 7 | Testes do backend | `pytest -q` | **~15 s** | 0 falhas |
+| 8 | API | `uvicorn src.main:app --port 8000` (outro terminal) | ~5 s | `http://localhost:8000/docs` abre |
+| 9 | Front | `cd web && npm install && npx playwright install chromium` | 2–4 min | |
+| 10 | Checks do front | `npm run lint && npm run typecheck && npm test` | ~1 min | 0 falhas |
+| 11 | Jornada real | `npm run e2e` (sobe o próprio `next dev` na porta 3100) | **~1 min** + ~30 s da 1ª compilação | 8 de 8 verdes |
+
+Total esperado: **~15 a 20 min**, quase todo de download. Se um `next dev` já estiver
+rodando em `web/`, o Next 16 recusa outro: use `E2E_BASE_URL=http://localhost:3000 npm run e2e`.
+
 Recarregou o ETL com a API no ar? Limpe o cache (TTL de 1h):
 
 ```bash

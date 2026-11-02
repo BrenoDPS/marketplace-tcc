@@ -97,6 +97,8 @@ SMART FREIGHT CENTRE. **Global Logistics Emissions Council Framework for Logisti
 
 TRANSVIAS. **Pegada de carbono no transporte de cargas**: como reduzir impactos ambientais. [S. l.], 6 out. 2025. Disponível em: https://noticias.transvias.com.br/2025/10/06/pegada-carbono-transporte-cargas/. Acesso em: 16 abr. 2026.
 
+W3C. **Web Content Accessibility Guidelines (WCAG) 2.1**. [S. l.]: World Wide Web Consortium, 2018. Disponível em: https://www.w3.org/TR/WCAG21/. Acesso em: 2 nov. 2026.
+
 WORLD ECONOMIC FORUM. **Transforming Urban Logistics**. [S. l.]: World Economic Forum, 2024. Disponível em: https://www.weforum.org/publications/transforming-urban-logistics-a-path-to-sustainable-and-efficient-last-mile-delivery-in-cities/. Acesso em: 13 out. 2026.
 
 ZUBAIDAH, Tantri Risda et al. Sustainable Business of E-Commerce in the Smart Economy: A Systematic Review of Roles and Challenges for Future Research. In: INTERNATIONAL CONFERENCE ON INFORMATION SYSTEMS AND SOFTWARE ENGINEERING (ICISS), 2024. **Proceedings** [...]. IEEE, 2024. DOI: 10.1109/iciss62896.2024.10751282.

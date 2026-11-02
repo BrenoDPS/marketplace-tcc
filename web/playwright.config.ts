@@ -9,6 +9,10 @@ import { defineConfig, devices } from "@playwright/test";
  * nao tem os CSVs do Olist para popular o banco. E um check local de
  * pre-defesa — `npm run e2e` com a pilha no ar.
  */
+// Com um `next dev` ja no ar nesta pasta (o Next 16 recusa um segundo), aponte
+// para ele: E2E_BASE_URL=http://localhost:3000 npx playwright test
+const EXTERNO = process.env.E2E_BASE_URL;
+
 export default defineConfig({
   testDir: "./e2e",
   // A jornada e sequencial por natureza (carrinho -> checkout) e o servidor de
@@ -20,13 +24,13 @@ export default defineConfig({
     // chunk do cliente para origens que ele nao reconhece, e a pagina fica
     // servida mas NAO hidratada — o teste veria a tela e nenhum clique
     // funcionaria. Levou uma sessao de depuracao; nao trocar de volta.
-    baseURL: "http://localhost:3100",
+    baseURL: EXTERNO ?? "http://localhost:3100",
     locale: "pt-BR",
     // So guarda rastro do que falhou: verde nao precisa de 40 MB de video.
     trace: "retain-on-failure",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
-  webServer: {
+  webServer: EXTERNO ? undefined : {
     // Porta 3100 e nao 3000 de proposito: a 3000 costuma estar ocupada por
     // outro app na maquina de desenvolvimento, e o Next cai para a 3001
     // silenciosamente — o teste passaria a medir a aplicacao errada.

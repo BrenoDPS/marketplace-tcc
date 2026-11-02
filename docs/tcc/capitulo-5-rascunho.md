@@ -98,8 +98,8 @@ Antes das análises agregadas, as regras do motor foram verificadas com entradas
 controladas, como prevê a metodologia: distância de Haversine, conversão para
 distância rodoviária, massa cobrável, divisão entre transferência e última milha,
 fatores de emissão, escolha de oferta e ausência de recomendação quando faltam
-dados. Na versão final, a suíte do backend somava 229 testes aprovados e a do
-frontend, 42, além de 7 testes de jornada no navegador.
+dados. Na versão final, a suíte do backend somava 231 testes aprovados e a do
+frontend, 42, além de 8 testes de jornada no navegador.
 
 Um caso ilustra a cadeia de cálculo. Para 100 km em linha reta e 1 kg de massa, o
 motor estima 134,5 km de estrada: 15 km de van, a 0,680 kg de CO₂e por
@@ -496,6 +496,17 @@ não distingue a distância de zero, e a interface diz "mesma região" em vez de
 "0 km". A jornada completa também foi percorrida por um teste automatizado
 apenas com o teclado, da entrada do CEP ao checkout.
 
+<!-- T9 -->
+Além do teclado, as seis telas da jornada (entrada, página inicial, detalhe,
+checkout, metodologia e pesquisa) foram auditadas pela ferramenta axe-core, nas
+regras de nível A e AA das diretrizes de acessibilidade WCAG 2.1 (W3C, 2018). Não
+houve violação crítica. Foram apontadas três violações sérias, todas de correção
+pontual: dois textos secundários com contraste abaixo de 4,5:1 (o número de
+produtos por categoria e o preço unitário no resumo do pedido) e o botão do
+carrinho, cujo nome lido pelas tecnologias assistivas não contém o texto
+visível. A verificação automática cobre apenas parte dos critérios; o uso com
+leitor de tela e por pessoas com deficiência não foi avaliado.
+
 <!-- M3 -->
 A correspondência entre servidor e cliente também é verificada automaticamente,
 em dois níveis. Um teste compara os tipos de blocos e ações declarados no
@@ -563,7 +574,8 @@ futuro.
 | ID | Onde | O que mudou |
 |---|---|---|
 | — | Tabelas | Renumeradas 3 → 4, 4 → 5, 5 → 6 (Tabela 3 nova no Cap. 4) |
-| M3 | §5.1.2 | Contagem de testes da versão final (229 / 42 / 7 E2E) |
+| M3 | §5.1.2 | Contagem de testes da versão final (231 / 42 / 8 E2E) |
+| T9 | §5.2.2 | Auditoria de acessibilidade (axe-core, WCAG 2.1 A/AA): 0 críticas, 3 sérias |
 | M3 | §5.1.4 | Parágrafo do desempate por preço; frase "sem o desempate" removida; parágrafo de sensibilidade |
 | M1 | §5.1.5 | Título corrigido (no PDF repetia o da §5.1.6) |
 | M8 | §5.1.6 | Tabela 6 com desvio padrão e p99 |

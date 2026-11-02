@@ -10,9 +10,9 @@
 
 | Métrica | Texto | Valor no texto | Fonte | Valor na fonte | Status |
 |---|---|---|---|---|---|
-| Testes do backend | §5.1.2 | 229 (PDF: 194) | `pytest -q` | 229 passed | ❌ → corrigido |
+| Testes do backend | §5.1.2 | 231 (PDF: 194) | `pytest -q` | 231 passed (02/11, noite) | ❌ → corrigido |
 | Testes do frontend | §5.1.2 | 42 (PDF: 35) | `npm test` (Vitest) | 42 passed | ❌ → corrigido |
-| Testes de jornada no navegador | §5.1.2 | 7 | `npm run e2e` | 7 passed | ✅ (novo no texto) |
+| Testes de jornada no navegador | §5.1.2 | 8 | `npm run e2e` | 8 (o 8º é a acessibilidade, T9) | ✅ (novo no texto) |
 | Lint e tipos | §4.3.4 | "rodam na integração contínua" | `npm run lint`, `npm run typecheck` | verdes | ✅ |
 
 ## 2. Dados e ETL
@@ -133,6 +133,8 @@ descreve a tela inteira em poucos kilobytes).
 | Fator de caminhão × GHG Protocol | §5.1.2, Quadro 1 | 11,5% menor; +12,5% nas longas; ~+5% líquido a 432 km | `docs/resultados/fator-externo-co2.md` (`scripts.fator_externo_co2`) | ✅ |
 | Desempenho no cliente | §5.1.6, Tabela 7 | LCP 140 / 442 ms; CLS 0,006; detalhe 150 ms; checkout 83 ms; JS ~190 KB | `docs/resultados/desempenho-cliente.md` (`web/scripts/desempenho-cliente.mjs`) | ✅ |
 | Primeira requisição após subir a API | §5.1.6 | ~234 ms × 5 ms | `docs/resultados/primeira-requisicao.md` (`scripts.primeira_requisicao`) | ✅ |
+| Acessibilidade automatizada (T9) | §5.2.2 | 6 telas; 0 críticas; 3 sérias (2 de contraste, 1 de nome acessível) | `docs/resultados/acessibilidade.md` (`web/e2e/acessibilidade.spec.ts`) | ✅ |
+| Reprodução do zero (T2), tempos de referência | — (roteiro, não entra no texto) | ETL ~70 s; `pytest` ~15 s; E2E ~1 min | `README.md` → "Reprodução do zero" | ✅ |
 
 ## Resumo
 

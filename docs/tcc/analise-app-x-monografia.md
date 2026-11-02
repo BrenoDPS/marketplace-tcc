@@ -186,6 +186,13 @@ todos já no Cap. 5. B3 também: as fontes exibidas no app citam só Lee e Chae 
 T4 aguarda a porta 8000 livre (~50 min de máquina); T7 aguarda a decisão sobre o teto
 de preço da troca.
 
+**Feito em 02/11 (noite):** T9 (`docs/resultados/acessibilidade.md`, `web/e2e/acessibilidade.spec.ts`:
+0 críticas, 3 sérias de correção pontual; no §5.2.2). T1 e T2 viraram roteiros para o
+grupo executar (`docs/roteiro-banca.md` → "Ensaio na máquina e no local da banca";
+`README.md` → "Reprodução do zero", com ETL ~70 s, `pytest` ~15 s, E2E ~1 min). T7:
+`tests/test_checkout_alternatives.py` fixa o comportamento atual (sem teto de preço);
+se o grupo decidir pelo teto, o teste muda junto com `alternatives.py`.
+
 Recomendação: T1 e T2 antes de qualquer outro (risco de demo); T4, T5 e T8 rodam
 juntos numa tarde e entram no Cap. 5 como complemento; T6 fortalece a defesa do
 modelo; T9 só se sobrar tempo.

@@ -21,6 +21,30 @@ roteiro **antes** da defesa, não durante.
 - [ ] Abrir a aba de novo em `http://localhost:3000/` (tela "Onde você está?").
 - [ ] Plano B aberto noutra aba: `docs/banca/demo-contingencia.webm` (1 min 04 s, sem som — narrar por cima).
 
+## Ensaio na máquina e no local da banca (T1) — até 2 dias antes
+
+Uma vez, no notebook que vai à banca e, se der, na sala (ou com o mesmo projetor e
+cabo). O objetivo é achar o que só falha fora da mesa de desenvolvimento. Anotar o
+resultado de cada linha no card do Trello.
+
+| # | Passo | Como | Esperado | Anotar |
+|---|---|---|---|---|
+| 1 | **Notebook na tomada** e plano de energia "Melhor desempenho" | fonte ligada antes de tudo | ícone de bateria carregando | 13 dos 27 ensaios de carga foram descartados por bateria: a CPU cai e a demo fica lenta |
+| 2 | Pilha **do zero** | `docker compose down` → `docker compose up -d` | ~10 s com imagens baixadas | |
+| 3 | ETL | `python -m scripts.etl_load_sample` | ~70 s; termina em `DEMO MULTI-VENDEDOR` | tempo real |
+| 4 | API sem `--reload` e front | `uvicorn src.main:app --port 8000` · `cd web && npm run dev` | API ~5 s; front pronto em ~10 s | |
+| 5 | Cache limpo | `docker exec olist-redis redis-cli FLUSHALL` | `OK` | |
+| 6 | Ensaio automático | `cd web && npx playwright test roteiro-banca` | verde em ≈ 10 s | se falhar: corrigir o roteiro, não a fala |
+| 7 | Aquecimento | itens "Aquecer" e "Abrir a aba" da Preparação | 2º clique instantâneo | o 1º pedido após subir a API leva ~234 ms (`docs/resultados/primeira-requisicao.md`) |
+| 8 | Projetor | espelhar a tela; conferir zoom (100% / 125%) e o modo claro | vitrine legível do fundo da sala | resolução do projetor |
+| 9 | **Cronômetro** | um apresenta, outro cronometra cada linha do Roteiro abaixo | total ≤ 4 min 30 s | tempo por linha; onde passou |
+| 10 | Wi-Fi desligado | repetir os passos 3 a 5 do Roteiro com a rede off | funciona (tudo é local, inclusive as fontes) | algo deixou de carregar? |
+| 11 | **Plano B** | tocar `docs/banca/demo-contingencia.webm` no projetor e narrar | 1 min 04 s, sem som | abre no player da sala? |
+| 12 | Desligar e religar | fechar tudo, subir de novo pela Preparação | < 5 min do boot à tela "Onde você está?" | tempo real |
+
+Se o passo 6 ou 9 falhar no local, a demo vai pelo vídeo — decidir isso no ensaio,
+não na hora.
+
 ## Roteiro
 
 | Tempo | Clique | O que mostrar / falar | Objetivo · número |
