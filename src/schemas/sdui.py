@@ -99,6 +99,15 @@ class ProductCardProps(BaseModel):
     # regiao) os dois vem nulos e o selo fala por eles.
     distance_km: float | None = None
     co2_kg: float | None = None
+    # Identidade do produto (redesign, 02/11). O Olist nao tem nome nem descricao
+    # de produto: todo card de uma categoria dizia so "Alimentos". O que existe e
+    # real: categoria (slug, para o icone), referencia curta do id, peso, volume
+    # e a nota dos pedidos. `subtitle` vem pronto do servidor ("Ref. 4F2A9C ·
+    # 150 g · 0,9 L"); o cliente nao inventa descricao.
+    category: str | None = None
+    subtitle: str | None = None
+    rating: float | None = None
+    review_count: int = 0
 
 
 class HeroBannerProps(BaseModel):
@@ -111,6 +120,12 @@ class HeroBannerProps(BaseModel):
     # Rotulo do botao da SEGUNDA `action` (Sprint 14). O hero regional usa para
     # desfazer a personalizacao: "Ver vitrine geral".
     secondary_cta_label: str | None = None
+    # Variante visual decidida pelo servidor (redesign): o cliente desenha cada
+    # uma com outra ilustracao e outro tom, mas quem sabe se a vitrine e
+    # regional, de perfil, filtrada ou vazia e o composer.
+    variant: Literal["default", "regional", "profile", "filter", "empty"] = "default"
+    # Rotulo curto acima do titulo ("Vitrine de SP", "Perfil · Beleza").
+    eyebrow: str | None = None
 
 
 class ProductDetailProps(BaseModel):
@@ -134,6 +149,8 @@ class ProductDetailProps(BaseModel):
     price: float
     image_url: str | None = None
     category: str | None = None
+    # Mesma linha de identidade do card ("Ref. 4F2A9C · 150 g · 0,9 L").
+    subtitle: str | None = None
     weight_g: float | None = None
     seller_id: str
     seller_city: str | None = None
@@ -187,6 +204,10 @@ class ShipmentProps(BaseModel):
     """
 
     seller_id: str
+    # Cidade/UF do vendedor da remessa: o hash do `seller_id` nao diz nada a
+    # quem compra (D2 da analise de 02/11).
+    seller_city: str | None = None
+    seller_state: str | None = None
     product_ids: list[str]
     total_quantity: int
     weight_g: float | None = None

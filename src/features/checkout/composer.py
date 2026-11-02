@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.rotulos import rotulo_categoria
+from src.core.rotulos import rotulo_categoria, rotulo_cidade
 from src.features.checkout.alternatives import build_alternatives
 from src.features.checkout.repository import (
     CheckoutProductRow,
@@ -199,6 +199,8 @@ async def compose_checkout(
         shipments.append(
             ShipmentProps(
                 seller_id=seller_id,
+                seller_city=rotulo_cidade(group[0][0].seller_city),
+                seller_state=group[0][0].seller_state,
                 product_ids=[p.product_id for p, _ in group],
                 total_quantity=sum(q for _, q in group),
                 weight_g=weight_g,

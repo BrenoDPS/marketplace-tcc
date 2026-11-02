@@ -12,7 +12,8 @@ from urllib.parse import urlencode
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.rotulos import rotulo_categoria, rotulo_cidade
+from src.core.rotulos import descritor_produto, rotulo_categoria, rotulo_cidade
+from src.features.green_logistics.repository import get_uf
 from src.features.green_logistics.badge import RESOLUTION_FLOOR_KM
 from src.features.green_logistics.co2 import calculate_co2_kg
 from src.features.green_logistics.offers import escolher_oferta
@@ -51,7 +52,7 @@ CONSCIOUS_BUYER_CONTEXT = "conscious_buyer"
 # do query param e escolha explicita e vence a derivacao.
 DEFAULT_CONTEXT = "default"
 # Vitrine sem a personalizacao regional: o "desfazer" do hero regional (V5).
-# Contexto sem hero proprio cai no `_DEFAULT_HERO`, e so `default` dispara a
+# Contexto sem hero proprio cai no hero geral, e so `default` dispara a
 # regiao — entao basta o nome; nada mais no composer precisa conhece-lo.
 GENERAL_CONTEXT = "geral"
 _DEFAULT_LIMIT = 6
@@ -64,47 +65,39 @@ SORTS: dict[str, str] = {"proximo": "Mais próximo", "co2": "Menor CO₂", "prec
 # de distancia pela busca. Uma parede de 70 chips nao ajuda ninguem a navegar.
 _CATEGORY_GRID_LIMIT = 12
 
-_HEROS: dict[str, HeroBannerBlock] = {
-    "electronics_expert": HeroBannerBlock(
-        props=HeroBannerProps(
-            title="Tech Deals",
-            subtitle="Eletronicos com entrega rapida",
-            image_url="https://placeholders.dev/800x400?text=Tech+Deals",
-        ),
-        actions=[NavigateAction(payload=NavigatePayload(path="/categories/electronics"))],
+def _home_path(customer_zip_prefix: str, context: str, **extra: str) -> str:
+    return "/?" + urlencode({"customer_zip_prefix": customer_zip_prefix, "context": context, **extra})
+
+
+# Herois dos perfis (redesign, 02/11). Antes: "Tech Deals", "Ate 40% OFF em
+# skincare" (promocao que nao existe) e botoes para /categories/... e /explore,
+# rotas que o cliente nao tem — caiam em "Rota nao implementada" no meio da
+# demo. Agora o texto so afirma o que a vitrine faz, e o botao leva a um filtro
+# real da propria Home.
+_PERFIS: dict[str, tuple[str, str, str, str, dict[str, str]]] = {
+    # contexto: (eyebrow, titulo, subtitulo, rotulo do botao, query do botao)
+    "electronics_expert": (
+        "Perfil · Eletrônicos",
+        "Tecnologia perto de você",
+        "Informática e acessórios de pequenos vendedores, com a distância e o CO₂ de cada origem.",
+        "Ordenar por proximidade",
+        {"sort": "proximo"},
     ),
-    "beauty_lover": HeroBannerBlock(
-        props=HeroBannerProps(
-            title="Semana da Beleza",
-            subtitle="Ate 40% OFF em skincare",
-            image_url="https://placeholders.dev/800x400?text=Beauty+Sale",
-        ),
-        actions=[NavigateAction(payload=NavigatePayload(path="/categories/beauty"))],
+    "beauty_lover": (
+        "Perfil · Beleza",
+        "Beleza e cuidados",
+        "Beleza e saúde de vendedores de todo o país. Compare a origem antes de escolher.",
+        "Ordenar por menor CO₂",
+        {"sort": "co2"},
     ),
-    CONSCIOUS_BUYER_CONTEXT: HeroBannerBlock(
-        props=HeroBannerProps(
-            title="Consumo consciente",
-            subtitle="Entregas locais com menor impacto ambiental",
-            image_url="https://placeholders.dev/800x400?text=Entregas+Locais",
-        ),
-        actions=[NavigateAction(payload=NavigatePayload(path="/explore"))],
+    CONSCIOUS_BUYER_CONTEXT: (
+        "Perfil · Consumo consciente",
+        "Consumo consciente",
+        "A vitrine começa pelas entregas mais próximas: menos estrada, menos CO₂.",
+        "Ordenar por menor CO₂",
+        {"sort": "co2"},
     ),
 }
-
-_DEFAULT_HERO = HeroBannerBlock(
-    props=HeroBannerProps(
-        title="Olist Marketplace",
-        subtitle="Compre de pequenos vendedores brasileiros",
-        image_url="https://placeholders.dev/800x400?text=Olist",
-    ),
-    actions=[NavigateAction(payload=NavigatePayload(path="/explore"))],
-)
-
-
-def _count_label(total: int) -> str:
-    if total == 0:
-        return "Nenhum produto encontrado nesta amostra"
-    return f"{total} produto{'s' if total > 1 else ''} nesta vitrine"
 
 
 def _hero_for(
@@ -113,42 +106,77 @@ def _hero_for(
     category: str | None,
     found: int,
     customer_zip_prefix: str,
+    uf: str | None = None,
 ) -> HeroBannerBlock:
     """Busca e categoria substituem o hero do contexto: a tela precisa dizer o
     que esta filtrando, inclusive quando nao achou nada."""
-    if not (search or category):
-        return _HEROS.get(context, _DEFAULT_HERO)
-
-    clear = NavigateAction(
-        payload=NavigatePayload(
-            path=f"/?{urlencode({'customer_zip_prefix': customer_zip_prefix, 'context': context})}"
+    if search or category:
+        clear = NavigateAction(payload=NavigatePayload(path=_home_path(customer_zip_prefix, context)))
+        title = f"Busca: {search}" if search else rotulo_categoria(category or "")
+        if found == 0:
+            subtitle = (
+                f"Nenhum produto desta amostra corresponde a “{search}”. A busca procura no nome "
+                "da categoria: experimente uma das categorias abaixo."
+                if search
+                else "Nenhum produto desta categoria na amostra."
+            )
+        else:
+            subtitle = f"{found} produto{'s' if found > 1 else ''} nesta vitrine"
+        return HeroBannerBlock(
+            props=HeroBannerProps(
+                title=title,
+                subtitle=subtitle,
+                image_url="https://placeholders.dev/800x400?text=Filtro",
+                cta_label="Ver tudo",
+                variant="empty" if found == 0 else "filter",
+                eyebrow="Busca" if search else "Categoria",
+            ),
+            actions=[clear],
         )
-    )
-    title = f"Busca: {search}" if search else rotulo_categoria(category or "")
+
+    if context in _PERFIS:
+        eyebrow, title, subtitle, cta, query = _PERFIS[context]
+        return HeroBannerBlock(
+            props=HeroBannerProps(
+                title=title,
+                subtitle=subtitle,
+                image_url="https://placeholders.dev/800x400?text=Perfil",
+                cta_label=cta,
+                variant="profile",
+                eyebrow=eyebrow,
+            ),
+            actions=[NavigateAction(payload=NavigatePayload(path=_home_path(customer_zip_prefix, context, **query)))],
+        )
+
+    # Vitrine geral: diz POR QUE nao ha destaque regional (D4), em vez de um
+    # slogan generico que parecia erro numa UF sem sinal.
+    if context == GENERAL_CONTEXT:
+        subtitle = "Sem o destaque regional: a mesma vitrine para todo o Brasil."
+    elif uf:
+        subtitle = (
+            f"Ainda não há compras suficientes de {uf} na base para destacar uma categoria "
+            "regional, então esta é a vitrine geral."
+        )
+    else:
+        subtitle = "Produtos de pequenos vendedores de todo o Brasil, com a origem de cada entrega."
     return HeroBannerBlock(
         props=HeroBannerProps(
-            title=title,
-            subtitle=_count_label(found),
-            image_url="https://placeholders.dev/800x400?text=Filtro",
-            cta_label="Ver tudo",
+            title="Compre de quem está perto",
+            subtitle=subtitle,
+            image_url="https://placeholders.dev/800x400?text=Olist",
+            cta_label="Ver os mais próximos",
+            variant="default",
+            eyebrow=f"Vitrine geral · {uf}" if uf else "Vitrine geral",
         ),
-        actions=[clear],
+        actions=[NavigateAction(payload=NavigatePayload(path=_home_path(customer_zip_prefix, context, sort="proximo")))],
     )
 
 
 def _regional_hero(pick: RegionalPick, customer_zip_prefix: str) -> HeroBannerBlock:
     """Diz POR QUE a vitrine mostra esta categoria: personalizacao que o
     comprador nao consegue explicar parece arbitraria."""
-    path = "/?" + urlencode(
-        {
-            "customer_zip_prefix": customer_zip_prefix,
-            "context": DEFAULT_CONTEXT,
-            "category": pick.category,
-        }
-    )
-    geral = "/?" + urlencode(
-        {"customer_zip_prefix": customer_zip_prefix, "context": GENERAL_CONTEXT}
-    )
+    path = _home_path(customer_zip_prefix, DEFAULT_CONTEXT, category=pick.category)
+    geral = _home_path(customer_zip_prefix, GENERAL_CONTEXT)
     vezes = f"{pick.lift:.1f}".replace(".", ",")
     return HeroBannerBlock(
         props=HeroBannerProps(
@@ -160,6 +188,8 @@ def _regional_hero(pick: RegionalPick, customer_zip_prefix: str) -> HeroBannerBl
             image_url="https://placeholders.dev/800x400?text=Em+alta+na+regiao",
             cta_label="Ver a categoria",
             secondary_cta_label="Ver vitrine geral",
+            variant="regional",
+            eyebrow=f"Vitrine de {pick.uf}",
         ),
         actions=[
             NavigateAction(payload=NavigatePayload(path=path)),
@@ -386,6 +416,10 @@ async def compose_home(
             category,
             found=len(products),
             customer_zip_prefix=customer_zip_prefix,
+            # UF so para explicar a vitrine geral (D4); vive em memoria.
+            uf=await get_uf(session, customer_zip_prefix)
+            if context in (DEFAULT_CONTEXT, GENERAL_CONTEXT) and not explicit_filter
+            else None,
         ),
         _category_grid(
             categories,
@@ -416,6 +450,11 @@ async def compose_home(
                     seller_city=rotulo_cidade(product.seller_city),
                     seller_state=product.seller_state,
                     **_card_impact(distance, product),
+                    category=product.category,
+                    subtitle=descritor_produto(product.product_id, product.weight_g, product.volume_cm3),
+                    # Nota so com pedido avaliado; nunca um valor "plausivel".
+                    rating=product.rating if product.review_count else None,
+                    review_count=product.review_count,
                 ),
                 actions=[
                     _detail_action(product.product_id, customer_zip_prefix),

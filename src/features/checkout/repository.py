@@ -46,6 +46,8 @@ class CheckoutProductRow:
     # Volume do dataset; entra no CO2 como massa cubada quando ela supera
     # a real. Default `None` para quem so tem massa (fixtures, chamadas antigas).
     volume_cm3: float | None = None
+    seller_city: str | None = None
+    seller_state: str | None = None
 
 
 async def fetch_products_for_checkout(
@@ -76,6 +78,8 @@ async def fetch_products_for_checkout(
             Product.product_weight_g,
             Product.product_category_name,
             Product.product_volume_cm3,
+            Seller.seller_city,
+            Seller.seller_state,
         )
         .join(Product, Product.product_id == Offer.product_id)
         .join(Seller, Seller.seller_id == Offer.seller_id)
@@ -87,7 +91,7 @@ async def fetch_products_for_checkout(
 
     out: dict[str, list[CheckoutProductRow]] = {}
     for (product_id, seller_id, zip_prefix, price, freight,
-         weight_g, category, volume) in result:
+         weight_g, category, volume, city, state) in result:
         out.setdefault(product_id, []).append(CheckoutProductRow(
             product_id=product_id,
             seller_id=seller_id,
@@ -97,6 +101,8 @@ async def fetch_products_for_checkout(
             weight_g=float(weight_g) if weight_g is not None else None,
             category=category,
             volume_cm3=float(volume) if volume is not None else None,
+            seller_city=city,
+            seller_state=state,
         ))
     return out
 

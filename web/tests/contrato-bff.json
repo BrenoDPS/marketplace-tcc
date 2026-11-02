@@ -59,10 +59,12 @@
   },
   "hero_banner": {
     "cta_label": true,
+    "eyebrow": true,
     "image_url": true,
     "secondary_cta_label": true,
     "subtitle": true,
-    "title": true
+    "title": true,
+    "variant": true
   },
   "impact_banner": {
     "badge": {
@@ -149,13 +151,17 @@
       "impact_level": true,
       "label": true
     },
+    "category": true,
     "co2_kg": true,
     "distance_km": true,
     "image_url": true,
     "price": true,
     "product_id": true,
+    "rating": true,
+    "review_count": true,
     "seller_city": true,
     "seller_state": true,
+    "subtitle": true,
     "title": true
   },
   "product_detail": {
@@ -188,6 +194,7 @@
     "seller_city": true,
     "seller_id": true,
     "seller_state": true,
+    "subtitle": true,
     "title": true,
     "weight_g": true
   },
@@ -231,7 +238,9 @@
       "distance_km": true,
       "freight": true,
       "product_ids": true,
+      "seller_city": true,
       "seller_id": true,
+      "seller_state": true,
       "total_quantity": true,
       "weight_g": true
     },

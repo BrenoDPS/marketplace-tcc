@@ -77,6 +77,10 @@ export type HeroBannerBlock = Envelope<
     cta_label: string | null;
     /** Rotulo do botao da segunda action (desfazer a regional). Opcional. */
     secondary_cta_label?: string | null;
+    /** Variante visual decidida pelo servidor (redesign, 02/11). */
+    variant?: "default" | "regional" | "profile" | "filter" | "empty";
+    /** Rotulo curto acima do titulo ("Vitrine de SP"). */
+    eyebrow?: string | null;
   }
 >;
 
@@ -115,6 +119,12 @@ export type ProductCardBlock = Envelope<
     seller_state?: string | null;
     distance_km?: number | null;
     co2_kg?: number | null;
+    /** Redesign (02/11): identidade sem nome inventado — slug da categoria
+     * (icone), "Ref. 4F2A9C · 150 g · 0,9 L" e a nota real dos pedidos. */
+    category?: string | null;
+    subtitle?: string | null;
+    rating?: number | null;
+    review_count?: number;
   }
 >;
 
@@ -126,6 +136,7 @@ export type ProductDetailBlock = Envelope<
     price: number;
     image_url: string | null;
     category: string | null;
+    subtitle?: string | null;
     weight_g: number | null;
     seller_id: string;
     seller_city: string | null;
@@ -166,6 +177,9 @@ export type Alternative = {
 
 export type Shipment = {
   seller_id: string;
+  /** Cidade/UF do vendedor (D2): o hash do id nao diz nada a quem compra. */
+  seller_city?: string | null;
+  seller_state?: string | null;
   product_ids: string[];
   total_quantity: number;
   weight_g: number | null;

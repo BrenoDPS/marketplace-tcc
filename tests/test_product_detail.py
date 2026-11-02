@@ -195,7 +195,7 @@ async def test_detail_carries_real_dataset_fields() -> None:
     assert props["title"] == "Informática e acessórios"
     assert props["price"] == pytest.approx(199.90)
     assert props["weight_g"] == pytest.approx(2500.0)
-    assert props["seller_city"] == "Sao Paulo"
+    assert props["seller_city"] == "São Paulo"
     assert props["seller_state"] == "SP"
 
 
@@ -224,7 +224,7 @@ async def test_badge_and_impact_reflect_the_customer_distance() -> None:
     # (21,315 * 0,092 + 15 * 0,680) * 0,0025 t = 0,03040245 kg
     assert banner["co2_kg"] == pytest.approx(0.03040245)
     assert "27 km" in banner["message"]
-    assert "Sao Paulo" in banner["message"]
+    assert "São Paulo" in banner["message"]
     # Um selo por tela (D6): o do `product_detail`.
     assert banner["badge"] is None
 
@@ -288,7 +288,7 @@ async def test_a_tela_revela_que_havia_outra_origem() -> None:
 
     assert "outro vendedor" in mensagem
     assert "2000 km" in mensagem
-    assert "Maringa" in mensagem
+    assert "Maringá" in mensagem
     assert "evita" in mensagem
     # A origem escolhida aparece UMA vez: a primeira frase ja a nomeou, e o
     # comparativo so descreve a alternativa.
@@ -395,7 +395,7 @@ async def test_comparador_lista_as_origens_da_mais_proxima_para_a_mais_distante(
     assert perto["chosen"] and perto["reason"] == "A mais próxima de você."
     assert not longe["chosen"] and longe["reason"] is None
     assert perto["local"] and not longe["local"]
-    assert (perto["seller_city"], longe["seller_city"]) == ("Recife", "Maringa")
+    assert (perto["seller_city"], longe["seller_city"]) == ("Recife", "Maringá")
     # O argumento em numero: mesma massa, a origem distante emite mais.
     assert perto["co2_kg"] == pytest.approx(calculate_co2_kg(27.0, 1000.0))
     assert longe["co2_kg"] > perto["co2_kg"]

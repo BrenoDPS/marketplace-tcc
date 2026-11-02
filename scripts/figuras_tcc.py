@@ -200,7 +200,7 @@ def figura_osrm() -> Path:
 ROTULOS = {
     "moveis_sala": "Móveis de sala", "telefonia": "Telefonia", "relogios_presentes": "Relógios e presentes",
     "malas_acessorios": "Malas e acessórios", "alimentos": "Alimentos", "eletronicos": "Eletrônicos",
-    "cool_stuff": "Cool stuff", "automotivo": "Automotivo", "ferramentas_jardim": "Ferramentas e jardim",
+    "cool_stuff": "Presentes criativos", "automotivo": "Automotivo", "ferramentas_jardim": "Ferramentas e jardim",
 }
 
 

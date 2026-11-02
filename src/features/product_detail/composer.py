@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.core.rotulos import rotulo_categoria, rotulo_cidade
+from src.core.rotulos import descritor_produto, rotulo_categoria, rotulo_cidade
 from src.features.green_logistics.badge import (
     DISTANCE_THRESHOLD_KM,
     RESOLUTION_FLOOR_KM,
@@ -260,6 +260,7 @@ async def compose_product_detail(
                 price=product.unit_price,
                 image_url=None,
                 category=product.category,
+                subtitle=descritor_produto(product.product_id, product.weight_g, product.volume_cm3),
                 weight_g=product.weight_g,
                 seller_id=product.seller_id,
                 seller_city=rotulo_cidade(product.seller_city),

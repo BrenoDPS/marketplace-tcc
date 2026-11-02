@@ -35,6 +35,9 @@ class ProductRow:
     # Vem do JOIN com o vendedor que a consulta ja fazia: custa zero consulta.
     seller_city: str | None = None
     seller_state: str | None = None
+    # Mesma linha de `olist_products` que a consulta ja le: custa zero consulta.
+    rating: float | None = None
+    review_count: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -164,6 +167,8 @@ async def fetch_products_for_home(
             Product.product_volume_cm3,
             Seller.seller_city,
             Seller.seller_state,
+            Product.rating,
+            Product.review_count,
         )
         .join(Product, Product.product_id == Offer.product_id)
         .join(Seller, Seller.seller_id == Offer.seller_id)
@@ -185,8 +190,10 @@ async def fetch_products_for_home(
             volume_cm3=float(volume) if volume is not None else None,
             seller_city=city,
             seller_state=state,
+            rating=float(rating) if rating is not None else None,
+            review_count=int(reviews or 0),
         )
-        for product_id, seller_id, zip_prefix, price, weight_g, cat, volume, city, state in result
+        for product_id, seller_id, zip_prefix, price, weight_g, cat, volume, city, state, rating, reviews in result
     ]
 
 

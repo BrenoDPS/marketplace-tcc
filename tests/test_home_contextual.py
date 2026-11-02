@@ -91,6 +91,12 @@ async def _fake_regional_pick(_session: object, customer_zip_prefix: str) -> Reg
     return _REGIONAL.get(customer_zip_prefix)
 
 
+async def _fake_get_uf(_session: object, customer_zip_prefix: str) -> str | None:
+    # UF da vitrine geral (D4): sem sinal regional, o hero diz qual UF ficou sem.
+    pick = _REGIONAL.get(customer_zip_prefix)
+    return pick.uf if pick else "AM"
+
+
 async def _override_get_db() -> AsyncIterator[None]:
     yield None
 
@@ -190,6 +196,7 @@ def patch_home_dependencies(monkeypatch: pytest.MonkeyPatch) -> None:
         "src.features.home_contextual.composer.regional_pick",
         _fake_regional_pick,
     )
+    monkeypatch.setattr("src.features.home_contextual.composer.get_uf", _fake_get_uf)
     yield
     app.dependency_overrides.clear()
 
@@ -300,7 +307,7 @@ async def test_default_context_has_default_hero() -> None:
     )
     assert isinstance(body, dict)
     hero = next(c for c in body["components"] if c["type"] == "hero_banner")
-    assert hero["props"]["title"] == "Olist Marketplace"
+    assert hero["props"]["title"] == "Compre de quem está perto"
 
 
 async def test_conscious_buyer_orders_cards_by_proximity() -> None:
@@ -430,10 +437,25 @@ async def test_filtered_hero_offers_a_way_back() -> None:
     assert "q=" not in path and "category=" not in path
 
 
-async def test_unfiltered_hero_keeps_the_context_cta() -> None:
+async def test_unfiltered_hero_cta_leads_to_a_real_screen() -> None:
+    """Redesign (02/11): o hero geral levava a /explore, rota que o cliente nao
+    tem. Agora o botao ordena a propria vitrine e diz por que nao ha destaque."""
     _, body = await _get("/api/v1/home?customer_zip_prefix=01000")
     assert isinstance(body, dict)
-    assert _hero(body)["props"]["cta_label"] is None
+    hero = _hero(body)
+    assert hero["props"]["cta_label"] == "Ver os mais próximos"
+    assert hero["props"]["variant"] == "default"
+    assert "AM" in hero["props"]["subtitle"]
+    path = hero["actions"][0]["payload"]["path"]
+    assert path.startswith("/?") and "sort=proximo" in path
+
+
+async def test_no_hero_points_to_a_route_the_client_does_not_have() -> None:
+    for contexto in ("default", "geral", "electronics_expert", "beauty_lover", "conscious_buyer"):
+        _, body = await _get(f"/api/v1/home?customer_zip_prefix=01000&context={contexto}")
+        assert isinstance(body, dict)
+        for acao in _hero(body)["actions"]:
+            assert acao["payload"]["path"].startswith("/?"), (contexto, acao)
 
 
 async def test_search_without_results_says_so_instead_of_falling_back() -> None:
@@ -450,7 +472,7 @@ async def test_blank_search_is_treated_as_no_search() -> None:
     vitrine que na verdade nao esta filtrada seria pior do que ignorar."""
     _, body = await _get("/api/v1/home?customer_zip_prefix=01000&q=%20%20%20")
     assert isinstance(body, dict)
-    assert _hero(body)["props"]["title"] == "Olist Marketplace"
+    assert _hero(body)["props"]["title"] == "Compre de quem está perto"
     assert _cards(body)
 
 
@@ -576,7 +598,7 @@ async def test_contexto_escolhido_vence_a_regiao() -> None:
     _, body = await _get("/api/v1/home?customer_zip_prefix=60000&context=beauty_lover")
     assert isinstance(body, dict)
 
-    assert _hero(body)["props"]["title"] == "Semana da Beleza"
+    assert _hero(body)["props"]["title"] == "Beleza e cuidados"
     assert _cards(body) == ["prod_beauty"]
 
 
@@ -595,7 +617,7 @@ async def test_categoria_regional_sem_produto_cai_para_a_vitrine_geral() -> None
     _, body = await _get("/api/v1/home?customer_zip_prefix=20000")
     assert isinstance(body, dict)
 
-    assert _hero(body)["props"]["title"] == "Olist Marketplace"
+    assert _hero(body)["props"]["title"] == "Compre de quem está perto"
     assert _cards(body)
 
 
@@ -612,7 +634,7 @@ def test_toda_categoria_do_dataset_tem_rotulo_com_acento() -> None:
 def test_cidade_capitalizada_com_conectivos_minusculos() -> None:
     from src.core.rotulos import rotulo_cidade
 
-    assert rotulo_cidade("sao jose do rio preto") == "Sao Jose do Rio Preto"
+    assert rotulo_cidade("sao jose do rio preto") == "São José do Rio Preto"
     assert rotulo_cidade("embu das artes") == "Embu das Artes"
     assert rotulo_cidade(None) is None
 
@@ -636,7 +658,7 @@ async def test_hero_regional_explica_e_pode_ser_desfeito() -> None:
     # Seguir o "desfazer" devolve a vitrine geral: sem hero regional.
     _, body = await _get(f"/api/v1{geral.replace('/?', '/home?')}")
     assert isinstance(body, dict)
-    assert _hero(body)["props"]["title"] == "Olist Marketplace"
+    assert _hero(body)["props"]["title"] == "Compre de quem está perto"
 
 
 # --- ordenacao da vitrine (Sprint 15, V4) -------------------------------------
