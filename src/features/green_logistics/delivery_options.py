@@ -21,8 +21,8 @@ A justificativa de cada um esta em `rationale` (M15 do parecer) e aparece na
 metodologia. O que a literatura sustenta e a DIRECAO, nao o valor:
 
 - WEF (2024, p. 19): entrega consolidada (white-label) reduz em 30% o numero
-  de viagens; pontos de retirada, em ate 15%. A Verde usa 0,6 (-40%): MAIS
-  otimista que a fonte — decisao do grupo no card [Decisao] do Trello.
+  de viagens; pontos de retirada, em ate 15%. A Verde usa 0,7 (-30%), o
+  valor da fonte (era 0,6 ate 02/11; decisao no card [Decisao] do Trello).
 - WEF (2024, p. 13): consolidar alonga o prazo, e o cliente e compensado com
   desconto — a direcao de `eta_factor` 1,5 e `price_factor` 0,85.
 - Expressa (CO2 x2,5, preco x1,6, prazo x0,5): sem fonte quantitativa; 2,5
@@ -119,12 +119,12 @@ MODES: tuple[DeliveryMode, ...] = (
         label="Verde",
         description="Carga consolidada com outros pedidos da região: menos viagens.",
         price_factor=0.85,
-        co2_factor=0.6,
+        co2_factor=0.7,
         eta_factor=1.5,
         rationale=(
             "Consolidar pedidos reduz viagens — 30% a menos na entrega consolidada, segundo o "
-            "World Economic Forum (2024); o fator de 0,6 supõe 40%, mais otimista. Esperar a "
-            "consolidação alonga o prazo, e o desconto compensa o comprador, como no mesmo relatório."
+            "World Economic Forum (2024), o fator adotado. Esperar a consolidação alonga o "
+            "prazo, e o desconto compensa o comprador, como no mesmo relatório."
         ),
     ),
 )

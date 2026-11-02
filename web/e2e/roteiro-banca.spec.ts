@@ -77,7 +77,7 @@ test("roteiro da banca: CEP → vitrine regional → menor CO2 → detalhe → c
     await page.getByRole("navigation", { name: "Etapas da compra" }).getByRole("button", { name: /Entrega/ }).click();
     await page.getByRole("radio", { name: /Verde/ }).click();
     await expect(page.getByRole("radio", { name: /Verde/ })).toHaveAttribute("aria-checked", "true");
-    await expect(page.getByRole("radio", { name: /Verde/ })).toContainText("4,30 g CO₂");
+    await expect(page.getByRole("radio", { name: /Verde/ })).toContainText("5,02 g CO₂");
     await pausa(page, 6);
     await page.getByRole("button", { name: "← Voltar à vitrine" }).click();
     await expect(page.getByRole("heading", { name: "Compra simulada" })).toHaveCount(0);

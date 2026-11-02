@@ -164,7 +164,7 @@ test("jornada da defesa: do CEP ao comparativo de entrega", async ({ page }) => 
     // e o sinal de que a resposta nova chegou.
     await expect(badge).not.toHaveText(base.badge);
 
-    // A modalidade verde e mais barata (0,85x) e menos emissiva (0,6x) que a
+    // A modalidade verde e mais barata (0,85x) e menos emissiva (0,7x) que a
     // padrao. Nao basta "mudou": tem que mudar na direcao que a tela promete.
     expect(brl(await freight.innerText())).toBeLessThan(base.freight);
     expect(co2(await footprint.innerText())).toBeLessThan(base.co2);

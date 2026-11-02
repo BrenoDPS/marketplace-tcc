@@ -25,7 +25,7 @@ handoff, ela está em `docs/PROJECT_BOOTSTRAP.md` → "Sprint ativa".
 
 **Não leia por padrão** (histórico): `docs/frontend-sprint1.md`,
 `docs/frontend-sprint2.md`, `docs/sprint2-handoff.md` a `docs/sprint9-handoff.md`,
-`docs/revisao-harness.md`, `docs/devolutiva-harness.md`.
+`docs/devolutiva-harness.md`.
 
 ## Comandos
 

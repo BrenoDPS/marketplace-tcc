@@ -115,7 +115,7 @@ Tabela 3 – Fatores das modalidades de entrega em relação à linha de base
 |---|---:|---:|---:|---|
 | Padrão | × 1,0 | × 1,0 | × 1,0 | Linha de base medida: frete da amostra e prazo mediano de 95.921 entregas reais, por faixa de distância |
 | Expressa | × 1,6 | × 0,5 | × 2,5 | Cenário sem fonte quantitativa: o veículo parte antes de completar a carga; o fator de CO₂ equivale a viajar com 40% da ocupação da entrega padrão |
-| Verde | × 0,85 | × 1,5 | × 0,6 | Consolidar pedidos reduz em 30% o número de viagens (WORLD ECONOMIC FORUM, 2024); o fator supõe 40%, mais otimista. Esperar a consolidação alonga o prazo, e um desconto compensa o comprador (WORLD ECONOMIC FORUM, 2024) |
+| Verde | × 0,85 | × 1,5 | × 0,7 | Consolidar pedidos reduz em 30% o número de viagens (WORLD ECONOMIC FORUM, 2024), o fator adotado. Esperar a consolidação alonga o prazo, e um desconto compensa o comprador (WORLD ECONOMIC FORUM, 2024) |
 
 Fonte: Elaborada pelos autores (2026).
 
@@ -426,7 +426,7 @@ O capítulo seguinte apresenta os resultados obtidos com esse sistema.
 | Item | O que falta | Card no Trello |
 |---|---|---|
 | Fonte do fator de cubagem (6.000 cm³/kg) | **Resolvido no texto:** citar OLIST (2022) no §4.1.1 do .docx (onde está o comentário do Word) e incluir nas Referências: OLIST. *Como calcular o frete dos produtos para envio pelos Correios?* São Paulo: Olist, 20 set. 2022. Disponível em: https://olist.com/blog/pt/gestao-empresarial/operacao-e-logistica/como-calcular-o-frete-dos-produtos-na-loja-virtual/ | Sprint 12 — fator de cubagem |
-| Fatores das modalidades expressa e verde | **Resolvido no texto:** Tabela 3 nova no §4.1 (renumera as tabelas do Cap. 5 para 4, 5 e 6). **Decisão do grupo:** manter a Verde em CO₂ × 0,6 (declarado como otimista) ou alinhar a × 0,7 (os 30% do WEF, 2024, p. 19); a Expressa (× 2,5) não tem fonte quantitativa | Sprint 12 — modalidades; [Decisão] fatores das modalidades |
+| Fatores das modalidades expressa e verde | **Resolvido no texto:** Tabela 3 nova no §4.1 (renumera as tabelas do Cap. 5 para 4, 5 e 6). **Decidido em 02/11:** Verde alinhada a CO₂ × 0,7 (os 30% do WEF, 2024, p. 19); a Expressa (× 2,5) não tem fonte quantitativa | Sprint 12 — modalidades; [Decisão] fatores das modalidades |
 | Referências novas | Incluir nas Referências: LEE; CHAE (2023), *ISPRS International Journal of Geo-Information* 12(2), 57 (substitui Gonçalves et al., 2014, fora da janela de 5 anos); WORLD ECONOMIC FORUM (2024), *Transforming Urban Logistics*. O código usa os fatores do GLEC v2.0 (2019, rev. 2022); as Referências citam a v3.0 (2023) — alinhar | Sprint 11 — ajustes menores |
 | Capítulo 3 | O Cap. 3 ainda descreve o fator único de 0,102 kg/(t·km) do GHG Protocol; o Cap. 4 agora diz que o modelo evoluiu. Ajustar o Cap. 3 ou manter a menção à evolução | Sprint 11 |
 | Figura 4 (Cap. 3) | Mostra "React" e "E = d × m × f"; a Figura 6 mostra o sistema implementado | — |

@@ -188,7 +188,7 @@ aproximação e a ISO 14083, fica como está):
 
 > Para a estimativa de emissões, a distância de Haversine é convertida em
 > distância rodoviária pelo fator de circuidade de 1,345, média brasileira entre
-> a distância por rodovia e a distância euclidiana (GONÇALVES et al., 2014). Como
+> a distância por rodovia e a distância euclidiana (LEE; CHAE, 2023). Como
 > forma de avaliar a influência dessa simplificação, será selecionada uma amostra
 > de 100 pares de origem e destino extraídos de compras reais do conjunto de
 > dados, 20 em cada faixa de distância em linha reta (até 100 km, de 100 a 500 km,
@@ -313,7 +313,7 @@ em CEPs distintos, com todas as ofertas —, 102 pares):
 2. **O fator 1,345 é conservador acima de 100 km.** Até 100 km a circuidade
    medida bate com ele (1,34); acima, a estrada real é mais reta (1,22–1,28), e o
    motor superestima a distância de estrada em 5–10%. Coerente com a fonte:
-   Gonçalves et al. (2014) estimaram o fator para linha reta < 891 km, e o
+   O estudo brasileiro relatado por Lee e Chae (2023) estimou o fator para linha reta < 891 km, e o
    código já declara que o aplica também acima. Efeito no CO₂: as entregas
    longas ficam superestimadas na mesma proporção, e o CO₂ evitado (§4b) pode
    estar superestimado em até ~10% — a ordem de grandeza e a conclusão não mudam.
@@ -369,17 +369,18 @@ quê. Cada linha aponta a evidência.
 | 26 | Os resultados de carga (§11) valiam para o código das Sprints 8 e 10 | **Controle no HEAD** (`2950c02`): 250 VU × 3 estados × 3 repetições. CPU por requisição igual (8,5 × 8,3 ms); com cache p95 19 ms (antes 25–29); sem cache p95 de 600 a 1.200 ms entre repetições | parecer, bloqueador B1: o texto afirmava resultados medidos antes do motor em cadeia, do contexto regional e de `escolher_oferta` | `docs/performance.md` §13; `load/results/s12-controle-head/` | 12 |
 | 27 | Cubagem de 6.000 cm³/kg descrita como "convenção rodoviária de carga fracionada" | **Fonte corrigida, valor mantido:** é o divisor do peso cúbico de encomendas dos Correios (origem IATA), publicado pelo Olist (2022). Sensibilidade com 300 kg/m³ (3.333 cm³/kg): cubado > real em 87,1% dos produtos (antes 66,4%); CO₂ absoluto +67%; CO₂ evitado 9,5% (antes 9,8%; o 9,6% registrado antes era arredondamento de valores já arredondados — exato 9,55%, `docs/resultados/sensibilidade-co2.md`) e 0,95% de todas as compras (antes 0,94%) | parecer, M3: a atribuição estava errada; o dataset é de encomendas de e-commerce. A conclusão relativa não depende do fator; os números absolutos, sim — declarado no Cap. 5 | `src/features/green_logistics/co2.py`; sensibilidade rodada sobre `scripts.co2_evitado.calcular` com a constante trocada | 12 |
 | 28 | §3.3: "testes de mutação de contrato **no servidor BFF**" | O E2E da Sprint 7 mutava interceptando a resposta no navegador; desde a Sprint 16 o **próprio BFF** muta a árvore que montou (reordenar, injetar selo, bloco novo, bloco desconhecido, envelope sem `actions`), a pedido do cabeçalho `X-SDUI-Mutacao`, e a tela obedece ao vivo no modo apresentação | a metodologia prometia a mutação no servidor; a interceptação provava o cliente, não o BFF. Agora as duas existem: a interceptação isola o renderizador, a do BFF mostra a orquestração | `src/features/orchestrator/mutacoes.py`; `web/e2e/apresentacao.spec.ts`; flag `SDUI_MUTACOES_DEMO` | 16 |
+| 29 | Modalidade Verde com CO₂ × 0,6 (−40%), mais otimista que a fonte | **CO₂ × 0,7** (−30%), o valor do WEF (2024, p. 19); no roteiro, Verde de 4,3 g para 5,0 g | decisão do grupo em 02/11: fator com fonte é mais defensável na banca. Os resultados do Cap. 5 não mudam (usam só a linha de base) | `src/features/green_logistics/delivery_options.py`; `web/e2e/roteiro-banca.spec.ts` | final |
 
 ## 7. Pontos a confirmar contra o texto da monografia
 
 Itens que o repositório não decide sozinho:
 
-- O PRD cita a persona **Microempreendedor (Seller)**; não há tela do lado do
-  vendedor. Se a monografia prometer algo para essa persona, precisa de ajuste
-  de texto ou de escopo.
-- O `orchestrator` (versionamento de blocos) está como **stub**: o campo
-  `version` existe, mas todo bloco vale 1. Conferir se o texto promete
-  roteamento entre versões.
+- ~~Persona **Microempreendedor (Seller)** sem tela~~ — **confirmado** no Report 6
+  (§4.1.3): painel do vendedor declarado fora do escopo; vai para trabalhos futuros.
+- ~~Roteamento por `version` no `orchestrator`~~ — **confirmado** no Report 6
+  (§4.1.3): extensão futura, todo bloco vale 1. O §4.2.1 ainda chama a fatia de
+  "reservada", mas desde a Sprint 16 ela faz as mutações do modo apresentação
+  (ajuste em `docs/tcc/ajustes-versao-final.md`).
 
 ## 8. Trabalhos futuros — o que ficou fora, e por quê (rascunho do cap. 6)
 
