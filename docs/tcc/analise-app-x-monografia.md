@@ -180,6 +180,12 @@ do mais importante para o menos:
 Medição já feita nesta análise: tamanho do JSON por tela (3 a 13 KB; 1,5 a 4,3 KB
 comprimido), registrado em `de-para-metricas.md` §10 e citado no §6.1.1.
 
+**Feito em 02/11 (tarde):** T5 (`docs/resultados/desempenho-cliente.md`), T6
+(`docs/resultados/fator-externo-co2.md`) e T8 (`docs/resultados/primeira-requisicao.md`),
+todos já no Cap. 5. B3 também: as fontes exibidas no app citam só Lee e Chae (2023).
+T4 aguarda a porta 8000 livre (~50 min de máquina); T7 aguarda a decisão sobre o teto
+de preço da troca.
+
 Recomendação: T1 e T2 antes de qualquer outro (risco de demo); T4, T5 e T8 rodam
 juntos numa tarde e entram no Cap. 5 como complemento; T6 fortalece a defesa do
 modelo; T9 só se sobrar tempo.

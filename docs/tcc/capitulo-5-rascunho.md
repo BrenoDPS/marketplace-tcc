@@ -113,6 +113,18 @@ Esses testes demonstram consistência interna, não precisão externa. Validar o
 fatores de emissão exigiria dados de transportadoras, como veículo, rota,
 ocupação e consumo, que a Olist não fornece.
 
+<!-- T6 -->
+Para conferir ao menos a ordem de grandeza, o fator de caminhão do motor foi
+comparado com o da frota rodoviária brasileira a diesel do Programa Brasileiro
+GHG Protocol (0,104 kg CO₂ por tonelada-quilômetro), o mesmo citado na
+metodologia. O fator do GLEC é 11,5% menor, e com o fator brasileiro a emissão
+das entregas longas subiria até 12,5%. Como a circuidade superestima a estrada
+acima de 100 km (Seção 5.1.3), os dois efeitos se compensam em parte: na
+distância mediana das compras, a diferença líquida é de cerca de 5%. A
+conferência vale para o caminhão; não há fator brasileiro independente para a
+van da última milha, e os escopos diferem (CO₂ da queima no fator brasileiro,
+CO₂e do poço à roda no GLEC).
+
 #### 5.1.3 Acurácia da distância: Haversine e OSRM
 
 A metodologia previu comparar a distância em linha reta com a distância de rota
@@ -365,6 +377,35 @@ req/s (1,7 vez), mas ocuparam cerca de três núcleos. O cache alcançou cerca d
 400 req/s com um único processo. Nesta máquina, portanto, mais processos não
 substituem o cache.
 
+<!-- T5, T8 -->
+O desempenho também foi medido no navegador, com o frontend compilado para
+produção (Tabela 7). A página inicial chega pronta do servidor e é pintada em
+140 ms no desktop; com a tela de celular e o processador quatro vezes mais lento,
+em 442 ms. Abrir o detalhe de um produto, que pede uma nova árvore ao servidor e
+a interpreta no cliente, leva 150 ms, e o checkout, 83 ms. Os valores ficam bem
+abaixo das referências de boa experiência (2,5 s para a maior pintura e 0,1 para
+o deslocamento de layout, segundo GOOGLE, 2024): interpretar a árvore de
+componentes no cliente não é o gargalo da jornada. O navegador recebe cerca de
+190 KB de JavaScript comprimido.
+
+Tabela 7 – Desempenho no cliente (build de produção, mediana de 10 visitas)
+
+| Métrica | Desktop | Celular simulado |
+|---|---:|---:|
+| Tempo até o primeiro byte da página inicial | 15 ms | — |
+| Maior pintura da página inicial (LCP) | 140 ms | 442 ms |
+| Carga completa da página inicial | 177 ms | 1.041 ms |
+| Deslocamento de layout acumulado (CLS) | 0,006 | 0,000 |
+| Clique no produto até o detalhe na tela | 150 ms | — |
+| Simular compra até o checkout na tela | 83 ms | — |
+
+Fonte: Elaborada pelos autores (2026). Celular simulado: 390 px de largura e CPU quatro vezes mais lenta.
+
+A primeira requisição depois de iniciar a API é a exceção: leva cerca de 234 ms
+(mediana de cinco reinícios), contra 5 ms das seguintes, porque é nela que os
+centroides de CEP são carregados na memória. Na demonstração, uma requisição de
+aquecimento antes do primeiro acesso evita essa espera.
+
 <!-- M3 -->
 Três limites acompanham esses números. API, banco, cache e gerador de carga
 dividiram o mesmo computador, então os resultados comparam configurações entre
@@ -502,7 +543,9 @@ vendedores (23,5% em SP, 3,7% na BA).
 d) Desempenho e flexibilidade: a meta de 200 ms foi cumprida com 50 usuários em
 todos os estados e com 250 usuários quando o cache estava ativo, inclusive no
 código final. Com 1.000 usuários, o cache multiplicou a vazão por 2,6 e manteve a
-rota cacheada no limite da meta, enquanto as rotas sem cache saturaram.
+rota cacheada no limite da meta, enquanto as rotas sem cache saturaram. No
+navegador, a página inicial é pintada em 140 ms, e as telas pedidas ao servidor
+aparecem em até 150 ms.
 
 Em conjunto, os resultados indicam que o artefato atende ao propósito de
 demonstrar uma integração entre personalização contextual, logística verde e
@@ -530,4 +573,5 @@ futuro.
 | M3 | §5.2.2 | Contrato comparado campo a campo |
 | M2 | §5.3 | Síntese por objetivo (a)–(d), no lugar dos parágrafos 2 a 5 do PDF |
 | de/para | §5.1.1, §5.1.6 | "580, antes dos descartes"; desvio do p95 "1 a 1,7 s"; máquina e versões dos ensaios |
+| T5, T6, T8 | §§5.1.2, 5.1.6, 5.3 | Conferência do fator de caminhão com o GHG Protocol; desempenho no cliente (Tabela 7 nova); primeira requisição |
 | C1–C3, A8, A10, A11 | §§5.1.4, 5.1.5, 5.2.2, 5.3 | Pontos novos da análise da aplicação (v4); Figuras 13, 15, 17 e 19 novas; demais renumeradas |

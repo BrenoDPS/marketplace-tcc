@@ -103,9 +103,9 @@ Quadro 1 – Aderência aos objetivos específicos
 | Objetivo específico | Evidência | Situação |
 |---|---|---|
 | a) Arquitetura SDUI orientada a contexto, sem depender de atualizações do front-end | Doze componentes descritos pelo servidor; cinco mutações do contrato refletidas na tela sem nova compilação, injetadas na resposta e produzidas pelo próprio servidor; componentes desconhecidos ignorados sem interromper a tela | Atendido |
-| b) Engine de pegada de carbono baseada em atividade | Motor em cadeia (circuidade, última milha por van, transferência por caminhão pesado, massa cobrável) com fatores do GLEC; testes de unidade, conversão e monotonicidade; erro de distância de 8,7% contra o OSRM; parcela evitada estável (9,5% a 10,0%) sob variação dos parâmetros | Atendido como estimativa; sem validação contra dados de transportadora |
+| b) Engine de pegada de carbono baseada em atividade | Motor em cadeia (circuidade, última milha por van, transferência por caminhão pesado, massa cobrável) com fatores do GLEC; testes de unidade, conversão e monotonicidade; erro de distância de 8,7% contra o OSRM; parcela evitada estável (9,5% a 10,0%) sob variação dos parâmetros; fator de caminhão conferido com o do Programa Brasileiro GHG Protocol (diferença líquida de cerca de 5%) | Atendido como estimativa; sem validação contra dados de transportadora |
 | c) Personalização integrada a dados logísticos, identificando compras locais | Vitrine regional em 12 das 27 UFs; selo, distância e emissão por oferta; comparador de origens; sugestão de troca no checkout; potencial de 9,8% de redução nos itens com alternativa (0,9% do total), concentrado nas regiões com mais vendedores; comparador que apresenta a redução relativa prevista na Seção 3.2 | Atendido no nível regional; efeito sobre o comportamento do usuário não medido |
-| d) Avaliar desempenho e flexibilidade | Protocolo de 27 ensaios em três cargas e três estados de cache; controle repetido no código final; mutação do contrato | Atendido, com a meta de 200 ms cumprida até 250 usuários com cache e não cumprida no p95 agregado com 1.000 usuários |
+| d) Avaliar desempenho e flexibilidade | Protocolo de 27 ensaios em três cargas e três estados de cache; controle repetido no código final; mutação do contrato; medição no navegador (página inicial pintada em 140 ms, telas pedidas ao servidor em até 150 ms) | Atendido, com a meta de 200 ms cumprida até 250 usuários com cache e não cumprida no p95 agregado com 1.000 usuários |
 
 Fonte: Elaborado pelos autores (2026).
 
@@ -132,7 +132,10 @@ distribuir a carga entre mais processos.
 As limitações são agrupadas pelo tipo de validade que afetam.
 
 **Validade de construto.** A emissão de CO₂ é uma estimativa de modelo, e não uma
-medição. Os fatores são médias internacionais do GLEC, e não fatores da frota
+medição. A ordem de grandeza foi conferida contra o fator brasileiro de caminhão
+do Programa Brasileiro GHG Protocol (diferença líquida de cerca de 5% na
+distância mediana), mas não há referência brasileira independente para a van da
+última milha. Os fatores são médias internacionais do GLEC, e não fatores da frota
 brasileira, e a Olist não informa veículo, rota, ocupação nem consumo. O selo
 mede distância, e não emissão. As modalidades expressa e verde são cenários
 declarados sobre a linha de base, sustentados na direção, mas não no valor, pela

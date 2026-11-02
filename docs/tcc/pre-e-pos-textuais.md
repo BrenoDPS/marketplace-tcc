@@ -53,6 +53,8 @@ EDRONE. **Dados do e-commerce no Brasil**: estatísticas e tendências. [S. l.],
 
 ISO. **ISO 14083:2023**: Greenhouse gases — Quantification and reporting of greenhouse gas emissions arising from operations of transport chains. Geneva: International Organization for Standardization, 2023. 108 p.
 
+GOOGLE. **Web Vitals**: essential metrics for a healthy site. [S. l.]: web.dev, 2024. Disponível em: https://web.dev/articles/vitals. Acesso em: 2 nov. 2026.
+
 LEE, K.; CHAE, J. Estimation of travel cost between geographic coordinates using artificial neural network: potential application in vehicle routing problems. **ISPRS International Journal of Geo-Information**, Basel, v. 12, n. 2, p. 57, 2023. DOI: 10.3390/ijgi12020057.
 
 LOCUST. **Locust**: an open source load testing tool. Versão 2.46. [S. l.]: Locust.io, 2024. Disponível em: https://docs.locust.io. Acesso em: 9 set. 2026.

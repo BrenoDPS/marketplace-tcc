@@ -53,7 +53,7 @@ VOLUMETRIC_FACTOR_CM3_PER_KG: float = 6000.0
 # As mesmas fontes, em texto para a tela (explicador do selo, Sprint 15).
 # Mudou uma constante acima? Mude a fonte aqui junto.
 FONTES: tuple[str, ...] = (
-    "Circuidade 1,345: Lee e Chae (2023), sobre Gonçalves et al. (2014).",
+    "Circuidade 1,345: média brasileira relatada por Lee e Chae (2023).",
     "Última milha de 15 km: World Economic Forum (2024), Transforming Urban Logistics.",
     "Fatores por veículo (van 0,680; caminhão 0,092 kg CO₂e por t·km): GLEC Framework v2.0, Smart Freight Centre.",
     "Peso cúbico de 6.000 cm³ por kg: divisor dos Correios para encomendas (Olist, 2022).",

@@ -126,6 +126,14 @@ Tamanho do JSON de cada tela (o argumento de custo da SDUI na rede):
 Comando: `curl -s <rota> | wc -c` e `gzip -c | wc -c`. Entrou no §6.1.1 (o contrato
 descreve a tela inteira em poucos kilobytes).
 
+## 11. Medições novas (02/11, tarde) — já no texto da versão final
+
+| Métrica | Texto | Valor no texto | Fonte | Status |
+|---|---|---|---|---|
+| Fator de caminhão × GHG Protocol | §5.1.2, Quadro 1 | 11,5% menor; +12,5% nas longas; ~+5% líquido a 432 km | `docs/resultados/fator-externo-co2.md` (`scripts.fator_externo_co2`) | ✅ |
+| Desempenho no cliente | §5.1.6, Tabela 7 | LCP 140 / 442 ms; CLS 0,006; detalhe 150 ms; checkout 83 ms; JS ~190 KB | `docs/resultados/desempenho-cliente.md` (`web/scripts/desempenho-cliente.mjs`) | ✅ |
+| Primeira requisição após subir a API | §5.1.6 | ~234 ms × 5 ms | `docs/resultados/primeira-requisicao.md` (`scripts.primeira_requisicao`) | ✅ |
+
 ## Resumo
 
 - **Todos os números dos Caps. 4 a 6 e do Resumo conferidos.** Três divergências: a contagem de testes, o desvio do

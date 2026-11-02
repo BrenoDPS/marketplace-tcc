@@ -1062,3 +1062,18 @@ a 1.000 VU a saturação domina (§11.5).
 ---
 
 *§§1–7: Sprint 6. §§8–9: Sprint 7. §§10–11: Sprint 8. §12: Sprint 10. §13: Sprint 12. Suíte em `load/locustfile.py`; runner em `load/protocolo.py`; dados em `load/results/`.*
+
+## 14. Cliente e primeira requisição (02/11)
+
+Fora do protocolo da §3.3, duas medições que o protocolo não cobre:
+
+- **Cliente (build de produção do Next.js):** página inicial com LCP de 140 ms no desktop e
+  442 ms com a CPU 4× mais lenta (390 px); CLS 0,006; clique no produto até o detalhe na tela
+  em 150 ms; "Simular compra" até o checkout em 83 ms; ~190 KB de JS comprimido. Detalhe em
+  `docs/resultados/desempenho-cliente.md` (`node web/scripts/desempenho-cliente.mjs`).
+- **Primeira requisição após subir a API:** ~234 ms (mediana de 5 reinícios) contra ~5 ms das
+  seguintes: é a carga dos centroides (§6). `python -m scripts.primeira_requisicao`.
+
+Leitura: a interpretação da árvore SDUI no navegador não é gargalo; o custo está no
+servidor sob concorrência (§§11–13).
+
