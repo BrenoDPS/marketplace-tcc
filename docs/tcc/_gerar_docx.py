@@ -306,6 +306,19 @@ for el in body.iter(qn("w:p")):
             ultimo = [r for r in el.iter(qn("w:t")) if r.text][-1]
             ultimo.text = ultimo.text.rstrip() + " (2026)."
 
+# 2b. Cap. 3: parágrafos do template trocados pelos de "CAPÍTULO 3 — AJUSTES" (resposta da P5)
+ajustes = re.sub(r"<!--.*?-->", "", pre.split("## CAPÍTULO 3 — AJUSTES\n", 1)[1], flags=re.S)
+for trecho in ajustes.split("\n### ")[1:]:
+    inicio, novo = trecho.split("\n", 1)
+    paras = [" ".join(x.split()) for x in novo.strip().split("\n\n")]
+    i_cap4 = achar(lambda p: estilo(p) == "Ttulo1" and texto(p).startswith("4 "))
+    alvo = achar(lambda p: texto(p).strip().startswith(inicio.strip()) and not estilo(p).startswith("Sumrio"))
+    assert alvo < i_cap4, f"Cap. 3: parágrafo não encontrado: {inicio}"
+    antigo = body[alvo]
+    for t in reversed(paras):
+        antigo.addnext(paragrafo(antigo, t))
+    body.remove(antigo)
+
 # 3. pré-textuais: siglas (em página própria), resumo e abstract
 i_sig = achar(lambda p: texto(p).strip() == "LISTA DE SIGLAS")
 j = i_sig - 1

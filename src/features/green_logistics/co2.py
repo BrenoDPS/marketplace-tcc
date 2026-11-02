@@ -38,14 +38,17 @@ CIRCUITY_FACTOR: float = 1.345
 LAST_MILE_KM: float = 15.0
 
 # GLEC Framework v2.0 (Smart Freight Centre, 2019, rev. 2022), Modulo 2, regiao
-# "Europe and South America", WTW, diesel com 5% de biodiesel, sem refrigeracao:
+# "Europe and South America", WTW, diesel com 5% de biodiesel, sem refrigeracao.
+# A tela e a monografia citam a v3.0 (2023): regra do TCC de referencias com ate
+# 5 anos (decisao do grupo, 02/11).
 FE_LINE_HAUL_KG_PER_T_KM: float = 0.092  # p. 104: HGV > 20 t (ponto de partida)
 FE_LAST_MILE_KG_PER_T_KM: float = 0.680  # Tabela 41: van < 3,5 t
 
 # Divisor do peso cubico de ENCOMENDAS: 6.000 cm3 = 1 kg. E o dos Correios (de
 # origem aerea, IATA), publicado pelo proprio Olist: "O numero 6000 e o fator de
 # cubagem" (Olist, 2022, "Como calcular o frete dos produtos para envio pelos
-# Correios?"). NAO e o rodoviario de carga fracionada (~300 kg/m3 = 3.333 cm3/kg).
+# Correios?"); a monografia e a tela citam Bsoft (2026), decisao do grupo
+# (02/11). NAO e o rodoviario de carga fracionada (~300 kg/m3 = 3.333 cm3/kg).
 # Sensibilidade (Sprint 12): com 3.333 o CO2 absoluto sobe ~67%, e o CO2
 # evitado relativo quase nao muda (9,8% -> 9,5%) — `docs/resultados/sensibilidade-co2.md`.
 VOLUMETRIC_FACTOR_CM3_PER_KG: float = 6000.0
@@ -55,8 +58,8 @@ VOLUMETRIC_FACTOR_CM3_PER_KG: float = 6000.0
 FONTES: tuple[str, ...] = (
     "Circuidade 1,345: média brasileira relatada por Lee e Chae (2023).",
     "Última milha de 15 km: World Economic Forum (2024), Transforming Urban Logistics.",
-    "Fatores por veículo (van 0,680; caminhão 0,092 kg CO₂e por t·km): GLEC Framework v2.0, Smart Freight Centre.",
-    "Peso cúbico de 6.000 cm³ por kg: divisor dos Correios para encomendas (Olist, 2022).",
+    "Fatores por veículo (van 0,680; caminhão 0,092 kg CO₂e por t·km): GLEC Framework (Smart Freight Centre, 2023).",
+    "Peso cúbico de 6.000 cm³ por kg: fator de cubagem dos Correios para encomendas (Bsoft, 2026).",
 )
 
 

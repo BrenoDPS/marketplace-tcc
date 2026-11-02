@@ -110,7 +110,7 @@ comprador também pode ordenar a vitrine por menor distância, menor emissão
 estimada ou menor preço; a ordenação é feita pelo servidor, que devolve uma nova
 árvore de componentes. <!-- A1 -->
 
-<!-- M5 (opção B, até a resposta da P5) e m6 -->
+<!-- M5 (evolução do CO₂ declarada aqui, P5) e m6 -->
 O terceiro requisito corresponde ao cálculo da pegada de carbono. O modelo de
 emissão evoluiu em relação ao fator único descrito no Capítulo 3, porque aplicar
 o fator de caminhão também à última milha, feita por veículos menores,
@@ -123,8 +123,8 @@ transferência realizada por caminhão pesado e uma etapa final de até 15 km
 realizada por van, conforme a referência do World Economic Forum (2024). A massa
 utilizada no cálculo é a massa cobrável, isto é, o maior valor entre o peso real
 e o peso cubado. Para a cubagem, adotou-se a relação de 6.000 cm³ para cada
-quilograma (OLIST, 2022). Os fatores por veículo são os do GLEC Framework
-(SMART FREIGHT CENTRE, 2019). Para que a estimativa não seja uma caixa-preta, o
+quilograma (BSOFT, 2026). Os fatores por veículo são os do GLEC Framework
+(SMART FREIGHT CENTRE, 2023). Para que a estimativa não seja uma caixa-preta, o
 selo oferece a opção "Como calculamos?", que abre a cadeia do cálculo da oferta
 exibida: distância em linha reta, estrada estimada, trechos de caminhão e de van,
 massa considerada, fatores e fontes (Figura 6). <!-- A2, M6 -->
@@ -564,16 +564,15 @@ mecanismo foi construído.
 
 #### 4.3.4 Ambiente de execução (Docker Compose)
 
-<!-- M5 (opção B) -->
+<!-- M5: o Cap. 3 passou a descrever o hospedeiro (P5) -->
 O ambiente foi organizado com Docker Compose para os serviços PostgreSQL e Redis.
 A API FastAPI é executada no hospedeiro e o frontend pode ser iniciado
 separadamente para a demonstração visual. Essa configuração foi mantida nas
 medições porque o ambiente utilizado era Windows com Docker sobre WSL2. Dessa
 forma, a comunicação entre a API e o gerador de carga ocorreu por loopback,
 enquanto o banco e o cache permaneceram em contêineres no mesmo hospedeiro. Essa
-configuração difere da sub-rede de contêineres prevista no Capítulo 3; a
-diferença é declarada aqui porque mantém a comparação entre os estados do cache,
-mas acrescenta a disputa por processador entre API e gerador de carga.
+configuração mantém a comparação entre os estados do cache, mas acrescenta a
+disputa por processador entre a API e o gerador de carga.
 
 Para executar a demonstração, primeiro são iniciados os serviços de persistência.
 Em seguida, o ETL carrega a amostra operacional e a API é iniciada. Quando o banco
@@ -600,12 +599,12 @@ logísticas, o desempenho e a flexibilidade do contrato.
 | ID | Onde | O que mudou |
 |---|---|---|
 | m3 | Figura 5 | Legenda: "Página inicial no modo de inspeção SDUI" |
-| M5 | §4.1.1 (3º requisito), §4.3.4 | Opção B: frase de transição para o motor em cadeia e desvio da sub-rede declarado. Se o orientador liberar o Cap. 3 (P5), apagar as duas frases e aplicar a opção A |
-| m6 | §4.1.1 (3º requisito) | Cubagem citada por OLIST (2022) em vez de Bsoft (2026) |
+| M5 | §4.1.1 (3º requisito), §4.3.4; §3.2–3.3 | Resposta da P5 (02/11): o Cap. 3 passou a descrever a API no hospedeiro, a carga, o cache e a validação OSRM (`pre-e-pos-textuais.md` → "CAPÍTULO 3 — AJUSTES"); a evolução do motor de CO₂ continua declarada aqui |
+| m6 | §4.1.1 (3º requisito) | Cubagem citada por BSOFT (2026), por decisão do grupo (02/11); referência com "Disponível em:" |
 | m2 | §4.1.1 (regra de oferta) | Desempate nunca troca oferta com selo por oferta sem selo |
 | M9 | §4.1.1 (modalidades) | Tabela 3 nova com a Verde em × 0,7; as Tabelas 3–5 do Cap. 5 passam a 4–6 |
 | m1 | §4.1.2 | Ressalva do Locust (resposta completa, limite superior do TTFB) |
 | M4 | §4.2.1, §4.2.3 | Cinco fatias; orchestrator com as mutações; Tabela 2 com 12 componentes |
-| M6 | §4.1.1 (3º requisito) | Fatores citados como GLEC v2.0 (SMART FREIGHT CENTRE, 2019), a versão usada no código |
+| M6 | §4.1.1 (3º requisito) | Fatores citados pela v3.0 (SMART FREIGHT CENTRE, 2023): a v2.0 (2019) fura a regra de referências de até 5 anos (decisão do grupo, 02/11) |
 | R4 | §4.1.1 (busca) | Redesign de 02/11: identidade dos produtos (referência, peso, volume, nota) e heróis honestos com ações reais |
 | A1–A9, B1, B2 | §§4.1.1, 4.1.2, 4.2.3, 4.3.3 | Pontos novos da análise da aplicação (v4); Figuras 6 e 7 novas; demais renumeradas (5, 8, 9, 10) |

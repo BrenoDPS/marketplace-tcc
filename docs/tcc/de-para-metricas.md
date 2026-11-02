@@ -99,8 +99,8 @@
 |---|---|---|---|
 | Locust | "Versão 2.31" | 2.46.5 | ❌ → corrigido para 2.46 (ano 2024 mantido: é o citado no Cap. 3) |
 | FastAPI | "Versão 0.111" | 0.141.1 | ❌ → corrigido para 0.141 (ano 2024 mantido: é o citado no Cap. 2) |
-| GLEC Framework | v3.0 (2023) | fatores da v2.0 (código e página de metodologia) | ⚠️ v3.0 mantida para a §3.2; v2.0 acrescentada e citada onde entram os fatores |
-| Cubagem | BSOFT (2026) | OLIST (2022) no código e no app | ⚠️ trocada por OLIST (2022) |
+| GLEC Framework | v3.0 (2023) | fatores da v2.0 (código e página de metodologia) | ✅ v3.0 (2023) em todo o texto e na tela, por decisão do grupo (regra de referências de até 5 anos, 02/11); a v2.0 fica só no comentário do código, como procedência dos números |
+| Cubagem | BSOFT (2026) | OLIST (2022) no código e no app | ✅ BSOFT (2026) mantida por decisão do grupo (02/11); a tela passou a citar Bsoft (2026) |
 
 ## 9. Números da demonstração (roteiro da banca)
 

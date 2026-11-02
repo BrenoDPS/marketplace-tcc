@@ -45,6 +45,8 @@ Key words: Server-Driven UI. Green Logistics. Backend-for-Frontend. Contextual M
 
 ## REFERÊNCIAS
 
+BSOFT. **Entenda a diferença entre cubagem, peso cubado e fator de cubagem**. [S. l.]: Bsoft Internet e Tecnologia, 2026. Disponível em: https://bsoft.com.br/blog/diferenca-cubagem-peso-cubado-fator-cubagem. Acesso em: 13 out. 2026.
+
 CANO, Jose Alejandro; LONDOÑO-PINEDA, Abraham; OVALLE RODAS, C. Sustainable Logistics for E-Commerce: A Literature Review and Bibliometric Analysis. **Sustainability**, v. 14, n. 19, art. 12247, 27 set. 2022. DOI: 10.3390/su141912247.
 
 CHERIPURATHU, Kurian George; KULKARNI, Sanjeev. Integrating Microservices and Microfrontends: A Comprehensive Literature Review on Architecture, Design Patterns, and Implementation Challenges. **Journal of Scientific Research and Technology**, p. 1-12, 2 jul. 2024. DOI: 10.61808/jsrt115.
@@ -64,8 +66,6 @@ MUNDIM, Arianne Alves da Silva. **Roteamento de Estoque e Transporte de Carga Mu
 NAWAZ, Asif et al. Context-aware Frameworks and Architectures — A Comprehensive Survey. In: INTERNATIONAL CONFERENCE ON ADVANCED SCIENCE AND ENGINEERING TECHNOLOGIES (ASET), 2022. **Proceedings** [...]. IEEE, 21 fev. 2022. DOI: 10.1109/ASET53988.2022.9735024.
 
 OLIST. **Brazilian E-Commerce Public Dataset by Olist**. Kaggle, 2024. Disponível em: https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce. Acesso em: 28 mar. 2026.
-
-OLIST. **Como calcular o frete dos produtos para envio pelos Correios?** São Paulo: Olist, 20 set. 2022. Disponível em: https://olist.com/blog/pt/gestao-empresarial/operacao-e-logistica/como-calcular-o-frete-dos-produtos-na-loja-virtual/. Acesso em: 13 out. 2026.
 
 OLIVEIRA, M. **O panorama do e-commerce no Brasil**: tendências e desafios. São Paulo: Varejo Digital, 2022. 41 p.
 
@@ -91,8 +91,6 @@ SILVA, Sérgio Ferrigo da. **Inovação sustentável integrando Internet das coi
 
 SIMÃO, Angelo Guimarães; SALLES, Dayane Martins; FERNANDES, Valdir. Plataformas digitais de indicadores dos ODS: origem, abrangência e transparência. **Revista Tecnologia e Sociedade**, v. 20, n. 59, 15 abr. 2024. DOI: 10.3895/rts.v20n59.17828.
 
-SMART FREIGHT CENTRE. **Global Logistics Emissions Council Framework for Logistics Emissions Accounting and Reporting**. Version 2.0. Amsterdam: Smart Freight Centre, 2019. Atualizado em 2022. Disponível em: https://www.smartfreightcentre.org/en/glec-framework/. Acesso em: 9 set. 2026.
-
 SMART FREIGHT CENTRE. **Global Logistics Emissions Council Framework for Logistics Emissions Accounting and Reporting (GLEC Framework)**. Versão 3.0. Amsterdam: Smart Freight Centre, 2023. 164 p. Disponível em: https://www.smartfreightcentre.org/en/glec-framework/. Acesso em: 9 set. 2026.
 
 TRANSVIAS. **Pegada de carbono no transporte de cargas**: como reduzir impactos ambientais. [S. l.], 6 out. 2025. Disponível em: https://noticias.transvias.com.br/2025/10/06/pegada-carbono-transporte-cargas/. Acesso em: 16 abr. 2026.
@@ -102,3 +100,33 @@ W3C. **Web Content Accessibility Guidelines (WCAG) 2.1**. [S. l.]: World Wide We
 WORLD ECONOMIC FORUM. **Transforming Urban Logistics**. [S. l.]: World Economic Forum, 2024. Disponível em: https://www.weforum.org/publications/transforming-urban-logistics-a-path-to-sustainable-and-efficient-last-mile-delivery-in-cities/. Acesso em: 13 out. 2026.
 
 ZUBAIDAH, Tantri Risda et al. Sustainable Business of E-Commerce in the Smart Economy: A Systematic Review of Roles and Challenges for Future Research. In: INTERNATIONAL CONFERENCE ON INFORMATION SYSTEMS AND SOFTWARE ENGINEERING (ICISS), 2024. **Proceedings** [...]. IEEE, 2024. DOI: 10.1109/iciss62896.2024.10751282.
+
+## CAPÍTULO 3 — AJUSTES
+
+<!-- Devolutiva do orientador à P5 (02/11): priorizar a documentação; se a API rodou
+no hospedeiro com desempenho satisfatório, atualizar a seção 3. A evolução do motor
+de CO₂ continua declarada no Cap. 4. Cada bloco: "### <início do parágrafo do
+template>" e o texto que o substitui (parágrafos extras entram logo depois).
+Redações de docs/tese-rastreabilidade.md §5, conferidas contra o código em 02/11. -->
+
+### O ambiente de desenvolvimento será organizado
+
+O ambiente de desenvolvimento será organizado com Docker e Docker Compose para os serviços de persistência, PostgreSQL e Redis, executados em contêineres. A API FastAPI e o front-end, desenvolvido em Next.js (React), serão executados diretamente no hospedeiro, porque, no ambiente Windows utilizado, o Docker opera sobre uma máquina virtual (WSL2), o que acrescentaria uma camada de virtualização ao caminho medido. O código-fonte será mantido em um repositório Git, e as dependências serão registradas em arquivos próprios de cada serviço, facilitando a reprodução do ambiente utilizado nos testes.
+
+### Os testes de desempenho e estresse serão executados
+
+Os testes de desempenho e estresse serão executados utilizando a ferramenta Locust, adotando-se o padrão de carga em degraus (*step-load pattern*) para simular o comportamento concorrente de usuários na interface web. A carga será aplicada de forma progressiva sobre a jornada de navegação completa: a tela inicial em quatro variações de contexto (padrão, especialista em eletrônicos, consumidor consciente e busca), o detalhe de produto e a simulação de checkout, todas montadas pelo orquestrador SDUI e com cálculo de distância e pegada de carbono. As estatísticas serão registradas por rota, o que permitirá isolar o *endpoint* de orquestração da tela inicial na análise. As requisições serão intercaladas com um tempo de reflexão (*think time*) parametrizado entre um e três segundos, modelando a navegação humana no catálogo de produtos.
+
+### O protocolo experimental adotará
+
+O protocolo experimental adotará procedimentos de isolamento de variáveis para neutralizar interferências transientes do sistema operacional e oscilações no agendamento de processos em segundo plano. Cada um dos cenários dimensionados será executado em triplicata (três ensaios independentes) sob três estados da camada de persistência transitória em Redis: cache desabilitado, cache frio (*cold cache*) e cache aquecido (*warm cache*). No primeiro estado (*bypass* integral), o sistema é forçado a percorrer todo o ciclo computacional, que compreende a consulta relacional no PostgreSQL, o cálculo geodésico de Haversine e a montagem dinâmica da árvore de nós da SDUI, fixando a linha de base (*baseline*) de esforço da CPU e de saturação de conexões. O estado "cache desabilitado" refere-se exclusivamente à camada de respostas em Redis; duas outras camadas permanecem ativas nos três estados e fazem parte da linha de base: a tabela de centroides de CEP (cerca de 12,9 mil linhas de dado de referência estático), mantida em memória no processo da aplicação, e o cache de páginas do próprio PostgreSQL. No estado de cache frio, a persistência em memória é inicializada vazia para mensurar a penalidade de processamento decorrente de rajadas simultâneas de falhas de localização de chaves (*cache misses*). Por fim, o cache aquecido é condicionado por um ciclo prévio de requisições (*pre-warming*): o próprio ensaio de cache frio, executado imediatamente antes e com a mesma semente de sorteio dos CEPs, de modo que os usuários virtuais do ensaio aquecido requisitam exatamente as chaves que o ensaio frio deixou em memória. A mesma semente será usada nas três condições de cada cenário, para que os três estados sejam comparados sobre a mesma população de compradores (comparação pareada), e os CEPs serão sorteados da distribuição real de clientes da amostra, de modo que a taxa de acerto do cache reflita a concentração geográfica efetiva da demanda. O tempo de vida das chaves será fixado em 3.600 s, superior à duração de um par frio–aquecido. Para suprimir ruídos decorrentes de atrasos dinâmicos de rede externa (*jitter* e perda de pacotes), o motor de aplicação e o gerador de carga Locust serão executados no mesmo hospedeiro e se comunicarão pela interface de *loopback*, sem atravessar qualquer rede física; a base de dados PostgreSQL e o Redis executarão em contêineres Docker no mesmo hospedeiro.
+
+Os ensaios utilizarão um único processo de aplicação (um *worker* do servidor ASGI) e os *pools* de conexões padrão das bibliotecas: no PostgreSQL, 5 conexões fixas e 10 adicionais, com tempo limite de 30 s (SQLAlchemy); no Redis, até 100 conexões, com espera de até 5 s por uma conexão livre. Esgotado o *pool* do PostgreSQL, a requisição resulta em resposta HTTP 500, contabilizada como falha. Os registros de SQL da aplicação serão desligados durante as medições. As estatísticas descritivas considerarão apenas o regime permanente (*plateau*); a série temporal completa, incluindo a rampa, será preservada para a análise da penalidade de *cache misses* no estado frio.
+
+### Como forma de avaliar a influência dessa simplificação
+
+Para a estimativa de emissões, a distância de Haversine é convertida em distância rodoviária pelo fator de circuidade de 1,345, média brasileira entre a distância por rodovia e a distância euclidiana (LEE; CHAE, 2023). Como forma de avaliar a influência dessa simplificação, será selecionada uma amostra de 100 pares de origem e destino extraídos de compras reais do conjunto de dados, 20 em cada faixa de distância em linha reta (até 100 km, de 100 a 500 km, de 500 a 1.000 km, de 1.000 a 2.000 km e acima de 2.000 km). Para cada par, a distância de Haversine, crua e convertida pelo fator de circuidade, será comparada com a distância da rota calculada pelo Open Source Routing Machine (OSRM), serviço baseado na malha viária do OpenStreetMap, entre os mesmos centroides de prefixo de CEP utilizados pelo sistema. A comparação será realizada por meio do erro absoluto médio (MAE), do erro percentual absoluto médio (MAPE) e do coeficiente de correlação de Spearman.
+
+### A utilização dessas métricas permitirá
+
+Também será verificado se os dois métodos preservam a ordenação dos vendedores em decisões reais de compra: para compradores de produtos ofertados por vendedores em localidades distintas, será medido o percentual de casos em que o vendedor mais próximo em linha reta é também o mais próximo pela rota, o percentual de pares de vendedores ordenados da mesma forma pelos dois métodos e, nos casos divergentes, a distância rodoviária adicional decorrente da escolha por linha reta. A utilização dessas métricas permitirá verificar não somente a diferença entre as distâncias calculadas, mas também se a aproximação de Haversine é capaz de manter a finalidade principal do sistema: identificar comparativamente as alternativas de menor impacto ambiental. Caso sejam constatadas divergências relevantes, as limitações do método serão apresentadas na análise dos resultados, e as distâncias fornecidas pelo sistema serão classificadas explicitamente como estimativas comparativas.
