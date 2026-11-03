@@ -98,7 +98,7 @@ Antes das análises agregadas, as regras do motor foram verificadas com entradas
 controladas, como prevê a metodologia: distância de Haversine, conversão para
 distância rodoviária, massa cobrável, divisão entre transferência e última milha,
 fatores de emissão, escolha de oferta e ausência de recomendação quando faltam
-dados. Na versão final, a suíte do backend somava 231 testes aprovados e a do
+dados. Na versão final, a suíte do backend somava 233 testes aprovados e a do
 frontend, 42, além de 8 testes de jornada no navegador.
 
 Um caso ilustra a cadeia de cálculo. Para 100 km em linha reta e 1 kg de massa, o
@@ -241,6 +241,14 @@ R$ 6,11 na mediana. O CO₂ evitado passa de 254,2 para 253,7 kg CO₂e e contin
 9,8%. Nos itens em que a regra trocaria o vendedor, a oferta recomendada fica mais
 cara em 39,3% dos casos, contra 50,4% sem o desempate. O desempate por preço
 reduz o custo da recomendação sem alterar o benefício ambiental.
+
+<!-- Cap. 6 v3: caso de preço que saiu da antiga §6.1.1 -->
+A regra, porém, ainda decide contra o comprador em casos pontuais. Para um mesmo
+produto e um mesmo CEP, o comparador de origens mostrou a oferta escolhida a 22 km
+por R$ 337,69, enquanto outra, a 28 km, custava R$ 130,00 e emitia apenas 0,4 g a
+mais. Tratar como empate diferenças de emissão menores que a incerteza do modelo
+reduziria esses casos, ao custo de parte do benefício ambiental. Como a diferença
+de preço fica visível no comparador, a decisão final continua com o usuário.
 
 <!-- M3 -->
 Esses números são contrafactuais e devem ser lidos como potencial. O cálculo
@@ -386,7 +394,9 @@ a interpreta no cliente, leva 150 ms, e o checkout, 83 ms. Os valores ficam bem
 abaixo das referências de boa experiência (2,5 s para a maior pintura e 0,1 para
 o deslocamento de layout, segundo GOOGLE, 2024): interpretar a árvore de
 componentes no cliente não é o gargalo da jornada. O navegador recebe cerca de
-190 KB de JavaScript comprimido.
+190 KB de JavaScript comprimido. O próprio contrato pesa pouco na rede: cada tela
+ocupa de 2 a 13 KB de JSON, ou de 1,2 a 4,3 KB comprimidos, de modo que descrever a
+interface no servidor não encarece o tráfego de forma relevante.
 
 Tabela 7 – Desempenho no cliente (build de produção, mediana de 10 visitas)
 
@@ -487,8 +497,10 @@ Fonte: Elaborada pelos autores (2026).
 Uma base histórica nunca é completa: há produtos sem peso, sem avaliação ou com
 um único vendedor. A estratégia adotada foi omitir o que não pode ser sustentado
 pelos dados. Sem distância, o selo não aparece. Sem massa, a emissão não é
-exibida. Acima de 100 km, o produto não recebe o selo. Sem uma alternativa
-melhor, nenhuma troca é sugerida. Sem avaliações, a nota é omitida.
+exibida. Acima de 100 km, o produto não recebe o selo verde; no detalhe, uma
+etiqueta neutra mostra a distância, a emissão e a mesma explicação do cálculo. Sem
+uma alternativa que emita menos e custe no máximo 20% a mais, nenhuma troca é
+sugerida. Sem avaliações, a nota é omitida.
 
 A ausência de selo, portanto, não afirma que a entrega é poluente, apenas indica
 que não há dados para classificá-la. Um selo atribuído a partir de um valor
@@ -504,13 +516,14 @@ apenas com o teclado, da entrada do CEP ao checkout.
 <!-- T9 -->
 Além do teclado, as seis telas da jornada (entrada, página inicial, detalhe,
 checkout, metodologia e pesquisa) foram auditadas pela ferramenta axe-core, nas
-regras de nível A e AA das diretrizes de acessibilidade WCAG 2.1 (W3C, 2018). Não
-houve violação crítica. Foram apontadas três violações sérias, todas de correção
-pontual: dois textos secundários com contraste abaixo de 4,5:1 (o número de
-produtos por categoria e o preço unitário no resumo do pedido) e o botão do
-carrinho, cujo nome lido pelas tecnologias assistivas não contém o texto
-visível. A verificação automática cobre apenas parte dos critérios; o uso com
-leitor de tela e por pessoas com deficiência não foi avaliado.
+regras de nível A e AA das diretrizes de acessibilidade WCAG 2.1 (W3C, 2018). A
+primeira auditoria não encontrou violação crítica, mas apontou violações sérias de
+correção pontual: textos secundários com contraste abaixo de 4,5:1, botões cujo
+nome lido pelas tecnologias assistivas não continha o texto visível e uma lista de
+definição com estrutura inválida. Corrigidas, a auditoria da versão final não
+registrou nenhuma violação nas seis telas. A verificação automática cobre apenas
+parte dos critérios; o uso com leitor de tela e por pessoas com deficiência não
+foi avaliado.
 
 <!-- M3 -->
 A correspondência entre servidor e cliente também é verificada automaticamente,
@@ -567,10 +580,13 @@ Em conjunto, os resultados indicam que o artefato atende ao propósito de
 demonstrar uma integração entre personalização contextual, logística verde e
 composição server-driven. As conclusões são delimitadas pelo caráter histórico do
 dataset, pelos centroides de CEP, pelo modelo estimativo de emissões, pelo uso de
-um serviço público de roteamento e pelo ambiente controlado de carga. Essas
-delimitações serão retomadas no capítulo de discussão, que deverá separar o que
-foi demonstrado empiricamente do que permanece como hipótese, cenário ou trabalho
-futuro.
+um serviço público de roteamento e pelo ambiente controlado de carga. Somam-se três
+limites de interpretação. O selo mede distância, e não emissão: um produto pesado a
+99 km o recebe, e um leve a 101 km, não, razão pela qual a emissão estimada é
+exibida ao lado dele. As modalidades expressa e verde são cenários declarados
+sobre o frete observado, e não medições. E o trabalho não incluiu estudo com
+participantes, de modo que o efeito da informação sobre a decisão de compra
+permanece como hipótese; o CO₂ evitado é um potencial, e não um efeito observado.
 
 ---
 
@@ -579,8 +595,9 @@ futuro.
 | ID | Onde | O que mudou |
 |---|---|---|
 | — | Tabelas | Renumeradas 3 → 4, 4 → 5, 5 → 6 (Tabela 3 nova no Cap. 4) |
-| M3 | §5.1.2 | Contagem de testes da versão final (231 / 42 / 8 E2E) |
-| T9 | §5.2.2 | Auditoria de acessibilidade (axe-core, WCAG 2.1 A/AA): 0 críticas, 3 sérias |
+| M3 | §5.1.2 | Contagem de testes da versão final (233 / 42 / 8 E2E) |
+| T9 | §5.2.2 | Auditoria de acessibilidade (axe-core, WCAG 2.1 A/AA): sérias corrigidas no redesenho → 0 violações |
+| C6 | §5.1.4, §5.1.6, §5.2.2, §5.3 | Cap. 6 v3 (03/11, sem subtítulos): caso de preço R$ 337,69 × R$ 130,00 e tamanho do contrato (2–13 KB, remedido em 03/11) vieram da antiga §6.1.1; limites do selo, das modalidades e da validação com pessoas, da antiga §6.2; selo neutro e teto de 20% na troca |
 | M3 | §5.1.4 | Parágrafo do desempate por preço; frase "sem o desempate" removida; parágrafo de sensibilidade |
 | M1 | §5.1.5 | Título corrigido (no PDF repetia o da §5.1.6) |
 | M8 | §5.1.6 | Tabela 6 com desvio padrão e p99 |

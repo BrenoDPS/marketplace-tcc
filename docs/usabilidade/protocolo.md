@@ -1,5 +1,5 @@
 > **Não executado (02/11):** o grupo, com o orientador, decidiu não fazer o teste com
-> pessoas; ficou como limitação (§6.2) e trabalho futuro (§6.4 a) da monografia.
+> pessoas; ficou como limitação e trabalho futuro no Cap. 6 da monografia.
 
 # Teste de usabilidade — protocolo (Sprint 14)
 

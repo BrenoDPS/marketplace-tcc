@@ -108,7 +108,7 @@
 |---|---|---|---|
 | Atibaia 50 km, 7,17 g; Videira 588 km, R$ 39,90, 5,5× | `roteiro-banca.md`, Figura nova | app (02/11), E2E `roteiro-banca` | ✅ |
 | Verde 5,02 g; Expressa 17,9 g | roteiro | E2E (Verde), captura `c08` | ✅ (Verde mudou de 4,30 para 5,02 g com o fator 0,7) |
-| Caso de preço do Cap. 6: R$ 337,69 a 22 km × R$ 130,00 a 28 km; 0,4 g | §6.1.1 | `GET /products/69455f41…` (02/11) | ✅ 6,32 × 6,72 g |
+| Caso de preço: R$ 337,69 a 22 km × R$ 130,00 a 28 km; 0,4 g | §5.1.4 (veio da antiga §6.1.1; Cap. 6 v3 sem subtítulos, 03/11) | `GET /products/69455f41…` (02/11) | ✅ 6,32 × 6,72 g |
 
 ## 10. Medição nova (02/11), ainda fora do texto
 
@@ -116,24 +116,27 @@ Tamanho do JSON de cada tela (o argumento de custo da SDUI na rede):
 
 | Tela | JSON | gzip |
 |---|---|---|
-| Página inicial (regional) | 7,6 KB | 1,6 KB |
-| Página inicial (consciente) | 7,7 KB | 1,5 KB |
-| Detalhe do produto | 3,0 KB | 1,5 KB |
-| Checkout (1 item) | 4,2 KB | 1,6 KB |
-| Metodologia | 4,9 KB | 2,1 KB |
+| Página inicial (regional) | 8,2 KB | 1,7 KB |
+| Página inicial (consciente) | 8,5 KB | 1,8 KB |
+| Detalhe do produto (50 km, com comparador e mapa) | 3,1 KB | 1,5 KB |
+| Detalhe do produto (403 km, selo neutro) | 2,1 KB | 1,2 KB |
+| Checkout (1 item) | 2,7 KB | 1,2 KB |
+| Metodologia | 5,0 KB | 2,1 KB |
 | Pesquisa | 13,1 KB | 4,3 KB |
 
-Comando: `curl -s <rota> | wc -c` e `gzip -c | wc -c`. Entrou no §6.1.1 (o contrato
+Remedido em 03/11, depois dos campos novos do `product_card` e do selo neutro (antes: 3,0 a 13,1 KB).
+
+Comando: `curl -s <rota> | wc -c` e `gzip -c | wc -c`. Estava no §6.1.1 até a v2 do Cap. 6; desde 03/11 está no §5.1.6 (o contrato
 descreve a tela inteira em poucos kilobytes).
 
 ## 11. Medições novas (02/11, tarde) — já no texto da versão final
 
 | Métrica | Texto | Valor no texto | Fonte | Status |
 |---|---|---|---|---|
-| Fator de caminhão × GHG Protocol | §5.1.2, Quadro 1 | 11,5% menor; +12,5% nas longas; ~+5% líquido a 432 km | `docs/resultados/fator-externo-co2.md` (`scripts.fator_externo_co2`) | ✅ |
+| Fator de caminhão × GHG Protocol | §5.1.2 (o Quadro 1 saiu na v3 do Cap. 6) | 11,5% menor; +12,5% nas longas; ~+5% líquido a 432 km | `docs/resultados/fator-externo-co2.md` (`scripts.fator_externo_co2`) | ✅ |
 | Desempenho no cliente | §5.1.6, Tabela 7 | LCP 140 / 442 ms; CLS 0,006; detalhe 150 ms; checkout 83 ms; JS ~190 KB | `docs/resultados/desempenho-cliente.md` (`web/scripts/desempenho-cliente.mjs`) | ✅ |
 | Primeira requisição após subir a API | §5.1.6 | ~234 ms × 5 ms | `docs/resultados/primeira-requisicao.md` (`scripts.primeira_requisicao`) | ✅ |
-| Acessibilidade automatizada (T9) | §5.2.2 | 6 telas; 0 críticas; 3 sérias (2 de contraste, 1 de nome acessível) | `docs/resultados/acessibilidade.md` (`web/e2e/acessibilidade.spec.ts`) | ✅ |
+| Acessibilidade automatizada (T9) | §5.2.2 | 6 telas; 1ª rodada 0 críticas e 3 sérias; após o redesenho, 0 violações | `docs/resultados/acessibilidade.md` (`web/e2e/acessibilidade.spec.ts`) | ✅ |
 | 1.000 VU no código final (T4), n = 1 por estado | §5.1.6 | sem cache p95 12 s, 170 req/s; com cache p50 85 ms, p95 1,2–1,4 s, 424–444 req/s | `docs/performance.md` §13.1 (`load/results/s13-controle-head-1000*`) | ✅ (dentro da dispersão da Tabela 6; rota consciente cacheada: p95 200–270 ms) |
 | Reprodução do zero (T2), tempos de referência | — (roteiro, não entra no texto) | ETL ~70 s; `pytest` ~15 s; E2E ~1 min | `README.md` → "Reprodução do zero" | ✅ |
 

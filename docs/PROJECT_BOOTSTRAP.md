@@ -34,7 +34,7 @@ Sprints 6 e 7 **não têm handoff**: o registro está no `README.md` (seções "
 
 ## Sprint ativa
 
-**Semana final (02/11 → 20/11, versão final).** Produto fechado; o que resta é texto e validação com pessoas. Lista de ajustes ao Report 6 com trechos prontos: `docs/tcc/ajustes-versao-final.md`; Cap. 6: `docs/tcc/capitulo-6-rascunho.md`; teste de usabilidade: `docs/usabilidade/protocolo.md`; demo: `docs/roteiro-banca.md`. Card "Semana final" no Trello.
+**Semana final (02/11 → 20/11, versão final).** Produto fechado; o que resta é texto e os ensaios do grupo (T1, T2). A monografia sai de `docs/tcc/_gerar_docx.py` (Caps. 4–6 dos `capitulo-*-rascunho.md`, Cap. 3 e pós-textuais de `pre-e-pos-textuais.md`); ajustes ao Report 6: `docs/tcc/ajustes-versao-final.md`; demo: `docs/roteiro-banca.md`. O teste de usabilidade não será feito (limitação no Cap. 6). Card "Semana final" no Trello.
 
 Sprint nova começa escrevendo `docs/sprint<N>-handoff.md` no formato dos anteriores, com duas exigências: cada critério de aceite nomeia o **comando** que o prova; falha recorrente termina num **teste** ou numa **regra** do `AGENTS.md`.
 

@@ -80,7 +80,7 @@ curl "http://localhost:8000/api/v1/home?customer_zip_prefix=05311&context=electr
 
 # Badge null em todos os cards (cliente em Fortaleza/CE, sellers da amostra em SP/SE).
 # Sem contexto escolhido, a Home segue a REGIAO do CEP (Sprint 9): hero
-# "Em alta em CE: Relogios Presentes" — CE compra 1,7x mais relogios que o Brasil
+# eyebrow "Em alta em CE", titulo "Relógios e presentes" — CE compra 1,7x mais relogios que o Brasil
 curl "http://localhost:8000/api/v1/home?customer_zip_prefix=60165&context=default"
 
 # 422 quando o prefixo nao existe na amostra
@@ -434,7 +434,7 @@ docker-compose.yml           # Postgres 16 (sem PostGIS nesta sprint) + Redis (c
 
 - **Distancia:** Haversine puro em Python sobre centroides por prefixo de CEP (mediana de lat/lng por `geolocation_zip_code_prefix`).
 - **Selo:** `SustainabilityProps` no `ProductCard` quando `distance_km < 100`; senao `badge: null`.
-- **CO2 (Sprint 9, baseado em atividade):** cadeia de transporte (ISO 14083/GLEC): estrada = linha reta × 1,345 (Gonçalves et al., 2014); ultimos 15 km de van (680 g CO2e/t.km, GLEC v2), o resto de caminhao pesado (92); fontes citadas em `green_logistics/co2.py`. Ate a Sprint 8 era um fator unico de 0,102 kg/t.km sobre a linha reta, que subestimava a ultima milha: a compra local passou de ~22x para ~5,5x mais limpa que a mediana. A emissao acompanha a **massa embarcada**: `quantity` unidades pesam `quantity` vezes mais.
+- **CO2 (Sprint 9, baseado em atividade):** cadeia de transporte (ISO 14083/GLEC): estrada = linha reta × 1,345 (Lee e Chae, 2023); ultimos 15 km de van (680 g CO2e/t.km, GLEC v2), o resto de caminhao pesado (92); fontes citadas em `green_logistics/co2.py`. Ate a Sprint 8 era um fator unico de 0,102 kg/t.km sobre a linha reta, que subestimava a ultima milha: a compra local passou de ~22x para ~5,5x mais limpa que a mediana. A emissao acompanha a **massa embarcada**: `quantity` unidades pesam `quantity` vezes mais.
 - **Exibicao do CO2:** `format_co2` escolhe a unidade (g abaixo de 10 g, kg acima). Com a amostra de 10k as distancias caem para poucos km e um `.2f` em kg imprimia `0,00 kg` em todo selo — apagando o numero que sustenta o trabalho.
 - **Modalidades:** `green_logistics/delivery_options.py`. **Leia o docstring do modulo antes de citar esses numeros no TCC.** Distancia, massa e o FE base sao reais; `standard` usa o frete real da amostra sem fator e o **prazo medido em 95.921 entregas do Olist** (`ETA_BANDS`). Os fatores de preco/emissao/prazo de `express` e `green` sao um **cenario declarado** sobre essa linha de base, nao dado do Olist — o dataset nao tem modalidade nem transportadora. A ressalva viaja no proprio JSON (campo `note`) e e exibida na tela.
 

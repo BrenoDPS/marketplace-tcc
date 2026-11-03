@@ -55,7 +55,7 @@ Todas em `docs/tcc/figuras/candidatas/`, 1440 px de largura (celular: 390 px, 2�
 |---|---|---|---|---|
 | `c06-detalhe-selo-mapa-comparador.png` | Detalhe com "Como calculamos?" aberto, impacto, mapa e comparador (Atibaia × Videira) | §4.1.1 (2º e 3º requisitos) ou §4.3.3 | Figura X - Tela de detalhe: selo com cálculo explicado, mapa de origem e comparador de ofertas | **Incluir**: é a melhor imagem da integração SDUI + logística verde. Recortar o fundo cinza |
 | `c08-checkout-completo.png` | Checkout: resumo, três modalidades (Verde 5,02 g), remessas com sugestão de troca, impacto | §4.1.1 (checkout e modalidades), junto da Tabela 3 | Figura X - Checkout simulado: modalidades de entrega, remessas e sugestão de troca | **Incluir** |
-| `c02-home-regional-sp.png` + `c04-home-sem-sinal-am.png` | Vitrine regional de SP ("Em alta em SP: Alimentos, 1,3×") × vitrine geral do AM | §5.1.5, ao lado da Figura 11 | Figura X - Vitrine com contexto regional (SP) e sem sinal regional (AM) | **Incluir** (lado a lado) |
+| `c02-home-regional-sp.png` + `c04-home-sem-sinal-am.png` | Vitrine regional de SP ("Em alta em SP" · Alimentos, 1,3×) × vitrine geral do AM | §5.1.5, ao lado da Figura 11 | Figura X - Vitrine com contexto regional (SP) e sem sinal regional (AM) | **Incluir** (lado a lado) |
 | `c12-detalhe-mutacao-servidor-reordenar.png` | Modo de apresentação: o servidor reordenou a árvore; inspeção mostra a nova ordem | §5.2.1, depois da Figura 13 | Figura X - Mutação produzida pelo servidor no modo de apresentação | Incluir se o ajuste M3 da §5.2.1 entrar |
 | `c09-metodologia.png` | Página de metodologia montada pelo servidor | §4.2.3 ou §4.3.3 | Figura X - Página de metodologia composta por blocos do servidor | Opcional |
 | `c05-home-consciente-menor-co2.png` | Contexto "Consciente" ordenado por menor CO₂ | §4.1.1 (ordenação, A1) | Figura X - Vitrine do consumidor consciente ordenada por menor emissão | Opcional (escolher entre esta e `c02`) |
@@ -80,7 +80,7 @@ Fonte: tela `/pesquisa` (mesmos scripts e números do Cap. 5:
 **C1 — A média de 94,7% esconde a desigualdade regional (fato).** Têm algum
 vendedor a menos de 100 km: 100% dos compradores em SP, RJ, PR, SC e DF; 74,9% na
 BA; 54,3% no MT; **0% no PA**. A distância mediana vai de 163 km (SP) a 2.391 km
-(PA). *Onde entra:* §5.1.4, depois da Tabela 5, e §6.2 (validade externa): a
+(PA). *Onde entra:* §5.1.4, depois da Tabela 5, e Cap. 6: a
 recomendação de proximidade só funciona onde há vendedores, e o Norte não tem.
 
 **C2 — O CO₂ evitado se concentra onde já há mais vendedores (fato + inferência).**
@@ -88,7 +88,7 @@ Nos itens com alternativa, a recomendação evitaria 23,5% da emissão em SP, co
 3,7% na BA. SP sozinho responde por 107,2 dos 254,2 kg evitados (42%).
 *Inferência:* a regra beneficia mais as regiões já bem servidas, e o efeito
 nacional (9,8%) é puxado por SP. *Onde entra:* §5.1.4 (uma frase e o gráfico 1) e
-§6.1.1, como relação de compromisso (eficiência × equidade regional).
+Cap. 6, como relação de compromisso (eficiência × equidade regional).
 
 **C3 — Oferta local existe, mas a compra local depende do comportamento (fato).**
 O RJ tem oferta local para 100% dos compradores e só 6,6% de compras locais; SP
@@ -99,14 +99,14 @@ oferta, o que justifica a interface (selo, ordenação, comparador).
 roteiro da banca (Atibaia, R$ 27,90), o checkout sugere outro "Alimentos" a
 R$ 169,90, a 13 km, que evita 4,58 g de CO₂: pagar R$ 142 a mais para evitar
 menos de 5 g. A regra (`checkout/alternatives.py`) escolhe por distância e CO₂ e só
-**exibe** o preço. *Onde entra:* §6.1.1, junto do trade-off preço × CO₂ da escolha
+**exibe** o preço. *Onde entra:* Cap. 6, junto do trade-off preço × CO₂ da escolha
 de oferta, e como melhoria de interface (D5). Se a banca clicar em "Trocar"
 durante a demo, é a pergunta mais provável.
 
 **C5 — Todos os produtos de uma categoria têm o mesmo nome (fato).** Sem nome de
 produto no dataset, os cards mostram a categoria ("Alimentos" seis vezes na
 vitrine de SP). O §4.1.1 explica o efeito na busca, mas não na identificação
-visual. *Onde entra:* §6.2 (validade externa) ou §4.1.3, uma frase.
+visual. *Onde entra:* Cap. 6 ou §4.1.3, uma frase.
 
 **C6 — Há casos em que o mais próximo é também o mais barato (fato).** Atibaia:
 R$ 27,90 a 50 km (7,17 g) contra Videira: R$ 39,90 a 588 km (39,1 g, 5,5×). Junto
@@ -173,12 +173,12 @@ do mais importante para o menos:
 | T4 | **1.000 VU no código final** (3 estados × 1 repetição) | O controle no código final cobriu só 250 VU; o 1.000 VU do Cap. 5 é do código das Sprints 8 e 10 (declarado) | ~50 min de máquina | eu |
 | T5 | **Desempenho no cliente** (build de produção; LCP, CLS e tempo de renderização da árvore SDUI por tela) | O trabalho mede só a API. A crítica natural à SDUI é o custo de interpretar a árvore no cliente; hoje não há número | 1 h | eu |
 | T6 | **Validação externa do CO₂**: 3 a 5 rotas comparadas com uma calculadora independente (ex.: ferramenta do GHG Protocol Brasil) | O §5.1.2 diz "consistência interna, não precisão externa". Uma ordem de grandeza conferida fora do código responde à pergunta mais provável sobre o modelo | 1–2 h | eu |
-| T7 | **Teste da regra de troca** (C4): fixar o comportamento atual (sem teto de preço) ou o novo, se o grupo decidir limitar | Hoje nenhum teste trava o caso de R$ 142 a mais para evitar 4,58 g | 30 min | eu |
+| T7 | **Teste da regra de troca** (C4): fixar o comportamento atual (sem teto de preço) ou o novo, se o grupo decidir limitar | Hoje nenhum teste trava o caso de R$ 142 a mais para evitar 4,58 g | 30 min | eu **Resolvido (02/11): teto de 20% (`MAX_PRICE_RATIO`).** |
 | T8 | **Primeira requisição após subir a API** (carga dos 12.933 centroides) | Item de trabalho futuro sem número; na demo, é o "primeiro clique lento" que o roteiro manda aquecer | 10 min | eu |
 | T9 | **Acessibilidade automatizada** (axe-core no Playwright) | Complementa o teste de teclado com contraste, rótulos e papéis ARIA | 1 h (nova dependência de teste) | eu |
 
 Medição já feita nesta análise: tamanho do JSON por tela (3 a 13 KB; 1,5 a 4,3 KB
-comprimido), registrado em `de-para-metricas.md` §10 e citado no §6.1.1.
+comprimido), registrado em `de-para-metricas.md` §10 e citado no Cap. 6.
 
 **Feito em 02/11 (tarde):** T5 (`docs/resultados/desempenho-cliente.md`), T6
 (`docs/resultados/fator-externo-co2.md`) e T8 (`docs/resultados/primeira-requisicao.md`),
@@ -187,7 +187,7 @@ T4 aguarda a porta 8000 livre (~50 min de máquina); T7 resolvido com teto de 20
 de preço da troca.
 
 **Feito em 02/11 (noite):** T9 (`docs/resultados/acessibilidade.md`, `web/e2e/acessibilidade.spec.ts`:
-0 críticas, 3 sérias de correção pontual; no §5.2.2). T1 e T2 viraram roteiros para o
+0 críticas, 3 sérias na 1ª rodada; 0 violações após o redesenho; no §5.2.2). T1 e T2 viraram roteiros para o
 grupo executar (`docs/roteiro-banca.md` → "Ensaio na máquina e no local da banca";
 `README.md` → "Reprodução do zero", com ETL ~70 s, `pytest` ~15 s, E2E ~1 min). T7:
 `tests/test_checkout_alternatives.py` fixa o teto de 20% decidido pelo grupo em 02/11
@@ -198,3 +198,5 @@ da sua dispersão; CPU saturada nos três estados; no §5.1.6.
 Recomendação: T1 e T2 antes de qualquer outro (risco de demo); T4, T5 e T8 rodam
 juntos numa tarde e entram no Cap. 5 como complemento; T6 fortalece a defesa do
 modelo; T9 só se sobrar tempo.
+
+> **03/11:** o Cap. 6 foi reescrito sem subtítulos (orientação da professora); as referências a §§6.1–6.4 acima passam a valer para o capítulo inteiro, e alguns detalhes (caso de preço, tamanho do contrato, quadro de aderência) ficaram só nos Caps. 4 e 5.

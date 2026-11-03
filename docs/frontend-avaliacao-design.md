@@ -55,7 +55,7 @@ Prioridade pela força com que tornam a tese visível na interface.
 | V4 | **Ordenação da vitrine** | "Mais próximo / menor CO₂ / menor preço" como ação do servidor. | Mostra a personalização como escolha do usuário, não caixa-preta. | Ação `navigate` com parâmetro; sem bloco novo. |
 | V5 | **Contexto explicado** | Faixa no hero: "Por que isto? Compradores de SP levam 1,3× mais Alimentos" + "ver vitrine geral". | Torna a personalização regional legível e reversível. | Props no `hero_banner`. |
 | V6 | **Seu impacto** | Contador do CO₂ evitado pelas trocas feitas no carrinho na sessão. | Fecha o ciclo da recomendação com um resultado. | Cliente (estado do carrinho) + `impact_banner`. |
-| V7 | **Página de metodologia** | Como selo, distância e CO₂ são calculados; limites; fontes (GLEC, Gonçalves et al.). | Credibilidade; ponto de apoio na banca. | Tela server-driven `/metodologia`. |
+| V7 | **Página de metodologia** | Como selo, distância e CO₂ são calculados; limites; fontes (GLEC, Lee e Chae). | Credibilidade; ponto de apoio na banca. | Tela server-driven `/metodologia`. |
 | V8 | **Painel da pesquisa** | Concentração regional por UF, CO₂ evitado por UF, Haversine × OSRM — os números do Cap. 5 dentro do app. | Liga o produto aos resultados; ótimo para a defesa. | Tela server-driven a partir de `docs/resultados/`. |
 | V9 | **Modo apresentação SDUI** | Botões que aplicam ao vivo as mutações do contrato (reordenar, injetar selo, bloco desconhecido). | Repete na banca, ao vivo, o teste 5.2.1. | Cliente, apoiado no modo de inspeção. |
 
