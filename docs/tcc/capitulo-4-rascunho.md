@@ -52,7 +52,7 @@ completa.
 
 O primeiro requisito refere-se à composição da tela inicial. A rota da página
 inicial recebe o prefixo de CEP do comprador e devolve uma tela completa,
-representada pelo modelo "ScreenResponse", como pode ser visto na Figura 5.
+representada pelo modelo ScreenResponse, como pode ser visto na Figura 5.
 
 <!-- m3 -->
 Figura 5 - Página inicial no modo de inspeção SDUI
@@ -297,8 +297,9 @@ endereços individuais. Por isso, as distâncias exibidas devem ser interpretada
 como estimativas comparativas.
 
 Também foram delimitadas as premissas das modalidades de entrega, em que agrupar
-itens de um mesmo vendedor reduz o frete simulado, mas não altera a pegada
-calculada (a emissão), que é estritamente linear em relação à massa transportada.
+itens de um mesmo vendedor reduz o frete simulado; na emissão, o agrupamento só
+influi pela cubagem, calculada sobre a remessa inteira (Seção 5.1.2), e fora disso
+a pegada é linear em relação à massa transportada.
 A recomendação sustentável por proximidade restringe-se aos produtos que possuem
 ofertas concorrentes ativas.
 
@@ -397,13 +398,13 @@ em lote sejam incorporadas ao caminho de atendimento das telas.
 
 O contrato de comunicação foi definido para que cada bloco da interface pudesse
 ser descrito pelo servidor sem que o cliente precisasse conhecer as regras que
-levaram à sua composição. Cada bloco possui o envelope "{type, version, props,
-actions}". O campo "type" identifica o componente, "version" permite evolução
-futura do contrato, "props" contém os dados de apresentação e "actions" descreve
+levaram à sua composição. Cada bloco possui o envelope {type, version, props,
+actions}. O campo type identifica o componente, version permite evolução
+futura do contrato, props contém os dados de apresentação e actions descreve
 os comportamentos que o cliente deve executar.
 
 <!-- M4 -->
-A resposta completa é representada por "ScreenResponse", que reúne a versão do
+A resposta completa é representada por ScreenResponse, que reúne a versão do
 esquema, o identificador da tela, o contexto aplicado e a lista de componentes. A
 validação é feita com uniões discriminadas em Pydantic, o que permite distinguir
 as variantes pelo campo type e manter explícitos os campos de cada bloco. A

@@ -16,7 +16,7 @@ Palavras-chave: Server-Driven UI. Logística Verde. Backend-for-Frontend. Market
 
 The Adaptive Contextual Marketplace is an e-commerce prototype built on the public Olist dataset, in which the server defines the interface through a Server-Driven UI (SDUI) engine. A Backend-for-Frontend (BFF) in FastAPI, organized in vertical slices, with PostgreSQL and a Redis response cache, sends the client a tree of typed components that the client only renders. On top of this architecture, the storefront adapts to the buyer's region, derived from the postal code, and each offer shows distance and carbon footprint estimated by an activity-based engine aligned with ISO 14083 and the GLEC Framework, with a badge for deliveries under 100 km. Corrected by a circuity factor, the estimated distance showed an 8.7% error against OSRM routes. In the full Olist dataset, choosing the nearest seller would reduce the estimated emissions of purchases that had an alternative by 9.8%, or 0.9% of the total, with the effect concentrated in regions with more sellers. With 1,000 virtual users, the cache raised throughput from 153 to about 400 requests per second and reduced median latency from 4.1 s to 95 ms, although the 95th percentile stayed around 3 s. Contract mutation tests showed that the interface reflects changes in the server-sent tree without rebuilding the client. The results indicate the technical feasibility of the approach, within the limits of a prototype with historical data and estimated emissions.
 
-Key words: Server-Driven UI. Green Logistics. Backend-for-Frontend. Contextual Marketplace. FastAPI.
+Keywords: Server-Driven UI. Green Logistics. Backend-for-Frontend. Contextual Marketplace. FastAPI.
 
 ## LISTA DE SIGLAS
 
@@ -95,7 +95,7 @@ SMART FREIGHT CENTRE. **Global Logistics Emissions Council Framework for Logisti
 
 TRANSVIAS. **Pegada de carbono no transporte de cargas**: como reduzir impactos ambientais. [S. l.], 6 out. 2025. Disponível em: https://noticias.transvias.com.br/2025/10/06/pegada-carbono-transporte-cargas/. Acesso em: 16 abr. 2026.
 
-W3C. **Web Content Accessibility Guidelines (WCAG) 2.1**. [S. l.]: World Wide Web Consortium, 2018. Disponível em: https://www.w3.org/TR/WCAG21/. Acesso em: 2 nov. 2026.
+W3C. **Web Content Accessibility Guidelines (WCAG) 2.2**. [S. l.]: World Wide Web Consortium, 2023. Disponível em: https://www.w3.org/TR/WCAG22/. Acesso em: 4 nov. 2026.
 
 WORLD ECONOMIC FORUM. **Transforming Urban Logistics**. [S. l.]: World Economic Forum, 2024. Disponível em: https://www.weforum.org/publications/transforming-urban-logistics-a-path-to-sustainable-and-efficient-last-mile-delivery-in-cities/. Acesso em: 13 out. 2026.
 

@@ -402,14 +402,14 @@ Tabela 7 – Desempenho no cliente (build de produção, mediana de 10 visitas)
 
 | Métrica | Desktop | Celular simulado |
 |---|---:|---:|
-| Tempo até o primeiro byte da página inicial | 15 ms | — |
+| Tempo até o primeiro byte da página inicial | 15 ms | ... |
 | Maior pintura da página inicial (LCP) | 140 ms | 442 ms |
 | Carga completa da página inicial | 177 ms | 1.041 ms |
 | Deslocamento de layout acumulado (CLS) | 0,006 | 0,000 |
-| Clique no produto até o detalhe na tela | 150 ms | — |
-| Simular compra até o checkout na tela | 83 ms | — |
+| Clique no produto até o detalhe na tela | 150 ms | ... |
+| Simular compra até o checkout na tela | 83 ms | ... |
 
-Fonte: Elaborada pelos autores (2026). Celular simulado: 390 px de largura e CPU quatro vezes mais lenta.
+Fonte: Elaborada pelos autores (2026). Celular simulado: 390 px de largura e CPU quatro vezes mais lenta. Nota: ... = não medido.
 
 A primeira requisição depois de iniciar a API é a exceção: leva cerca de 234 ms
 (mediana de cinco reinícios), contra 5 ms das seguintes, porque é nela que os
@@ -429,8 +429,8 @@ ms sem cache), e com cache o p95 ficou em 19 ms, abaixo dos 25 a 29 ms originais
 Sem cache, o p95 variou entre 600 e 1.200 ms entre as repetições: com o
 processador acima de 90%, pequenas variações formam filas longas. A conclusão
 sobre o cache se mantém. O cenário de 1.000 usuários também foi repetido na
-versão final, com uma repetição por estado do cache. Os resultados ficaram
-dentro da dispersão da Tabela 6: sem cache, p95 de 12 s e 170 requisições por
+versão final, com uma repetição por estado do cache. Os resultados foram
+iguais ou melhores que os da Tabela 6: sem cache, p95 de 12 s e 170 requisições por
 segundo; com cache, p50 de 85 ms, p95 de 1,2 a 1,4 s e 424 a 444 requisições por
 segundo. O processador continua saturado nos três estados, e a meta de 200 ms
 segue não atendida no p95 dessa carga. Por fim, catorze ensaios da primeira execução foram
@@ -516,7 +516,7 @@ apenas com o teclado, da entrada do CEP ao checkout.
 <!-- T9 -->
 Além do teclado, as seis telas da jornada (entrada, página inicial, detalhe,
 checkout, metodologia e pesquisa) foram auditadas pela ferramenta axe-core, nas
-regras de nível A e AA das diretrizes de acessibilidade WCAG 2.1 (W3C, 2018). A
+regras de nível A e AA das diretrizes de acessibilidade WCAG 2.1, incorporadas à versão 2.2 (W3C, 2023). A
 primeira auditoria não encontrou violação crítica, mas apontou violações sérias de
 correção pontual: textos secundários com contraste abaixo de 4,5:1, botões cujo
 nome lido pelas tecnologias assistivas não continha o texto visível e uma lista de
