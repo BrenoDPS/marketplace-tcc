@@ -45,9 +45,14 @@ test("modo apresentacao: o servidor muta a arvore e a tela obedece, sem recarreg
   await mutar("sem_actions");
   await expect(arvore).toHaveText(original.join(" → "));
   await expect(dialog.getByRole("heading").first()).toBeVisible();
+  // Sem a acao de checkout, o bloco aparece, mas a compra fica desativada.
+  const comprar = dialog.getByRole("button", { name: "Ir para o carrinho" });
+  await expect(comprar).toBeDisabled();
+  await expect(dialog.getByText("chegou sem ações do servidor")).toBeVisible();
 
   await mutar("");
   await expect(dialog.getByText("mutação do servidor:")).toHaveCount(0);
+  await expect(comprar).toBeEnabled();
 
   // Nada recarregou: o marcador do window e a hora de carga sobreviveram.
   expect(await page.evaluate(() => (window as unknown as Record<string, unknown>).__contexto)).toBe("intacto");

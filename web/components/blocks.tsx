@@ -522,6 +522,9 @@ export function ProductDetail({ block }: { block: ProductDetailBlock }) {
   const { addToCart, openCart, closeDetail, inspecting } = useSdui();
   const [quantity, setQuantity] = useState(1);
   const checkout = block.actions.find((a) => a.type === "api_call") ?? null;
+  // Sem a acao de checkout do servidor (mutacao "Envelope sem actions"), o
+  // bloco aparece, so sem comportamento: o cliente nao inventa a compra.
+  const semCompra = checkout === null;
   const tone = coverTone(category, product_id);
 
   const local = [seller_city, seller_state].filter(Boolean).join(" · ");
@@ -616,22 +619,30 @@ export function ProductDetail({ block }: { block: ProductDetailBlock }) {
         <div className="mt-4 flex flex-col gap-2 sm:flex-row">
           <button
             type="button"
+            disabled={semCompra}
             onClick={() => add(false)}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-5 py-3 text-sm font-medium text-ink transition hover:border-line-strong hover:shadow-soft"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-5 py-3 text-sm font-medium text-ink transition hover:border-line-strong hover:shadow-soft disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-line disabled:hover:shadow-none"
           >
             <Icon name="plus" className="size-4" />
             Adicionar ao carrinho
           </button>
           <button
             type="button"
+            disabled={semCompra}
             onClick={() => add(true)}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-signal px-5 py-3 text-sm font-medium text-on-signal shadow-soft transition hover:bg-signal-strong"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-signal px-5 py-3 text-sm font-medium text-on-signal shadow-soft transition hover:bg-signal-strong disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-signal"
           >
             <Icon name="bag" className="size-4" />
             Ir para o carrinho
           </button>
         </div>
-        <p className="mt-3 text-center text-xs text-muted sm:text-left">Simulação acadêmica — nenhum pagamento é processado.</p>
+        {semCompra ? (
+          <p role="status" className="mt-3 text-center text-xs font-medium text-danger sm:text-left">
+            Este bloco chegou sem ações do servidor: a compra fica indisponível aqui.
+          </p>
+        ) : (
+          <p className="mt-3 text-center text-xs text-muted sm:text-left">Simulação acadêmica — nenhum pagamento é processado.</p>
+        )}
       </div>
     </section>
   );
