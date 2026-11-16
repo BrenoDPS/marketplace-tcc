@@ -353,7 +353,9 @@ export function Controls({
             {/* Nome acessivel sai do proprio texto (WCAG 2.5.3, T9): "Carrinho 1 item". */}
             <span className="sr-only lg:not-sr-only">Carrinho</span>
             {cartCount > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-signal px-1.5 text-[11px] font-semibold tabular-nums text-on-signal">
+              // `leading-none`: herdando a altura de linha do botao (text-sm), o
+              // numero ficava fora do centro da bolinha.
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-signal px-1.5 text-[11px] font-semibold leading-none tabular-nums text-on-signal">
                 <span className="sr-only">&nbsp;</span>
                 {cartCount}
                 <span className="sr-only">&nbsp;{cartCount === 1 ? "item" : "itens"}</span>

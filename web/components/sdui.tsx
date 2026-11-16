@@ -79,10 +79,14 @@ function Block({ block }: { block: UIComponent }) {
   // que este cliente nao conhece" e exatamente o que o modo existe para mostrar.
   // Contorno fino que acende no hover (redesign): o tracejado em tudo sujava a tela.
   return (
-    <div className="rounded-2xl p-1.5 ring-1 ring-signal/25 transition hover:ring-2 hover:ring-signal/60">
+    // Coluna flex: o card da grade usa `h-full`; sem o `flex-1` em volta, ele
+    // media 100% do contorno e estourava pela altura da etiqueta.
+    <div className="flex h-full flex-col rounded-2xl p-1.5 ring-1 ring-signal/25 transition hover:ring-2 hover:ring-signal/60">
       <InspectorTag block={block} known={Component !== undefined} />
       {Component ? (
-        <Component block={block} />
+        <div className="min-h-0 flex-1">
+          <Component block={block} />
+        </div>
       ) : (
         <p className="rounded-xl border border-dashed border-danger/40 bg-danger-soft p-4 text-sm text-danger">
           Bloco <code>{block.type}</code> não tem componente no <code>REGISTRY</code>.
